@@ -518,22 +518,15 @@ function Header() {
         </nav>
 
         {/* Right actions */}
-        <div className="flex items-center gap-2 shrink-0">
-          <Link
-            to="/attendant-login"
-            className="hidden whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground 2xl:block"
-          >
-            Attendant Login
-          </Link>
-          <Button asChild variant="ghost" size="sm" className="hidden lg:inline-flex shrink-0">
+        <div className="flex items-center gap-2 shrink-0 mr-3 lg:mr-5">
+          <Button asChild variant="ghost" size="icon" className="hidden lg:inline-flex shrink-0 size-8 text-muted-foreground hover:text-foreground">
             <a
               href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
               onClick={() => track("support_call_click")}
               aria-label={`Call support at ${SITE.SUPPORT_PHONE}`}
-              className="flex items-center gap-1.5"
+              title={`Call support at ${SITE.SUPPORT_PHONE}`}
             >
-              <Phone className="size-3.5" />
-              <span className="hidden 2xl:inline">Call Support</span>
+              <Phone className="size-4" />
             </a>
           </Button>
 
