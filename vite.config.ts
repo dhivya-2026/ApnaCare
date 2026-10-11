@@ -4,6 +4,7 @@ import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
+import { nitro } from "nitro/vite";
 
 // Custom vite config that bypasses @lovable.dev/vite-tanstack-config
 // to avoid the oxc-parser native binding requirement blocked by Application Control policy.
@@ -12,6 +13,7 @@ export default defineConfig({
     tanstackStart({
       server: { entry: "server" },
     }),
+    nitro(),
     viteReact(),
     tailwindcss(),
     tsconfigPaths(),
