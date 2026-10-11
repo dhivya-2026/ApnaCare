@@ -3,7 +3,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { MessageCircleHeart, X, Send, Phone, RotateCcw, MapPin, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SERVICES, CITIES, SITE, formatINR, buildWhatsAppUrl, Service, getICP, getService } from "@/data/site";
-import { track } from "@/lib/analytics";
+import { track, sendToGoogleSheet } from "@/lib/analytics";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -672,6 +672,18 @@ export function Assistant() {
 
   const handleQuickReply = (choice: QuickReply) => {
     track("assistant_message", { label: choice.label, context: pageContext.badge });
+    sendToGoogleSheet({
+      event_type: "chatbot",
+      event_name: "assistant_quick_reply",
+      lead_type: "CHATBOT",
+      form_name: "AI Care Assistant",
+      lead_id: "chat_" + Date.now().toString(36),
+      user_query: choice.label,
+      requested_service: choice.action.type === "booking" ? choice.action.service : undefined,
+      page_context_badge: pageContext.badge,
+      page_path: pathname,
+    }).catch(() => {});
+
     const userMsg: BotMsg = { from: "user", text: choice.label };
     const botReply = respondToChoice(choice);
     setMsgs((prev) => [...prev, userMsg, botReply]);
@@ -681,6 +693,22 @@ export function Assistant() {
     const text = input.trim();
     if (!text) return;
     setInput("");
+
+    const phoneMatch = text.match(/(\+?91[\s-]?)?[6789]\d{9}/);
+    const emailMatch = text.match(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/);
+
+    sendToGoogleSheet({
+      event_type: "chatbot",
+      event_name: "assistant_text_message",
+      lead_type: "CHATBOT",
+      form_name: "AI Care Assistant",
+      lead_id: "chat_" + Date.now().toString(36),
+      user_query: text,
+      phone: phoneMatch ? phoneMatch[0] : undefined,
+      email: emailMatch ? emailMatch[0] : undefined,
+      page_context_badge: pageContext.badge,
+      page_path: pathname,
+    }).catch(() => {});
 
     const lower = text.toLowerCase();
 

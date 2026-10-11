@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, BellRing, Check, MapPin, Radio, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { track } from "@/lib/analytics";
+import { track, sendToGoogleSheet } from "@/lib/analytics";
 
 const STEPS = [
   { icon: BellRing, label: "SOS triggered (simulated)" },
@@ -39,7 +39,27 @@ export function SOSDemoButton({ className }: { className?: string }) {
           </DialogHeader>
           {phase === "confirm" ? (
             <div className="flex flex-col gap-3 pt-2">
-              <Button variant="sos" size="lg" onClick={() => { setPhase("running"); track("sos_demo_trigger"); }}>Start simulation</Button>
+              <Button
+                variant="sos"
+                size="lg"
+                onClick={() => {
+                  setPhase("running");
+                  track("sos_demo_trigger");
+                  sendToGoogleSheet({
+                    event_type: "sos",
+                    event_name: "sos_triggered",
+                    alert_type: "Emergency SOS Drill / User Simulation",
+                    trigger_step: "Initial Button Tap",
+                    caller_name: "App Visitor (Simulation)",
+                    location: "Current Browser Session",
+                    status: "DISPATCHED / ACTIVE",
+                    operator_notes: "Command center drill triggered from UI dialog",
+                    page_path: typeof window !== "undefined" ? window.location.pathname : "/",
+                  });
+                }}
+              >
+                Start simulation
+              </Button>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             </div>
           ) : (

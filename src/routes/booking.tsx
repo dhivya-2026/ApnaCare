@@ -11,7 +11,7 @@ import { PageHero } from "@/components/site/Cards";
 import { fieldErrors, nameSchema, optionalEmail, phoneSchema } from "@/lib/validation";
 import { findPromo, getSavedPromo, savePromo } from "@/lib/promo";
 import { calcBookingTotal } from "@/lib/pricing";
-import { track } from "@/lib/analytics";
+import { track, sendToGoogleSheet } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
@@ -130,10 +130,41 @@ function BookingPage() {
   const submit = async () => {
     if (submitting) return;
     setSubmitting(true);
-    // API abstraction: POST /api/bookings
-    await new Promise((r) => setTimeout(r, 800));
     const ref = "AC-" + Date.now().toString(36).toUpperCase().slice(-6);
-    track("booking_submitted", { service: f.serviceId, city: f.city });
+
+    // Forward booking directly to Google Sheet
+    await sendToGoogleSheet({
+      event_type: "booking",
+      event_name: "booking_completed",
+      lead_type: "BOOKING",
+      form_name: "6-Step Booking Form",
+      booking_ref: ref,
+      customer_name: f.name,
+      name: f.name,
+      mobile: f.mobile,
+      phone: f.mobile,
+      email: f.email,
+      service_id: f.serviceId,
+      service_name: svc?.name || f.serviceId,
+      city: f.city,
+      location_address: f.location,
+      start_date: f.date,
+      start_time: f.time,
+      duration_days: f.duration,
+      preferred_language: f.preferredLanguage,
+      special_notes: f.notes,
+      promo_code: promo || "",
+      base_price: totals.base,
+      discount: totals.discount,
+      gst: totals.gst,
+      total_amount: totals.finalAmount,
+      booking_status: "Confirmed",
+      follow_up_status: "Pending Coordinator Dispatch",
+      lead_source: "website_booking_flow",
+      page_path: "/booking",
+    });
+
+    track("booking_submitted", { service: f.serviceId, city: f.city, ref });
     track("booking_success", { ref });
     savePromo(null);
     if (typeof window !== "undefined") {

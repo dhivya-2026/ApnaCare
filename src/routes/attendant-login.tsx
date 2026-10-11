@@ -22,6 +22,7 @@ import { SITE, ATTENDANTS } from "@/data/site";
 import { PageHero } from "@/components/site/Cards";
 import { SOSDemoButton } from "@/components/site/SOS";
 import { seo } from "@/lib/seo";
+import { sendToGoogleSheet } from "@/lib/analytics";
 
 export const Route = createFileRoute("/attendant-login")({
   head: () =>
@@ -49,6 +50,17 @@ function AttendantPortal() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggedIn(true);
+    sendToGoogleSheet({
+      form_name: "Attendant Portal",
+      action_type: "Attendant Login",
+      attendant_id: "ATT-SK-01",
+      attendant_name: attendant.name,
+      mobile: mobile,
+      role: attendant.role,
+      city: attendant.city,
+      shift_status: "Logged In",
+      notes: "Attendant portal authentication session",
+    }).catch(() => {});
   };
 
   return (
@@ -184,7 +196,22 @@ function AttendantPortal() {
 
                   <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-border pt-4">
                     <Button
-                      onClick={() => setCheckedIn(!checkedIn)}
+                      onClick={() => {
+                        const nextState = !checkedIn;
+                        setCheckedIn(nextState);
+                        sendToGoogleSheet({
+                          form_name: "Attendant Portal",
+                          action_type: nextState ? "GPS Shift Check-In" : "GPS Shift Check-Out",
+                          attendant_id: "ATT-SK-01",
+                          attendant_name: attendant.name,
+                          mobile: mobile,
+                          role: attendant.role,
+                          city: attendant.city,
+                          shift_status: nextState ? "Active - GPS Linked" : "Completed",
+                          patient_name: "Smt. Rajeshwari K. (Age 81)",
+                          notes: nextState ? "Attendant on site at 42, 4th Main, T. Nagar, Chennai" : "Shift completed",
+                        }).catch(() => {});
+                      }}
                       variant={checkedIn ? "warm" : "default"}
                       className="gap-2"
                     >
@@ -224,7 +251,21 @@ function AttendantPortal() {
 
                   <div className="mt-4 flex items-center justify-between">
                     <Button
-                      onClick={() => setVitalSaved(true)}
+                      onClick={() => {
+                        setVitalSaved(true);
+                        sendToGoogleSheet({
+                          form_name: "Attendant Portal",
+                          action_type: "Daily Wellness Log",
+                          attendant_id: "ATT-SK-01",
+                          attendant_name: attendant.name,
+                          mobile: mobile,
+                          role: attendant.role,
+                          city: attendant.city,
+                          patient_name: "Smt. Rajeshwari K.",
+                          vitals_summary: "BP: 124/82 mmHg | SpO2: 98% / 72 bpm | Glucose: 114 mg/dL",
+                          notes: "Daily wellness log submitted by attendant",
+                        }).catch(() => {});
+                      }}
                       size="sm"
                       variant="outline"
                       className="gap-1.5"

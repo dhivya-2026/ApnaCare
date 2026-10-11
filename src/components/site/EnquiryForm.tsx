@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SERVICES } from "@/data/site";
-import { track } from "@/lib/analytics";
+import { track, sendToGoogleSheet } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 interface EnquiryFormProps {
@@ -75,11 +75,23 @@ export function EnquiryForm({
     setSubmitting(true);
     track("enquiry_form_submit", { service: f.service });
 
-    // ── Demo submission flow ──────────────────────────────────────────────────
-    // Replace this timeout with a real API call, e.g.:
-    //   await fetch("/api/enquiry", { method: "POST", body: JSON.stringify(f) });
-    // ─────────────────────────────────────────────────────────────────────────
-    await new Promise((r) => setTimeout(r, 1000));
+    await sendToGoogleSheet({
+      event_type: "callback",
+      event_name: "callback_requested",
+      lead_type: "CALLBACK",
+      form_name: "Quick Callback Form",
+      enquiry_id: "enq_" + Date.now().toString(36),
+      name: f.name,
+      customer_name: f.name,
+      phone: f.phone,
+      mobile: f.phone,
+      service: f.service,
+      service_name: f.service,
+      message: f.message,
+      lead_status: "New",
+      follow_up_status: "Pending Callback",
+      page_path: typeof window !== "undefined" ? window.location.pathname : "/",
+    });
 
     setSubmitting(false);
     setDone(true);

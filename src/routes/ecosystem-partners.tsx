@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { IMPACT, PARTNER_BENEFITS, PARTNER_CATEGORIES, PARTNER_JOURNEY, PARTNER_TYPES, STATE_PARTNERS, SUCCESS_STORIES } from "@/data/site";
 import { PageHero, SectionHeading } from "@/components/site/Cards";
 import { fieldErrors, partnerSchema } from "@/lib/validation";
-import { track } from "@/lib/analytics";
+import { track, sendToGoogleSheet } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
@@ -78,8 +78,30 @@ function PartnerForm() {
     const r = partnerSchema.safeParse(f);
     if (!r.success) { setE(fieldErrors(r.error)); return; }
     setE({}); setState("loading"); track("partner_form_submit");
-    // TODO: POST /api/partner-enquiries once a backend is connected.
-    await new Promise((r) => setTimeout(r, 800));
+    
+    await sendToGoogleSheet({
+      event_type: "partner",
+      event_name: "partner_application_submitted",
+      lead_type: "PARTNER",
+      form_name: "Ecosystem Partner Application",
+      partner_id: "prt_" + Date.now().toString(36),
+      org_name: f.orgName,
+      org_type: f.orgType,
+      contact_person: f.contact,
+      name: f.contact,
+      email: f.email,
+      phone: f.phone,
+      mobile: f.phone,
+      website: f.website,
+      state: f.state,
+      city: f.city,
+      members_count: f.members,
+      category: f.category,
+      interest_notes: f.interest,
+      lead_status: "New",
+      page_path: "/ecosystem-partners",
+    });
+
     track("partner_form_success"); setState("done");
   };
   const field = (k: keyof typeof f, label: string, type = "text") => (

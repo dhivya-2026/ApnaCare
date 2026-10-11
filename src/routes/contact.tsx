@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SITE, SERVICES, CITIES, FAQS } from "@/data/site";
 import { PageHero } from "@/components/site/Cards";
 import { BookLink, CallLink } from "@/components/site/Layout";
-import { track } from "@/lib/analytics";
+import { track, sendToGoogleSheet } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
@@ -30,7 +30,26 @@ function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    await new Promise((r) => setTimeout(r, 600));
+
+    await sendToGoogleSheet({
+      event_type: "contact",
+      event_name: "contact_submitted",
+      lead_type: "CONTACT",
+      form_name: "Contact Desk Form",
+      contact_id: "cnt_" + Date.now().toString(36),
+      name: form.name,
+      customer_name: form.name,
+      phone: form.phone,
+      mobile: form.phone,
+      email: form.email,
+      city: form.city,
+      subject: form.subject,
+      message: form.message,
+      lead_status: "New",
+      follow_up_status: "Pending Response",
+      page_path: "/contact",
+    });
+
     setSending(false);
     setSubmitted(true);
     track("contact_form_submit", { city: form.city, subject: form.subject });
