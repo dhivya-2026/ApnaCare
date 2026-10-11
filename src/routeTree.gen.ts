@@ -27,6 +27,7 @@ import { Route as KnowledgeHubIndexRouteImport } from './routes/knowledge-hub.in
 import { Route as KnowledgeHubSlugRouteImport } from './routes/knowledge-hub.$slug'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
+import { Route as SolutionsSlugRouteImport } from './routes/solutions.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -118,6 +119,11 @@ const ServicesSlugRoute = ServicesSlugRouteImport.update({
   path: '/services/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SolutionsSlugRoute = SolutionsSlugRouteImport.update({
+  id: '/solutions/$slug',
+  path: '/solutions/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/cities/$city': typeof CitiesCityRoute
   '/knowledge-hub/$slug': typeof KnowledgeHubSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub/': typeof KnowledgeHubIndexRoute
   '/services/': typeof ServicesIndexRoute
 }
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/cities/$city': typeof CitiesCityRoute
   '/knowledge-hub/$slug': typeof KnowledgeHubSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub': typeof KnowledgeHubIndexRoute
   '/services': typeof ServicesIndexRoute
 }
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/cities/$city': typeof CitiesCityRoute
   '/knowledge-hub/$slug': typeof KnowledgeHubSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub/': typeof KnowledgeHubIndexRoute
   '/services/': typeof ServicesIndexRoute
 }
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/cities/$city'
     | '/knowledge-hub/$slug'
     | '/services/$slug'
+    | '/solutions/$slug'
     | '/knowledge-hub/'
     | '/services/'
   fileRoutesByTo: FileRoutesByTo
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/cities/$city'
     | '/knowledge-hub/$slug'
     | '/services/$slug'
+    | '/solutions/$slug'
     | '/knowledge-hub'
     | '/services'
   id:
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/cities/$city'
     | '/knowledge-hub/$slug'
     | '/services/$slug'
+    | '/solutions/$slug'
     | '/knowledge-hub/'
     | '/services/'
   fileRoutesById: FileRoutesById
@@ -259,6 +271,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   KnowledgeHubSlugRoute: typeof KnowledgeHubSlugRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
+  SolutionsSlugRoute: typeof SolutionsSlugRoute
   KnowledgeHubIndexRoute: typeof KnowledgeHubIndexRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
 }
@@ -391,6 +404,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/solutions/$slug': {
+      id: '/solutions/$slug'
+      path: '/solutions/$slug'
+      fullPath: '/solutions/$slug'
+      preLoaderRoute: typeof SolutionsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -421,6 +441,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   KnowledgeHubSlugRoute: KnowledgeHubSlugRoute,
   ServicesSlugRoute: ServicesSlugRoute,
+  SolutionsSlugRoute: SolutionsSlugRoute,
   KnowledgeHubIndexRoute: KnowledgeHubIndexRoute,
   ServicesIndexRoute: ServicesIndexRoute,
 }

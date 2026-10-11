@@ -90,6 +90,26 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", to: "/" },
   {
+    label: "Who We Serve",
+    children: [
+      {
+        label: "Women Commuters",
+        to: "/solutions/women-commuters",
+        description: "Verified chauffeuses, station/airport assistance & late-night transit",
+      },
+      {
+        label: "Urban Professionals",
+        to: "/solutions/urban-professionals",
+        description: "Elderly home care, hospital bedside vigils & daily WhatsApp logs",
+      },
+      {
+        label: "Safety-Focused Partners",
+        to: "/solutions/safety-partners",
+        description: "Corporate shift compliance, security marshals & hospital attendants",
+      },
+    ],
+  },
+  {
     label: "Services",
     children: [
       {
@@ -384,7 +404,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
               return (
                 <Link
                   key={child.to}
-                  to={child.to}
+                  to={child.to as any}
                   role="menuitem"
                   onClick={() => setOpen(false)}
                   className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
@@ -463,7 +483,7 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
             return (
               <Link
                 key={child.to}
-                to={child.to}
+                to={child.to as any}
                 onClick={onClose}
                 className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
               >
@@ -599,6 +619,21 @@ function Footer() {
             Services & Care
           </p>
           <ul className="mt-4 space-y-2.5 text-sm text-ink-foreground/70">
+            <li>
+              <Link to="/solutions/$slug" params={{ slug: "women-commuters" }} className="hover:text-ink-foreground font-medium text-primary-foreground/90">
+                Women Commuters
+              </Link>
+            </li>
+            <li>
+              <Link to="/solutions/$slug" params={{ slug: "urban-professionals" }} className="hover:text-ink-foreground font-medium text-primary-foreground/90">
+                Urban Professionals
+              </Link>
+            </li>
+            <li>
+              <Link to="/solutions/$slug" params={{ slug: "safety-partners" }} className="hover:text-ink-foreground font-medium text-primary-foreground/90">
+                Safety-Focused Partners
+              </Link>
+            </li>
             <li>
               <Link to="/services" className="hover:text-ink-foreground">
                 All 11 Services

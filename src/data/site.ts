@@ -1364,3 +1364,156 @@ export const buildWhatsAppUrl = (msg?: string) => {
   if (!msg) return base;
   return `${base}?text=${encodeURIComponent(msg)}`;
 };
+
+// ─── Target Ideal Customer Profiles (ICPs) ───────────────────────────────────
+
+export interface ICPInfo {
+  slug: string;
+  name: string;
+  badge: string;
+  subtitle: string;
+  summary: string;
+  painPoints: { problem: string; solution: string }[];
+  featuredServices: string[];
+  stat: { value: string; label: string };
+  quote: { text: string; author: string; role: string; city: string };
+  faqs: { q: string; a: string }[];
+}
+
+export const ICPS: ICPInfo[] = [
+  {
+    slug: "women-commuters",
+    name: "Women Commuters",
+    badge: "Solo Transit & Night Safety",
+    subtitle:
+      "Dependable, police-verified women drivers and transit companions for stress-free commutes, late shifts, and airport transit.",
+    summary:
+      "Whether traveling home from late-night tech park shifts, arriving at railway stations past midnight, or heading to the airport at 4 AM, our verified women drivers and transit companions ensure zero anxiety and complete peace of mind.",
+    painPoints: [
+      {
+        problem: "Unpredictable late-night rides with unverified drivers and surge pricing",
+        solution:
+          "100% police-verified female chauffeuses with commercial badges, live GPS trip links, and 24/7 command center tracking.",
+      },
+      {
+        problem: "Anxiety during solo airport arrivals or railway transits in unfamiliar cities",
+        solution:
+          "A trusted woman companion meets you at the arrival gate or platform with a placard, manages luggage, and escorts you safely to your doorstep.",
+      },
+      {
+        problem: "Surge pricing and sudden driver cancellations during emergency commutes",
+        solution:
+          "Fixed, pre-booked transparent rates with 90-minute guaranteed backup dispatch.",
+      },
+    ],
+    featuredServices: ["women-drivers", "airport-pickup", "travel-assistance"],
+    stat: { value: "10,000+", label: "Safe night commutes & transits completed" },
+    quote: {
+      text: "Booking an ApnaCare woman driver for my 11 PM tech park commute changed my routine completely. Knowing there is a verified professional driver with real-time GPS sharing took all the fear out of late shifts.",
+      author: "Pooja Hegde",
+      role: "Senior Software Engineer",
+      city: "Bengaluru",
+    },
+    faqs: [
+      {
+        q: "Can I book a woman driver on a recurring daily or monthly subscription?",
+        a: "Yes! We offer single-trip bookings, full-day packages, and customized recurring weekly or monthly office commute schedules.",
+      },
+      {
+        q: "Does the driver use our personal vehicle or provide one?",
+        a: "Our verified chauffeuses can drive your personal car (automatic or manual transmission), or we can coordinate vehicle packages through our mobility partners.",
+      },
+    ],
+  },
+  {
+    slug: "urban-professionals",
+    name: "Urban Professionals",
+    badge: "Elder & Bedside Family Care",
+    subtitle:
+      "Compassionate in-home attendants and hospital bedside companions so working executives can balance intense careers with family care.",
+    summary:
+      "For professionals managing fast-paced careers while caring for aging parents, recovering family members, or newborns. ApnaCare provides dedicated, trained women attendants with daily WhatsApp vitals updates.",
+    painPoints: [
+      {
+        problem: "Constant worry about elderly parents living alone while you are at work",
+        solution:
+          "Dedicated geriatric-certified attendants provide companionship, medicine schedules, walking assistance, and twice-daily digital wellness logs.",
+      },
+      {
+        problem: "Sudden hospital admissions requiring round-the-clock bedside vigilance",
+        solution:
+          "Trained bedside attendants handle continuous inpatient vigils, nursing staff coordination, hygiene, and timely updates so you can fulfill work commitments.",
+      },
+      {
+        problem: "Unreliable agency staff who leave abruptly with no replacement",
+        solution:
+          "Strict replacement guarantee: a verified backup attendant is dispatched within 90 minutes with zero transition penalty.",
+      },
+    ],
+    featuredServices: ["elderly-care", "hospital-attendants", "nursing-services", "post-natal-care"],
+    stat: { value: "1,200+", label: "Urban families actively supported" },
+    quote: {
+      text: "As a product director working 12-hour days, having an ApnaCare attendant for my mother during her hip surgery recovery was an absolute lifesaver. The daily reports and genuine warmth made all the difference.",
+      author: "Rahul Sunder",
+      role: "Product Director",
+      city: "Chennai",
+    },
+    faqs: [
+      {
+        q: "How do I get updates if I am at the office or traveling abroad?",
+        a: "Attendants log vitals, medicine administration, and meals in digital reports delivered directly via WhatsApp to family members at shift start, midday, and shift close.",
+      },
+      {
+        q: "Can attendants handle night shifts or 24-hour live-in care?",
+        a: "Yes. We offer daytime shifts (8-12 hrs), overnight bedside shifts, and 24-hour live-in care options across all active cities.",
+      },
+    ],
+  },
+  {
+    slug: "safety-partners",
+    name: "Safety-Focused Partners",
+    badge: "Enterprise & Institutional Trust",
+    subtitle:
+      "Vetted women security escorts, hospital bedside coordination, and workplace mobility programs for institutions that prioritize women's safety.",
+    summary:
+      "Designed for corporates ensuring late-shift employee transport compliance, healthcare facilities seeking trusted patient companions, and community institutions needing screened women attendants.",
+    painPoints: [
+      {
+        problem: "Corporate compliance for night-shift women employees (POSH & State Transport Mandates)",
+        solution:
+          "Vetted security escorts and licensed chauffeuses with digital logs, GPS trip feeds, and command room panic integrations.",
+      },
+      {
+        problem: "Hospitals experiencing nursing shortages for continuous non-clinical bedside vigilance",
+        solution:
+          "Hospital-certified women attendants manage inpatient non-clinical care, freeing medical staff to focus on clinical procedures.",
+      },
+      {
+        problem: "Events, conferences, and exhibitions requiring high-trust female security and marshals",
+        solution:
+          "Trained, PSARA-compliant female security personnel for access control, VIP escorts, and event safety management.",
+      },
+    ],
+    featuredServices: ["women-drivers", "hospital-attendants", "travel-assistance"],
+    stat: { value: "100%", label: "Police & biometric compliance clearance" },
+    quote: {
+      text: "ApnaCare helped us establish a completely safe late-night transit escort protocol for our hospital's nursing and lab staff. Their background checks and telemetry tracking set the benchmark for employee safety.",
+      author: "Dr. Meenakshi Sundaram",
+      role: "Head of Hospital Operations",
+      city: "Hyderabad",
+    },
+    faqs: [
+      {
+        q: "Can ApnaCare provide customized institutional contracts and GST invoicing?",
+        a: "Yes, we provide corporate MSAs, monthly consolidated GST billing, dedicated account managers, and custom SLA agreements.",
+      },
+      {
+        q: "What certifications do your security and transit escorts possess?",
+        a: "All personnel undergo state police clearance, biometric verification, BLS first aid certification, and conflict de-escalation training.",
+      },
+    ],
+  },
+];
+
+export const getICP = (slug: string) => ICPS.find((item) => item.slug === slug);
+

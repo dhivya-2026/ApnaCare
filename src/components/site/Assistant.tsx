@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { MessageCircleHeart, X, Send, Phone, RotateCcw, MapPin, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SERVICES, CITIES, SITE, formatINR, buildWhatsAppUrl, Service } from "@/data/site";
+import { SERVICES, CITIES, SITE, formatINR, buildWhatsAppUrl, Service, getICP, getService } from "@/data/site";
 import { track } from "@/lib/analytics";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -65,6 +65,63 @@ const GLOBAL_MENU: QuickReply[] = [
 // ─── Helper: Derive Context from Pathname ────────────────────────────────────
 
 function getPageContext(pathname: string): PageContextInfo {
+  // 0. ICP Solution pages: /solutions/:slug
+  if (pathname.startsWith("/solutions/")) {
+    const slug = pathname.replace("/solutions/", "").replace(/\/$/, "");
+    const icp = getICP(slug);
+    if (icp) {
+      const servicesList = icp.featuredServices
+        .map((s) => getService(s)?.name)
+        .filter(Boolean)
+        .join(", ");
+      return {
+        badge: icp.name,
+        greeting: `Welcome! Looking for verified care solutions for **${icp.name}**?\n${icp.summary}\n\nI can answer questions on matched services (${servicesList}), pricing, or connect you with our specialized coordinator.`,
+        whatsappMessage: `Hi ApnaCare! I'm viewing care solutions for ${icp.name} (${pathname}) and would like assistance.`,
+        initialReplies: [
+          {
+            label: `🛡️ Solutions for ${icp.name}`,
+            action: {
+              type: "message",
+              text: `Key solutions for ${icp.name}:\n• ${icp.painPoints.map((p) => `${p.problem} ➔ ${p.solution}`).join("\n• ")}`,
+            },
+          },
+          {
+            label: `⭐ Matched Services (${icp.featuredServices.length})`,
+            action: {
+              type: "message",
+              text: `Recommended services for ${icp.name}:\n• ${icp.featuredServices
+                .map((s) => {
+                  const sObj = getService(s);
+                  return sObj ? `${sObj.name} (${formatINR(sObj.startingPrice)}/${sObj.pricingUnit})` : s;
+                })
+                .join("\n• ")}`,
+            },
+          },
+          {
+            label: `💬 WhatsApp ${icp.name} Desk`,
+            action: {
+              type: "whatsapp",
+              msg: `Hi ApnaCare! I'm interested in booking care solutions for ${icp.name}.`,
+            },
+          },
+          {
+            label: `📅 Book an Attendant`,
+            action: { type: "booking", service: icp.featuredServices[0] || "elderly-care" },
+          },
+          {
+            label: "📞 Call Coordinator",
+            action: { type: "call" },
+          },
+          {
+            label: "🌐 Explore Other Profiles",
+            action: { type: "navigate", to: "/", label: "Home Page" },
+          },
+        ],
+      };
+    }
+  }
+
   // 1. Service detail pages: /services/:slug
   if (pathname.startsWith("/services/")) {
     const slug = pathname.replace("/services/", "").replace(/\/$/, "");
