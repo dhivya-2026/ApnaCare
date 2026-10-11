@@ -232,6 +232,225 @@ export async function sendToGoogleSheet(payload: Props): Promise<boolean> {
 
 // ─── Dedicated Telemetry Senders ─────────────────────────────────────────────
 
+// ─── Geo & Timezone Intelligence ─────────────────────────────────────────────
+
+/** Returns timezone info from the browser's Intl API — no permission required */
+export function getTimezoneIntelligence(): {
+  timezone: string;
+  utc_offset: string;
+  language: string;
+  timezone_source: string;
+} {
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown";
+  const offsetMins = new Date().getTimezoneOffset(); // minutes behind UTC
+  const sign = offsetMins <= 0 ? "+" : "-";
+  const abs = Math.abs(offsetMins);
+  const utc_offset = `UTC${sign}${String(Math.floor(abs / 60)).padStart(2, "0")}:${String(abs % 60).padStart(2, "0")}`;
+  const language = (isBrowser() ? navigator.language : "en-US") || "en-US";
+  return { timezone, utc_offset, language, timezone_source: "Browser Intl API" };
+}
+
+interface GeoData {
+  country: string;
+  region: string;
+  city: string;
+  latitude: string;
+  longitude: string;
+  ip_identifier: string;
+  ip_data_source: string;
+  country_source: string;
+}
+
+const GEO_CACHE_KEY = "apnacare_geo_cache";
+const GEO_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes per session
+
+/** Fetch geographic info via ip-api.com (free, no key required, privacy-safe).
+ *  Returns truncated IP (A.B.C.xxx) and coarse city/region/country.
+ *  Results are cached in sessionStorage so only one call is made per session tab.
+ *  Failures are silent and return "Unavailable" for all fields. */
+export async function fetchGeoIntelligence(): Promise<GeoData> {
+  const unavailable: GeoData = {
+    country: "Unavailable",
+    region: "Unavailable",
+    city: "Unavailable",
+    latitude: "Unavailable",
+    longitude: "Unavailable",
+    ip_identifier: "Masked / Private Client",
+    ip_data_source: "Service Unavailable",
+    country_source: "Unavailable",
+  };
+
+  if (!isBrowser()) return unavailable;
+
+  // Return cached value if still valid
+  try {
+    const cached = sessionStorage.getItem(GEO_CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached) as { ts: number; data: GeoData };
+      if (Date.now() - parsed.ts < GEO_CACHE_TTL_MS) return parsed.data;
+    }
+  } catch {
+    // ignore corrupt cache
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2500);
+
+    // ip-api.com: free, no key, returns JSON with country/region/city/lat/lon/query (IP)
+    // Fields limited to only what we need (minimizes data exposure)
+    const resp = await fetch(
+      "https://ip-api.com/json/?fields=status,country,regionName,city,lat,lon,query",
+      { signal: controller.signal }
+    );
+    clearTimeout(timeout);
+
+    if (!resp.ok) return unavailable;
+
+    const json = await resp.json() as {
+      status: string;
+      country?: string;
+      regionName?: string;
+      city?: string;
+      lat?: number;
+      lon?: number;
+      query?: string;
+    };
+
+    if (json.status !== "success") return unavailable;
+
+    // Truncate last octet of IP for privacy: 103.45.67.89 → 103.45.67.xxx
+    const rawIp = json.query || "";
+    const ipParts = rawIp.split(".");
+    const ip_identifier =
+      ipParts.length === 4
+        ? `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}.xxx`
+        : rawIp
+        ? rawIp.substring(0, Math.ceil(rawIp.length * 0.6)) + "***"
+        : "Masked / Private Client";
+
+    const data: GeoData = {
+      country: json.country || "Unavailable",
+      region: json.regionName || "Unavailable",
+      city: json.city || "Unavailable",
+      latitude: json.lat != null ? String(Math.round(json.lat * 100) / 100) : "Unavailable",
+      longitude: json.lon != null ? String(Math.round(json.lon * 100) / 100) : "Unavailable",
+      ip_identifier,
+      ip_data_source: "ip-api.com (Free Tier)",
+      country_source: "IP-Based Geolocation (ip-api.com)",
+    };
+
+    // Cache result
+    try {
+      sessionStorage.setItem(GEO_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    } catch {
+      // ignore storage errors
+    }
+
+    return data;
+  } catch {
+    return unavailable;
+  }
+}
+
+// ─── IP Security Intelligence ────────────────────────────────────────────────
+
+const SEC_REQ_COUNT_KEY = "apnacare_sec_req_count";
+const SEC_SESSION_KEY = "apnacare_sec_logged";
+
+/** Count page requests within this session (used for velocity detection) */
+function incrementSessionRequestCount(): number {
+  if (!isBrowser()) return 1;
+  try {
+    const current = parseInt(sessionStorage.getItem(SEC_REQ_COUNT_KEY) || "0", 10);
+    const next = current + 1;
+    sessionStorage.setItem(SEC_REQ_COUNT_KEY, String(next));
+    return next;
+  } catch {
+    return 1;
+  }
+}
+
+export interface SecuritySignalResult {
+  security_signal: string;
+  risk_level: "Low" | "Medium" | "High";
+  detection_reason: string;
+  action_taken: string;
+  request_count: number;
+}
+
+/** Evaluate passive security signals available to client-side JS */
+export function getSecuritySignals(): SecuritySignalResult {
+  const reqCount = incrementSessionRequestCount();
+  let signal = "Standard Traffic Signal";
+  let risk: "Low" | "Medium" | "High" = "Low";
+  let reason = "Normal authenticated session entry";
+  const action = "Allowed";
+
+  if (!isBrowser()) {
+    return { security_signal: signal, risk_level: risk, detection_reason: reason, action_taken: action, request_count: reqCount };
+  }
+
+  const ua = navigator.userAgent || "";
+
+  // Detect headless / automation signals
+  const isHeadless =
+    (typeof (navigator as Record<string, unknown>).webdriver === "boolean" && (navigator as Record<string, unknown>).webdriver === true) ||
+    /HeadlessChrome|Puppeteer|Playwright|Selenium/i.test(ua);
+
+  if (isHeadless) {
+    signal = "Automation / Headless Browser Detected";
+    risk = "Medium";
+    reason = "navigator.webdriver=true or known automation UA string";
+  } else if (reqCount > 80) {
+    signal = "High Request Velocity";
+    risk = "High";
+    reason = `${reqCount} requests in single session — possible scraper or stress test`;
+  } else if (reqCount > 40) {
+    signal = "Elevated Request Velocity";
+    risk = "Medium";
+    reason = `${reqCount} requests in single session — above normal browsing rate`;
+  } else if (!ua || ua.length < 20) {
+    signal = "Suspicious User-Agent";
+    risk = "Medium";
+    reason = "Empty or unusually short User-Agent string";
+  }
+
+  return { security_signal: signal, risk_level: risk, detection_reason: reason, action_taken: action, request_count: reqCount };
+}
+
+/** Emit a dedicated security_signal event to the IP_Security_Intelligence sheet */
+export async function trackSecuritySignal(
+  signal?: string,
+  risk?: "Low" | "Medium" | "High",
+  reason?: string,
+  action?: string
+): Promise<void> {
+  if (!isBrowser()) return;
+  try {
+    const base = getSecuritySignals();
+    const { browser, version: _v, os } = getBrowserInfo();
+    const attribution = getTrafficAttribution();
+
+    await sendToGoogleSheet({
+      event_type: "security_signal",
+      event_name: "security_signal",
+      security_signal: signal || base.security_signal,
+      risk_level: risk || base.risk_level,
+      detection_reason: reason || base.detection_reason,
+      action_taken: action || base.action_taken,
+      request_count: base.request_count,
+      user_agent: isBrowser() ? navigator.userAgent : "",
+      request_path: window.location.pathname,
+      operating_system: os,
+      browser,
+      ...attribution,
+    });
+  } catch {
+    // failures must never reach the user
+  }
+}
+
 export function trackSessionStart() {
   if (!isBrowser()) return;
   try {
@@ -241,7 +460,9 @@ export function trackSessionStart() {
 
     const attribution = getTrafficAttribution();
     const { browser, version, os } = getBrowserInfo();
+    const tzInfo = getTimezoneIntelligence();
 
+    // 1. Standard session_start → Visitor_Sessions
     sendToGoogleSheet({
       event_type: "session",
       event_name: "session_start",
@@ -249,8 +470,55 @@ export function trackSessionStart() {
       browser,
       browser_version: version,
       operating_system: os,
+      timezone: tzInfo.timezone,
       interaction_count: 1,
     });
+
+    // 2. Geo/Timezone event — fires async, never blocks
+    fetchGeoIntelligence()
+      .then((geo) => {
+        // Guard: only log once per session
+        const geoLogged = sessionStorage.getItem("apnacare_geo_logged");
+        if (geoLogged) return;
+        sessionStorage.setItem("apnacare_geo_logged", "true");
+
+        return sendToGoogleSheet({
+          event_type: "geo_timezone",
+          event_name: "geo_timezone",
+          country: geo.country,
+          region: geo.region,
+          city: geo.city,
+          timezone: tzInfo.timezone,
+          utc_offset: tzInfo.utc_offset,
+          latitude: geo.latitude,
+          longitude: geo.longitude,
+          language: tzInfo.language,
+          ip_identifier: geo.ip_identifier,
+          ip_data_source: geo.ip_data_source,
+          country_source: geo.country_source,
+          timezone_source: tzInfo.timezone_source,
+          ...attribution,
+        });
+      })
+      .catch(() => {});
+
+    // 3. Security signal snapshot — fires async, never blocks
+    setTimeout(() => {
+      try {
+        const secLogged = sessionStorage.getItem(SEC_SESSION_KEY);
+        if (secLogged) return;
+        sessionStorage.setItem(SEC_SESSION_KEY, "true");
+
+        const sec = getSecuritySignals();
+        // Only write to IP_Security_Intelligence for Medium/High risk or automation
+        if (sec.risk_level !== "Low") {
+          trackSecuritySignal(sec.security_signal, sec.risk_level, sec.detection_reason, sec.action_taken).catch(() => {});
+        }
+      } catch {
+        // ignore
+      }
+    }, 1200);
+
   } catch {
     // ignore
   }

@@ -200,6 +200,18 @@ var TAB_HEADERS = {
     "Month", "Total_Events", "Unique_Visitors", "Page_Views", "Bookings",
     "Callbacks", "Contacts", "Partner_Leads", "Chatbot_Leads", "Total_Leads",
     "Conversion_Rate", "Avg_Engagement_Sec"
+  ],
+
+  Geo_Timezone_Intelligence: [
+    "Timestamp", "Session_ID", "Visitor_ID", "Country", "Region", "City",
+    "Timezone", "UTC_Offset", "Latitude", "Longitude", "Page_URL", "Referrer",
+    "Device_Type", "Browser", "Operating_System", "Language", "Country_Source", "Timezone_Source"
+  ],
+
+  IP_Security_Intelligence: [
+    "Timestamp", "Session_ID", "Visitor_ID", "IP_Identifier", "IP_Data_Source",
+    "Country", "Region", "Request_Path", "Referrer", "User_Agent", "Event_Type",
+    "Security_Signal", "Risk_Level", "Request_Count", "Detection_Reason", "Action_Taken"
   ]
 };
 
@@ -299,11 +311,21 @@ function getTab(ss, tabName) {
 // MAIN WEBHOOK ENTRYPOINTS (doPost & doGet)
 // =========================================================================================
 function doGet(e) {
+  var p = (e && e.parameter) || {};
+  if (p.action === "initialize" || p.action === "init") {
+    INITIALIZE_ALL_TABS();
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "initialized",
+      tabs: Object.keys(TAB_HEADERS),
+      timestamp: normalizeTimestamp(new Date())
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
   return ContentService.createTextOutput(JSON.stringify({
     status: "online",
     system: CONFIG.SYSTEM_NAME,
     timestamp: normalizeTimestamp(new Date()),
-    version: "2.0.0"
+    version: "2.1.0"
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -481,6 +503,18 @@ function doPost(e) {
       writeResults.push(appendRowToTab(ss, "Conversion_Events", p));
     }
 
+    // 3j. Geo_Timezone_Intelligence: Dedicated visitor geography & timezone analytics
+    if (p.event_type === "geo_timezone" || p.event_type === "geo" || evtName === "geo_timezone" || (p.event_type === "session" && (p.timezone || p.country))) {
+      writeResults.push(appendRowToTab(ss, "Geo_Timezone_Intelligence", p));
+    }
+
+    // 3k. IP_Security_Intelligence: IP signals, request velocity & threat anomaly telemetry
+    if (p.event_type === "security_signal" || p.event_type === "security" || evtName === "security_signal" || p.security_signal || (p.risk_level && p.risk_level !== "None" && p.risk_level !== "Low")) {
+      writeResults.push(appendRowToTab(ss, "IP_Security_Intelligence", p));
+    } else if (p.event_type === "session" && (p.ip_identifier || p.security_signal)) {
+      writeResults.push(appendRowToTab(ss, "IP_Security_Intelligence", p));
+    }
+
     // 4. Check for spreadsheet errors and report back to caller
     var failures = writeResults.filter(function (r) { return r && !r.success; });
     if (failures.length > 0) {
@@ -653,14 +687,25 @@ function appendRowToTab(ss, tabName, p) {
     }
 
     var lastRow = sheet.getLastRow();
-    if (lastRow > 1 && p.event_id) {
+    if (lastRow > 1) {
       var checkRows = Math.min(60, lastRow - 1);
       var eventIdCol = headers.indexOf("event_id") + 1;
-      if (eventIdCol > 0) {
+      if (eventIdCol > 0 && p.event_id) {
         var recentIds = sheet.getRange(lastRow - checkRows + 1, eventIdCol, checkRows, 1).getValues();
         for (var i = 0; i < recentIds.length; i++) {
           if (String(recentIds[i][0]) === String(p.event_id)) {
             return { success: true, tab: tabName, deduplicated: true };
+          }
+        }
+      } else if (tabName === "Geo_Timezone_Intelligence" && (p.session_id || p.Session_ID)) {
+        var sidCol = headers.indexOf("Session_ID") + 1;
+        var sidVal = String(p.session_id || p.Session_ID);
+        if (sidCol > 0) {
+          var recentSids = sheet.getRange(lastRow - checkRows + 1, sidCol, checkRows, 1).getValues();
+          for (var s = 0; s < recentSids.length; s++) {
+            if (String(recentSids[s][0]) === sidVal) {
+              return { success: true, tab: tabName, deduplicated: true };
+            }
           }
         }
       }
@@ -668,6 +713,32 @@ function appendRowToTab(ss, tabName, p) {
 
     var row = headers.map(function (h) {
       var val = p[h];
+      if (val === undefined || val === null) {
+        val = p[h.toLowerCase()];
+      }
+      if (val === undefined || val === null) {
+        var snake = h.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+        val = p[snake];
+      }
+      if (val === undefined || val === null) {
+        if (h === "Timestamp") val = p.received_at || p.client_timestamp || p.timestamp;
+        else if (h === "Session_ID") val = p.session_id || p.sessionId;
+        else if (h === "Visitor_ID") val = p.visitor_id || p.visitorId;
+        else if (h === "Page_URL") val = p.page_url || p.url;
+        else if (h === "Referrer") val = p.referrer_url || p.referrer;
+        else if (h === "Device_Type") val = p.device_type;
+        else if (h === "Operating_System") val = p.operating_system || p.os;
+        else if (h === "User_Agent") val = p.user_agent || p.userAgent;
+        else if (h === "Request_Path") val = p.page_path || p.request_path;
+        else if (h === "UTC_Offset") val = p.utc_offset || p.utcOffset;
+        else if (h === "Request_Count") val = p.request_count || p.interaction_count || 1;
+        else if (h === "Security_Signal") val = p.security_signal || "Standard Traffic Signal";
+        else if (h === "Risk_Level") val = p.risk_level || "Low";
+        else if (h === "Detection_Reason") val = p.detection_reason || "Normal authenticated session entry";
+        else if (h === "Action_Taken") val = p.action_taken || "Allowed";
+        else if (h === "IP_Identifier") val = p.ip_identifier || p.ip || "Truncated/Protected";
+        else if (h === "IP_Data_Source") val = p.ip_data_source || (p.ip_identifier ? "Client Verified IP" : "Unavailable");
+      }
       if (val === undefined || val === null) val = "";
       if (typeof val === "object") {
         try { val = JSON.stringify(val); } catch (e) { val = ""; }
@@ -1183,9 +1254,10 @@ function INITIALIZE_ALL_TABS() {
   Object.keys(TAB_HEADERS).forEach(function (tabName) {
     getTab(ss, tabName);
   });
-  console.log("✅ All 18 ApnaCare tabs successfully initialized.");
+  var tabCount = Object.keys(TAB_HEADERS).length;
+  console.log("✅ All " + tabCount + " ApnaCare tabs successfully initialized.");
   try {
-    SpreadsheetApp.getUi().alert("✅ All 18 ApnaCare database tabs initialized successfully!");
+    SpreadsheetApp.getUi().alert("✅ All " + tabCount + " ApnaCare database tabs initialized successfully!");
   } catch (e) { }
 }
 
@@ -1193,8 +1265,9 @@ function MASTER_REFRESH_RAW_DATA() {
   INITIALIZE_ALL_TABS();
   PURGE_DUPLICATES_FROM_ALL_TABS();
   BUILD_AGGREGATED_INTERVAL_SUMMARIES();
+  var tabCount = Object.keys(TAB_HEADERS).length;
   try {
-    SpreadsheetApp.getUi().alert("✅ Master Refresh Complete!\n\n• All 18 Tabs Verified.\n• Duplicate events purged.\n• Daily, Weekly & Monthly summaries recalculated.");
+    SpreadsheetApp.getUi().alert("✅ Master Refresh Complete!\n\n• All " + tabCount + " Tabs Verified.\n• Duplicate events purged.\n• Daily, Weekly & Monthly summaries recalculated.");
   } catch (e) { }
 }
 
