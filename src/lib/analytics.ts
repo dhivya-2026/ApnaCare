@@ -8,6 +8,23 @@ export const APPS_SCRIPT_URL =
   (import.meta.env.VITE_GOOGLE_APPS_SCRIPT_URL as string) ||
   "https://script.google.com/macros/s/AKfycbx6gwpPkEgsO9y0lksDo2MS4LFXna4dnv20XkC4_KJd3voXqxTCyBuwPg4g_BM896YV/exec";
 
+export const APPS_SCRIPT_SHEET2_URL =
+  (import.meta.env.VITE_GOOGLE_APPS_SCRIPT_SHEET2_URL as string) ||
+  (import.meta.env.VITE_GOOGLE_APPS_SCRIPT_ANALYTICS_URL as string) ||
+  "https://script.google.com/macros/s/AKfycbzXcPQUQh1SE6GW7KIQ6MS0tcXIVwRotu0M6uth-d1SvsGD89OytHgqkiYKersiyBwe/exec";
+
+export const AIRTABLE_API_KEY =
+  (import.meta.env.VITE_AIRTABLE_API_KEY as string) || "";
+
+export const AIRTABLE_BASE_ID =
+  (import.meta.env.VITE_AIRTABLE_BASE_ID as string) || "appd5rLxicUUJpImD";
+
+export const AIRTABLE_TABLE_ID =
+  (import.meta.env.VITE_AIRTABLE_TABLE_ID as string) || "tbl6DnBguLMnvIQI8";
+
+export const CLARITY_ID =
+  (import.meta.env.VITE_CLARITY_ID as string) || "yw5xnprinp";
+
 // ─── Environment & Device Detection ──────────────────────────────────────────
 
 export function isBrowser(): boolean {
@@ -214,6 +231,20 @@ export async function sendToGoogleSheet(payload: Props): Promise<boolean> {
       ...payload,
     };
 
+    // In parallel, if this payload represents a customer lead, booking, or enquiry, forward to Airtable
+    const isLead =
+      Boolean(payload.customer_name || payload.name || payload.mobile || payload.phone || payload.email) ||
+      ["booking", "callback", "contact", "sos", "partner", "chatbot", "lead"].includes(
+        String(payload.event_type || "").toLowerCase()
+      ) ||
+      Boolean(payload.booking_ref || payload.enquiry_id || payload.contact_id || payload.alert_id);
+
+    if (isLead) {
+      sendToAirtable(enriched).catch((err) => {
+        console.warn("Failed to dispatch lead to Airtable:", err);
+      });
+    }
+
     // Google Apps Script Web Apps require no-cors for cross-origin browser POST requests
     await fetch(APPS_SCRIPT_URL, {
       method: "POST",
@@ -226,6 +257,135 @@ export async function sendToGoogleSheet(payload: Props): Promise<boolean> {
     return true;
   } catch (err) {
     console.warn("Failed to dispatch to Google Sheets webhook:", err);
+    return false;
+  }
+}
+
+// ─── Airtable CRM Dispatcher ──────────────────────────────────────────────────
+
+/**
+ * Ingests patient booking leads, callback requests, contact inquiries, and SOS alerts
+ * directly into the connected Airtable CRM table (appd5rLxicUUJpImD / tbl6DnBguLMnvIQI8).
+ */
+export async function sendToAirtable(payload: Props): Promise<boolean> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_TABLE_ID || !isBrowser()) {
+    return false;
+  }
+
+  try {
+    const name = String(
+      payload.customer_name ||
+        payload.name ||
+        payload.caller_name ||
+        payload.contact_person ||
+        payload.attendant_name ||
+        ""
+    ).trim();
+
+    const phone = String(payload.mobile || payload.phone || payload.caller_phone || "").trim();
+    const email = String(payload.email || "").trim();
+    const service = String(
+      payload.service_name ||
+        payload.service ||
+        payload.requested_service ||
+        payload.service_id ||
+        payload.subject ||
+        ""
+    ).trim();
+    const city = String(
+      payload.city || payload.location || payload.location_address || payload.state || ""
+    ).trim();
+    const leadType = String(
+      payload.lead_type ||
+        (payload.event_type === "booking"
+          ? "Booking"
+          : payload.event_type === "callback"
+          ? "Callback"
+          : payload.event_type === "sos"
+          ? "Emergency SOS"
+          : payload.event_type === "contact"
+          ? "Contact"
+          : payload.event_type === "partner"
+          ? "Partner"
+          : "Website Lead")
+    ).trim();
+
+    const refId = String(
+      payload.booking_ref ||
+        payload.enquiry_id ||
+        payload.contact_id ||
+        payload.alert_id ||
+        payload.partner_id ||
+        payload.lead_id ||
+        payload.event_id ||
+        ""
+    ).trim();
+
+    // Summary details string
+    const detailsParts: string[] = [];
+    if (payload.start_date) detailsParts.push(`Start: ${payload.start_date} ${payload.start_time || ""}`);
+    if (payload.duration_days) detailsParts.push(`Duration: ${payload.duration_days} days`);
+    if (payload.total_amount) detailsParts.push(`Total: ₹${payload.total_amount}`);
+    if (payload.preferred_language) detailsParts.push(`Language: ${payload.preferred_language}`);
+    if (payload.special_notes) detailsParts.push(`Notes: ${payload.special_notes}`);
+    if (payload.message) detailsParts.push(`Message: ${payload.message}`);
+    if (payload.user_query) detailsParts.push(`Query: ${payload.user_query}`);
+    if (payload.recommended_action) detailsParts.push(`Action: ${payload.recommended_action}`);
+    if (payload.vitals_summary) detailsParts.push(`Vitals: ${payload.vitals_summary}`);
+    if (payload.shift_status) detailsParts.push(`Shift: ${payload.shift_status}`);
+    if (payload.trigger_step) detailsParts.push(`Step: ${payload.trigger_step}`);
+
+    const details = detailsParts.join(" | ");
+
+    const fields: Record<string, string> = {
+      Name: name || "Website Lead",
+    };
+
+    if (phone) fields["Phone"] = phone;
+    if (email && email.includes("@")) fields["Email"] = email;
+    if (service) fields["Service"] = service;
+    if (city) fields["City"] = city;
+    if (leadType) fields["Lead Type"] = leadType;
+    if (refId) fields["Reference ID"] = refId;
+    if (details) fields["Details"] = details;
+
+    const pagePath = String(
+      payload.page_path || (isBrowser() ? window.location.pathname : "/")
+    ).trim();
+    if (pagePath) fields["Page Path"] = pagePath;
+
+    const ts = String(payload.client_timestamp || new Date().toISOString()).trim();
+    if (ts) fields["Timestamp"] = ts;
+
+    const env = String(
+      payload.source_environment ||
+        (isBrowser() && window.location.hostname.includes("localhost")
+          ? "development"
+          : "production")
+    ).trim();
+    if (env) fields["Source Environment"] = env;
+
+    const airtableUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`;
+
+    const res = await fetch(airtableUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        records: [{ fields }],
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.warn("Airtable API returned error:", res.status, errText);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn("Failed to dispatch to Airtable:", err);
     return false;
   }
 }
@@ -595,6 +755,27 @@ const adapters: Adapter[] = [
       event_name: event,
       ...props,
     }).catch(() => {});
+  },
+  // Microsoft Clarity custom events & dimension tag sync
+  (event, props) => {
+    if (typeof window === "undefined") return;
+    const clarity = (window as unknown as { clarity?: (...args: unknown[]) => void }).clarity;
+    if (typeof clarity === "function") {
+      try {
+        clarity("event", event);
+        if (props.service_name || props.service) {
+          clarity("set", "service", String(props.service_name || props.service));
+        }
+        if (props.city) {
+          clarity("set", "city", String(props.city));
+        }
+        if (props.lead_type) {
+          clarity("set", "lead_type", String(props.lead_type));
+        }
+      } catch {
+        /* ignore */
+      }
+    }
   },
 ];
 

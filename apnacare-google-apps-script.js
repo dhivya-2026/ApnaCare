@@ -39,6 +39,13 @@ var CONFIG = {
   ACCENT_COLOR: "#c2410c"     // Terracotta
 };
 
+var AIRTABLE_CONFIG = {
+  // Configured in Apps Script: Project Settings > Script Properties > AIRTABLE_API_KEY
+  API_KEY: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("AIRTABLE_API_KEY")) || "YOUR_AIRTABLE_PERSONAL_ACCESS_TOKEN",
+  BASE_ID: "appd5rLxicUUJpImD",
+  TABLE_ID: "tbl6DnBguLMnvIQI8"
+};
+
 var EMAIL_CONFIG = {
   name: "ApnaCare Operations Desk",
   companyName: "ApnaCare",
@@ -307,6 +314,280 @@ function getTab(ss, tabName) {
   return sheet;
 }
 
+
+// =========================================================================================
+// AIRTABLE CRM INTEGRATION & REAL-TIME FORWARDER
+// =========================================================================================
+
+/**
+ * Forwards an individual lead into Airtable CRM table in real time.
+ */
+function pushLeadToAirtable(lead) {
+  try {
+    if (!AIRTABLE_CONFIG.API_KEY || !AIRTABLE_CONFIG.BASE_ID || !AIRTABLE_CONFIG.TABLE_ID) return;
+
+    var fields = {
+      "Name": String(lead.Name || "Website Lead").trim()
+    };
+
+    if (lead.Phone) fields["Phone"] = String(lead.Phone).trim();
+    if (lead.Email && String(lead.Email).indexOf("@") !== -1) fields["Email"] = String(lead.Email).trim();
+    if (lead.Service) fields["Service"] = String(lead.Service).trim();
+    if (lead.City) fields["City"] = String(lead.City).trim();
+    if (lead.LeadType) fields["Lead Type"] = String(lead.LeadType).trim();
+    if (lead.ReferenceID) fields["Reference ID"] = String(lead.ReferenceID).trim();
+    if (lead.Details) fields["Details"] = String(lead.Details).trim();
+    if (lead.PagePath) fields["Page Path"] = String(lead.PagePath).trim();
+    if (lead.Timestamp) fields["Timestamp"] = String(lead.Timestamp).trim();
+    if (lead.SourceEnvironment) fields["Source Environment"] = String(lead.SourceEnvironment).trim();
+
+    var url = "https://api.airtable.com/v0/" + AIRTABLE_CONFIG.BASE_ID + "/" + AIRTABLE_CONFIG.TABLE_ID;
+    var options = {
+      method: "post",
+      headers: {
+        "Authorization": "Bearer " + AIRTABLE_CONFIG.API_KEY,
+        "Content-Type": "application/json"
+      },
+      payload: JSON.stringify({
+        records: [{ fields: fields }]
+      }),
+      muteHttpExceptions: true
+    };
+
+    var res = UrlFetchApp.fetch(url, options);
+    var code = res.getResponseCode();
+    if (code >= 200 && code < 300) {
+      Logger.log("✅ Synced lead to Airtable: " + (lead.ReferenceID || lead.Name));
+    } else {
+      Logger.log("⚠️ Airtable sync warning: HTTP " + code + " - " + res.getContentText());
+    }
+  } catch (err) {
+    Logger.log("⚠️ Failed to dispatch to Airtable: " + err.message);
+  }
+}
+
+/**
+ * Bulk syncs all historical patient leads, bookings, callbacks, contact forms,
+ * chatbot leads, and emergency SOS alerts from Sheet 1 tabs directly into Airtable CRM.
+ */
+function SYNC_ALL_LEADS_TO_AIRTABLE() {
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) {}
+
+  var ss = getSpreadsheet();
+  if (!ss) {
+    if (ui) ui.alert("❌ Error", "Could not open spreadsheet.", ui.ButtonSet.OK);
+    return { success: false, count: 0 };
+  }
+
+  var airtableRecords = [];
+  function cleanVal(v) { return (v === undefined || v === null) ? "" : String(v).trim(); }
+
+  // 1. Booking_Leads
+  try {
+    var bSheet = ss.getSheetByName("Booking_Leads");
+    if (bSheet && bSheet.getLastRow() > 1) {
+      var rows = bSheet.getDataRange().getValues();
+      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      for (var r = 1; r < rows.length; r++) {
+        var row = rows[r];
+        var obj = {};
+        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        var name = cleanVal(obj.customer_name || obj.name);
+        var phone = cleanVal(obj.mobile || obj.phone);
+        if (!name && !phone) continue;
+
+        var details = "Start: " + cleanVal(obj.start_date) + " " + cleanVal(obj.start_time) + 
+                      " | Duration: " + cleanVal(obj.duration_days) + " days" +
+                      " | Amount: ₹" + cleanVal(obj.total_amount) +
+                      " | Address: " + cleanVal(obj.location_address) +
+                      " | Notes: " + cleanVal(obj.special_notes);
+
+        var fields = {
+          "Name": name,
+          "Phone": phone,
+          "Service": cleanVal(obj.service_name || obj.service_id || "Elder Care Attendant"),
+          "City": cleanVal(obj.city || "Bengaluru"),
+          "Lead Type": "Booking",
+          "Reference ID": cleanVal(obj.booking_ref),
+          "Details": details,
+          "Page Path": cleanVal(obj.page_path || "/booking"),
+          "Timestamp": cleanVal(obj.received_at),
+          "Source Environment": cleanVal(obj.source_environment || "production")
+        };
+        if (obj.email && cleanVal(obj.email).indexOf("@") !== -1) fields["Email"] = cleanVal(obj.email);
+        airtableRecords.push({ fields: fields });
+      }
+    }
+  } catch (e) { Logger.log("Error reading Bookings: " + e.message); }
+
+  // 2. Callback_Enquiries
+  try {
+    var cbSheet = ss.getSheetByName("Callback_Enquiries");
+    if (cbSheet && cbSheet.getLastRow() > 1) {
+      var rows = cbSheet.getDataRange().getValues();
+      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      for (var r = 1; r < rows.length; r++) {
+        var row = rows[r];
+        var obj = {};
+        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        var name = cleanVal(obj.name);
+        var phone = cleanVal(obj.phone);
+        if (!name && !phone) continue;
+
+        var fields = {
+          "Name": name,
+          "Phone": phone,
+          "Service": cleanVal(obj.service || "Quick Callback"),
+          "City": "Bengaluru",
+          "Lead Type": "Callback Enquiry",
+          "Reference ID": cleanVal(obj.enquiry_id),
+          "Details": "Message: " + cleanVal(obj.message) + " | Status: " + cleanVal(obj.lead_status),
+          "Page Path": cleanVal(obj.page_path || "/"),
+          "Timestamp": cleanVal(obj.received_at),
+          "Source Environment": cleanVal(obj.source_environment || "production")
+        };
+        airtableRecords.push({ fields: fields });
+      }
+    }
+  } catch (e) { Logger.log("Error reading Callbacks: " + e.message); }
+
+  // 3. Contact_Submissions
+  try {
+    var ctSheet = ss.getSheetByName("Contact_Submissions");
+    if (ctSheet && ctSheet.getLastRow() > 1) {
+      var rows = ctSheet.getDataRange().getValues();
+      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      for (var r = 1; r < rows.length; r++) {
+        var row = rows[r];
+        var obj = {};
+        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        var name = cleanVal(obj.name);
+        var phone = cleanVal(obj.phone);
+        if (!name && !phone) continue;
+
+        var fields = {
+          "Name": name,
+          "Phone": phone,
+          "Service": cleanVal(obj.subject || "Contact Form"),
+          "City": cleanVal(obj.city || "Bengaluru"),
+          "Lead Type": "Contact Submission",
+          "Reference ID": cleanVal(obj.contact_id),
+          "Details": "Subject: " + cleanVal(obj.subject) + " | Message: " + cleanVal(obj.message),
+          "Page Path": cleanVal(obj.page_path || "/contact"),
+          "Timestamp": cleanVal(obj.received_at),
+          "Source Environment": cleanVal(obj.source_environment || "production")
+        };
+        if (obj.email && cleanVal(obj.email).indexOf("@") !== -1) fields["Email"] = cleanVal(obj.email);
+        airtableRecords.push({ fields: fields });
+      }
+    }
+  } catch (e) { Logger.log("Error reading Contacts: " + e.message); }
+
+  // 4. Chatbot_Leads
+  try {
+    var chatSheet = ss.getSheetByName("Chatbot_Leads");
+    if (chatSheet && chatSheet.getLastRow() > 1) {
+      var rows = chatSheet.getDataRange().getValues();
+      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      for (var r = 1; r < rows.length; r++) {
+        var row = rows[r];
+        var obj = {};
+        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        var name = cleanVal(obj.name);
+        var phone = cleanVal(obj.phone);
+        if (!name && !phone) continue;
+
+        var fields = {
+          "Name": name,
+          "Phone": phone,
+          "Service": cleanVal(obj.requested_service || "Chatbot Assistance"),
+          "City": cleanVal(obj.city || "Bengaluru"),
+          "Lead Type": "Chatbot Lead",
+          "Reference ID": cleanVal(obj.lead_id),
+          "Details": "Query: " + cleanVal(obj.user_query) + " | Action: " + cleanVal(obj.recommended_action),
+          "Page Path": cleanVal(obj.page_path || "/"),
+          "Timestamp": cleanVal(obj.received_at),
+          "Source Environment": cleanVal(obj.source_environment || "production")
+        };
+        if (obj.email && cleanVal(obj.email).indexOf("@") !== -1) fields["Email"] = cleanVal(obj.email);
+        airtableRecords.push({ fields: fields });
+      }
+    }
+  } catch (e) { Logger.log("Error reading Chatbot Leads: " + e.message); }
+
+  // 5. SOS_Emergency_Alerts
+  try {
+    var sosSheet = ss.getSheetByName("SOS_Emergency_Alerts");
+    if (sosSheet && sosSheet.getLastRow() > 1) {
+      var rows = sosSheet.getDataRange().getValues();
+      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      for (var r = 1; r < rows.length; r++) {
+        var row = rows[r];
+        var obj = {};
+        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        var name = cleanVal(obj.caller_name || "Emergency Caller");
+        var phone = cleanVal(obj.caller_phone);
+        if (!phone) continue;
+
+        var fields = {
+          "Name": name,
+          "Phone": phone,
+          "Service": cleanVal(obj.service_context || "Emergency SOS"),
+          "City": cleanVal(obj.city || obj.location || "Bengaluru"),
+          "Lead Type": "Emergency SOS Alert",
+          "Reference ID": cleanVal(obj.alert_id),
+          "Details": "Trigger Step: " + cleanVal(obj.trigger_step) + " | Status: " + cleanVal(obj.status) + " | Operator: " + cleanVal(obj.operator_notes),
+          "Page Path": "/sos",
+          "Timestamp": cleanVal(obj.received_at),
+          "Source Environment": cleanVal(obj.source_environment || "production")
+        };
+        airtableRecords.push({ fields: fields });
+      }
+    }
+  } catch (e) { Logger.log("Error reading SOS: " + e.message); }
+
+  if (airtableRecords.length === 0) {
+    var emptyMsg = "No leads found in Sheet 1 tabs to sync.";
+    if (ui) ui.alert("ℹ️ Airtable Sync", emptyMsg, ui.ButtonSet.OK);
+    return { success: true, count: 0 };
+  }
+
+  // Push to Airtable in batches of 10
+  var airtableUrl = "https://api.airtable.com/v0/" + AIRTABLE_CONFIG.BASE_ID + "/" + AIRTABLE_CONFIG.TABLE_ID;
+  var headers = {
+    "Authorization": "Bearer " + AIRTABLE_CONFIG.API_KEY,
+    "Content-Type": "application/json"
+  };
+
+  var pushedCount = 0;
+  var batchSize = 10;
+  for (var i = 0; i < airtableRecords.length; i += batchSize) {
+    var batch = airtableRecords.slice(i, i + batchSize);
+    var options = {
+      method: "post",
+      headers: headers,
+      payload: JSON.stringify({ records: batch }),
+      muteHttpExceptions: true
+    };
+    var response = UrlFetchApp.fetch(airtableUrl, options);
+    var code = response.getResponseCode();
+    if (code >= 200 && code < 300) {
+      pushedCount += batch.length;
+    } else {
+      Logger.log("Airtable sync error: " + response.getContentText());
+    }
+    Utilities.sleep(200); // Rate limit safeguard
+  }
+
+  var successMsg = "Successfully synced " + pushedCount + " of " + airtableRecords.length + " leads from Google Sheet 1 into Airtable CRM!";
+  Logger.log(successMsg);
+  if (ui) {
+    ui.alert("✅ Airtable Sync Complete", successMsg, ui.ButtonSet.OK);
+  }
+  return { success: true, count: pushedCount };
+}
+
 // =========================================================================================
 // MAIN WEBHOOK ENTRYPOINTS (doPost & doGet)
 // =========================================================================================
@@ -317,6 +598,16 @@ function doGet(e) {
     return ContentService.createTextOutput(JSON.stringify({
       status: "initialized",
       tabs: Object.keys(TAB_HEADERS),
+      timestamp: normalizeTimestamp(new Date())
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (p.action === "sync_airtable" || p.action === "airtable") {
+    var airtableRes = SYNC_ALL_LEADS_TO_AIRTABLE();
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      message: "Synced leads from Google Sheet 1 to Airtable.",
+      syncedCount: airtableRes.count,
       timestamp: normalizeTimestamp(new Date())
     })).setMimeType(ContentService.MimeType.JSON);
   }
@@ -385,6 +676,20 @@ function doPost(e) {
       writeResults.push(appendRowToTab(ss, "Booking_Leads", p));
       writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendBookingAlertEmail(p);
+
+      pushLeadToAirtable({
+        Name: p.customer_name,
+        Phone: p.mobile,
+        Email: p.email,
+        Service: p.service_name,
+        City: p.city,
+        LeadType: "Booking",
+        ReferenceID: p.booking_ref,
+        Details: "Start: " + p.start_date + " " + p.start_time + " | Duration: " + p.duration_days + " days | Amount: ₹" + p.total_amount + " | Notes: " + p.special_notes,
+        PagePath: p.page_path || "/booking",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
     }
 
     // B. QUICK CALLBACK ENQUIRY
@@ -399,6 +704,20 @@ function doPost(e) {
       writeResults.push(appendRowToTab(ss, "Callback_Enquiries", p));
       writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendCallbackAlertEmail(p);
+
+      pushLeadToAirtable({
+        Name: p.name,
+        Phone: p.phone,
+        Email: p.email,
+        Service: p.service,
+        City: "Bengaluru",
+        LeadType: "Callback Enquiry",
+        ReferenceID: p.enquiry_id,
+        Details: "Message: " + p.message + " | Status: " + p.lead_status,
+        PagePath: p.page_path || "/",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
     }
 
     // C. CONTACT FORM MESSAGE
@@ -413,6 +732,20 @@ function doPost(e) {
       writeResults.push(appendRowToTab(ss, "Contact_Submissions", p));
       writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendContactAlertEmail(p);
+
+      pushLeadToAirtable({
+        Name: p.name,
+        Phone: p.phone,
+        Email: p.email,
+        Service: p.subject,
+        City: p.city,
+        LeadType: "Contact Submission",
+        ReferenceID: p.contact_id,
+        Details: "Subject: " + p.subject + " | Message: " + p.message,
+        PagePath: p.page_path || "/contact",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
     }
 
     // D. ECOSYSTEM PARTNER REGISTRATION
@@ -426,6 +759,20 @@ function doPost(e) {
       writeResults.push(appendRowToTab(ss, "Partner_Applications", p));
       writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendPartnerAlertEmail(p);
+
+      pushLeadToAirtable({
+        Name: p.contact_person,
+        Phone: p.phone,
+        Email: p.email,
+        Service: p.category,
+        City: p.city,
+        LeadType: "Partner Application",
+        ReferenceID: p.partner_id,
+        Details: "Org: " + p.org_name + " (" + p.org_type + ") | Notes: " + p.interest_notes,
+        PagePath: p.page_path || "/partner",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
     }
 
     // E. CHATBOT / AI CARE ASSISTANT LEAD
@@ -1335,6 +1682,8 @@ function onOpen() {
       .addItem('🔄 Refresh & Recompute Summaries', 'MASTER_REFRESH_RAW_DATA')
       .addItem('📁 Initialize All Database Tabs', 'INITIALIZE_ALL_TABS')
       .addItem('🧹 Purge Duplicates Across Tabs', 'PURGE_DUPLICATES_FROM_ALL_TABS')
+      .addSeparator()
+      .addItem('📤 Sync All Leads to Airtable', 'SYNC_ALL_LEADS_TO_AIRTABLE')
       .addSeparator()
       .addItem('⏰ Enable Automated Daily/Weekly/Monthly Reports', 'setupAllApnaCareTriggers')
       .addItem('🧪 Test Inbound Booking Alert Now', 'TEST_BOOKING_ALERT')
