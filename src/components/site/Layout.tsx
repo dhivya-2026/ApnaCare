@@ -265,10 +265,13 @@ const NAV_ITEMS: NavItem[] = [
 function DesktopDropdown({ item }: { item: NavItem }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const closeTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
     }
     function keyHandler(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
@@ -278,8 +281,20 @@ function DesktopDropdown({ item }: { item: NavItem }) {
     return () => {
       document.removeEventListener("mousedown", handler);
       document.removeEventListener("keydown", keyHandler);
+      if (closeTimeout.current) clearTimeout(closeTimeout.current);
     };
   }, []);
+
+  const handleMouseEnter = () => {
+    if (closeTimeout.current) clearTimeout(closeTimeout.current);
+    setOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    closeTimeout.current = setTimeout(() => {
+      setOpen(false);
+    }, 200);
+  };
 
   if (!item.children) {
     return (
@@ -295,12 +310,20 @@ function DesktopDropdown({ item }: { item: NavItem }) {
   }
 
   return (
-    <div ref={ref} className="relative">
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
+        type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex items-center gap-1 text-sm font-medium text-muted-foreground whitespace-nowrap transition-colors hover:text-foreground"
+        className={`flex items-center gap-1 text-sm font-medium whitespace-nowrap transition-colors py-2 ${
+          open ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
+        }`}
       >
         {item.label}
         <ChevronDown
@@ -311,27 +334,54 @@ function DesktopDropdown({ item }: { item: NavItem }) {
       {open && (
         <div
           role="menu"
-          className="absolute left-0 top-full z-[200] mt-2 w-72 overflow-hidden rounded-2xl border border-border bg-background shadow-lift animate-fade-in"
+          style={{ backgroundColor: "#ffffff" }}
+          className="absolute left-0 top-full z-[200] mt-1.5 w-80 overflow-hidden rounded-2xl border border-border/80 text-foreground shadow-2xl ring-1 ring-black/10 animate-fade-in dark:bg-card"
         >
-          <div className="grid gap-0.5 p-2">
-            {item.children.map((child) => (
-              <Link
-                key={child.to}
-                to={child.to}
-                role="menuitem"
-                onClick={() => setOpen(false)}
-                className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
-              >
-                <span className="text-sm font-medium group-hover:text-primary transition-colors">
-                  {child.label}
-                </span>
-                {child.description && (
-                  <span className="mt-0.5 text-xs text-muted-foreground leading-snug">
-                    {child.description}
+          <div
+            style={{ backgroundColor: "#ffffff" }}
+            className="grid gap-1 p-2.5 dark:bg-card"
+          >
+            {item.children.map((child) => {
+              const isHash = child.to.startsWith("/#") || child.to.startsWith("#");
+              const content = (
+                <>
+                  <span className="text-sm font-medium group-hover:text-primary transition-colors">
+                    {child.label}
                   </span>
-                )}
-              </Link>
-            ))}
+                  {child.description && (
+                    <span className="mt-0.5 text-xs text-muted-foreground leading-snug">
+                      {child.description}
+                    </span>
+                  )}
+                </>
+              );
+
+              if (isHash) {
+                return (
+                  <a
+                    key={child.to}
+                    href={child.to}
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                    className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
+                  >
+                    {content}
+                  </a>
+                );
+              }
+
+              return (
+                <Link
+                  key={child.to}
+                  to={child.to}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
+                >
+                  {content}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
@@ -361,27 +411,43 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
   return (
     <div>
       <button
+        type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-base font-medium hover:bg-secondary text-left"
       >
-        {item.label}
+        <span>{item.label}</span>
         <ChevronRight
           className={`size-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-90" : ""}`}
         />
       </button>
       {open && (
         <div className="ml-3 mt-1 grid gap-0.5 border-l-2 border-border pl-3">
-          {item.children.map((child) => (
-            <Link
-              key={child.to}
-              to={child.to}
-              onClick={onClose}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-            >
-              {child.label}
-            </Link>
-          ))}
+          {item.children.map((child) => {
+            const isHash = child.to.startsWith("/#") || child.to.startsWith("#");
+            if (isHash) {
+              return (
+                <a
+                  key={child.to}
+                  href={child.to}
+                  onClick={onClose}
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  {child.label}
+                </a>
+              );
+            }
+            return (
+              <Link
+                key={child.to}
+                to={child.to}
+                onClick={onClose}
+                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                {child.label}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
