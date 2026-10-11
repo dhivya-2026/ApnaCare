@@ -336,7 +336,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
         to={item.to!}
         activeOptions={{ exact: item.to === "/" }}
         activeProps={{ className: "text-primary font-semibold" }}
-        className="transition-colors hover:text-foreground text-sm font-medium text-muted-foreground whitespace-nowrap"
+        className="transition-colors hover:text-foreground text-[13px] 2xl:text-sm font-medium text-muted-foreground whitespace-nowrap px-1 2xl:px-1.5"
       >
         {item.label}
       </Link>
@@ -355,13 +355,13 @@ function DesktopDropdown({ item }: { item: NavItem }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className={`flex items-center gap-1 text-sm font-medium whitespace-nowrap transition-colors py-2 ${
+        className={`flex items-center gap-0.5 2xl:gap-1 text-[13px] 2xl:text-sm font-medium whitespace-nowrap transition-colors py-2 px-1 2xl:px-1.5 ${
           open ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
         }`}
       >
         {item.label}
         <ChevronDown
-          className={`size-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`size-3 2xl:size-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -505,11 +505,13 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
-      <div className="container-page flex h-18 items-center gap-4">
-        <Logo />
+      <div className="mx-auto flex h-18 w-full max-w-[1600px] items-center gap-2 px-3 sm:px-6 lg:px-8">
+        <div className="shrink-0">
+          <Logo />
+        </div>
 
         {/* Desktop nav */}
-        <nav aria-label="Main" className="ml-2 hidden items-center gap-3 xl:flex">
+        <nav aria-label="Main" className="ml-1 hidden items-center gap-0.5 2xl:gap-2 xl:flex">
           {NAV_ITEMS.map((item) => (
             <DesktopDropdown key={item.label} item={item} />
           ))}
@@ -523,7 +525,7 @@ function Header() {
           >
             Attendant Login
           </Link>
-          <CallLink className="hidden md:inline-flex" variant="ghost" size="sm" />
+          <CallLink className="hidden 2xl:inline-flex" variant="ghost" size="sm" />
 
           {/* WhatsApp CTA in header */}
           <a
@@ -532,7 +534,7 @@ function Header() {
             rel="noreferrer"
             aria-label="Chat on WhatsApp"
             onClick={() => track("whatsapp_header_click")}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-[#25D366] bg-[#25D366]/10 px-3 py-1.5 text-xs font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/20"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-[#25D366] bg-[#25D366]/10 px-3 py-1.5 text-xs font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/20 shrink-0 whitespace-nowrap"
           >
             {/* WhatsApp SVG icon */}
             <svg viewBox="0 0 24 24" fill="currentColor" className="size-3.5 text-[#25D366]">
@@ -541,13 +543,13 @@ function Header() {
             WhatsApp
           </a>
 
-          <BookLink className="hidden sm:inline-flex" size="sm" />
+          <BookLink className="hidden sm:inline-flex shrink-0 whitespace-nowrap" size="sm" />
 
           {/* Mobile menu toggle */}
           <Button
             variant="outline"
             size="icon"
-            className="xl:hidden"
+            className="xl:hidden shrink-0"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen(!mobileOpen)}
