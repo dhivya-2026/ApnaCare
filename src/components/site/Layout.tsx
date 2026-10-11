@@ -336,7 +336,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
         to={item.to!}
         activeOptions={{ exact: item.to === "/" }}
         activeProps={{ className: "text-primary font-semibold" }}
-        className="transition-colors hover:text-foreground text-sm font-medium text-muted-foreground whitespace-nowrap px-1.5 py-2"
+        className="transition-colors hover:text-foreground text-[13px] 2xl:text-sm font-medium text-muted-foreground whitespace-nowrap px-1 xl:px-1.5 2xl:px-2 py-2"
       >
         {item.label}
       </Link>
@@ -355,13 +355,13 @@ function DesktopDropdown({ item }: { item: NavItem }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className={`flex items-center gap-1 text-sm font-medium whitespace-nowrap transition-colors py-2 px-1.5 ${
+        className={`flex items-center gap-0.5 xl:gap-1 text-[13px] 2xl:text-sm font-medium whitespace-nowrap transition-colors py-2 px-1 xl:px-1.5 2xl:px-2 ${
           open ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
         }`}
       >
         {item.label}
         <ChevronDown
-          className={`size-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`size-3 2xl:size-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -511,14 +511,14 @@ function Header() {
         </div>
 
         {/* Desktop nav */}
-        <nav aria-label="Main" className="hidden items-center gap-1 xl:gap-1.5 2xl:gap-2.5 xl:flex">
+        <nav aria-label="Main" className="hidden items-center gap-0.5 xl:gap-1 2xl:gap-2 xl:flex ml-auto mr-3 xl:mr-4 2xl:mr-6">
           {NAV_ITEMS.map((item) => (
             <DesktopDropdown key={item.label} item={item} />
           ))}
         </nav>
 
         {/* Right actions */}
-        <div className="flex items-center gap-2 shrink-0 mr-3 lg:mr-5">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <Button asChild variant="ghost" size="icon" className="hidden lg:inline-flex shrink-0 size-8 text-muted-foreground hover:text-foreground">
             <a
               href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
@@ -537,7 +537,7 @@ function Header() {
             rel="noreferrer"
             aria-label="Chat on WhatsApp"
             onClick={() => track("whatsapp_header_click")}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-[#25D366] bg-[#25D366]/10 px-3 py-1.5 text-xs font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/20 shrink-0 whitespace-nowrap"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-[#25D366] bg-[#25D366]/10 px-2.5 py-1 text-xs font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/20 shrink-0 whitespace-nowrap"
           >
             {/* WhatsApp SVG icon */}
             <svg viewBox="0 0 24 24" fill="currentColor" className="size-3.5 text-[#25D366]">
