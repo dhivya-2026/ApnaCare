@@ -510,15 +510,16 @@ function Header() {
           <Logo />
         </div>
 
-        {/* Desktop nav */}
-        <nav aria-label="Main" className="hidden items-center gap-0.5 xl:gap-1 2xl:gap-2 xl:flex ml-auto mr-3 xl:mr-4 2xl:mr-6">
-          {NAV_ITEMS.map((item) => (
-            <DesktopDropdown key={item.label} item={item} />
-          ))}
-        </nav>
+        {/* Desktop nav and actions grouped together for a compact, controlled gap between About and Phone */}
+        <div className="flex items-center gap-2 xl:gap-2.5 shrink-0">
+          <nav aria-label="Main" className="hidden items-center gap-0.5 xl:gap-1 2xl:gap-1.5 xl:flex">
+            {NAV_ITEMS.map((item) => (
+              <DesktopDropdown key={item.label} item={item} />
+            ))}
+          </nav>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Right actions */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <Button asChild variant="ghost" size="icon" className="hidden lg:inline-flex shrink-0 size-8 text-muted-foreground hover:text-foreground">
             <a
               href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
@@ -561,6 +562,7 @@ function Header() {
           </Button>
         </div>
       </div>
+    </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
