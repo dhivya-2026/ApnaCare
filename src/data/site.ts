@@ -25,12 +25,41 @@ export const SITE = {
 export type ServiceCategory = "home" | "healthcare" | "safety" | "travel" | "lifestyle";
 
 export const CATEGORIES: { id: "all" | ServiceCategory; label: string; description: string }[] = [
-  { id: "all", label: "All Services", description: "Complete directory of trusted women attendants for home, healthcare and mobility." },
-  { id: "home", label: "Home & Personal Care", description: "Compassionate bedside and home daily living support for elders, new mothers and recovering family members." },
-  { id: "healthcare", label: "Healthcare", description: "Qualified hospital attendants and nursing assistants for clinical, surgical and post-op care." },
-  { id: "safety", label: "Safety & Security", description: "Vetted women security escorts, event attendants and residential safety support." },
-  { id: "travel", label: "Travel & Mobility", description: "Chauffeuses, airport companions and railway transit attendants for safe journeys." },
-  { id: "lifestyle", label: "Lifestyle Support", description: "Errand assistance, wellness accompaniment, social outings and routine companionship." },
+  {
+    id: "all",
+    label: "All Services",
+    description:
+      "Complete directory of trusted women attendants for home, healthcare and mobility.",
+  },
+  {
+    id: "home",
+    label: "Home & Personal Care",
+    description:
+      "Compassionate bedside and home daily living support for elders, new mothers and recovering family members.",
+  },
+  {
+    id: "healthcare",
+    label: "Healthcare",
+    description:
+      "Qualified hospital attendants and nursing assistants for clinical, surgical and post-op care.",
+  },
+  {
+    id: "safety",
+    label: "Safety & Security",
+    description: "Vetted women security escorts, event attendants and residential safety support.",
+  },
+  {
+    id: "travel",
+    label: "Travel & Mobility",
+    description:
+      "Chauffeuses, airport companions and railway transit attendants for safe journeys.",
+  },
+  {
+    id: "lifestyle",
+    label: "Lifestyle Support",
+    description:
+      "Errand assistance, wellness accompaniment, social outings and routine companionship.",
+  },
 ];
 
 export interface Service {
@@ -84,14 +113,20 @@ export const SERVICES: Service[] = [
     slug: "elderly-care",
     name: "Elderly Care",
     category: "home",
-    shortDesc: "Compassionate 24/7 companionship, mobility assistance and routine medication support for senior citizens.",
-    description: "Dedicated and trained women attendants providing compassionate companionship, mobility aid, medication schedules and emotional reassurance for elders at home. Designed to give aging parents dignifying, gentle care while offering working families total peace of mind.",
+    shortDesc:
+      "Compassionate 24/7 companionship, mobility assistance and routine medication support for senior citizens.",
+    description:
+      "Dedicated and trained women attendants providing compassionate companionship, mobility aid, medication schedules and emotional reassurance for elders at home. Designed to give aging parents dignifying, gentle care while offering working families total peace of mind.",
     rating: 4.9,
     reviewCount: 420,
     badge: "Popular",
     startingPrice: 1299,
     pricingUnit: "day",
-    benefits: ["24/7 companionship & safety supervision", "Daily living and mobility assistance", "Timely medication reminders & vitals logging"],
+    benefits: [
+      "24/7 companionship & safety supervision",
+      "Daily living and mobility assistance",
+      "Timely medication reminders & vitals logging",
+    ],
     includes: [
       "Bathing, grooming and gentle personal hygiene assistance",
       "Mobility, walking support and fall-prevention monitoring",
@@ -105,7 +140,11 @@ export const SERVICES: Service[] = [
       "Seniors recovering from surgeries or joint replacement at home",
     ],
     need: "When aging parents need warm, dependable daily company and assistance, families need consistent care — not unpredictable temporary agency workers.",
-    qualifications: ["Geriatric Care Certification", "Basic Life Support (BLS) & First Aid", "Full Police Verification Cleared"],
+    qualifications: [
+      "Geriatric Care Certification",
+      "Basic Life Support (BLS) & First Aid",
+      "Full Police Verification Cleared",
+    ],
     languages: COMMON_LANGS,
     availability: "Day shifts (8-12 hrs), Night shifts, and 24-hour live-in options",
     featured: true,
@@ -117,14 +156,20 @@ export const SERVICES: Service[] = [
     slug: "hospital-attendants",
     name: "Hospital Assistance",
     category: "healthcare",
-    shortDesc: "Attentive bedside companionship, staff coordination, and recovery assistance during hospital stays.",
-    description: "Trained female attendants who remain by your family member's hospital bedside day and night. They ensure comfort, assist with bathroom visits, coordinate with nurses and doctors, and keep remote family members continuously informed.",
+    shortDesc:
+      "Attentive bedside companionship, staff coordination, and recovery assistance during hospital stays.",
+    description:
+      "Trained female attendants who remain by your family member's hospital bedside day and night. They ensure comfort, assist with bathroom visits, coordinate with nurses and doctors, and keep remote family members continuously informed.",
     rating: 4.9,
     reviewCount: 310,
     badge: "Popular",
     startingPrice: 1499,
     pricingUnit: "day",
-    benefits: ["Dedicated bedside vigil", "Direct coordination with hospital nursing staff", "Frequent vitals and comfort updates to family"],
+    benefits: [
+      "Dedicated bedside vigil",
+      "Direct coordination with hospital nursing staff",
+      "Frequent vitals and comfort updates to family",
+    ],
     includes: [
       "Continuous bedside observation and call-bell coordination",
       "Patient repositioning to prevent bedsores",
@@ -138,7 +183,11 @@ export const SERVICES: Service[] = [
       "Families balancing hospital visits with office or childcare demands",
     ],
     need: "Hospital stays are emotionally exhausting. A dedicated woman attendant by the bed ensures the patient is never unattended while the family rests.",
-    qualifications: ["Hospital Bedside Protocol Training", "Infection Control Certification", "Police Background Verification"],
+    qualifications: [
+      "Hospital Bedside Protocol Training",
+      "Infection Control Certification",
+      "Police Background Verification",
+    ],
     languages: COMMON_LANGS,
     availability: "12-hour day/night shifts and 24-hour continuous care",
     featured: true,
@@ -150,14 +199,20 @@ export const SERVICES: Service[] = [
     slug: "nursing-services",
     name: "Nursing Services",
     category: "healthcare",
-    shortDesc: "Qualified female nurses for clinical injections, wound dressings, catheter care and post-operative recovery.",
-    description: "Registered and certified female nurses providing clinical-grade care at home. From surgical wound management, IV infusion monitoring, and catheter changes to palliative comfort, our nurses combine hospital competence with warm bedside manners.",
+    shortDesc:
+      "Qualified female nurses for clinical injections, wound dressings, catheter care and post-operative recovery.",
+    description:
+      "Registered and certified female nurses providing clinical-grade care at home. From surgical wound management, IV infusion monitoring, and catheter changes to palliative comfort, our nurses combine hospital competence with warm bedside manners.",
     rating: 4.9,
     reviewCount: 285,
     badge: "Popular",
     startingPrice: 1999,
     pricingUnit: "day",
-    benefits: ["Certified GNM/B.Sc. nursing staff", "Sterile wound dressings & medication delivery", "Doctor prescription compliance"],
+    benefits: [
+      "Certified GNM/B.Sc. nursing staff",
+      "Sterile wound dressings & medication delivery",
+      "Doctor prescription compliance",
+    ],
     includes: [
       "Blood pressure, SpO2, blood glucose, and temperature tracking",
       "Sterile surgical wound dressings and suture inspection",
@@ -171,7 +226,11 @@ export const SERVICES: Service[] = [
       "Palliative and end-of-life compassionate medical support",
     ],
     need: "Clinical recovery at home requires professional expertise and strict hygiene without the cold stress of a hospital ward.",
-    qualifications: ["Registered Nurse (GNM or B.Sc Nursing)", "Active State Nursing Council Registration", "Police Verification Cleared"],
+    qualifications: [
+      "Registered Nurse (GNM or B.Sc Nursing)",
+      "Active State Nursing Council Registration",
+      "Police Verification Cleared",
+    ],
     languages: COMMON_LANGS,
     availability: "Short clinical visits (2 hrs), 12-hour shifts, and 24-hour nursing",
     featured: true,
@@ -183,14 +242,20 @@ export const SERVICES: Service[] = [
     slug: "post-natal-care",
     name: "Post-Natal Care",
     category: "home",
-    shortDesc: "Specialized maternal recuperation, newborn massage, feeding support and night soothing for new mothers.",
-    description: "Experienced post-natal attendants (Japani/Maldar trained) dedicated to newborn care and maternal recuperation. They handle traditional baby bathing, feeding assistance, soothing, and allow new mothers the deep, undisturbed sleep needed to heal.",
+    shortDesc:
+      "Specialized maternal recuperation, newborn massage, feeding support and night soothing for new mothers.",
+    description:
+      "Experienced post-natal attendants (Japani/Maldar trained) dedicated to newborn care and maternal recuperation. They handle traditional baby bathing, feeding assistance, soothing, and allow new mothers the deep, undisturbed sleep needed to heal.",
     rating: 5.0,
     reviewCount: 190,
     badge: "Popular",
     startingPrice: 1999,
     pricingUnit: "day",
-    benefits: ["Expert newborn massage & bath", "Breastfeeding latch & feeding support", "Restorative night rest for mother"],
+    benefits: [
+      "Expert newborn massage & bath",
+      "Breastfeeding latch & feeding support",
+      "Restorative night rest for mother",
+    ],
     includes: [
       "Gentle oil massage and warm bath for the newborn",
       "Umbilical cord care and diaper hygiene monitoring",
@@ -204,7 +269,11 @@ export const SERVICES: Service[] = [
       "Nuclear families where grandparents or extended family live far away",
     ],
     need: "The fourth trimester is physically and emotionally demanding. A loving, experienced woman attendant ensures mother and baby thrive.",
-    qualifications: ["Certified Post-Natal & Infant Care", "Pediatric First Aid Certified", "Police Background Cleared"],
+    qualifications: [
+      "Certified Post-Natal & Infant Care",
+      "Pediatric First Aid Certified",
+      "Police Background Cleared",
+    ],
     languages: COMMON_LANGS,
     availability: "12-hour day shifts, Night rest shifts, or 24-hour residential care",
     featured: true,
@@ -216,14 +285,20 @@ export const SERVICES: Service[] = [
     slug: "travel-assistance",
     name: "Travel Assistance",
     category: "travel",
-    shortDesc: "Vetted women companions for intercity travel, family road trips, bus transits and destination stays.",
-    description: "Reliable, background-checked women travel companions to accompany solo women, elderly parents, or young children on long-distance flights, trains, and outstation trips. From handling luggage to navigation and check-ins, they ensure safe and pleasant travel.",
+    shortDesc:
+      "Vetted women companions for intercity travel, family road trips, bus transits and destination stays.",
+    description:
+      "Reliable, background-checked women travel companions to accompany solo women, elderly parents, or young children on long-distance flights, trains, and outstation trips. From handling luggage to navigation and check-ins, they ensure safe and pleasant travel.",
     rating: 4.8,
     reviewCount: 145,
     badge: "Trending",
     startingPrice: 1599,
     pricingUnit: "day",
-    benefits: ["End-to-end journey companionship", "Luggage & ticketing assistance", "Live GPS sharing with family"],
+    benefits: [
+      "End-to-end journey companionship",
+      "Luggage & ticketing assistance",
+      "Live GPS sharing with family",
+    ],
     includes: [
       "Home-to-destination continuous accompaniment",
       "Assistance with boarding passes, security clearance and seating",
@@ -237,7 +312,11 @@ export const SERVICES: Service[] = [
       "Families needing an extra pair of hands with infants during transit",
     ],
     need: "Traveling through busy transit hubs can be intimidating. Having a calm, verified companion guarantees confidence and safety throughout.",
-    qualifications: ["Safe Travel Companion Training", "First Aid Certified", "Police Verification Cleared"],
+    qualifications: [
+      "Safe Travel Companion Training",
+      "First Aid Certified",
+      "Police Verification Cleared",
+    ],
     languages: COMMON_LANGS,
     availability: "Single-day transit, multi-day outstation, and return tours",
     featured: false,
@@ -249,14 +328,20 @@ export const SERVICES: Service[] = [
     slug: "airport-pickup",
     name: "Airport Assistance",
     category: "travel",
-    shortDesc: "Gate-to-curb and terminal meet-and-greet airport companions for hassle-free flights and transfers.",
-    description: "Dedicated female companions meeting passengers right at the airport arrival gate or assisting them from home through departure security. Ideal for seniors arriving late at night or international travelers navigating large terminals.",
+    shortDesc:
+      "Gate-to-curb and terminal meet-and-greet airport companions for hassle-free flights and transfers.",
+    description:
+      "Dedicated female companions meeting passengers right at the airport arrival gate or assisting them from home through departure security. Ideal for seniors arriving late at night or international travelers navigating large terminals.",
     rating: 4.9,
     reviewCount: 210,
     badge: "Popular",
     startingPrice: 999,
     pricingUnit: "trip",
-    benefits: ["Arrival gate meet-and-greet with name placard", "Wheelchair & baggage claim coordination", "Safe vehicle escort to doorstep"],
+    benefits: [
+      "Arrival gate meet-and-greet with name placard",
+      "Wheelchair & baggage claim coordination",
+      "Safe vehicle escort to doorstep",
+    ],
     includes: [
       "Flight status tracking and flight delay monitoring",
       "Personal meet-and-greet at terminal arrival gate",
@@ -270,7 +355,11 @@ export const SERVICES: Service[] = [
       "First-time air travelers overwhelmed by large international terminals",
     ],
     need: "Airports are cavernous and confusing. A trusted woman waiting at the arrival gate transforms anxiety into relief.",
-    qualifications: ["Airport Ground Escort Trained", "Police Verification Cleared", "Valid ID Badges"],
+    qualifications: [
+      "Airport Ground Escort Trained",
+      "Police Verification Cleared",
+      "Valid ID Badges",
+    ],
     languages: COMMON_LANGS,
     availability: "Available 24 hours a day with scheduled advance booking",
     featured: true,
@@ -282,14 +371,20 @@ export const SERVICES: Service[] = [
     slug: "railway-assistance",
     name: "Railway Assistance",
     category: "travel",
-    shortDesc: "Platform-side meet, luggage porter coordination, and safe coach boarding for train travelers.",
-    description: "Experienced female station companions who meet passengers at railway station entrances, assist through security checks, coordinate licensed porters, and escort passengers safely right to their coach berth.",
+    shortDesc:
+      "Platform-side meet, luggage porter coordination, and safe coach boarding for train travelers.",
+    description:
+      "Experienced female station companions who meet passengers at railway station entrances, assist through security checks, coordinate licensed porters, and escort passengers safely right to their coach berth.",
     rating: 4.8,
     reviewCount: 160,
     badge: "Specialized",
     startingPrice: 899,
     pricingUnit: "trip",
-    benefits: ["Platform & coach berth escort", "Luggage & porter management", "Boarding confirmation to family"],
+    benefits: [
+      "Platform & coach berth escort",
+      "Luggage & porter management",
+      "Boarding confirmation to family",
+    ],
     includes: [
       "Meet-and-greet at designated station concourse",
       "Platform change monitoring and train arrival tracking",
@@ -315,14 +410,20 @@ export const SERVICES: Service[] = [
     slug: "women-drivers",
     name: "Women Drivers",
     category: "travel",
-    shortDesc: "Licensed, background-checked professional women chauffeurs for daily commutes, errands and city travel.",
-    description: "Experienced, verified professional women drivers for personal vehicles or provided cars. Available for daily office commutes, senior clinic visits, children school runs, and outstation family trips.",
+    shortDesc:
+      "Licensed, background-checked professional women chauffeurs for daily commutes, errands and city travel.",
+    description:
+      "Experienced, verified professional women drivers for personal vehicles or provided cars. Available for daily office commutes, senior clinic visits, children school runs, and outstation family trips.",
     rating: 4.8,
     reviewCount: 230,
     badge: "Trending",
     startingPrice: 1199,
     pricingUnit: "day",
-    benefits: ["Licensed & defensive driving certified", "Police verified with clean traffic records", "Hourly, daily & monthly packages"],
+    benefits: [
+      "Licensed & defensive driving certified",
+      "Police verified with clean traffic records",
+      "Hourly, daily & monthly packages",
+    ],
     includes: [
       "Punctual arrival at your residence",
       "Safe driving adhering to speed limits and defensive road standards",
@@ -336,7 +437,11 @@ export const SERVICES: Service[] = [
       "Families seeking a permanent, trusted female chauffeur",
     ],
     need: "Commuting across bustling metros feels far safer with a trusted, polite professional woman behind the wheel.",
-    qualifications: ["Commercial/Private Driving Licence", "Defensive Driving Certification", "Police Background Verification Cleared"],
+    qualifications: [
+      "Commercial/Private Driving Licence",
+      "Defensive Driving Certification",
+      "Police Background Verification Cleared",
+    ],
     languages: COMMON_LANGS,
     availability: "4-hour blocks, 8-hour daily shifts, or monthly retainers",
     featured: true,
@@ -348,14 +453,20 @@ export const SERVICES: Service[] = [
     slug: "security-support",
     name: "Security Support",
     category: "safety",
-    shortDesc: "Trained women security escorts and protective companions for events, transit and residential peace of mind.",
-    description: "Disciplined, physically trained female security personnel providing close protection, event security, cash/jewelry transit escorts, and residential gate surveillance with heightened situational awareness.",
+    shortDesc:
+      "Trained women security escorts and protective companions for events, transit and residential peace of mind.",
+    description:
+      "Disciplined, physically trained female security personnel providing close protection, event security, cash/jewelry transit escorts, and residential gate surveillance with heightened situational awareness.",
     rating: 4.9,
     reviewCount: 115,
     badge: "High Demand",
     startingPrice: 1899,
     pricingUnit: "day",
-    benefits: ["Trained in situational awareness & self-defense", "Discreet and professional conduct", "24/7 control room GPS link"],
+    benefits: [
+      "Trained in situational awareness & self-defense",
+      "Discreet and professional conduct",
+      "24/7 control room GPS link",
+    ],
     includes: [
       "Close personal escort during public appearances or legal hearings",
       "Security supervision at weddings, conferences, and private functions",
@@ -369,7 +480,11 @@ export const SERVICES: Service[] = [
       "Individuals navigating sensitive legal or family court proceedings",
     ],
     need: "Discreet and vigilant security brings unwavering confidence in high-density or sensitive environments.",
-    qualifications: ["Security Guard Certification (PSARA compliant)", "Self-Defense & Martial Arts Trained", "Full Police Verification Cleared"],
+    qualifications: [
+      "Security Guard Certification (PSARA compliant)",
+      "Self-Defense & Martial Arts Trained",
+      "Full Police Verification Cleared",
+    ],
     languages: COMMON_LANGS,
     availability: "Hourly event shifts, 12-hour protection, and multi-day details",
     featured: false,
@@ -381,14 +496,20 @@ export const SERVICES: Service[] = [
     slug: "home-personal-care",
     name: "Home & Personal Care",
     category: "home",
-    shortDesc: "Warm daily living assistance, personal hygiene, and light domestic wellness support for home recuperation.",
-    description: "Empathetic caregivers assisting with day-to-day household living, personal grooming, dietary scheduling, and mobility for individuals regaining strength after illnesses or living with mobility limitations.",
+    shortDesc:
+      "Warm daily living assistance, personal hygiene, and light domestic wellness support for home recuperation.",
+    description:
+      "Empathetic caregivers assisting with day-to-day household living, personal grooming, dietary scheduling, and mobility for individuals regaining strength after illnesses or living with mobility limitations.",
     rating: 4.8,
     reviewCount: 340,
     badge: "Popular",
     startingPrice: 1099,
     pricingUnit: "day",
-    benefits: ["Gentle personal care with dignity", "Healthy meal & hydration routines", "Continuous family reassurance"],
+    benefits: [
+      "Gentle personal care with dignity",
+      "Healthy meal & hydration routines",
+      "Continuous family reassurance",
+    ],
     includes: [
       "Assistance with bathing, dressing, dental care, and hair grooming",
       "Light nutritious meal preparation and eating assistance",
@@ -402,7 +523,11 @@ export const SERVICES: Service[] = [
       "Families seeking dependable daylight caregiving support",
     ],
     need: "Recovering at home is faster when everyday personal tasks are handled with dignity, patience, and kindness.",
-    qualifications: ["Personal Care Attendant Diploma", "Hygiene & Infection Prevention Trained", "Police Verification Cleared"],
+    qualifications: [
+      "Personal Care Attendant Diploma",
+      "Hygiene & Infection Prevention Trained",
+      "Police Verification Cleared",
+    ],
     languages: COMMON_LANGS,
     availability: "Flexible day shifts (6, 8, 10 or 12 hours)",
     featured: false,
@@ -414,14 +539,20 @@ export const SERVICES: Service[] = [
     slug: "lifestyle-support",
     name: "Lifestyle Support",
     category: "lifestyle",
-    shortDesc: "Social outing accompaniment, errand running, technology tutoring and wellness company for active seniors.",
-    description: "Energetic and patient female companions to accompany active seniors on walks in the park, visits to friends, temple visits, bank chores, grocery shopping, and learning smartphones and video calling.",
+    shortDesc:
+      "Social outing accompaniment, errand running, technology tutoring and wellness company for active seniors.",
+    description:
+      "Energetic and patient female companions to accompany active seniors on walks in the park, visits to friends, temple visits, bank chores, grocery shopping, and learning smartphones and video calling.",
     rating: 4.9,
     reviewCount: 175,
     badge: "Specialized",
     startingPrice: 899,
     pricingUnit: "day",
-    benefits: ["Active social engagement & companionship", "Assistance with banking, errands & shopping", "Smartphone & video-call tutoring"],
+    benefits: [
+      "Active social engagement & companionship",
+      "Assistance with banking, errands & shopping",
+      "Smartphone & video-call tutoring",
+    ],
     includes: [
       "Accompanying seniors to parks, clubs, temples, and social gatherings",
       "Helping with utility bills, bank visits, and pharmacy shopping",
@@ -435,7 +566,11 @@ export const SERVICES: Service[] = [
       "Elders wanting to stay independent and socially connected",
     ],
     need: "Healthy aging is about connection and purposeful activity. A warm lifestyle companion makes every day vibrant.",
-    qualifications: ["Elder Companion Training", "Digital Literacy Certified", "Police Verification Cleared"],
+    qualifications: [
+      "Elder Companion Training",
+      "Digital Literacy Certified",
+      "Police Verification Cleared",
+    ],
     languages: COMMON_LANGS,
     availability: "Half-day outings (4 hrs) or full-day lifestyle support",
     featured: false,
@@ -575,7 +710,11 @@ export const ATTENDANTS: Attendant[] = [
     role: "Maternal & Newborn Care Specialist",
     rating: 5.0,
     experience: "7+ Years",
-    certifications: ["Certified Infant Care Specialist", "Pediatric First Aid", "Post-Natal Therapy"],
+    certifications: [
+      "Certified Infant Care Specialist",
+      "Pediatric First Aid",
+      "Post-Natal Therapy",
+    ],
     languages: ["Kannada", "Hindi", "English"],
     verification: "Police Verification Cleared (Bengaluru Police)",
     services: ["post-natal-care", "home-personal-care"],
@@ -605,7 +744,11 @@ export const ATTENDANTS: Attendant[] = [
     role: "Personal Security & Protective Escort",
     rating: 4.9,
     experience: "5 Years",
-    certifications: ["PSARA Security Guard Certified", "Martial Arts & Self-Defense", "Command Center Protocol"],
+    certifications: [
+      "PSARA Security Guard Certified",
+      "Martial Arts & Self-Defense",
+      "Command Center Protocol",
+    ],
     languages: ["Telugu", "Hindi", "English"],
     verification: "Police Verification Cleared (Cyberabad Police)",
     services: ["security-support", "women-drivers"],
@@ -659,9 +802,21 @@ export const CITIES: CityInfo[] = [
     dispatch: "<15 min",
     address: "SafeHub Towers, 100 Feet Road, Indiranagar, Bengaluru 560038",
     phone: "+91 80000 00000",
-    coverageAreas: ["Indiranagar", "Koramangala", "HSR Layout", "Whitefield", "Jayanagar", "Malleshwaram", "Hebbal", "Electronic City", "JP Nagar", "Bannerghatta"],
+    coverageAreas: [
+      "Indiranagar",
+      "Koramangala",
+      "HSR Layout",
+      "Whitefield",
+      "Jayanagar",
+      "Malleshwaram",
+      "Hebbal",
+      "Electronic City",
+      "JP Nagar",
+      "Bannerghatta",
+    ],
     popularServices: ["Elderly Care", "Hospital Assistance", "Women Drivers", "Post-Natal Care"],
-    description: "Our flagship command center in Bengaluru covers all central, eastern and southern tech corridors with instant emergency dispatch and verified attendants.",
+    description:
+      "Our flagship command center in Bengaluru covers all central, eastern and southern tech corridors with instant emergency dispatch and verified attendants.",
   },
   {
     slug: "chennai",
@@ -672,9 +827,26 @@ export const CITIES: CityInfo[] = [
     dispatch: "<18 min",
     address: "CareTower, Anna Salai, T. Nagar, Chennai 600017",
     phone: "+91 80000 00000",
-    coverageAreas: ["T. Nagar", "Adyar", "Mylapore", "Anna Nagar", "Velachery", "Besant Nagar", "Kilpauk", "OMR IT Corridor", "Nungambakkam", "Tambaram"],
-    popularServices: ["Elderly Care", "Nursing Services", "Hospital Assistance", "Airport Assistance"],
-    description: "Comprehensive medical and home attendant coverage across Chennai's historic residential areas and medical centers along Greams Road and Anna Salai.",
+    coverageAreas: [
+      "T. Nagar",
+      "Adyar",
+      "Mylapore",
+      "Anna Nagar",
+      "Velachery",
+      "Besant Nagar",
+      "Kilpauk",
+      "OMR IT Corridor",
+      "Nungambakkam",
+      "Tambaram",
+    ],
+    popularServices: [
+      "Elderly Care",
+      "Nursing Services",
+      "Hospital Assistance",
+      "Airport Assistance",
+    ],
+    description:
+      "Comprehensive medical and home attendant coverage across Chennai's historic residential areas and medical centers along Greams Road and Anna Salai.",
   },
   {
     slug: "hyderabad",
@@ -685,9 +857,20 @@ export const CITIES: CityInfo[] = [
     dispatch: "<20 min",
     address: "CyberCare Complex, Hitec City, Madhapur, Hyderabad 500081",
     phone: "+91 80000 00000",
-    coverageAreas: ["Banjara Hills", "Jubilee Hills", "Gachibowli", "Hitec City", "Kondapur", "Kukatpally", "Secunderabad", "Madhapur", "Begumpet"],
+    coverageAreas: [
+      "Banjara Hills",
+      "Jubilee Hills",
+      "Gachibowli",
+      "Hitec City",
+      "Kondapur",
+      "Kukatpally",
+      "Secunderabad",
+      "Madhapur",
+      "Begumpet",
+    ],
     popularServices: ["Nursing Services", "Post-Natal Care", "Women Drivers", "Security Support"],
-    description: "Serving twin cities families with clinical-grade home nursing, post-natal recovery specialists, and executive women chauffeurs.",
+    description:
+      "Serving twin cities families with clinical-grade home nursing, post-natal recovery specialists, and executive women chauffeurs.",
   },
   {
     slug: "coimbatore",
@@ -698,15 +881,36 @@ export const CITIES: CityInfo[] = [
     dispatch: "<15 min",
     address: "Greenway Hub, Avinashi Road, Peelamedu, Coimbatore 641004",
     phone: "+91 80000 00000",
-    coverageAreas: ["RS Puram", "Peelamedu", "Race Course", "Gandhipuram", "Saibaba Colony", "Saravanampatti", "Singanallur", "Vadavalli"],
-    popularServices: ["Elderly Care", "Railway Assistance", "Home & Personal Care", "Lifestyle Support"],
-    description: "Dedicated elder care and railway transit companions for Coimbatore and surrounding Kongu region communities.",
+    coverageAreas: [
+      "RS Puram",
+      "Peelamedu",
+      "Race Course",
+      "Gandhipuram",
+      "Saibaba Colony",
+      "Saravanampatti",
+      "Singanallur",
+      "Vadavalli",
+    ],
+    popularServices: [
+      "Elderly Care",
+      "Railway Assistance",
+      "Home & Personal Care",
+      "Lifestyle Support",
+    ],
+    description:
+      "Dedicated elder care and railway transit companions for Coimbatore and surrounding Kongu region communities.",
   },
 ];
 
 export const getCity = (slug: string) => CITIES.find((c) => c.slug === slug);
 
-export type ArticleCategory = "Government Schemes" | "Women Safety" | "Senior Citizen Care" | "Health Awareness" | "Travel Safety" | "Home Safety";
+export type ArticleCategory =
+  | "Government Schemes"
+  | "Women Safety"
+  | "Senior Citizen Care"
+  | "Health Awareness"
+  | "Travel Safety"
+  | "Home Safety";
 
 export const ARTICLE_CATEGORIES: ("All" | ArticleCategory)[] = [
   "All",
@@ -738,7 +942,8 @@ export const ARTICLES: Article[] = [
     readTime: "4 min read",
     author: "ApnaCare Safety Cell",
     date: "October 2026",
-    excerpt: "A practical, verified overview of travel safety provisions, 112 emergency integration, and reserved facilities every woman traveler should know.",
+    excerpt:
+      "A practical, verified overview of travel safety provisions, 112 emergency integration, and reserved facilities every woman traveler should know.",
     body: [
       "Knowing your rights makes every journey calmer and safer. This guide summarises verified safety measures, government mandates, and helplines available to women travellers across Indian transport networks.",
       "Key provisions include 24/7 designated women assistance booths at all major railway terminals, CCTV-equipped pink coach compartments, and priority emergency dispatch via the National Emergency Response Support System (ERSS - Dial 112).",
@@ -758,7 +963,8 @@ export const ARTICLES: Article[] = [
     readTime: "6 min read",
     author: "ApnaCare Social Support Desk",
     date: "September 2026",
-    excerpt: "An actionable introduction to Ayushman Bharat senior coverage, Indira Gandhi pension benefits, and state welfare provisions for elders.",
+    excerpt:
+      "An actionable introduction to Ayushman Bharat senior coverage, Indira Gandhi pension benefits, and state welfare provisions for elders.",
     body: [
       "Several central and state welfare programmes offer substantial medical and financial assistance to senior citizens aged 60 and above. Recent policy updates have expanded Ayushman Bharat PM-JAY health insurance to cover all citizens aged 70 and above, regardless of income brackets.",
       "Under the National Social Assistance Programme (NSAP), the Indira Gandhi National Old Age Pension Scheme (IGNOAPS) provides monthly pensions for elders living below poverty thresholds, with state supplements boosting totals.",
@@ -778,7 +984,8 @@ export const ARTICLES: Article[] = [
     readTime: "5 min read",
     author: "Clinical Advisory Board",
     date: "September 2026",
-    excerpt: "Simple daily vital observations and hydration tracking families and attendants can record to prevent emergency hospitalizations.",
+    excerpt:
+      "Simple daily vital observations and hydration tracking families and attendants can record to prevent emergency hospitalizations.",
     body: [
       "Early detection of subtle vital changes is the most powerful tool in geriatric home care. When caregivers track basic metrics daily, doctors can adjust dosages before a minor irregularity triggers an emergency ICU admission.",
       "The core vital checklist: Blood Pressure (measured seated after 5 minutes of rest), Heart Rate / Pulse, Blood Oxygen Saturation (SpO2), Morning Fasting Glucose (for diabetics), and Daily Fluid Intake vs. Output.",
@@ -798,7 +1005,8 @@ export const ARTICLES: Article[] = [
     readTime: "4 min read",
     author: "Ergonomics & Safety Team",
     date: "August 2026",
-    excerpt: "Low-cost, highly effective structural modifications to prevent domestic falls and preserve elderly independence.",
+    excerpt:
+      "Low-cost, highly effective structural modifications to prevent domestic falls and preserve elderly independence.",
     body: [
       "Falls are the leading cause of accidental injury and loss of mobility among adults aged 65 and older. More than 70% of senior falls occur inside the home — predominantly in bathrooms, stairwells, and dimly lit hallways.",
       "Bathroom modifications are urgent: install stainless steel grab bars anchored into wall studs next to the western toilet and shower area. Replace slick tiled floors with anti-skid mats or non-slip adhesive strips. A shower bench eliminates dangerous balancing while bathing.",
@@ -818,7 +1026,8 @@ export const ARTICLES: Article[] = [
     readTime: "5 min read",
     author: "Transit Mobility Team",
     date: "August 2026",
-    excerpt: "Practical checklist for booking wheelchair assistance, meal requests, and transit companion escorts.",
+    excerpt:
+      "Practical checklist for booking wheelchair assistance, meal requests, and transit companion escorts.",
     body: [
       "Long-distance travel does not have to be stressful for elderly family members. With strategic advance planning, airlines and railways provide comprehensive accessibility services.",
       "When booking airline tickets, always select the 'WCHR' (Wheelchair for distance to ramp) or 'WCHS' (Wheelchair for stairs) code during reservation. Arrive at least 2.5 hours prior to domestic flights to ensure dedicated ground escort staff are assigned.",
@@ -856,7 +1065,8 @@ export const REVIEWS: Review[] = [
     rating: 5,
     service: "Elderly Care",
     verified: true,
-    testimonial: "Sunitha has been caring for my 82-year-old father for the past 6 months. Her patience, prompt medicine reminders, and genuine warmth made a massive difference. As a practicing surgeon, having a verified, reliable woman attendant gave me peace of mind I haven't had in years.",
+    testimonial:
+      "Sunitha has been caring for my 82-year-old father for the past 6 months. Her patience, prompt medicine reminders, and genuine warmth made a massive difference. As a practicing surgeon, having a verified, reliable woman attendant gave me peace of mind I haven't had in years.",
     date: "2 weeks ago",
   },
   {
@@ -867,7 +1077,8 @@ export const REVIEWS: Review[] = [
     rating: 5,
     service: "Post-Natal Care",
     verified: true,
-    testimonial: "As first-time parents with no family in Bengaluru, we were completely overwhelmed after our baby's C-section birth. Ananya was a godsend. She handled the baby massage, helped my wife rest, and taught us safe swaddling. 100% transparent pricing and total reliability.",
+    testimonial:
+      "As first-time parents with no family in Bengaluru, we were completely overwhelmed after our baby's C-section birth. Ananya was a godsend. She handled the baby massage, helped my wife rest, and taught us safe swaddling. 100% transparent pricing and total reliability.",
     date: "1 month ago",
   },
   {
@@ -878,7 +1089,8 @@ export const REVIEWS: Review[] = [
     rating: 5,
     service: "Hospital Assistance",
     verified: true,
-    testimonial: "When my mother had knee replacement surgery at Apollo, I couldn't stay 24 hours at the hospital because of my office. Preeti stayed by her bedside, coordinated with the nurses, and kept me updated every few hours. Transparent invoicing and wonderful professionalism.",
+    testimonial:
+      "When my mother had knee replacement surgery at Apollo, I couldn't stay 24 hours at the hospital because of my office. Preeti stayed by her bedside, coordinated with the nurses, and kept me updated every few hours. Transparent invoicing and wonderful professionalism.",
     date: "3 weeks ago",
   },
   {
@@ -889,22 +1101,63 @@ export const REVIEWS: Review[] = [
     rating: 5,
     service: "Airport Assistance",
     verified: true,
-    testimonial: "I had to travel alone from Coimbatore to Delhi for an eye treatment. ApnaCare arranged an airport companion who helped me with my heavy luggage, check-in, and wheelchair transfer. Extremely polite, dignified, and safety-focused service.",
+    testimonial:
+      "I had to travel alone from Coimbatore to Delhi for an eye treatment. ApnaCare arranged an airport companion who helped me with my heavy luggage, check-in, and wheelchair transfer. Extremely polite, dignified, and safety-focused service.",
     date: "2 months ago",
   },
 ];
 
 export const PARTNER_CATEGORIES = [
-  { name: "Nursing Colleges", desc: "Top state-accredited nursing institutions for clinical candidate recruitment and field training.", count: "45+" },
-  { name: "Women's Colleges", desc: "Higher education institutions empowering young women with dignified employment paths.", count: "32+" },
-  { name: "NGOs", desc: "Women-focused non-profits and grassroots community welfare societies.", count: "89+" },
-  { name: "Women SHGs", desc: "National Rural Livelihoods Mission & urban Self Help Groups for direct livelihood generation.", count: "156+" },
-  { name: "Driving Institutes", desc: "Certified motor driving schools conducting defensive driving and chauffeuse training.", count: "38+" },
-  { name: "Hospitals & Healthcare", desc: "NABH-accredited hospitals, diagnostic clinics and home health provider networks.", count: "67+" },
-  { name: "Corporate Partners", desc: "Enterprise leaders partnering on women safety programs, CSR, and eldercare employee benefits.", count: "24+" },
-  { name: "Government Skill Centres", desc: "PMKVY and state skill development corporation affiliated vocational centers.", count: "52+" },
-  { name: "Police Verification", desc: "Authorized third-party background and police record verification agencies.", count: "18+" },
-  { name: "Legal Support", desc: "Women legal aid cells and labor advocacy counselors protecting attendant rights.", count: "12+" },
+  {
+    name: "Nursing Colleges",
+    desc: "Top state-accredited nursing institutions for clinical candidate recruitment and field training.",
+    count: "45+",
+  },
+  {
+    name: "Women's Colleges",
+    desc: "Higher education institutions empowering young women with dignified employment paths.",
+    count: "32+",
+  },
+  {
+    name: "NGOs",
+    desc: "Women-focused non-profits and grassroots community welfare societies.",
+    count: "89+",
+  },
+  {
+    name: "Women SHGs",
+    desc: "National Rural Livelihoods Mission & urban Self Help Groups for direct livelihood generation.",
+    count: "156+",
+  },
+  {
+    name: "Driving Institutes",
+    desc: "Certified motor driving schools conducting defensive driving and chauffeuse training.",
+    count: "38+",
+  },
+  {
+    name: "Hospitals & Healthcare",
+    desc: "NABH-accredited hospitals, diagnostic clinics and home health provider networks.",
+    count: "67+",
+  },
+  {
+    name: "Corporate Partners",
+    desc: "Enterprise leaders partnering on women safety programs, CSR, and eldercare employee benefits.",
+    count: "24+",
+  },
+  {
+    name: "Government Skill Centres",
+    desc: "PMKVY and state skill development corporation affiliated vocational centers.",
+    count: "52+",
+  },
+  {
+    name: "Police Verification",
+    desc: "Authorized third-party background and police record verification agencies.",
+    count: "18+",
+  },
+  {
+    name: "Legal Support",
+    desc: "Women legal aid cells and labor advocacy counselors protecting attendant rights.",
+    count: "12+",
+  },
 ];
 
 export const PARTNER_BENEFITS = [
@@ -920,13 +1173,34 @@ export const PARTNER_BENEFITS = [
 
 export const PARTNER_JOURNEY = [
   ["01 Identify Need", "Organization discovers partnership alignment with ApnaCare's mission."],
-  ["02 Submit Request", "Complete the comprehensive digital partnership enquiry form with institutional details."],
-  ["03 Admin Review", "Our Ecosystem Partnerships Directorate evaluates organizational credentials within 48 hours."],
-  ["04 Document Verification", "Submission of registration certificates, 12A/80G status, or educational accreditation."],
-  ["05 Strategic Discussion", "Virtual or in-person workshop to define candidate intake, safety protocols, and operational workflows."],
-  ["06 MoU Execution", "Finalization and digital signing of mutually agreed partnership Memorandum of Understanding."],
-  ["07 Onboarding & Training", "Candidates undergo ApnaCare safety curriculum, soft-skill training, and biometric verification."],
-  ["08 Active Impact", "Active deployment of verified female attendants with real-time impact dashboard reporting."],
+  [
+    "02 Submit Request",
+    "Complete the comprehensive digital partnership enquiry form with institutional details.",
+  ],
+  [
+    "03 Admin Review",
+    "Our Ecosystem Partnerships Directorate evaluates organizational credentials within 48 hours.",
+  ],
+  [
+    "04 Document Verification",
+    "Submission of registration certificates, 12A/80G status, or educational accreditation.",
+  ],
+  [
+    "05 Strategic Discussion",
+    "Virtual or in-person workshop to define candidate intake, safety protocols, and operational workflows.",
+  ],
+  [
+    "06 MoU Execution",
+    "Finalization and digital signing of mutually agreed partnership Memorandum of Understanding.",
+  ],
+  [
+    "07 Onboarding & Training",
+    "Candidates undergo ApnaCare safety curriculum, soft-skill training, and biometric verification.",
+  ],
+  [
+    "08 Active Impact",
+    "Active deployment of verified female attendants with real-time impact dashboard reporting.",
+  ],
 ];
 
 export const PARTNER_TYPES = [
@@ -982,7 +1256,13 @@ export const SUCCESS_STORIES = [
 export interface FAQItem {
   q: string;
   a: string;
-  category: "Safety & Verification" | "Booking & Rescheduling" | "Pricing & GST" | "Caregiver Matching" | "Emergency & SOS" | "Partnerships";
+  category:
+    | "Safety & Verification"
+    | "Booking & Rescheduling"
+    | "Pricing & GST"
+    | "Caregiver Matching"
+    | "Emergency & SOS"
+    | "Partnerships";
 }
 
 export const FAQS: FAQItem[] = [
@@ -1072,3 +1352,15 @@ export const SAFETY_PILLARS = [
 ];
 
 export const formatINR = (n: number) => "₹" + Math.round(n).toLocaleString("en-IN");
+
+/**
+ * Build a WhatsApp click-to-chat URL.
+ * `msg` is optional — pass a pre-filled message for contextual enquiries.
+ * The phone number is read from SITE.WHATSAPP (digits only, international format).
+ * NOTE: The number in SITE.WHATSAPP is a placeholder. Replace it with the real number before going live.
+ */
+export const buildWhatsAppUrl = (msg?: string) => {
+  const base = `https://wa.me/${SITE.WHATSAPP}`;
+  if (!msg) return base;
+  return `${base}?text=${encodeURIComponent(msg)}`;
+};

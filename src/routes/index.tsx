@@ -16,9 +16,11 @@ import {
   CheckCircle2,
   SlidersHorizontal,
   ChevronRight,
+  ChevronLeft,
   Radio,
   Zap,
 } from "lucide-react";
+import { EnquiryForm } from "@/components/site/EnquiryForm";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,7 +38,14 @@ import {
   type ServiceCategory,
   formatINR,
 } from "@/data/site";
-import { SectionHeading, ServiceCard, PricingCard, AttendantCard, ArticleCard, CityCard } from "@/components/site/Cards";
+import {
+  SectionHeading,
+  ServiceCard,
+  PricingCard,
+  AttendantCard,
+  ArticleCard,
+  CityCard,
+} from "@/components/site/Cards";
 import { BookLink, CallLink } from "@/components/site/Layout";
 import { SOSDemoButton } from "@/components/site/SOS";
 import { Countdown } from "@/components/site/Countdown";
@@ -55,7 +64,7 @@ export const Route = createFileRoute("/")({
   head: () =>
     seo(
       "ApnaCare — Trusted Women Attendants for Every Stage of Care",
-      "Safe, police-verified and compassionate women attendants for elderly care, hospital assistance, nursing, post-natal care, women drivers and travel across South India."
+      "Safe, police-verified and compassionate women attendants for elderly care, hospital assistance, nursing, post-natal care, women drivers and travel across South India.",
     ),
   component: Home,
 });
@@ -65,43 +74,75 @@ const SLIDES = [
     src: hero1,
     alt: "A compassionate woman attendant gently holding hands with a smiling elderly woman at home",
     caption: "Elderly Care & Home Companionship",
+    heading: "Warm, Dignified Care for Your Loved Ones",
+    sub: "Geriatric-certified women attendants providing 24/7 companionship, medication reminders, and mobility support.",
+    cta: { label: "Book Elderly Care", service: "elderly-care" },
   },
   {
     src: hero2,
     alt: "An attendant assisting an elderly patient walk safely with a frame in a hospital recovery corridor",
     caption: "Hospital Bedside & Post-Surgical Support",
+    heading: "Never Leave a Loved One Unattended in Hospital",
+    sub: "Dedicated bedside attendants who coordinate with nurses, assist with hygiene, and keep you updated around the clock.",
+    cta: { label: "Book Hospital Support", service: "hospital-attendants" },
   },
   {
     src: hero3,
     alt: "A professional woman chauffeur opening a vehicle door for an elderly woman at an airport terminal",
     caption: "Women Drivers & Airport Assistance",
+    heading: "Safe, Reliable Women Drivers for Every Journey",
+    sub: "Licensed and police-verified women chauffeurs for commutes, clinic visits, airport transfers, and outstation trips.",
+    cta: { label: "Book a Driver", service: "women-drivers" },
   },
   {
     src: hero4,
     alt: "A certified female nurse gently taking vitals and checking blood pressure for a home patient",
     caption: "Clinical Home Nursing & Wound Care",
+    heading: "Hospital-Grade Nursing in the Comfort of Home",
+    sub: "Registered GNM/B.Sc nurses for wound care, injections, catheter management, and post-operative recovery.",
+    cta: { label: "Book Nursing Services", service: "nursing-services" },
   },
   {
     src: hero5,
     alt: "A trained maternal care specialist tenderly swaddling a newborn baby while the mother rests",
     caption: "Post-Natal Maternal & Infant Recuperation",
+    heading: "Cherished Support for New Mothers & Newborns",
+    sub: "Experienced post-natal attendants for newborn massage, feeding guidance, and restorative rest for mothers.",
+    cta: { label: "Book Post-Natal Care", service: "post-natal-care" },
   },
   {
     src: hero6,
     alt: "A verified woman security companion accompanying an executive safely through a busy transit hub",
     caption: "Protective Security & Safe Travel Mobility",
+    heading: "Travel & Transit You Can Count On",
+    sub: "Verified women companions for airport meet-and-greet, railway escorts, and end-to-end intercity journeys.",
+    cta: { label: "Book Travel Support", service: "airport-pickup" },
   },
 ];
 
 function Hero() {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
+  const slide = SLIDES[i]!;
 
   useEffect(() => {
     if (paused) return;
     const t = setInterval(() => setI((x) => (x + 1) % SLIDES.length), 5500);
     return () => clearInterval(t);
   }, [paused]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") setI((x) => (x - 1 + SLIDES.length) % SLIDES.length);
+      if (e.key === "ArrowRight") setI((x) => (x + 1) % SLIDES.length);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  const prev = () => setI((x) => (x - 1 + SLIDES.length) % SLIDES.length);
+  const next = () => setI((x) => (x + 1) % SLIDES.length);
 
   return (
     <section
@@ -111,6 +152,7 @@ function Hero() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
+      {/* Slide images */}
       {SLIDES.map((s, idx) => (
         <img
           key={idx}
@@ -126,26 +168,54 @@ function Hero() {
       ))}
       <div className="absolute inset-0 -z-10 hero-scrim" />
 
+      {/* Prev / Next arrows */}
+      <button
+        onClick={prev}
+        aria-label="Previous slide"
+        className="absolute left-4 top-1/2 z-10 -translate-y-1/2 grid size-10 place-items-center rounded-full bg-primary-foreground/15 text-primary-foreground backdrop-blur hover:bg-primary-foreground/30 transition-colors md:left-8"
+      >
+        <ChevronLeft className="size-5" />
+      </button>
+      <button
+        onClick={next}
+        aria-label="Next slide"
+        className="absolute right-4 top-1/2 z-10 -translate-y-1/2 grid size-10 place-items-center rounded-full bg-primary-foreground/15 text-primary-foreground backdrop-blur hover:bg-primary-foreground/30 transition-colors md:right-8"
+      >
+        <ChevronRight className="size-5" />
+      </button>
+
       <div className="container-page flex min-h-[82vh] flex-col justify-center py-20 text-primary-foreground">
-        <div className="max-w-2xl animate-fade-up">
+        <div className="max-w-2xl">
           <p className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/15 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] backdrop-blur">
             <Sparkles className="size-3.5 text-terracotta" />
-            Premium care for every stage
+            {slide.caption}
           </p>
 
-          <h1 className="mt-6 text-balance text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
-            Trusted Women Attendants for Every Stage of Care
+          <h1
+            key={`h-${i}`}
+            className="mt-6 text-balance text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl animate-fade-up"
+          >
+            {slide.heading}
           </h1>
 
-          <p className="mt-5 max-w-xl text-lg text-primary-foreground/85 leading-relaxed">
-            Safe, verified and compassionate support for elderly care, hospital assistance, nursing, post-natal recovery, and secure travel mobility.
+          <p
+            key={`p-${i}`}
+            className="mt-5 max-w-xl text-lg text-primary-foreground/85 leading-relaxed animate-fade-up"
+          >
+            {slide.sub}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <BookLink size="lg" variant="warm">
-              Book a Service
+            <BookLink size="lg" variant="warm" service={slide.cta.service}>
+              {slide.cta.label}
             </BookLink>
-            <CallLink variant="glass" className="h-13 px-7 text-base" />
+            <BookLink
+              size="lg"
+              variant="default"
+              className="bg-primary-foreground/15 text-primary-foreground border border-primary-foreground/30 hover:bg-primary-foreground/25 backdrop-blur"
+            >
+              Explore Services
+            </BookLink>
           </div>
 
           <div className="mt-6 flex items-center gap-2 text-xs text-primary-foreground/75 font-medium">
@@ -154,7 +224,7 @@ function Hero() {
           </div>
         </div>
 
-        {/* Carousel slide indicator & playback controls */}
+        {/* Slide indicators & playback controls */}
         <div className="mt-12 flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             {SLIDES.map((s, idx) => (
@@ -164,7 +234,9 @@ function Hero() {
                 aria-label={`Show slide ${idx + 1}: ${s.caption}`}
                 aria-current={idx === i}
                 className={`h-2 rounded-full transition-all ${
-                  idx === i ? "w-10 bg-primary-foreground" : "w-4 bg-primary-foreground/40 hover:bg-primary-foreground/70"
+                  idx === i
+                    ? "w-10 bg-primary-foreground"
+                    : "w-4 bg-primary-foreground/40 hover:bg-primary-foreground/70"
                 }`}
               />
             ))}
@@ -179,7 +251,7 @@ function Hero() {
           </button>
 
           <span className="text-xs font-semibold text-primary-foreground/80 tracking-wide uppercase">
-            {SLIDES[i]?.caption}
+            {i + 1} / {SLIDES.length}
           </span>
         </div>
       </div>
@@ -215,17 +287,47 @@ const PILLARS = [
 ];
 
 const JOURNEY_STEPS = [
-  { num: "01", title: "Discover", desc: "Browse 11 specialized categories and explore transparent per-day or per-trip rates." },
-  { num: "02", title: "Select", desc: "Choose preferred service, location, language fluencies, and required shift hours." },
-  { num: "03", title: "Verify", desc: "Receive and preview verified digital attendant profiles with credentials and certifications." },
-  { num: "04", title: "Book", desc: "Submit your reservation with transparent GST pricing, zero hidden fees, and instant confirmation." },
-  { num: "05", title: "Assign", desc: "Your dedicated woman attendant arrives punctually with supervisor coordination." },
-  { num: "06", title: "Support", desc: "Live shift check-in tracking, WhatsApp updates to family, and 24/7 control room telemetry." },
-  { num: "07", title: "Complete", desc: "Shift completion report, transparent rating submission, and effortless schedule renewal." },
+  {
+    num: "01",
+    title: "Discover",
+    desc: "Browse 11 specialized categories and explore transparent per-day or per-trip rates.",
+  },
+  {
+    num: "02",
+    title: "Select",
+    desc: "Choose preferred service, location, language fluencies, and required shift hours.",
+  },
+  {
+    num: "03",
+    title: "Verify",
+    desc: "Receive and preview verified digital attendant profiles with credentials and certifications.",
+  },
+  {
+    num: "04",
+    title: "Book",
+    desc: "Submit your reservation with transparent GST pricing, zero hidden fees, and instant confirmation.",
+  },
+  {
+    num: "05",
+    title: "Assign",
+    desc: "Your dedicated woman attendant arrives punctually with supervisor coordination.",
+  },
+  {
+    num: "06",
+    title: "Support",
+    desc: "Live shift check-in tracking, WhatsApp updates to family, and 24/7 control room telemetry.",
+  },
+  {
+    num: "07",
+    title: "Complete",
+    desc: "Shift completion report, transparent rating submission, and effortless schedule renewal.",
+  },
 ];
 
 function RecommendationEngine() {
-  const [recipient, setRecipient] = useState<"elder" | "hospital" | "maternal" | "travel" | "driver">("elder");
+  const [recipient, setRecipient] = useState<
+    "elder" | "hospital" | "maternal" | "travel" | "driver"
+  >("elder");
   const [duration, setDuration] = useState<"day" | "livein" | "trip">("day");
 
   const recommendations = {
@@ -288,14 +390,19 @@ function RecommendationEngine() {
       <div className="grid gap-10 lg:grid-cols-2 items-center">
         <div>
           <span className="eyebrow text-terracotta">Interactive Matcher</span>
-          <h3 className="mt-2 text-2xl font-semibold md:text-3xl">Find the Perfect Care Package in 2 Clicks</h3>
+          <h3 className="mt-2 text-2xl font-semibold md:text-3xl">
+            Find the Perfect Care Package in 2 Clicks
+          </h3>
           <p className="mt-3 text-sm text-muted-foreground">
-            Tell us who needs assistance, and our matching logic immediately calculates the optimal caregiver profile and transparent rate.
+            Tell us who needs assistance, and our matching logic immediately calculates the optimal
+            caregiver profile and transparent rate.
           </p>
 
           <div className="mt-6 space-y-4">
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">1. Who requires care?</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                1. Who requires care?
+              </label>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[
                   { id: "elder", label: "Aging Parent / Elder" },
@@ -306,7 +413,11 @@ function RecommendationEngine() {
                 ].map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => setRecipient(item.id as any)}
+                    onClick={() =>
+                      setRecipient(
+                        item.id as "elder" | "hospital" | "maternal" | "travel" | "driver",
+                      )
+                    }
                     className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
                       recipient === item.id
                         ? "bg-primary text-primary-foreground shadow-2xs"
@@ -320,7 +431,9 @@ function RecommendationEngine() {
             </div>
 
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">2. Shift Type</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                2. Shift Type
+              </label>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[
                   { id: "day", label: "Day Shift (8-12 hrs)" },
@@ -329,7 +442,7 @@ function RecommendationEngine() {
                 ].map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => setDuration(item.id as any)}
+                    onClick={() => setDuration(item.id as "day" | "livein" | "trip")}
                     className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
                       duration === item.id
                         ? "bg-terracotta text-terracotta-foreground shadow-2xs"
@@ -382,7 +495,7 @@ function Home() {
   const [selectedCat, setSelectedCat] = useState<"all" | ServiceCategory>("all");
 
   const filteredServices = SERVICES.filter(
-    (s) => selectedCat === "all" || s.category === selectedCat
+    (s) => selectedCat === "all" || s.category === selectedCat,
   );
 
   return (
@@ -412,7 +525,10 @@ function Home() {
         />
         <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {PILLARS.map((p, n) => (
-            <div key={p.t} className="card-soft p-7 transition-all hover:border-primary/40 hover:shadow-lift">
+            <div
+              key={p.t}
+              className="card-soft p-7 transition-all hover:border-primary/40 hover:shadow-lift"
+            >
               <p className="font-display text-sm font-bold text-terracotta">0{n + 1}</p>
               <h3 className="mt-3 text-2xl font-semibold">{p.t}</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.d}</p>
@@ -507,7 +623,10 @@ function Home() {
       </section>
 
       {/* Transparent Pricing */}
-      <section className="border-t border-border bg-secondary/20 py-20 md:py-28" onMouseEnter={() => track("pricing_view")}>
+      <section
+        className="border-t border-border bg-secondary/20 py-20 md:py-28"
+        onMouseEnter={() => track("pricing_view")}
+      >
         <div className="container-page">
           <SectionHeading
             center
@@ -523,9 +642,15 @@ function Home() {
           </div>
 
           <div className="mt-10 flex flex-wrap justify-center gap-6 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-primary" /> Guaranteed No Hidden Charges</span>
-            <span className="flex items-center gap-1.5"><BadgeCheck className="size-4 text-primary" /> 18% GST Invoicing Included</span>
-            <span className="flex items-center gap-1.5"><Zap className="size-4 text-primary" /> Full Refund Protection Before Dispatch</span>
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="size-4 text-primary" /> Guaranteed No Hidden Charges
+            </span>
+            <span className="flex items-center gap-1.5">
+              <BadgeCheck className="size-4 text-primary" /> 18% GST Invoicing Included
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Zap className="size-4 text-primary" /> Full Refund Protection Before Dispatch
+            </span>
           </div>
         </div>
       </section>
@@ -535,15 +660,22 @@ function Home() {
         <div className="container-page grid items-center gap-12 lg:grid-cols-2">
           <div>
             <p className="eyebrow text-terracotta">Safety & Vetting</p>
-            <h2 className="mt-3 text-4xl font-semibold leading-tight">Our Standard is Uncompromising Trust</h2>
+            <h2 className="mt-3 text-4xl font-semibold leading-tight">
+              Our Standard is Uncompromising Trust
+            </h2>
             <p className="mt-4 text-lg text-primary-foreground/80 leading-relaxed">
-              Every single ApnaCare attendant passes multi-step background checks, biometric authentication, state police clearance, and accredited clinical safety certifications.
+              Every single ApnaCare attendant passes multi-step background checks, biometric
+              authentication, state police clearance, and accredited clinical safety certifications.
             </p>
             <div className="mt-8 flex gap-4">
               <Button asChild variant="glass">
                 <Link to="/safety">How We Verify Attendants</Link>
               </Button>
-              <Button asChild variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/15">
+              <Button
+                asChild
+                variant="outline"
+                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/15"
+              >
                 <Link to="/safety-guidelines">Safety Guidelines</Link>
               </Button>
             </div>
@@ -558,7 +690,10 @@ function Home() {
               "Live GPS Shift Telemetry",
               "24/7 Command SOS Dispatch",
             ].map((x) => (
-              <li key={x} className="flex items-center gap-3 rounded-2xl bg-primary-foreground/10 p-4 font-medium backdrop-blur">
+              <li
+                key={x}
+                className="flex items-center gap-3 rounded-2xl bg-primary-foreground/10 p-4 font-medium backdrop-blur"
+              >
                 <ShieldCheck className="size-5 text-terracotta shrink-0" aria-hidden />
                 <span>{x}</span>
               </li>
@@ -592,9 +727,13 @@ function Home() {
         <div className="grid items-center gap-10 rounded-[2.5rem] border border-sos/25 bg-card p-8 shadow-soft md:p-14 lg:grid-cols-[1.2fr_1fr]">
           <div>
             <span className="eyebrow text-sos">Rapid Response</span>
-            <h2 className="mt-3 text-3xl font-semibold md:text-4xl">Integrated 24/7 Emergency SOS</h2>
+            <h2 className="mt-3 text-3xl font-semibold md:text-4xl">
+              Integrated 24/7 Emergency SOS
+            </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-              Every booking is linked to our centralized Command Desk. In any crisis, an instant panic-button triggers real-time GPS telemetry, alerts designated kin, and coordinates emergency response.
+              Every booking is linked to our centralized Command Desk. In any crisis, an instant
+              panic-button triggers real-time GPS telemetry, alerts designated kin, and coordinates
+              emergency response.
             </p>
             <ul className="mt-6 grid gap-2.5 text-sm sm:grid-cols-2">
               {[
@@ -662,7 +801,9 @@ function Home() {
                       navigator.clipboard?.writeText(p.code);
                       savePromo(p.code);
                       track("promo_apply", { code: p.code });
-                      toast.success(`${p.code} applied! Discount will appear on your booking summary.`);
+                      toast.success(
+                        `${p.code} applied! Discount will appear on your booking summary.`,
+                      );
                     }}
                     className="gap-2"
                   >
@@ -704,7 +845,9 @@ function Home() {
               </div>
               <figcaption className="mt-6 border-t border-border pt-4 text-sm text-muted-foreground">
                 <p className="font-semibold text-foreground">{r.name}</p>
-                <p className="text-xs text-muted-foreground">{r.relation} · {r.location} · {r.service}</p>
+                <p className="text-xs text-muted-foreground">
+                  {r.relation} · {r.location} · {r.service}
+                </p>
               </figcaption>
             </figure>
           ))}
@@ -751,20 +894,30 @@ function Home() {
         </div>
       </section>
 
-      {/* Final Call to Action */}
-      <section className="container-page pb-20 pt-10 text-center md:pb-28">
+      {/* Enquiry Form + CTA */}
+      <section id="enquiry" className="container-page pb-20 pt-10 md:pb-28">
         <div className="rounded-[3rem] bg-ink p-10 text-ink-foreground md:p-16">
-          <h2 className="mx-auto max-w-2xl text-balance text-4xl font-semibold md:text-5xl">
-            Dependable, gentle care arranged in minutes.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-ink-foreground/80 leading-relaxed">
-            Tell us what your family needs — we will match a verified woman attendant ready to step in with warmth and competence.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <BookLink size="lg" variant="warm">
-              Book a Service
-            </BookLink>
-            <CallLink variant="glass" className="h-13 px-7 text-base" />
+          <div className="grid gap-12 lg:grid-cols-2 items-center">
+            <div>
+              <h2 className="max-w-lg text-balance text-4xl font-semibold md:text-5xl">
+                Dependable, gentle care arranged in minutes.
+              </h2>
+              <p className="mt-4 max-w-md text-lg text-ink-foreground/80 leading-relaxed">
+                Tell us what your family needs — we'll match a verified woman attendant ready to
+                step in with warmth and competence.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <BookLink size="lg" variant="warm">
+                  Book a Service
+                </BookLink>
+                <CallLink variant="glass" className="h-13 px-7 text-base" />
+              </div>
+            </div>
+            <EnquiryForm
+              title="Quick Callback Request"
+              subtitle="Share your details and we'll call you within 2 hours."
+              className="bg-background text-foreground"
+            />
           </div>
         </div>
       </section>
