@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { useState, useRef, useEffect, type ReactNode } from "react";
 import {
   Menu,
@@ -144,7 +144,7 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       {
         label: "Our Process",
-        to: "/about",
+        to: "/#how-it-works",
         description: "How ApnaCare matches and deploys attendants",
       },
       {
@@ -170,7 +170,7 @@ const NAV_ITEMS: NavItem[] = [
       },
       {
         label: "Verification Process",
-        to: "/safety",
+        to: "/safety#verification",
         description: "5-step police & biometric screening",
       },
       {
@@ -180,7 +180,7 @@ const NAV_ITEMS: NavItem[] = [
       },
       {
         label: "Emergency Support",
-        to: "/safety",
+        to: "/safety#emergency",
         description: "24/7 SOS & command center protocols",
       },
     ],
@@ -296,6 +296,20 @@ function DesktopDropdown({ item }: { item: NavItem }) {
     }, 200);
   };
 
+  const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    setOpen(false);
+    const [path, hash] = href.split("#");
+    const targetPath = path || "/";
+    if (window.location.pathname === targetPath && hash) {
+      e.preventDefault();
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.history.pushState(null, "", href);
+      }
+    }
+  };
+
   if (!item.children) {
     return (
       <Link
@@ -337,12 +351,9 @@ function DesktopDropdown({ item }: { item: NavItem }) {
           style={{ backgroundColor: "#ffffff" }}
           className="absolute left-0 top-full z-[200] mt-1.5 w-80 overflow-hidden rounded-2xl border border-border/80 text-foreground shadow-2xl ring-1 ring-black/10 animate-fade-in dark:bg-card"
         >
-          <div
-            style={{ backgroundColor: "#ffffff" }}
-            className="grid gap-1 p-2.5 dark:bg-card"
-          >
+          <div style={{ backgroundColor: "#ffffff" }} className="grid gap-1 p-2.5 dark:bg-card">
             {item.children.map((child) => {
-              const isHash = child.to.startsWith("/#") || child.to.startsWith("#");
+              const isHash = child.to.includes("#");
               const content = (
                 <>
                   <span className="text-sm font-medium group-hover:text-primary transition-colors">
@@ -362,7 +373,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
                     key={child.to}
                     href={child.to}
                     role="menuitem"
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => handleHashLinkClick(e, child.to)}
                     className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
                   >
                     {content}
@@ -424,13 +435,25 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
       {open && (
         <div className="ml-3 mt-1 grid gap-0.5 border-l-2 border-border pl-3">
           {item.children.map((child) => {
-            const isHash = child.to.startsWith("/#") || child.to.startsWith("#");
+            const isHash = child.to.includes("#");
             if (isHash) {
               return (
                 <a
                   key={child.to}
                   href={child.to}
-                  onClick={onClose}
+                  onClick={(e) => {
+                    onClose();
+                    const [path, hash] = child.to.split("#");
+                    const targetPath = path || "/";
+                    if (window.location.pathname === targetPath && hash) {
+                      e.preventDefault();
+                      const el = document.getElementById(hash);
+                      if (el) {
+                        el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        window.history.pushState(null, "", child.to);
+                      }
+                    }
+                  }}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                 >
                   {child.label}
@@ -744,6 +767,28 @@ function FloatingWhatsApp() {
 // ─── Site Layout ──────────────────────────────────────────────────────────────
 
 export function SiteLayout({ children }: { children: ReactNode }) {
+  const location = useLocation();
+
+  useEffect(() => {
+    function scrollToHash() {
+      if (typeof window !== "undefined" && window.location.hash) {
+        const id = window.location.hash.replace("#", "");
+        if (id) {
+          const el = document.getElementById(id);
+          if (el) {
+            setTimeout(() => {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
+          }
+        }
+      }
+    }
+
+    scrollToHash();
+    window.addEventListener("hashchange", scrollToHash);
+    return () => window.removeEventListener("hashchange", scrollToHash);
+  }, [location.pathname]);
+
   return (
     <div className="flex min-h-screen flex-col">
       <a

@@ -26,7 +26,7 @@ export const Route = createFileRoute("/safety")({
   head: () =>
     seo(
       "Safety & Attendant Verification Architecture — ApnaCare",
-      "Our 5-stage vetting protocol: Biometric Aadhaar verification, state police clearance, clinical skill evaluations, GPS tracking and 24/7 command center SOS dispatch."
+      "Our 5-stage vetting protocol: Biometric Aadhaar verification, state police clearance, clinical skill evaluations, GPS tracking and 24/7 command center SOS dispatch.",
     ),
   component: Safety,
 });
@@ -60,15 +60,51 @@ const VETTING_STAGES = [
 ];
 
 const SAFETY_FEATURES = [
-  [FileCheck, "Rigorous Background Verification", "Physical residence verification, previous employer cross-referencing, and identity screening."],
-  [ShieldCheck, "100% Police Record Cleared", "Mandatory law enforcement vetting before any shift assignment is permitted."],
-  [GraduationCap, "Role-Specific Clinical Certification", "Accredited diplomas in geriatric care, newborn handling, or defensive commercial driving."],
-  [BadgeCheck, "Soft-Skill & Dignity Training", "Sensitization toward elderly emotional needs, dementia patience, and polite bedside conduct."],
-  [MapPin, "Live GPS Shift Telemetry", "Real-time location sharing during all transits and shift check-ins for complete visibility."],
-  [Siren, "Instant Emergency SOS Beacon", "Every active booking includes a panic button directly routed to our central control room."],
-  [Bell, "Automated Family Alerts", "Real-time SMS and WhatsApp check-in and check-out logs delivered to primary kin contacts."],
-  [Radio, "24/7 Command Center Monitoring", "Continuous supervision with guaranteed 90-minute backup replacement dispatch."],
-  [Headphones, "Dedicated Care Coordinator", "A dedicated human supervisor assigned to your family for schedule adjustments."],
+  [
+    FileCheck,
+    "Rigorous Background Verification",
+    "Physical residence verification, previous employer cross-referencing, and identity screening.",
+  ],
+  [
+    ShieldCheck,
+    "100% Police Record Cleared",
+    "Mandatory law enforcement vetting before any shift assignment is permitted.",
+  ],
+  [
+    GraduationCap,
+    "Role-Specific Clinical Certification",
+    "Accredited diplomas in geriatric care, newborn handling, or defensive commercial driving.",
+  ],
+  [
+    BadgeCheck,
+    "Soft-Skill & Dignity Training",
+    "Sensitization toward elderly emotional needs, dementia patience, and polite bedside conduct.",
+  ],
+  [
+    MapPin,
+    "Live GPS Shift Telemetry",
+    "Real-time location sharing during all transits and shift check-ins for complete visibility.",
+  ],
+  [
+    Siren,
+    "Instant Emergency SOS Beacon",
+    "Every active booking includes a panic button directly routed to our central control room.",
+  ],
+  [
+    Bell,
+    "Automated Family Alerts",
+    "Real-time SMS and WhatsApp check-in and check-out logs delivered to primary kin contacts.",
+  ],
+  [
+    Radio,
+    "24/7 Command Center Monitoring",
+    "Continuous supervision with guaranteed 90-minute backup replacement dispatch.",
+  ],
+  [
+    Headphones,
+    "Dedicated Care Coordinator",
+    "A dedicated human supervisor assigned to your family for schedule adjustments.",
+  ],
 ] as const;
 
 function Safety() {
@@ -88,7 +124,7 @@ function Safety() {
       </PageHero>
 
       {/* 5-Stage Vetting Protocol */}
-      <section className="container-page py-16 md:py-24">
+      <section id="verification" className="container-page py-16 md:py-24 scroll-mt-20">
         <SectionHeading
           eyebrow="Verification Funnel"
           title="The 5-Stage Attendant Vetting Protocol"
@@ -136,18 +172,22 @@ function Safety() {
       </section>
 
       {/* SOS Simulation Box */}
-      <section className="container-page py-16 md:py-24">
+      <section id="emergency" className="container-page py-16 md:py-24 scroll-mt-20">
         <div className="flex flex-col items-start gap-8 rounded-[2.5rem] border border-sos/30 bg-card p-8 shadow-soft md:flex-row md:items-center md:justify-between md:p-12">
           <div>
             <span className="eyebrow text-sos">Rapid Response</span>
             <h2 className="mt-2 text-3xl font-semibold">Try the Integrated SOS Simulation</h2>
             <p className="mt-2 max-w-xl text-base text-muted-foreground leading-relaxed">
-              Experience the instant panic-beacon response built into every active booking dashboard. See how coordinates, emergency kin alerts, and control-room communications activate within seconds.
+              Experience the instant panic-beacon response built into every active booking
+              dashboard. See how coordinates, emergency kin alerts, and control-room communications
+              activate within seconds.
             </p>
           </div>
           <div className="shrink-0 flex flex-col items-center gap-2">
             <SOSDemoButton />
-            <span className="text-xs text-muted-foreground">Safe demo simulation · No real responders notified</span>
+            <span className="text-xs text-muted-foreground">
+              Safe demo simulation · No real responders notified
+            </span>
           </div>
         </div>
       </section>

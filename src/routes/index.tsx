@@ -538,7 +538,10 @@ function Home() {
       </section>
 
       {/* How It Works (Customer Journey) */}
-      <section className="border-y border-border bg-secondary/30 py-20 md:py-28">
+      <section
+        id="how-it-works"
+        className="border-y border-border bg-secondary/30 py-20 md:py-28 scroll-mt-20"
+      >
         <div className="container-page">
           <SectionHeading
             center
@@ -570,7 +573,7 @@ function Home() {
       </section>
 
       {/* Expanded Services with Interactive Category Switcher */}
-      <section className="container-page py-20 md:py-28">
+      <section id="services" className="container-page py-20 md:py-28 scroll-mt-20">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
             eyebrow="Our Care Portfolio"
@@ -624,7 +627,8 @@ function Home() {
 
       {/* Transparent Pricing */}
       <section
-        className="border-t border-border bg-secondary/20 py-20 md:py-28"
+        id="pricing"
+        className="border-t border-border bg-secondary/20 py-20 md:py-28 scroll-mt-20"
         onMouseEnter={() => track("pricing_view")}
       >
         <div className="container-page">
@@ -656,7 +660,10 @@ function Home() {
       </section>
 
       {/* Safety & Vetting Pillars */}
-      <section className="bg-primary py-20 text-primary-foreground md:py-28">
+      <section
+        id="safety"
+        className="bg-primary py-20 text-primary-foreground md:py-28 scroll-mt-20"
+      >
         <div className="container-page grid items-center gap-12 lg:grid-cols-2">
           <div>
             <p className="eyebrow text-terracotta">Safety & Vetting</p>
@@ -703,7 +710,7 @@ function Home() {
       </section>
 
       {/* Meet Our Attendants */}
-      <section className="container-page py-20 md:py-28">
+      <section id="attendants" className="container-page py-20 md:py-28 scroll-mt-20">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
             eyebrow="Our Verified People"
@@ -723,7 +730,7 @@ function Home() {
       </section>
 
       {/* Integrated Emergency SOS Component */}
-      <section className="container-page pb-20 md:pb-28">
+      <section id="sos" className="container-page pb-20 md:pb-28 scroll-mt-20">
         <div className="grid items-center gap-10 rounded-[2.5rem] border border-sos/25 bg-card p-8 shadow-soft md:p-14 lg:grid-cols-[1.2fr_1fr]">
           <div>
             <span className="eyebrow text-sos">Rapid Response</span>
