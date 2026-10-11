@@ -48,22 +48,35 @@ var EMAIL_CONFIG = {
 
   // Operations team alert recipients for inbound bookings & leads
   leadEmails: [
-    "divabhrati.ramco@gmail.com",
     "divabhrati.ramco@gmail.com"
   ],
 
   // Executive digest recipients (Daily/Weekly/Monthly)
   reportEmails: [
-    "divabhrati.ramco@gmail.com",
     "divabhrati.ramco@gmail.com"
   ],
 
   // Emergency SOS escalation recipients
   emergencyEmails: [
-    "divabhrati.ramco@gmail.com",
     "divabhrati.ramco@gmail.com"
   ]
 };
+
+// Deduplication helper to prevent duplicate email dispatches
+function getUniqueRecipients(list) {
+  if (!list) return [];
+  if (typeof list === "string") return [list.trim()];
+  var seen = {};
+  var unique = [];
+  for (var i = 0; i < list.length; i++) {
+    var email = String(list[i] || "").trim().toLowerCase();
+    if (email && email.indexOf("@") !== -1 && !seen[email]) {
+      seen[email] = true;
+      unique.push(list[i].trim());
+    }
+  }
+  return unique;
+}
 
 // =========================================================================================
 // TAB SCHEMAS (Headers for all 18 tabs)
@@ -209,12 +222,54 @@ function getSpreadsheet() {
   return null;
 }
 
+function repairHeadersIfNeeded(sheet, tabName) {
+  var headers = (TAB_HEADERS && TAB_HEADERS[tabName]) ? TAB_HEADERS[tabName] : [];
+  if (!headers || !headers.length) return headers;
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn();
+
+  if (lastRow === 0 || lastCol === 0) {
+    sheet.getRange(1, 1, 1, headers.length)
+      .setValues([headers])
+      .setFontWeight("bold")
+      .setBackground(CONFIG.BRAND_SECONDARY || "#064e3b")
+      .setFontColor("#ffffff")
+      .setHorizontalAlignment("center");
+    sheet.setFrozenRows(1);
+    return headers;
+  }
+
+  // Inspect existing headers in row 1
+  var existingRow = sheet.getRange(1, 1, 1, Math.max(lastCol, headers.length)).getValues()[0];
+  var mismatch = false;
+
+  for (var i = 0; i < headers.length; i++) {
+    if (String(existingRow[i] || "").trim() !== headers[i]) {
+      mismatch = true;
+      break;
+    }
+  }
+
+  if (mismatch) {
+    console.warn("⚠️ Repairing mismatched/outdated headers in tab: " + tabName);
+    sheet.getRange(1, 1, 1, headers.length)
+      .setValues([headers])
+      .setFontWeight("bold")
+      .setBackground(CONFIG.BRAND_SECONDARY || "#064e3b")
+      .setFontColor("#ffffff")
+      .setHorizontalAlignment("center");
+    sheet.setFrozenRows(1);
+  }
+
+  return headers;
+}
+
 function getTab(ss, tabName) {
   if (!ss) ss = getSpreadsheet();
   if (!ss) return null;
 
   var sheet = ss.getSheetByName(tabName);
-  var headers = (TAB_HEADERS && TAB_HEADERS[tabName]) ? TAB_HEADERS[tabName] : [];
 
   // If not found by exact name, try space-separated or case-insensitive name
   if (!sheet) {
@@ -234,24 +289,9 @@ function getTab(ss, tabName) {
 
   if (!sheet) {
     sheet = ss.insertSheet(tabName);
-    if (headers.length > 0) {
-      sheet.getRange(1, 1, 1, headers.length)
-        .setValues([headers])
-        .setFontWeight("bold")
-        .setBackground(CONFIG.BRAND_SECONDARY || "#064e3b")
-        .setFontColor("#ffffff")
-        .setHorizontalAlignment("center");
-      sheet.setFrozenRows(1);
-    }
-  } else if (sheet.getLastRow() === 0 && headers.length > 0) {
-    sheet.getRange(1, 1, 1, headers.length)
-      .setValues([headers])
-      .setFontWeight("bold")
-      .setBackground(CONFIG.BRAND_SECONDARY || "#064e3b")
-      .setFontColor("#ffffff")
-      .setHorizontalAlignment("center");
-    sheet.setFrozenRows(1);
   }
+
+  repairHeadersIfNeeded(sheet, tabName);
   return sheet;
 }
 
@@ -268,54 +308,45 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  // Test payload fallback for safe execution from the Apps Script toolbar
+  // 1. Guard against empty requests — do NOT generate fake customer bookings!
   if (!e || !e.postData || !e.postData.contents) {
-    e = {
-      postData: {
-        contents: JSON.stringify({
-          event_type: "lead",
-          event_name: "booking_submitted",
-          lead_type: "BOOKING",
-          form_name: "6-Step Booking Form",
-          name: "Lakshmi Narayanan",
-          mobile: "9876543210",
-          email: "divabhrati.ramco@gmail.com",
-          serviceId: "elderly-care",
-          service_name: "Elderly Care & Home Companionship",
-          city: "Bengaluru",
-          location: "Indiranagar 100ft Road",
-          date: "2026-10-15",
-          time: "08:00 AM",
-          duration: 30,
-          preferredLanguage: "Tamil / English",
-          notes: "Need compassionate female attendant for bedridden mother.",
-          total_amount: 38970,
-          page_path: "/booking"
-        })
-      }
-    };
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "No request payload supplied. Please provide a JSON payload via POST."
+    })).setMimeType(ContentService.MimeType.JSON);
   }
 
   try {
     var rawPayload = JSON.parse(e.postData.contents);
     var ss = getSpreadsheet();
     if (!ss) {
-      return ContentService.createTextOutput("Error: Spreadsheet inaccessible").setMimeType(ContentService.MimeType.TEXT);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "error",
+        message: "Spreadsheet inaccessible. Check SPREADSHEET_ID in CONFIG."
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
     var receivedAt = normalizeTimestamp(new Date());
     var p = enrichPayload(rawPayload, receivedAt);
+    var writeResults = [];
 
     // 1. Append to Master Firehose (Live_Traffic_Events)
-    appendRowToTab(ss, "Live_Traffic_Events", p);
+    writeResults.push(appendRowToTab(ss, "Live_Traffic_Events", p));
 
     // 2. Specialized Multi-Tab Routing
     var evtName = String(p.event_name || "").toLowerCase();
     var formName = String(p.form_name || "").toLowerCase();
     var leadType = String(p.lead_type || "").toUpperCase();
 
-    // A. BOOKING SUBMISSION (6-Step flow)
-    if (leadType === "BOOKING" || evtName.includes("booking_submit") || formName.includes("booking") || (p.serviceId && p.date && p.mobile)) {
+    // A. VERIFIED BOOKING SUBMISSION (Requires customer contact info + explicit submission)
+    var isVerifiedBooking = (
+      leadType === "BOOKING" ||
+      evtName === "booking_submitted" ||
+      evtName === "booking_submit" ||
+      (evtName.includes("booking") && (p.form_status === "submitted" || p.booking_status === "Confirmed"))
+    ) && Boolean((p.name || p.customer_name) && (p.mobile || p.phone));
+
+    if (isVerifiedBooking) {
       p.lead_type = "BOOKING";
       p.booking_ref = p.booking_ref || p.ref || ("AC-" + Date.now().toString(36).toUpperCase().slice(-6));
       p.lead_id = p.booking_ref;
@@ -329,13 +360,13 @@ function doPost(e) {
       p.booking_status = p.booking_status || "Confirmed";
       p.follow_up_status = p.follow_up_status || "Coordinator Assigned";
 
-      appendRowToTab(ss, "Booking_Leads", p);
-      appendRowToTab(ss, "Lead_Management", p);
+      writeResults.push(appendRowToTab(ss, "Booking_Leads", p));
+      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendBookingAlertEmail(p);
     }
 
     // B. QUICK CALLBACK ENQUIRY
-    else if (leadType === "CALLBACK" || evtName.includes("enquiry_form") || formName.includes("callback") || formName.includes("enquiry")) {
+    else if (leadType === "CALLBACK" || evtName.includes("enquiry_form") || evtName === "callback_submitted" || ((formName.includes("callback") || formName.includes("enquiry")) && p.form_status === "submitted")) {
       p.lead_type = "CALLBACK";
       p.enquiry_id = p.enquiry_id || ("ENQ-" + Date.now().toString(36).toUpperCase());
       p.lead_id = p.enquiry_id;
@@ -343,13 +374,13 @@ function doPost(e) {
       p.lead_status = p.lead_status || "New";
       p.follow_up_status = p.follow_up_status || "Callback Due (<2 hrs)";
 
-      appendRowToTab(ss, "Callback_Enquiries", p);
-      appendRowToTab(ss, "Lead_Management", p);
+      writeResults.push(appendRowToTab(ss, "Callback_Enquiries", p));
+      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendCallbackAlertEmail(p);
     }
 
     // C. CONTACT FORM MESSAGE
-    else if (leadType === "CONTACT" || evtName.includes("contact_form") || formName.includes("contact")) {
+    else if (leadType === "CONTACT" || evtName === "contact_submitted" || evtName.includes("contact_form") || (formName.includes("contact") && p.form_status === "submitted")) {
       p.lead_type = "CONTACT";
       p.contact_id = p.contact_id || ("CNT-" + Date.now().toString(36).toUpperCase());
       p.lead_id = p.contact_id;
@@ -357,21 +388,21 @@ function doPost(e) {
       p.lead_status = p.lead_status || "New";
       p.follow_up_status = p.follow_up_status || "Pending";
 
-      appendRowToTab(ss, "Contact_Submissions", p);
-      appendRowToTab(ss, "Lead_Management", p);
+      writeResults.push(appendRowToTab(ss, "Contact_Submissions", p));
+      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendContactAlertEmail(p);
     }
 
     // D. ECOSYSTEM PARTNER REGISTRATION
-    else if (leadType === "PARTNER" || evtName.includes("partner_form") || formName.includes("partner")) {
+    else if (leadType === "PARTNER" || evtName === "partner_submitted" || evtName.includes("partner_form") || (formName.includes("partner") && p.form_status === "submitted")) {
       p.lead_type = "PARTNER";
       p.partner_id = p.partner_id || ("PTR-" + Date.now().toString(36).toUpperCase());
       p.lead_id = p.partner_id;
       p.contact_person = p.contact || p.contact_person || p.name || "";
       p.lead_status = p.lead_status || "Under Review";
 
-      appendRowToTab(ss, "Partner_Applications", p);
-      appendRowToTab(ss, "Lead_Management", p);
+      writeResults.push(appendRowToTab(ss, "Partner_Applications", p));
+      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendPartnerAlertEmail(p);
     }
 
@@ -383,61 +414,97 @@ function doPost(e) {
       p.page_context_badge = p.context_badge || p.badge || p.page_context || "";
       p.lead_status = p.lead_status || "Bot Inquired";
 
-      appendRowToTab(ss, "Chatbot_Leads", p);
+      writeResults.push(appendRowToTab(ss, "Chatbot_Leads", p));
       if (p.phone || (p.email && p.email.includes("@"))) {
-        appendRowToTab(ss, "Lead_Management", p);
+        writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       }
     }
 
-    // F. EMERGENCY SOS TRIGGER
+    // F. EMERGENCY SOS TRIGGER & SIMULATION SEPARATION
     else if (evtName.includes("sos") || p.alert_type) {
-      p.alert_id = p.alert_id || ("SOS-" + Date.now().toString(36).toUpperCase());
-      p.alert_type = p.alert_type || (evtName.includes("demo") ? "Simulation Demo" : "Live SOS Trigger");
-      p.status = p.status || "Escalated to Control Room";
-      p.operator_notes = p.operator_notes || "Immediate protocol active";
+      var isSimulation = Boolean(
+        p.is_simulation === true ||
+        evtName.includes("demo") ||
+        evtName.includes("simulation") ||
+        String(p.alert_type || "").toLowerCase().includes("simulation") ||
+        String(p.alert_type || "").toLowerCase().includes("demo") ||
+        p.trigger_step
+      );
 
-      appendRowToTab(ss, "SOS_Emergency_Alerts", p);
-      sendSOSAlertEmail(p);
+      if (isSimulation) {
+        p.alert_id = p.alert_id || ("SOS-DEMO-" + Date.now().toString(36).toUpperCase().slice(-6));
+        p.alert_type = "Simulation Demo";
+        p.status = "Simulation Test (No Dispatch Required)";
+        p.operator_notes = "Website interactive simulation; control room dispatch inhibited.";
+        writeResults.push(appendRowToTab(ss, "SOS_Emergency_Alerts", p));
+        // Safeguard: Do NOT send panic emergency emails for training / demo simulations!
+      } else {
+        p.alert_id = p.alert_id || ("SOS-LIVE-" + Date.now().toString(36).toUpperCase().slice(-6));
+        p.alert_type = p.alert_type || "Live SOS Trigger";
+        p.status = "CRITICAL: Escalated to 24/7 Control Room";
+        p.operator_notes = "Immediate response protocol active";
+        writeResults.push(appendRowToTab(ss, "SOS_Emergency_Alerts", p));
+        sendSOSAlertEmail(p);
+      }
     }
 
     // G. ATTENDANT PORTAL ACTIONS
     else if (formName.includes("attendant") || p.action_type || evtName.includes("attendant_")) {
       p.log_id = p.log_id || ("ATT-" + Date.now().toString(36).toUpperCase());
-      appendRowToTab(ss, "Attendant_Portal_Logs", p);
+      writeResults.push(appendRowToTab(ss, "Attendant_Portal_Logs", p));
     }
 
     // 3. Auxiliary Telemetry Routing
     if (p.event_type === "session" || evtName === "session_start" || evtName === "session_end") {
-      appendRowToTab(ss, "Visitor_Sessions", p);
-      appendRowToTab(ss, "Traffic_Sources", p);
+      writeResults.push(appendRowToTab(ss, "Visitor_Sessions", p));
+      writeResults.push(appendRowToTab(ss, "Traffic_Sources", p));
     }
 
     if (p.event_type === "page_view" || evtName === "page_view") {
-      appendRowToTab(ss, "Page_Performance", p);
-      appendRowToTab(ss, "Traffic_Sources", p);
+      writeResults.push(appendRowToTab(ss, "Page_Performance", p));
+      writeResults.push(appendRowToTab(ss, "Traffic_Sources", p));
     }
 
     if (p.event_type === "click" || evtName.includes("click") || p.event_category === "CTA") {
-      appendRowToTab(ss, "Click_Interactions", p);
+      writeResults.push(appendRowToTab(ss, "Click_Interactions", p));
     }
 
     if (p.event_type === "scroll" || evtName.includes("scroll") || Number(p.scroll_percentage) > 0) {
-      appendRowToTab(ss, "Scroll_Engagement", p);
+      writeResults.push(appendRowToTab(ss, "Scroll_Engagement", p));
     }
 
-    if (p.event_type === "form" || /form/.test(evtName) || p.form_status === "submitted" || p.form_status === "in_progress") {
-      appendRowToTab(ss, "Form_Interactions", p);
+    if (p.event_type === "form" || /form/.test(evtName) || p.form_status === "submitted" || p.form_status === "in_progress" || formName.includes("booking")) {
+      writeResults.push(appendRowToTab(ss, "Form_Interactions", p));
     }
 
     if (p.event_type === "conversion" || p.conversion_name !== "(none)" || evtName.includes("success")) {
-      appendRowToTab(ss, "Conversion_Events", p);
+      writeResults.push(appendRowToTab(ss, "Conversion_Events", p));
     }
 
-    return ContentService.createTextOutput("OK: ApnaCare Event Logged & Routed").setMimeType(ContentService.MimeType.TEXT);
+    // 4. Check for spreadsheet errors and report back to caller
+    var failures = writeResults.filter(function (r) { return r && !r.success; });
+    if (failures.length > 0) {
+      var errorList = failures.map(function (f) { return f.tab + " (" + f.error + ")"; }).join(", ");
+      console.error("⚠️ Spreadsheet write error(s): " + errorList);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "partial_error",
+        message: "Spreadsheet write failure: " + errorList,
+        results: writeResults
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      message: "OK: ApnaCare Event Logged & Routed",
+      results: writeResults
+    })).setMimeType(ContentService.MimeType.JSON);
 
   } catch (err) {
-    console.error("doPost error:", err.toString());
-    return ContentService.createTextOutput("Error: " + err.toString()).setMimeType(ContentService.MimeType.TEXT);
+    console.error("doPost error: " + err.toString());
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
@@ -451,8 +518,8 @@ function enrichPayload(raw, receivedAt) {
 
   p.received_at = receivedAt || normalizeTimestamp(now);
   p.event_id = p.event_id || ("evt_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7));
-  p.event_type = (p.event_type || p.type || "page_view").toLowerCase();
-  p.event_name = p.event_name || p.event_action || "page_view";
+  p.event_type = (p.event_type || p.type || "telemetry").toLowerCase();
+  p.event_name = p.event_name || p.event_action || "interaction";
   p.visitor_id = p.visitor_id || p.visitorId || ("vis_" + Math.random().toString(36).substring(2, 9));
   p.session_id = p.session_id || p.sessionId || ("ses_" + Math.random().toString(36).substring(2, 9));
   p.user_id = p.user_id || p.visitor_id;
@@ -572,9 +639,18 @@ function getWeekStartDate(d) {
 function appendRowToTab(ss, tabName, p) {
   try {
     var sheet = getTab(ss, tabName);
-    if (!sheet) return;
-    var headers = (TAB_HEADERS && TAB_HEADERS[tabName]) ? TAB_HEADERS[tabName] : [];
-    if (!headers.length) return;
+    if (!sheet) {
+      var err1 = "Sheet inaccessible or missing: " + tabName;
+      console.error("❌ " + err1);
+      return { success: false, tab: tabName, error: err1 };
+    }
+
+    var headers = repairHeadersIfNeeded(sheet, tabName);
+    if (!headers || !headers.length) {
+      var err2 = "No schema headers configured for: " + tabName;
+      console.error("❌ " + err2);
+      return { success: false, tab: tabName, error: err2 };
+    }
 
     var lastRow = sheet.getLastRow();
     if (lastRow > 1 && p.event_id) {
@@ -584,7 +660,7 @@ function appendRowToTab(ss, tabName, p) {
         var recentIds = sheet.getRange(lastRow - checkRows + 1, eventIdCol, checkRows, 1).getValues();
         for (var i = 0; i < recentIds.length; i++) {
           if (String(recentIds[i][0]) === String(p.event_id)) {
-            return;
+            return { success: true, tab: tabName, deduplicated: true };
           }
         }
       }
@@ -600,8 +676,11 @@ function appendRowToTab(ss, tabName, p) {
     });
 
     sheet.appendRow(row);
+    return { success: true, tab: tabName };
   } catch (err) {
-    console.warn("Could not append row to " + tabName + ": " + err.toString());
+    var err3 = "Could not append row to " + tabName + ": " + err.toString();
+    console.error("❌ " + err3);
+    return { success: false, tab: tabName, error: err3 };
   }
 }
 
@@ -676,7 +755,7 @@ function sendBookingAlertEmail(p) {
     '</div></body></html>'
   ].join('');
 
-  var recipients = EMAIL_CONFIG.leadEmails || ["operations@apnacare.in"];
+  var recipients = getUniqueRecipients(EMAIL_CONFIG.leadEmails || ["operations@apnacare.in"]);
   recipients.forEach(function (em) {
     safeSendEmail({
       to: em,
@@ -731,7 +810,7 @@ function sendCallbackAlertEmail(p) {
     '</div>'
   ].join('');
 
-  (EMAIL_CONFIG.leadEmails || []).forEach(function (em) {
+  getUniqueRecipients(EMAIL_CONFIG.leadEmails).forEach(function (em) {
     safeSendEmail({
       to: em,
       subject: "📞 [Callback Request] " + name + " (" + phone + ") — " + service,
@@ -770,7 +849,7 @@ function sendContactAlertEmail(p) {
     '</div>'
   ].join('');
 
-  (EMAIL_CONFIG.leadEmails || []).forEach(function (em) {
+  getUniqueRecipients(EMAIL_CONFIG.leadEmails).forEach(function (em) {
     safeSendEmail({
       to: em,
       subject: "✉️ [Contact Form] " + subject + " — " + name + " (" + city + ")",
@@ -812,7 +891,7 @@ function sendPartnerAlertEmail(p) {
     '</div>'
   ].join('');
 
-  (EMAIL_CONFIG.leadEmails || []).forEach(function (em) {
+  getUniqueRecipients(EMAIL_CONFIG.leadEmails).forEach(function (em) {
     safeSendEmail({
       to: em,
       subject: "🤝 [Ecosystem Partner] " + org + " (" + type + ") — " + contact,
@@ -850,7 +929,7 @@ function sendSOSAlertEmail(p) {
     '</div>'
   ].join('');
 
-  (EMAIL_CONFIG.emergencyEmails || []).forEach(function (em) {
+  getUniqueRecipients(EMAIL_CONFIG.emergencyEmails).forEach(function (em) {
     safeSendEmail({
       to: em,
       subject: "🚨 [EMERGENCY SOS ALERT] " + type + " — " + id,
@@ -894,6 +973,9 @@ function BUILD_AGGREGATED_INTERVAL_SUMMARIES() {
   var vidCol = findHeader(["visitor_id", "visitorId"]);
   var durCol = findHeader(["time_on_page_seconds", "session_duration_seconds"]);
   var formNameCol = findHeader(["form_name", "formName"]);
+  var formStatusCol = findHeader(["form_status", "formStatus"]);
+  var leadTypeCol = findHeader(["lead_type", "leadType"]);
+  var convCol = findHeader(["conversion_name", "conversionName"]);
 
   var daily = {}, weekly = {}, monthly = {};
 
@@ -911,13 +993,17 @@ function BUILD_AGGREGATED_INTERVAL_SUMMARIES() {
     var isPageView = typeCol > -1 ? (String(data[i][typeCol]).toLowerCase() === "page_view") : false;
     var evtName = nameCol > -1 ? String(data[i][nameCol]).toLowerCase() : "";
     var formName = formNameCol > -1 ? String(data[i][formNameCol] || "").toLowerCase() : "";
+    var formStatus = formStatusCol > -1 ? String(data[i][formStatusCol] || "").toLowerCase() : "";
+    var leadTypeVal = leadTypeCol > -1 ? String(data[i][leadTypeCol] || "").toUpperCase() : "";
+    var convName = convCol > -1 ? String(data[i][convCol] || "").toLowerCase() : "";
     var dur = durCol > -1 ? (Number(data[i][durCol]) || 0) : 0;
 
-    var isBooking = evtName.includes("booking_submit") || formName.includes("booking");
-    var isCallback = evtName.includes("enquiry_form") || formName.includes("callback") || formName.includes("enquiry");
-    var isContact = evtName.includes("contact_form") || formName.includes("contact");
-    var isPartner = evtName.includes("partner_form") || formName.includes("partner");
-    var isChatbot = evtName.includes("assistant_") || formName.includes("assistant");
+    // Verified submissions only (avoids overcounting on page load or field touches)
+    var isBooking = (leadTypeVal === "BOOKING" || evtName === "booking_submitted" || evtName === "booking_submit" || convName.includes("booking") || (formName.includes("booking") && formStatus === "submitted"));
+    var isCallback = (leadTypeVal === "CALLBACK" || evtName === "callback_submitted" || evtName === "enquiry_submitted" || ((formName.includes("callback") || formName.includes("enquiry")) && formStatus === "submitted"));
+    var isContact = (leadTypeVal === "CONTACT" || evtName === "contact_submitted" || (formName.includes("contact") && formStatus === "submitted"));
+    var isPartner = (leadTypeVal === "PARTNER" || evtName === "partner_submitted" || (formName.includes("partner") && formStatus === "submitted"));
+    var isChatbot = (leadTypeVal === "CHATBOT" || evtName === "chatbot_inquiry" || evtName === "chatbot_lead");
     var isLead = isBooking || isCallback || isContact || isPartner || isChatbot;
 
     accumulateApnaCareMetrics(daily, dayKey, vid, isPageView, isBooking, isCallback, isContact, isPartner, isChatbot, isLead, dur);
@@ -1070,7 +1156,7 @@ function sendPeriodicExecutiveDigest(intervalName) {
     '</div>'
   ].join('');
 
-  (EMAIL_CONFIG.reportEmails || []).forEach(function (em) {
+  getUniqueRecipients(EMAIL_CONFIG.reportEmails).forEach(function (em) {
     safeSendEmail({
       to: em,
       subject: "[ApnaCare] " + intervalName + " Digest — " + period + " (" + totalLeads + " Inbound Leads)",
@@ -1189,7 +1275,7 @@ function TEST_BOOKING_ALERT() {
     booking_ref: "AC-" + Date.now().toString(36).toUpperCase().slice(-6),
     customer_name: "Dr. Ananya Sundaram",
     mobile: "+91 98401 23456",
-    email: "ananya.sundaram@gmail.com",
+    email: "divabhrati.ramco@gmail.com",
     service_name: "Hospital Bedside & Post-Surgical Support",
     city: "Chennai",
     location_address: "Apollo Main Hospital, Greams Road",
@@ -1201,5 +1287,34 @@ function TEST_BOOKING_ALERT() {
     total_amount: 10493
   });
   console.log("✅ Test booking alert email sent.");
+}
+
+// Standalone test function for toolbar execution — does not get triggered by empty web requests
+function manualTestBookingSimulation() {
+  Logger.log("Running manual test booking simulation...");
+  return doPost({
+    postData: {
+      contents: JSON.stringify({
+        event_type: "lead",
+        event_name: "booking_submitted",
+        lead_type: "BOOKING",
+        form_name: "6-Step Booking Form",
+        name: "Test User (Manual Verification)",
+        mobile: "+91 98401 23456",
+        email: "divabhrati.ramco@gmail.com",
+        serviceId: "elderly-care",
+        service_name: "Elderly Care & Home Companionship",
+        city: "Bengaluru",
+        location: "Indiranagar 100ft Road",
+        date: "2026-10-15",
+        time: "08:00 AM",
+        duration: 30,
+        preferredLanguage: "Tamil / English",
+        notes: "Manual test booking run from script editor",
+        total_amount: 38970,
+        page_path: "/booking"
+      })
+    }
+  });
 }
 
