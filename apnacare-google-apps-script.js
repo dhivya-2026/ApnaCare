@@ -216,6 +216,22 @@ function getTab(ss, tabName) {
   var sheet = ss.getSheetByName(tabName);
   var headers = (TAB_HEADERS && TAB_HEADERS[tabName]) ? TAB_HEADERS[tabName] : [];
 
+  // If not found by exact name, try space-separated or case-insensitive name
+  if (!sheet) {
+    var altName = tabName.replace(/_/g, " ");
+    sheet = ss.getSheetByName(altName);
+    if (!sheet) {
+      var allSheets = ss.getSheets();
+      for (var s = 0; s < allSheets.length; s++) {
+        var sName = allSheets[s].getName().trim().toLowerCase();
+        if (sName === tabName.toLowerCase() || sName === altName.toLowerCase()) {
+          sheet = allSheets[s];
+          break;
+        }
+      }
+    }
+  }
+
   if (!sheet) {
     sheet = ss.insertSheet(tabName);
     if (headers.length > 0) {
@@ -393,6 +409,7 @@ function doPost(e) {
     // 3. Auxiliary Telemetry Routing
     if (p.event_type === "session" || evtName === "session_start" || evtName === "session_end") {
       appendRowToTab(ss, "Visitor_Sessions", p);
+      appendRowToTab(ss, "Traffic_Sources", p);
     }
 
     if (p.event_type === "page_view" || evtName === "page_view") {
@@ -404,7 +421,7 @@ function doPost(e) {
       appendRowToTab(ss, "Click_Interactions", p);
     }
 
-    if (p.event_type === "scroll" || p.scroll_percentage > 0) {
+    if (p.event_type === "scroll" || evtName.includes("scroll") || Number(p.scroll_percentage) > 0) {
       appendRowToTab(ss, "Scroll_Engagement", p);
     }
 

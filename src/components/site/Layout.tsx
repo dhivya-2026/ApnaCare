@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE, CITIES, buildWhatsAppUrl } from "@/data/site";
-import { track } from "@/lib/analytics";
+import { track, useAutoTelemetry } from "@/lib/analytics";
 import { Assistant } from "./Assistant";
 
 // ─── Shared Link Components ──────────────────────────────────────────────────
@@ -810,6 +810,7 @@ function FloatingWhatsApp() {
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
+  useAutoTelemetry(location.pathname);
 
   useEffect(() => {
     function scrollToHash() {
