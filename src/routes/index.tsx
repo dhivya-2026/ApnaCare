@@ -209,13 +209,14 @@ function Hero() {
             <BookLink size="lg" variant="warm" service={slide.cta.service}>
               {slide.cta.label}
             </BookLink>
-            <BookLink
+            <Button
+              asChild
               size="lg"
               variant="default"
               className="bg-primary-foreground/15 text-primary-foreground border border-primary-foreground/30 hover:bg-primary-foreground/25 backdrop-blur"
             >
-              Explore Services
-            </BookLink>
+              <Link to="/services">Explore Services</Link>
+            </Button>
           </div>
 
           <div className="mt-6 flex items-center gap-2 text-xs text-primary-foreground/75 font-medium">
@@ -636,7 +637,7 @@ function Home() {
             center
             eyebrow="Pricing"
             title="Transparent, Upfront Pricing"
-            sub="Clear, honest rates with zero hidden charges. 18% GST tax invoicing included, with full refund protection before dispatch."
+            sub="Clear, honest rates with zero hidden charges. Transparent base rates plus 18% statutory GST tax invoices, backed by refund protection prior to dispatch."
           />
 
           <div className="mt-14 grid gap-6 lg:grid-cols-3">
@@ -650,10 +651,10 @@ function Home() {
               <ShieldCheck className="size-4 text-primary" /> Guaranteed No Hidden Charges
             </span>
             <span className="flex items-center gap-1.5">
-              <BadgeCheck className="size-4 text-primary" /> 18% GST Invoicing Included
+              <BadgeCheck className="size-4 text-primary" /> 18% Statutory GST Tax Invoice Provided
             </span>
             <span className="flex items-center gap-1.5">
-              <Zap className="size-4 text-primary" /> Full Refund Protection Before Dispatch
+              <Zap className="size-4 text-primary" /> Full Refund Protection Prior to Dispatch
             </span>
           </div>
         </div>

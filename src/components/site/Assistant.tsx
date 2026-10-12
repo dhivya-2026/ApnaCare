@@ -1039,7 +1039,7 @@ export function Assistant() {
             <a
               href={currentWhatsAppUrl}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               onClick={() => track("assistant_whatsapp_click", { context: pageContext.badge })}
               className="inline-flex items-center gap-1 font-semibold text-[#128C7E] hover:underline"
             >

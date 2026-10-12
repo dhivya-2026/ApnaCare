@@ -27,6 +27,9 @@ describe("App routing", () => {
     "/attendant-login",
     "/knowledge-hub",
     "/knowledge-hub/women-travel-safety-rights",
+    "/solutions/women-commuters",
+    "/solutions/urban-professionals",
+    "/solutions/safety-partners",
   ];
 
   routesToTest.forEach((path) => {

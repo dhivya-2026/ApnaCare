@@ -82,7 +82,7 @@ function Contact() {
             </span>
             <h2 className="mt-4 font-semibold text-lg">General Support Line</h2>
             <p className="mt-1 font-mono text-sm font-bold text-foreground">{SITE.SUPPORT_PHONE}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Toll-free across India</p>
+            <p className="mt-1 text-xs text-muted-foreground">Dedicated care helpline across India</p>
           </a>
 
           <a
@@ -101,7 +101,7 @@ function Contact() {
           <a
             href={`https://wa.me/${SITE.WHATSAPP}`}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="card-soft p-6 transition-all hover:border-primary/50 hover:shadow-lift"
           >
             <span className="grid size-12 place-items-center rounded-xl bg-primary-soft text-primary">

@@ -536,7 +536,7 @@ function Header() {
           <a
             href={waUrl}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             aria-label="Chat on WhatsApp"
             onClick={() => track("whatsapp_header_click")}
             className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-[#25D366] bg-[#25D366]/10 px-2.5 py-1 text-xs font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/20 shrink-0 whitespace-nowrap"
@@ -579,7 +579,7 @@ function Header() {
               <a
                 href={waUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 onClick={() => {
                   track("whatsapp_mobile_click");
                   setMobileOpen(false);
@@ -727,7 +727,7 @@ function Footer() {
               <a
                 href={buildWhatsAppUrl("Hello ApnaCare, I need assistance.")}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 onClick={() => track("whatsapp_footer_click")}
                 className="hover:text-ink-foreground flex items-center gap-1.5"
               >
@@ -795,7 +795,7 @@ function FloatingWhatsApp() {
     <a
       href={waUrl}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
       aria-label="Chat with ApnaCare on WhatsApp"
       onClick={() => track("whatsapp_floating_click")}
       className="fixed bottom-24 left-4 z-50 flex size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lift transition-transform hover:scale-105 md:bottom-6"

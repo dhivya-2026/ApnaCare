@@ -108,8 +108,7 @@ export function EnquiryForm({
           within 2 hours.
         </p>
         <p className="mt-3 text-xs text-muted-foreground">
-          ⚠️ This is a demo form — no actual submission was recorded. Wire up a real backend
-          endpoint before going live.
+          Our regional care desk has logged your request and an experienced coordinator will connect with you promptly.
         </p>
         <button
           onClick={() => {

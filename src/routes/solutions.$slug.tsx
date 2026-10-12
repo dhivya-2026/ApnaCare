@@ -60,7 +60,7 @@ function ICPSolutionPage() {
         <a
           href={waUrl}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/15 px-6 py-3 text-sm font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/25"
         >
           <MessageCircle className="size-4 text-[#25D366]" />

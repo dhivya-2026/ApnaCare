@@ -33,7 +33,7 @@ function PrivacyPage() {
               This Privacy Policy explains how {SITE.legalName} ("ApnaCare", "we", "us", or "our") collects, uses, stores, discloses, and protects your information when you use our website, mobile interfaces, telephone booking lines, and attendant dispatch services.
             </p>
             <p>
-              We operate in compliance with India's <strong>Digital Personal Data Protection Act (DPDP Act) 2023</strong> and the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011.
+              We operate in compliance with India's <strong>Digital Personal Data Protection Act, 2023 (DPDP Act)</strong> and the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011.
             </p>
           </section>
 

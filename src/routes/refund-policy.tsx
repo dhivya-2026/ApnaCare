@@ -114,7 +114,7 @@ function RefundPolicyPage() {
               <p>You can initiate a refund through any of the following channels:</p>
               <ul className="list-disc space-y-2 pl-6">
                 <li>Call your dedicated care coordinator or our 24/7 hotline at <a href={`tel:${SITE.SUPPORT_PHONE_TEL}`} className="text-primary font-semibold">{SITE.SUPPORT_PHONE}</a>.</li>
-                <li>Send a WhatsApp message with your Booking ID to <a href={`https://wa.me/${SITE.WHATSAPP}`} target="_blank" rel="noreferrer" className="text-primary font-semibold">+{SITE.WHATSAPP}</a>.</li>
+                <li>Send a WhatsApp message with your Booking ID to <a href={`https://wa.me/${SITE.WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold">+{SITE.WHATSAPP}</a>.</li>
                 <li>Email your booking confirmation to <a href={`mailto:${SITE.EMAIL}`} className="text-primary font-semibold">{SITE.EMAIL}</a> with the subject line "Refund Request - [Booking ID]".</li>
               </ul>
             </section>

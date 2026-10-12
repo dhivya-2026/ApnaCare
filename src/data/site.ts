@@ -95,7 +95,7 @@ const commonFaq = [
   },
   {
     q: "Are there any surprise fees or dispatcher commissions?",
-    a: "Never. The price you see on your booking summary includes all base caregiver fees, supervisor coverage, and full 18% GST invoicing. There are zero dispatcher commissions or surge surcharges.",
+    a: "Never. The price on your booking summary transparently details the base caregiver fee plus 18% statutory GST, with a complete tax invoice provided. There are zero dispatcher commissions or surge surcharges.",
   },
   {
     q: "What happens if our assigned attendant falls ill or has an emergency?",
@@ -116,7 +116,7 @@ export const SERVICES: Service[] = [
     shortDesc:
       "Compassionate 24/7 companionship, mobility assistance and routine medication support for senior citizens.",
     description:
-      "Dedicated and trained women attendants providing compassionate companionship, mobility aid, medication schedules and emotional reassurance for elders at home. Designed to give aging parents dignifying, gentle care while offering working families total peace of mind.",
+      "Dedicated and trained women attendants providing compassionate companionship, mobility aid, medication schedules and emotional reassurance for elders at home. Designed to give aging parents dignified, gentle care while offering working families total peace of mind.",
     rating: 4.9,
     reviewCount: 420,
     badge: "Popular",
@@ -227,7 +227,7 @@ export const SERVICES: Service[] = [
     ],
     need: "Clinical recovery at home requires professional expertise and strict hygiene without the cold stress of a hospital ward.",
     qualifications: [
-      "Registered Nurse (GNM or B.Sc Nursing)",
+      "Registered Nurse (GNM or B.Sc. Nursing)",
       "Active State Nursing Council Registration",
       "Police Verification Cleared",
     ],
@@ -245,7 +245,7 @@ export const SERVICES: Service[] = [
     shortDesc:
       "Specialized maternal recuperation, newborn massage, feeding support and night soothing for new mothers.",
     description:
-      "Experienced post-natal attendants (Japani/Maldar trained) dedicated to newborn care and maternal recuperation. They handle traditional baby bathing, feeding assistance, soothing, and allow new mothers the deep, undisturbed sleep needed to heal.",
+      "Experienced post-natal attendants (trained in traditional Japa maternal care and newborn massage) dedicated to newborn care and maternal recuperation. They handle traditional baby bathing, feeding assistance, soothing, and allow new mothers the deep, undisturbed sleep needed to heal.",
     rating: 5.0,
     reviewCount: 190,
     badge: "Popular",
@@ -586,23 +586,23 @@ export const PRICING_PLANS = [
     id: "transit",
     name: "Transit Companion",
     description: "Safe assisted travel for airport, railway and city transits.",
-    price: 799,
+    price: 899,
     unit: "trip",
     popular: false,
-    serviceSlug: "airport-pickup",
+    serviceSlug: "railway-assistance",
     includes: [
       "Verified female attendant meeting at gate/platform",
       "Real-time GPS travel tracking link shared with family",
-      "Help with luggage transfers and airport check-ins",
+      "Help with luggage transfers and station check-ins",
       "Full background and police verification",
-      "18% GST invoicing included — no hidden fees",
+      "18% GST statutory tax invoice provided — no hidden fees",
     ],
   },
   {
     id: "daily",
     name: "Daily Attendant & Care",
     description: "Empathetic home care, hospital bedside assistance and nursing support.",
-    price: 1199,
+    price: 1299,
     unit: "day",
     popular: true,
     serviceSlug: "elderly-care",
@@ -616,14 +616,14 @@ export const PRICING_PLANS = [
   },
   {
     id: "security",
-    name: "Custom Security & Driver",
-    description: "Dedicated security guards, private drivers and customized shifts.",
-    price: 1999,
+    name: "Custom Security & Escort",
+    description: "Dedicated security guards, private escorts and customized shifts.",
+    price: 1899,
     unit: "day",
     popular: false,
-    serviceSlug: "women-drivers",
+    serviceSlug: "security-support",
     includes: [
-      "Fully trained defensive security or expert driver",
+      "Fully trained defensive security or expert escort",
       "Flexible hourly shifts and standby options",
       "Corporate-grade vetting and PSARA standards",
       "Direct 24/7 coordinator hotline and SOS dispatch",
@@ -636,8 +636,8 @@ export const PRICING_PROMISES = [
   "No surprise service charges",
   "No dispatcher commissions",
   "No emergency response premiums",
-  "18% GST invoicing included",
-  "Full refund protection before dispatch",
+  "18% GST statutory tax invoice provided",
+  "Full refund protection prior to dispatch (as per cancellation terms)",
   "Guaranteed backup replacement",
   "8+ Years of Trusted Service",
 ];
@@ -695,7 +695,7 @@ export const ATTENDANTS: Attendant[] = [
     role: "Home Nursing Assistant",
     rating: 5.0,
     experience: "5 Years",
-    certifications: ["General Nursing Certified (GNM)", "BLS Certified", "Infection Control"],
+    certifications: ["General Nursing and Midwifery (GNM)", "BLS Certified", "Infection Control"],
     languages: ["Telugu", "Hindi", "English"],
     verification: "Police Verification Cleared (Hyderabad Police)",
     services: ["nursing-services", "post-natal-care", "hospital-attendants"],
@@ -1345,7 +1345,7 @@ export const SAFETY_PILLARS = [
     icon: "Radio",
   },
   {
-    title: "Guaranteed Replacement Guarantee",
+    title: "Guaranteed Attendant Replacement",
     desc: "If an attendant is unwell or if there is any mismatch, a vetted backup is dispatched swiftly without interrupting care.",
     icon: "UserCheck",
   },

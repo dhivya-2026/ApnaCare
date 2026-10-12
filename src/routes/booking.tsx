@@ -248,14 +248,18 @@ function BookingPage() {
     );
 
   const Err = ({ k }: { k: string }) =>
-    errors[k] ? <p role="alert" className="mt-1.5 text-xs font-semibold text-destructive">{errors[k]}</p> : null;
+    errors[k] ? (
+      <p id={`${k}-err`} role="alert" className="mt-1.5 text-xs font-semibold text-destructive">
+        {errors[k]}
+      </p>
+    ) : null;
 
   return (
     <>
       <PageHero
         eyebrow="Safe & Verified Care"
         title="Reserve an Attendant in 6 Simple Steps"
-        sub="Complete your care requirements. Your session state is automatically saved, and our transparent rates include full 18% GST invoicing with zero hidden charges."
+        sub="Complete your care requirements. Your session state is automatically saved, and our transparent rates detail the base caregiver fee plus 18% statutory GST invoice with zero hidden charges."
       />
 
       <section className="container-page grid gap-10 py-12 lg:grid-cols-[1.6fr_1fr]">
@@ -299,17 +303,46 @@ function BookingPage() {
                 </p>
                 <div>
                   <Label htmlFor="name">Full Name *</Label>
-                  <Input id="name" value={f.name} onChange={set("name")} className="mt-1.5 h-12 rounded-xl" placeholder="e.g. Ramesh Krishnan" autoComplete="name" />
+                  <Input
+                    id="name"
+                    value={f.name}
+                    onChange={set("name")}
+                    className="mt-1.5 h-12 rounded-xl"
+                    placeholder="e.g. Ramesh Krishnan"
+                    autoComplete="name"
+                    aria-invalid={Boolean(errors.name)}
+                    aria-describedby={errors.name ? "name-err" : undefined}
+                  />
                   <Err k="name" />
                 </div>
                 <div>
                   <Label htmlFor="mobile">Mobile Number (WhatsApp Enabled) *</Label>
-                  <Input id="mobile" inputMode="tel" value={f.mobile} onChange={set("mobile")} className="mt-1.5 h-12 rounded-xl" placeholder="98765 43210" autoComplete="tel" />
+                  <Input
+                    id="mobile"
+                    inputMode="tel"
+                    value={f.mobile}
+                    onChange={set("mobile")}
+                    className="mt-1.5 h-12 rounded-xl"
+                    placeholder="98765 43210"
+                    autoComplete="tel"
+                    aria-invalid={Boolean(errors.mobile)}
+                    aria-describedby={errors.mobile ? "mobile-err" : undefined}
+                  />
                   <Err k="mobile" />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email Address (For Tax Invoices & Receipt)</Label>
-                  <Input id="email" type="email" value={f.email} onChange={set("email")} className="mt-1.5 h-12 rounded-xl" placeholder="care@example.com" autoComplete="email" />
+                  <Label htmlFor="email">Email Address (For Tax Invoices & Receipts)</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={f.email}
+                    onChange={set("email")}
+                    className="mt-1.5 h-12 rounded-xl"
+                    placeholder="care@example.com"
+                    autoComplete="email"
+                    aria-invalid={Boolean(errors.email)}
+                    aria-describedby={errors.email ? "email-err" : undefined}
+                  />
                   <Err k="email" />
                 </div>
               </div>
@@ -363,6 +396,8 @@ function BookingPage() {
                     id="city"
                     value={f.city}
                     onChange={set("city")}
+                    aria-invalid={Boolean(errors.city)}
+                    aria-describedby={errors.city ? "city-err" : undefined}
                     className="mt-1.5 h-12 w-full rounded-xl border border-input bg-card px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
                   >
                     <option value="">Select a city</option>
@@ -382,6 +417,8 @@ function BookingPage() {
                     onChange={set("location")}
                     className="mt-1.5 h-12 rounded-xl"
                     placeholder="e.g. Flat 302, Palm Grove Apts, Indiranagar OR Apollo Hospital Greams Rd"
+                    aria-invalid={Boolean(errors.location)}
+                    aria-describedby={errors.location ? "location-err" : undefined}
                   />
                   <Err k="location" />
                 </div>
@@ -414,6 +451,8 @@ function BookingPage() {
                       value={f.date}
                       onChange={set("date")}
                       className="mt-1.5 h-12 rounded-xl"
+                      aria-invalid={Boolean(errors.date)}
+                      aria-describedby={errors.date ? "date-err" : undefined}
                     />
                     <Err k="date" />
                   </div>
@@ -425,6 +464,8 @@ function BookingPage() {
                       value={f.time}
                       onChange={set("time")}
                       className="mt-1.5 h-12 rounded-xl"
+                      aria-invalid={Boolean(errors.time)}
+                      aria-describedby={errors.time ? "time-err" : undefined}
                     />
                     <Err k="time" />
                   </div>
@@ -438,6 +479,8 @@ function BookingPage() {
                       value={f.duration}
                       onChange={set("duration")}
                       className="mt-1.5 h-12 rounded-xl"
+                      aria-invalid={Boolean(errors.duration)}
+                      aria-describedby={errors.duration ? "duration-err" : undefined}
                     />
                     <Err k="duration" />
                   </div>
@@ -604,7 +647,7 @@ function BookingPage() {
                 </p>
                 <p className="flex items-center gap-2">
                   <CheckCircle2 className="size-4 text-primary shrink-0" />
-                  <span>Includes 18% GST invoice for tax & insurance</span>
+                  <span>Official 18% GST statutory tax invoice provided</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <Sparkles className="size-4 text-primary shrink-0" />
