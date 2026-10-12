@@ -30,8 +30,15 @@ export function PageHero({ eyebrow, title, sub, children }: { eyebrow: string; t
   );
 }
 
-export function Rating({ value }: { value: number }) {
-  return <span className="inline-flex items-center gap-1 text-sm font-semibold"><Star className="size-4 fill-terracotta text-terracotta" aria-hidden />{value.toFixed(1)}<span className="sr-only"> out of 5</span></span>;
+export function Rating({ value, reviews }: { value: number; reviews?: number }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-sm font-semibold" aria-label={`Rated ${value.toFixed(1)} out of 5`}>
+      <Star className="size-4 fill-terracotta text-terracotta" aria-hidden="true" />
+      <span>{value.toFixed(1)}</span>
+      <span className="text-xs text-muted-foreground font-normal">/ 5</span>
+      {reviews ? <span className="text-xs text-muted-foreground font-normal">({reviews})</span> : null}
+    </span>
+  );
 }
 
 export function ServiceCard({ s }: { s: Service }) {
@@ -39,7 +46,7 @@ export function ServiceCard({ s }: { s: Service }) {
     <article className="group flex flex-col card-soft p-6 transition-all hover:-translate-y-1 hover:shadow-lift">
       <div className="flex items-center justify-between">
         <span className={cn("rounded-full px-3 py-1 text-xs font-semibold", s.badge === "Trending" ? "bg-terracotta/25 text-terracotta-foreground" : "bg-primary-soft text-primary")}>{s.badge}</span>
-        <Rating value={s.rating} />
+        <Rating value={s.rating} reviews={s.reviewCount} />
       </div>
       <h3 className="mt-5 text-xl font-semibold">{s.name}</h3>
       <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{s.description}</p>
@@ -95,8 +102,8 @@ export function AttendantCard({ a, img }: { a: Attendant; img?: string }) {
         <span className="inline-flex items-center gap-1 text-muted-foreground"><MapPin className="size-4" aria-hidden />{a.city}</span>
       </div>
       <p className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary"><BadgeCheck className="size-4" aria-hidden />{a.verification}</p>
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {a.certifications.map((c) => <span key={c} className="rounded-full border border-border px-2.5 py-1 text-xs">{c}</span>)}
+      <div className="mt-3 flex flex-wrap gap-1.5" role="list" aria-label="Certifications">
+        {a.certifications.map((c) => <span key={c} role="listitem" className="rounded-full border border-border bg-secondary/30 px-2.5 py-1 text-xs font-medium">{c}</span>)}
       </div>
       <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground"><Languages className="size-4" aria-hidden />{a.languages.join(", ")}</p>
       <BookLink service={a.services[0]} variant="outline" className="mt-6">Request {a.name.split(" ")[0]}</BookLink>

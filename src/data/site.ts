@@ -116,7 +116,7 @@ export const SERVICES: Service[] = [
     shortDesc:
       "Compassionate 24/7 companionship, mobility assistance and routine medication support for senior citizens.",
     description:
-      "Dedicated and trained women attendants providing compassionate companionship, mobility aid, medication schedules and emotional reassurance for elders at home. Designed to give aging parents dignified, gentle care while offering working families total peace of mind.",
+      "Dedicated and trained women attendants providing compassionate companionship, mobility aid, medication schedules and emotional reassurance for elders at home. Designed to provide aging parents with dignified, compassionate care while offering working families reassurance and dependable support.",
     rating: 4.9,
     reviewCount: 420,
     badge: "Popular",
@@ -209,7 +209,7 @@ export const SERVICES: Service[] = [
     startingPrice: 1999,
     pricingUnit: "day",
     benefits: [
-      "Certified GNM/B.Sc. nursing staff",
+      "Certified GNM and B.Sc. Nursing staff",
       "Sterile wound dressings & medication delivery",
       "Doctor prescription compliance",
     ],
@@ -245,7 +245,7 @@ export const SERVICES: Service[] = [
     shortDesc:
       "Specialized maternal recuperation, newborn massage, feeding support and night soothing for new mothers.",
     description:
-      "Experienced post-natal attendants (trained in traditional Japa maternal care and newborn massage) dedicated to newborn care and maternal recuperation. They handle traditional baby bathing, feeding assistance, soothing, and allow new mothers the deep, undisturbed sleep needed to heal.",
+      "Experienced post-natal attendants trained in traditional Japa maternal care (traditional convalescence care, infant massage, and maternal recovery). They handle traditional baby bathing, feeding assistance, soothing, and allow new mothers the deep, undisturbed sleep needed to heal.",
     rating: 5.0,
     reviewCount: 190,
     badge: "Popular",
@@ -1124,7 +1124,7 @@ export const PARTNER_CATEGORIES = [
     count: "89+",
   },
   {
-    name: "Women SHGs",
+    name: "Women Self-Help Groups (SHGs)",
     desc: "National Rural Livelihoods Mission & urban Self Help Groups for direct livelihood generation.",
     count: "156+",
   },
@@ -1205,7 +1205,7 @@ export const PARTNER_JOURNEY = [
 
 export const PARTNER_TYPES = [
   "NGOs & Non-Profits",
-  "Women SHG Federations",
+  "Women Self-Help Group (SHG) Federations",
   "Nursing & Healthcare Colleges",
   "Accredited Hospitals & Clinics",
   "Skill Development Centers",
@@ -1233,7 +1233,7 @@ export const STATE_PARTNERS = [
 export const SUCCESS_STORIES = [
   {
     org: "Kudumbashree Community Development Society",
-    role: "Women SHG Livelihood Partner",
+    role: "Women Self-Help Group (SHG) Livelihood Partner",
     note: "Trained and placed over 240 rural women as certified geriatric attendants with monthly financial stability and health insurance coverage.",
   },
   {
@@ -1313,7 +1313,7 @@ export const FAQS: FAQItem[] = [
   },
   {
     category: "Partnerships",
-    q: "How can nursing colleges, NGOs, or SHGs partner with ApnaCare?",
+    q: "How can nursing colleges, NGOs, or Self-Help Groups (SHGs) partner with ApnaCare?",
     a: "Institutions can visit our Ecosystem Partners page and submit an online partnership enquiry. Our partnership directors will arrange a formal credential review and MoU discussion within 48 hours.",
   },
 ];
@@ -1331,7 +1331,7 @@ export const SAFETY_PILLARS = [
   },
   {
     title: "Accredited Clinical & Soft-Skills Training",
-    desc: "Rigorous training in geriatric care, patient handling, infant hygiene, BLS first aid, and compassionate communication.",
+    desc: "Rigorous training in geriatric care, patient handling, infant hygiene, Basic Life Support (BLS) & first aid, and compassionate communication.",
     icon: "GraduationCap",
   },
   {
@@ -1509,7 +1509,7 @@ export const ICPS: ICPInfo[] = [
       },
       {
         q: "What certifications do your security and transit escorts possess?",
-        a: "All personnel undergo state police clearance, biometric verification, BLS first aid certification, and conflict de-escalation training.",
+        a: "All personnel undergo state police clearance, biometric verification, Basic Life Support (BLS) and first aid certification, and conflict de-escalation training.",
       },
     ],
   },

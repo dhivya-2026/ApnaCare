@@ -77,12 +77,12 @@ function PrivacyPage() {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-foreground">5. Data Security & Storage</h2>
             <p>
-              All customer and medical records are encrypted in transit via Transport Layer Security (TLS 1.3) and at rest utilizing AES-256 standards on servers physically located within India in compliance with RBI and Indian data localization mandates.
+              All customer and care records are protected in transit using industry-standard Transport Layer Security (HTTPS/TLS) and encrypted at rest utilizing strong cryptographic standards on cloud servers compliant with Indian data protection norms.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">6. Your Rights Under DPDP Act 2023</h2>
+            <h2 className="text-2xl font-semibold text-foreground">6. Your Rights Under the DPDP Act, 2023</h2>
             <p>You possess the following rights regarding your personal data:</p>
             <ul className="list-disc space-y-2 pl-6">
               <li>Right to access a summary of personal data processed by ApnaCare.</li>

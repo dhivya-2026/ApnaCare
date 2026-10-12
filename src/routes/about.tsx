@@ -21,7 +21,7 @@ function AboutPage() {
       <PageHero
         eyebrow="Our Purpose & Philosophy"
         title="Dignity in Care. Empowerment in Service."
-        sub="ApnaCare was founded with a singular conviction: families deserve uncompromised safety and gentleness when bringing a caregiver into their home, and the women providing that care deserve respect, fair wages, and professional dignity."
+        sub="ApnaCare was founded with a singular conviction: families deserve uncompromising safety standards and gentleness when bringing a caregiver into their home, and the women providing that care deserve respect, fair wages, and professional dignity."
       >
         <BookLink size="lg" variant="warm">
           Book an Attendant
@@ -62,7 +62,7 @@ function AboutPage() {
                 <div>
                   <h4 className="font-semibold text-foreground">For Families</h4>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Total peace of mind through rigorously vetted women attendants, transparent pricing, and seamless communication.
+                    Dependable reassurance through rigorously vetted women attendants, transparent pricing, and seamless communication.
                   </p>
                 </div>
               </div>
@@ -86,7 +86,7 @@ function AboutPage() {
                 <div>
                   <h4 className="font-semibold text-foreground">For Communities</h4>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Strengthening social safety by creating institutional pathways between nursing colleges, SHGs, and homes.
+                    Strengthening social safety by creating institutional pathways between nursing colleges, Self-Help Groups (SHGs), and homes.
                   </p>
                 </div>
               </div>

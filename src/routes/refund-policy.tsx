@@ -39,7 +39,7 @@ function RefundPolicyPage() {
               </span>
               <h3 className="mt-4 text-xl font-semibold">100% Full Refund Guarantee</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                Cancel at least 12 hours prior to the scheduled shift start time and receive a 100% immediate refund with zero cancellation fee.
+                Cancel at least 12 hours prior to the scheduled shift start time and receive a 100% full refund with zero cancellation fee (initiated within 24 business hours).
               </p>
             </div>
 
@@ -68,7 +68,7 @@ function RefundPolicyPage() {
                   </thead>
                   <tbody className="divide-y divide-border">
                     <tr>
-                      <td className="p-4 font-medium text-foreground">&gt; 12 Hours before shift start</td>
+                      <td className="p-4 font-medium text-foreground">At least 12 Hours before shift start</td>
                       <td className="p-4 text-primary font-semibold">100% Full Refund</td>
                       <td className="p-4">Original payment method (Bank / UPI)</td>
                     </tr>
@@ -79,7 +79,7 @@ function RefundPolicyPage() {
                     </tr>
                     <tr>
                       <td className="p-4 font-medium text-foreground">Medical Emergency / ICU Admission</td>
-                      <td className="p-4 text-primary font-semibold">100% ApnaCare Care Credit</td>
+                      <td className="p-4 text-primary font-semibold">100% ApnaCare Credit</td>
                       <td className="p-4">Usable anytime within 12 months</td>
                     </tr>
                     <tr>

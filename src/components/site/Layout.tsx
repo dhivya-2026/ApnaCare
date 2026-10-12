@@ -753,7 +753,7 @@ function Footer() {
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <Link to="/privacy" className="hover:text-ink-foreground hover:underline">
-              Privacy Policy (DPDP 2023)
+              Privacy Policy (DPDP Act, 2023)
             </Link>
             <span>·</span>
             <Link to="/terms" className="hover:text-ink-foreground hover:underline">

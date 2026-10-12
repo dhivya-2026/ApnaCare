@@ -57,7 +57,7 @@ function TermsPage() {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-foreground">4. Invoicing, Payments & Taxes</h2>
             <p>
-              All service fees are clearly presented prior to booking submission. Rates include all standard caregiver remunerations, coordinator oversight, and mandatory statutory <strong>18% Goods and Services Tax (GST)</strong>.
+              All service fees are clearly presented on the booking quotation prior to submission. Quotations detail the transparent base caregiver fee plus mandatory statutory <strong>18% Goods and Services Tax (GST)</strong>, with an official compliant tax invoice provided for every booking.
             </p>
             <p>
               Payments must be made through authorized ApnaCare payment channels (UPI, Net Banking, Credit/Debit Cards, or bank transfer). Attendants are strictly prohibited from collecting cash advances or personal commissions.
@@ -65,13 +65,21 @@ function TermsPage() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">5. Replacement Guarantee</h2>
+            <h2 className="text-2xl font-semibold text-foreground">5. Dispatch SLAs & Replacement Commitments</h2>
             <p>
-              If an attendant is unable to attend a scheduled shift due to illness or personal emergency, ApnaCare guarantees a replacement attendant with comparable qualifications within 90 minutes across active metro zones.
+              ApnaCare maintains clear, distinct operational commitments based on the nature of the requirement:
             </p>
-            <p>
-              If a client feels an assigned caregiver is culturally or temperamentally mismatched, a replacement request will be fulfilled within 24 hours with zero additional coordination fee.
-            </p>
+            <ul className="list-disc space-y-2 pl-6">
+              <li>
+                <strong>Emergency SOS Escalation (&lt; 20 Minutes):</strong> Rapid coordinator response and emergency protocol activation across active metro hubs (Bengaluru, Chennai, Hyderabad, and Coimbatore) whenever an emergency beacon is triggered.
+              </li>
+              <li>
+                <strong>Guaranteed Backup Dispatch (90 Minutes):</strong> If an attendant is unable to attend a scheduled shift due to illness or personal emergency, ApnaCare guarantees a replacement attendant with comparable qualifications dispatched within 90 minutes.
+              </li>
+              <li>
+                <strong>Routine Compatibility Replacement (Within 24 Hours):</strong> If a family requests an attendant change due to language, demeanor, or scheduling preferences during an ongoing care plan, a matched replacement is assigned within 24 hours with zero transition penalty.
+              </li>
+            </ul>
           </section>
 
           <section className="space-y-4">

@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, HelpCircle, Phone, MessageCircle, ChevronDown, ShieldCheck, HeartHandshake } from "lucide-react";
+import { Search, HelpCircle, Phone, MessageCircle, HeartHandshake } from "lucide-react";
 import { FAQS, SITE, type FAQItem } from "@/data/site";
 import { PageHero } from "@/components/site/Cards";
 import { BookLink, CallLink } from "@/components/site/Layout";
 import { Button } from "@/components/ui/button";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/faq")({
@@ -29,11 +30,6 @@ const CATEGORIES = [
 function FAQPage() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [query, setQuery] = useState("");
-  const [openItems, setOpenItems] = useState<Record<number, boolean>>({ 0: true, 1: true });
-
-  const toggle = (idx: number) => {
-    setOpenItems((prev) => ({ ...prev, [idx]: !prev[idx] }));
-  };
 
   const filtered = FAQS.filter((item) => {
     const matchesCat = activeCategory === "All" || item.category === activeCategory;
@@ -88,42 +84,31 @@ function FAQPage() {
           </div>
         </div>
 
-        {/* FAQs Accordion */}
-        <div className="mx-auto mt-12 max-w-3xl space-y-4">
+        {/* FAQs Accessible Accordion */}
+        <div className="mx-auto mt-12 max-w-3xl">
           {filtered.length > 0 ? (
-            filtered.map((faq, idx) => {
-              const isOpen = !!openItems[idx];
-              return (
-                <div
+            <Accordion type="multiple" defaultValue={filtered.map((_, i) => String(i))} className="space-y-4">
+              {filtered.map((faq, idx) => (
+                <AccordionItem
                   key={faq.q}
-                  className="rounded-2xl border border-border bg-card shadow-2xs transition-all hover:border-primary/40 overflow-hidden"
+                  value={String(idx)}
+                  className="rounded-2xl border border-border bg-card shadow-2xs transition-all hover:border-primary/40 overflow-hidden border-b-0"
                 >
-                  <button
-                    onClick={() => toggle(idx)}
-                    aria-expanded={isOpen}
-                    className="flex w-full items-center justify-between p-6 text-left font-semibold text-base md:text-lg transition-colors hover:text-primary"
-                  >
+                  <AccordionTrigger className="flex w-full items-center justify-between p-6 text-left font-semibold text-base md:text-lg transition-colors hover:text-primary hover:no-underline">
                     <span className="flex items-center gap-3 pr-4">
                       <HelpCircle className="size-5 shrink-0 text-primary/70" />
                       {faq.q}
                     </span>
-                    <ChevronDown
-                      className={`size-5 shrink-0 text-muted-foreground transition-transform duration-200 ${
-                        isOpen ? "rotate-180 text-primary" : ""
-                      }`}
-                    />
-                  </button>
-                  {isOpen && (
-                    <div className="border-t border-border/60 bg-muted/20 px-6 pb-6 pt-4 text-sm md:text-base leading-relaxed text-muted-foreground">
-                      <span className="mb-2 inline-block rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-foreground/70">
-                        {faq.category}
-                      </span>
-                      <p className="mt-1">{faq.a}</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })
+                  </AccordionTrigger>
+                  <AccordionContent className="border-t border-border/60 bg-muted/20 px-6 pb-6 pt-4 text-sm md:text-base leading-relaxed text-muted-foreground">
+                    <span className="mb-2 inline-block rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-foreground/70">
+                      {faq.category}
+                    </span>
+                    <p className="mt-1">{faq.a}</p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           ) : (
             <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
               <p className="text-lg font-medium">No questions matched your search "{query}".</p>

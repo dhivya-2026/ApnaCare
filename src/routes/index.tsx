@@ -99,7 +99,7 @@ const SLIDES = [
     alt: "A certified female nurse gently taking vitals and checking blood pressure for a home patient",
     caption: "Clinical Home Nursing & Wound Care",
     heading: "Hospital-Grade Nursing in the Comfort of Home",
-    sub: "Registered GNM/B.Sc nurses for wound care, injections, catheter management, and post-operative recovery.",
+    sub: "Registered nurses with General Nursing and Midwifery (GNM) or B.Sc. Nursing credentials for wound care, injections, catheter management, and post-operative recovery.",
     cta: { label: "Book Nursing Services", service: "nursing-services" },
   },
   {
@@ -522,7 +522,7 @@ function Home() {
         <SectionHeading
           eyebrow="Why ApnaCare"
           title="Why Families Trust ApnaCare"
-          sub="Our company is built on absolute dedication to family reassurance. We set the highest standards for safety, reliability, and compassionate care."
+          sub="We are dedicated to giving families peace of mind. We set the highest standards for safety, reliability, and compassionate care."
         />
         <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {PILLARS.map((p, n) => (
@@ -694,7 +694,7 @@ function Home() {
               "Biometric Aadhaar Authentication",
               "100% Police Record Verification",
               "Court & Criminal Screening",
-              "BLS First Aid Certification",
+              "Basic Life Support (BLS) & First Aid Certification",
               "Live GPS Shift Telemetry",
               "24/7 Command SOS Dispatch",
             ].map((x) => (
