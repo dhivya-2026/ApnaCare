@@ -102,18 +102,20 @@ function Contact() {
             href={`https://wa.me/${SITE.WHATSAPP}`}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => track("whatsapp_click", { source: "contact_page" })}
             className="card-soft p-6 transition-all hover:border-primary/50 hover:shadow-lift"
           >
             <span className="grid size-12 place-items-center rounded-xl bg-primary-soft text-primary">
               <MessageCircle className="size-6" />
             </span>
             <h2 className="mt-4 font-semibold text-lg">WhatsApp Chat Desk</h2>
-            <p className="mt-1 text-sm font-semibold text-foreground">+{SITE.WHATSAPP}</p>
+            <p className="mt-1 font-mono text-sm font-bold text-foreground">{SITE.SUPPORT_PHONE}</p>
             <p className="mt-1 text-xs text-muted-foreground">Instant coordinator chat</p>
           </a>
 
           <a
             href={`mailto:${SITE.EMAIL}`}
+            onClick={() => track("email_click", { source: "contact_page" })}
             className="card-soft p-6 transition-all hover:border-primary/50 hover:shadow-lift"
           >
             <span className="grid size-12 place-items-center rounded-xl bg-primary-soft text-primary">

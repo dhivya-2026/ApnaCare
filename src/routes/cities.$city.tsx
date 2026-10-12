@@ -35,7 +35,7 @@ function CityDetailPage() {
         title={`ApnaCare Women Attendants in ${city.name}`}
         sub={city.description}
       >
-        <BookLink size="lg" variant="warm">
+        <BookLink size="lg" variant="warm" city={city.name}>
           Book Attendant in {city.name}
         </BookLink>
         <CallLink variant="outline">Call {city.name} Command Desk</CallLink>

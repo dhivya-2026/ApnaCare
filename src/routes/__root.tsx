@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteLayout } from "@/components/site/Layout";
 import { Toaster } from "@/components/ui/sonner";
+import { SITE } from "@/data/site";
 
 function NotFoundComponent() {
   return (
@@ -55,12 +56,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "ApnaCare — Trusted Women Attendant Services" },
       { name: "description", content: "Safe, verified women attendants for elderly care, hospital assistance, nursing, travel and home services." },
+      { name: "theme-color", content: "#285C52" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "ApnaCare" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "apple-touch-icon", href: "/favicon.ico" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://www.clarity.ms" },
@@ -80,6 +85,38 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              name: SITE.name,
+              legalName: SITE.legalName,
+              url: "https://apna-care.vercel.app",
+              description:
+                "Safe, verified women attendants for elderly care, hospital assistance, nursing, travel and home services across South India.",
+              telephone: SITE.SUPPORT_PHONE_TEL,
+              email: SITE.EMAIL,
+              priceRange: "₹₹",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "4th Floor, SafeHub Towers, Indiranagar",
+                addressLocality: "Bengaluru",
+                addressRegion: "Karnataka",
+                postalCode: "560038",
+                addressCountry: "IN",
+              },
+              areaServed: [
+                { "@type": "City", name: "Bengaluru" },
+                { "@type": "City", name: "Chennai" },
+                { "@type": "City", name: "Hyderabad" },
+                { "@type": "City", name: "Coimbatore" },
+              ],
+              openingHours: "Mo-Su 00:00-24:00",
+            }),
+          }}
+        />
         {clarityId ? (
           <script
             type="text/javascript"

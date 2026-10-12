@@ -264,7 +264,7 @@ function BookingPage() {
 
       <section className="container-page grid gap-10 py-12 lg:grid-cols-[1.6fr_1fr]">
         <div className="card-soft p-6 md:p-10 shadow-soft">
-          {/* Step Progress Pills - Clicking completed steps allows direct navigation */}
+          {/* Step Progress Pills */}
           <nav aria-label="Booking steps progress" className="flex flex-wrap gap-2">
             {STEPS.map((s, i) => {
               const isCurrent = i === step;
@@ -292,6 +292,19 @@ function BookingPage() {
               );
             })}
           </nav>
+
+          {/* Linear progress bar */}
+          <div className="mt-4" aria-hidden>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+                style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Step {step + 1} of {STEPS.length} — {STEPS[step]}
+            </p>
+          </div>
 
           <div className="mt-8 space-y-6">
             {/* Step 0: Customer */}
@@ -589,7 +602,7 @@ function BookingPage() {
 
             {step < STEPS.length - 1 ? (
               <Button onClick={next} className="gap-2">
-                Continue to Step {step + 2} <ArrowRight className="size-4" />
+                Next: {STEPS[step + 1]} <ArrowRight className="size-4" />
               </Button>
             ) : (
               <Button onClick={submit} disabled={submitting} className="gap-2" variant="warm">

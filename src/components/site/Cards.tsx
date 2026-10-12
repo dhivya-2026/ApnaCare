@@ -45,24 +45,29 @@ export function ServiceCard({ s }: { s: Service }) {
   return (
     <article className="group flex flex-col card-soft p-6 transition-all hover:-translate-y-1 hover:shadow-lift">
       <div className="flex items-center justify-between">
-        <span className={cn("rounded-full px-3 py-1 text-xs font-semibold", s.badge === "Trending" ? "bg-terracotta/25 text-terracotta-foreground" : "bg-primary-soft text-primary")}>{s.badge}</span>
+        <span className={cn("rounded-full px-3 py-1 text-xs font-semibold", s.badge === "Trending" ? "bg-terracotta/25 text-terracotta-foreground" : "bg-primary-soft text-primary")}>{s.badge ?? s.category}</span>
         <Rating value={s.rating} reviews={s.reviewCount} />
       </div>
-      <h3 className="mt-5 text-xl font-semibold">{s.name}</h3>
-      <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{s.description}</p>
+      <h3 className="mt-4 text-xl font-semibold">{s.name}</h3>
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">{s.shortDesc}</p>
       <ul className="mt-4 space-y-1.5">
-        {s.benefits.map((b) => <li key={b} className="flex items-center gap-2 text-sm"><Check className="size-4 text-primary" aria-hidden />{b}</li>)}
+        {s.benefits.slice(0, 3).map((b) => <li key={b} className="flex items-center gap-2 text-sm"><Check className="size-4 shrink-0 text-primary" aria-hidden /><span>{b}</span></li>)}
       </ul>
-      <div className="mt-6 flex items-end justify-between border-t border-border pt-4">
+      <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
         <div>
           <p className="text-xs text-muted-foreground">Starting at</p>
-          <p className="font-display text-2xl font-semibold">{formatINR(s.startingPrice)}<span className="text-sm font-normal text-muted-foreground">/{s.pricingUnit}</span></p>
+          <p className="font-display text-2xl font-semibold">
+            {formatINR(s.startingPrice)}
+            <span className="text-sm font-normal text-muted-foreground">/{s.pricingUnit}</span>
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">+ 18% GST invoiced</p>
         </div>
+        <span className="rounded-full bg-primary-soft/60 px-2.5 py-1 text-xs font-semibold text-primary capitalize">{s.category}</span>
       </div>
       <div className="mt-4 flex gap-2">
-        <BookLink service={s.slug} className="flex-1" />
+        <BookLink service={s.slug} className="flex-1">Book Service</BookLink>
         <Button asChild variant="outline" className="flex-1">
-          <Link to="/services/$slug" params={{ slug: s.slug }} onClick={() => track("service_view", { service: s.slug })}>Learn More</Link>
+          <Link to="/services/$slug" params={{ slug: s.slug }} onClick={() => track("service_view", { service: s.slug })}>Details</Link>
         </Button>
       </div>
     </article>
@@ -87,10 +92,10 @@ export function PricingCard({ p }: { p: (typeof PRICING_PLANS)[number] }) {
 
 export function AttendantCard({ a, img }: { a: Attendant; img?: string }) {
   return (
-    <article className="flex flex-col card-soft p-6">
+    <article className="flex flex-col card-soft p-6 transition-all hover:border-primary/40 hover:shadow-lift">
       <div className="flex items-center gap-4">
         {img ? <img src={img} alt={`Portrait of ${a.name}`} loading="lazy" width={64} height={64} className="size-16 rounded-2xl object-cover" />
-          : <div className="grid size-16 place-items-center rounded-2xl bg-secondary font-display text-xl font-semibold text-primary" aria-hidden>{a.name.split(" ").map((x) => x[0]).join("")}</div>}
+          : <div className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary-soft font-display text-xl font-semibold text-primary" aria-hidden>{a.name.split(" ").map((x) => x[0]).join("")}</div>}
         <div>
           <h3 className="text-lg font-semibold">{a.name}</h3>
           <p className="text-sm text-muted-foreground">{a.role}</p>

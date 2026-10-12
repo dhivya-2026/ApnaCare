@@ -134,6 +134,13 @@
   @media (width >= 64rem) { padding-inline: 2rem; }
 }
 
+/* xs breakpoint (375px) for mobile label variants */
+.xs\:inline { display: none; }
+@media (min-width: 375px) {
+  .xs\:inline { display: inline; }
+  .xs\:hidden { display: none; }
+}
+
 /* ── Typography utilities ─────────────────────────────────────────── */
 @utility eyebrow {
   font-size: 0.7rem;

@@ -161,6 +161,8 @@ function Hero() {
           aria-hidden={idx !== i}
           width={1600}
           height={1008}
+          loading={idx === 0 ? "eager" : "lazy"}
+          fetchPriority={idx === 0 ? "high" : "low"}
           className={`absolute inset-0 -z-10 h-full w-full object-cover object-[70%_center] transition-opacity duration-1000 ${
             idx === i ? "opacity-100" : "opacity-0"
           }`}
@@ -212,8 +214,8 @@ function Hero() {
             <Button
               asChild
               size="lg"
-              variant="default"
-              className="bg-primary-foreground/15 text-primary-foreground border border-primary-foreground/30 hover:bg-primary-foreground/25 backdrop-blur"
+              variant="glass"
+              className="hover:border-primary-foreground/60 transition-colors"
             >
               <Link to="/services">Explore Services</Link>
             </Button>

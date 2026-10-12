@@ -28,7 +28,8 @@ export const Route = createFileRoute("/attendant-login")({
   head: () =>
     seo(
       "Attendant Portal — ApnaCare Caregiver Hub",
-      "Official portal for verified ApnaCare women attendants. Shift check-in, real-time assignment telemetry, and 24/7 command center escalation."
+      "Official portal for verified ApnaCare women attendants. Shift check-in, real-time assignment telemetry, and 24/7 command center escalation.",
+      { noindex: true }
     ),
   component: AttendantPortal,
 });
