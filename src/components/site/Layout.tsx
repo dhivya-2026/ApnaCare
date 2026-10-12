@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { SITE, CITIES, buildWhatsAppUrl } from "@/data/site";
 import { track, useAutoTelemetry } from "@/lib/analytics";
 import { Assistant } from "./Assistant";
+import { PersonalizedWelcome } from "./PersonalizedWelcome";
 
 // ─── Shared Link Components ──────────────────────────────────────────────────
 
@@ -846,6 +847,8 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       </main>
       <Footer />
       <MobileBar />
+      {/* Personalized welcome card — bottom-left, above WhatsApp */}
+      <PersonalizedWelcome />
       {/* Floating WhatsApp — bottom-left */}
       <FloatingWhatsApp />
       {/* Chatbot assistant — bottom-right */}

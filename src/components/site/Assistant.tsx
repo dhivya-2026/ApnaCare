@@ -4,6 +4,7 @@ import { MessageCircleHeart, X, Send, Phone, RotateCcw, MapPin, Sparkles } from 
 import { Button } from "@/components/ui/button";
 import { SERVICES, CITIES, SITE, formatINR, buildWhatsAppUrl, Service, getICP, getService } from "@/data/site";
 import { track, sendToGoogleSheet } from "@/lib/analytics";
+import { useVisitorPersona } from "@/hooks/useVisitorPersona";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -532,11 +533,24 @@ export function Assistant() {
   // Compute context dynamically based on current page
   const pageContext = useMemo(() => getPageContext(pathname), [pathname]);
 
-  // Messages state
+  // Visitor persona — for personalised greeting prefix
+  const persona = useVisitorPersona();
+
+  // Build a persona-prefixed greeting for the initial bot message
+  const personaGreeting = useMemo(() => {
+    const prefix = persona.isReturning
+      ? persona.lastService
+        ? `${persona.greeting}! Welcome back — I see you were interested in **${persona.lastService.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}** last time. `
+        : `${persona.greeting}! Good to see you again. `
+      : `${persona.greeting}! `;
+    return `${prefix}${pageContext.greeting}`;
+  }, [persona.greeting, persona.isReturning, persona.lastService, pageContext.greeting]);
+
+  // Messages state — initial message uses persona greeting
   const [msgs, setMsgs] = useState<BotMsg[]>(() => [
     {
       from: "bot",
-      text: pageContext.greeting,
+      text: personaGreeting,
       replies: pageContext.initialReplies,
     },
   ]);
