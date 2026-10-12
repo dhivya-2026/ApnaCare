@@ -25,6 +25,18 @@ export const AIRTABLE_TABLE_ID =
 export const CLARITY_ID =
   (import.meta.env.VITE_CLARITY_ID as string) || "yw5xnprinp";
 
+export const JIRA_API_TOKEN =
+  (import.meta.env.VITE_JIRA_API_TOKEN as string) || "";
+
+export const JIRA_EMAIL =
+  (import.meta.env.VITE_JIRA_EMAIL as string) || "divabhrati.ramco@gmail.com";
+
+export const JIRA_DOMAIN =
+  (import.meta.env.VITE_JIRA_DOMAIN as string) || "apnacare.atlassian.net";
+
+export const JIRA_PROJECT_KEY =
+  (import.meta.env.VITE_JIRA_PROJECT_KEY as string) || "APNA";
+
 // ─── Environment & Device Detection ──────────────────────────────────────────
 
 export function isBrowser(): boolean {

@@ -46,6 +46,15 @@ var AIRTABLE_CONFIG = {
   TABLE_ID: "tbl6DnBguLMnvIQI8"
 };
 
+var JIRA_CONFIG = {
+  // Configured in Apps Script: Project Settings > Script Properties > JIRA_API_TOKEN
+  API_TOKEN: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_API_TOKEN")) || "ATATT3xFfGF07V4pvlPDfd3g_WlE3iyOMfQND6XsNNEgndQ6Ol9utpLxe3ZeYW-iucw07v3GLYkp6i1IfbXF8XD30tCN3XHT3q-aOnRY_46GSID7q3HhzfRud2WfuW6d08iwerrbOKzIHDMiKuvM_THtDEIyGVNziJz89_BCjHLtla6Xv00IHCg=E96CC16C",
+  EMAIL: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_EMAIL")) || "divabhrati.ramco@gmail.com",
+  DOMAIN: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_DOMAIN")) || "apnacare.atlassian.net",
+  PROJECT_KEY: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_PROJECT_KEY")) || "APNA",
+  ISSUE_TYPE: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_ISSUE_TYPE")) || "Task"
+};
+
 var EMAIL_CONFIG = {
   name: "ApnaCare Operations Desk",
   companyName: "ApnaCare",
@@ -109,41 +118,41 @@ var TAB_HEADERS = {
     "duration_days", "preferred_language", "special_notes", "promo_code", "base_price",
     "discount", "gst", "total_amount", "booking_status", "follow_up_status", "lead_source",
     "page_path", "source_environment",
-    "airtable_synced"
+    "airtable_synced", "jira_synced", "jira_issue_key"
   ],
 
   Callback_Enquiries: [
     "received_at", "enquiry_id", "visitor_id", "session_id", "name", "phone", "service",
     "message", "page_path", "lead_source", "lead_status", "follow_up_status", "source_environment",
-    "airtable_synced"
+    "airtable_synced", "jira_synced", "jira_issue_key"
   ],
 
   Contact_Submissions: [
     "received_at", "contact_id", "visitor_id", "session_id", "name", "phone", "email", "city",
     "subject", "message", "page_path", "lead_source", "lead_status", "follow_up_status",
     "source_environment",
-    "airtable_synced"
+    "airtable_synced", "jira_synced", "jira_issue_key"
   ],
 
   Partner_Applications: [
     "received_at", "partner_id", "visitor_id", "session_id", "org_name", "org_type",
     "contact_person", "email", "phone", "website", "state", "city", "members_count",
     "category", "interest_notes", "page_path", "lead_source", "lead_status", "source_environment",
-    "airtable_synced"
+    "airtable_synced", "jira_synced", "jira_issue_key"
   ],
 
   Chatbot_Leads: [
     "received_at", "lead_id", "visitor_id", "session_id", "name", "email", "phone",
     "requested_service", "city", "page_context_badge", "user_query", "recommended_action",
     "conversation_notes", "page_path", "lead_source", "lead_status", "source_environment",
-    "airtable_synced"
+    "airtable_synced", "jira_synced", "jira_issue_key"
   ],
 
   SOS_Emergency_Alerts: [
     "received_at", "alert_id", "visitor_id", "session_id", "alert_type", "trigger_step",
     "caller_name", "caller_phone", "location", "city", "service_context", "status",
     "operator_notes", "response_time_sec", "source_environment",
-    "airtable_synced"
+    "airtable_synced", "jira_synced", "jira_issue_key"
   ],
 
   Attendant_Portal_Logs: [
@@ -155,7 +164,7 @@ var TAB_HEADERS = {
     "received_at", "lead_id", "lead_type", "visitor_id", "session_id", "name", "phone", "email",
     "service_or_requirement", "city", "lead_source", "form_name", "lead_status", "follow_up_status",
     "total_value", "source_environment",
-    "airtable_synced"
+    "airtable_synced", "jira_synced", "jira_issue_key"
   ],
 
   Visitor_Sessions: [
@@ -596,6 +605,379 @@ function SYNC_ALL_LEADS_TO_AIRTABLE() {
 }
 
 // =========================================================================================
+// JIRA SERVICE DESK & CRM INTEGRATION (LEADS, FORMS & TRIGGERS)
+// =========================================================================================
+
+/**
+ * Creates an issue / ticket in Atlassian Jira for an individual lead or booking in real time.
+ */
+function pushLeadToJira(lead, options) {
+  options = options || {};
+  try {
+    if (!JIRA_CONFIG.API_TOKEN || !JIRA_CONFIG.EMAIL || !JIRA_CONFIG.DOMAIN || !JIRA_CONFIG.PROJECT_KEY) {
+      Logger.log("⚠️ Jira config incomplete. Skipping Jira sync.");
+      return { success: false, error: "Jira configuration missing" };
+    }
+
+    var cleanHost = String(JIRA_CONFIG.DOMAIN).trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+    var url = "https://" + cleanHost + "/rest/api/2/issue";
+
+    var leadTypeLabel = String(lead.LeadType || "Inbound Lead").trim();
+    var customerName = String(lead.Name || "Website Lead").trim();
+    var serviceName = String(lead.Service || "Care Enquiry").trim();
+    var city = String(lead.City || "India").trim();
+
+    var summary = "[" + leadTypeLabel + "] " + customerName + " — " + serviceName + (city ? " (" + city + ")" : "");
+    if (summary.length > 250) summary = summary.substring(0, 247) + "...";
+
+    var descLines = [
+      "h2. ApnaCare Patient / Customer Details",
+      "* *Reference ID:* " + (lead.ReferenceID || "N/A"),
+      "* *Lead Type:* " + leadTypeLabel,
+      "* *Customer Name:* " + customerName,
+      "* *Mobile / Phone:* " + (lead.Phone || "N/A"),
+      "* *Email:* " + (lead.Email || "N/A"),
+      "* *Service Requested:* " + serviceName,
+      "* *City / Location:* " + city,
+      "* *Received At:* " + (lead.Timestamp || Utilities.formatDate(new Date(), CONFIG.TIMEZONE || "Asia/Kolkata", "yyyy-MM-dd HH:mm:ss")),
+      "* *Page Path:* " + (lead.PagePath || "/"),
+      "* *Source Environment:* " + (lead.SourceEnvironment || "production"),
+      "",
+      "h3. Requirements & Operational Details",
+      String(lead.Details || "No additional notes provided.").trim(),
+      "",
+      "----",
+      "_Logged automatically by ApnaCare Digital Operations Engine_"
+    ];
+
+    var fields = {
+      project: { key: String(JIRA_CONFIG.PROJECT_KEY).trim().toUpperCase() },
+      summary: summary,
+      description: descLines.join("\n"),
+      issuetype: { name: JIRA_CONFIG.ISSUE_TYPE || "Task" },
+      labels: [
+        "apnacare",
+        "lead",
+        "website",
+        leadTypeLabel.toLowerCase().replace(/[^a-z0-9_-]/g, "")
+      ]
+    };
+
+    if (options.priority) {
+      fields.priority = { name: options.priority };
+    }
+
+    var authString = String(JIRA_CONFIG.EMAIL).trim() + ":" + String(JIRA_CONFIG.API_TOKEN).trim();
+    var authHeader = "Basic " + Utilities.base64Encode(authString);
+
+    var fetchOptions = {
+      method: "post",
+      headers: {
+        "Authorization": authHeader,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      payload: JSON.stringify({ fields: fields }),
+      muteHttpExceptions: true
+    };
+
+    var res = UrlFetchApp.fetch(url, fetchOptions);
+    var code = res.getResponseCode();
+    var respText = res.getContentText();
+
+    if (code >= 200 && code < 300) {
+      var json = JSON.parse(respText);
+      Logger.log("✅ Created Jira Issue " + json.key + " for " + (lead.ReferenceID || customerName));
+      return { success: true, key: json.key, id: json.id };
+    } else {
+      Logger.log("⚠️ Jira API returned HTTP " + code + ": " + respText);
+      return { success: false, error: respText, statusCode: code };
+    }
+  } catch (err) {
+    Logger.log("⚠️ Failed to dispatch to Jira: " + err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Creates a Digest task/ticket in Jira summarizing Daily, Weekly, or Monthly metrics.
+ */
+function pushDigestToJira(intervalName, digestData) {
+  try {
+    if (!JIRA_CONFIG.API_TOKEN || !JIRA_CONFIG.EMAIL || !JIRA_CONFIG.DOMAIN || !JIRA_CONFIG.PROJECT_KEY) {
+      return { success: false, error: "Jira config missing" };
+    }
+
+    var cleanHost = String(JIRA_CONFIG.DOMAIN).trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+    var url = "https://" + cleanHost + "/rest/api/2/issue";
+
+    var summary = "[ApnaCare " + intervalName + " Digest] " + digestData.period + " (" + digestData.totalLeads + " Inbound Leads, " + digestData.bookings + " Bookings)";
+    if (summary.length > 250) summary = summary.substring(0, 247) + "...";
+
+    var descLines = [
+      "h2. ApnaCare " + intervalName + " Care Intelligence Report — " + digestData.period,
+      "",
+      "h3. Key Performance Indicators",
+      "* *Unique Visitors:* " + digestData.visitors,
+      "* *Page Views:* " + digestData.pageViews,
+      "* *Total Telemetry Events:* " + digestData.events,
+      "* *Total Inbound Leads:* " + digestData.totalLeads,
+      "* *Overall Conversion Rate:* " + digestData.convRate,
+      "* *Average Session Engagement:* " + digestData.avgSec + " seconds",
+      "",
+      "h3. Funnel Inbound Breakdown",
+      "* *⭐ 6-Step Bookings:* " + digestData.bookings,
+      "* *📞 Quick Callbacks:* " + digestData.callbacks,
+      "* *✉️ Contact Inquiries:* " + digestData.contacts,
+      "* *🤝 Ecosystem Partners:* " + digestData.partners,
+      "* *💬 Chatbot Conversations:* " + digestData.chatbots,
+      "",
+      digestData.sheetUrl ? "*Google Sheets Database:* " + digestData.sheetUrl : "",
+      "",
+      "----",
+      "_Generated automatically by ApnaCare " + intervalName + " Trigger Engine_"
+    ];
+
+    var fields = {
+      project: { key: String(JIRA_CONFIG.PROJECT_KEY).trim().toUpperCase() },
+      summary: summary,
+      description: descLines.join("\n"),
+      issuetype: { name: JIRA_CONFIG.ISSUE_TYPE || "Task" },
+      labels: ["apnacare", "digest", intervalName.toLowerCase() + "-summary"]
+    };
+
+    var authString = String(JIRA_CONFIG.EMAIL).trim() + ":" + String(JIRA_CONFIG.API_TOKEN).trim();
+    var authHeader = "Basic " + Utilities.base64Encode(authString);
+
+    var fetchOptions = {
+      method: "post",
+      headers: {
+        "Authorization": authHeader,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      payload: JSON.stringify({ fields: fields }),
+      muteHttpExceptions: true
+    };
+
+    var res = UrlFetchApp.fetch(url, fetchOptions);
+    var code = res.getResponseCode();
+    if (code >= 200 && code < 300) {
+      var json = JSON.parse(res.getContentText());
+      Logger.log("✅ Created Jira Digest Issue: " + json.key + " (" + intervalName + " " + digestData.period + ")");
+      return { success: true, key: json.key };
+    } else {
+      Logger.log("⚠️ Jira Digest HTTP " + code + ": " + res.getContentText());
+      return { success: false, error: res.getContentText() };
+    }
+  } catch (err) {
+    Logger.log("⚠️ Error pushing digest to Jira: " + err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Bulk syncs all historical unsynced patient leads, bookings, callbacks, contact forms,
+ * chatbot leads, and emergency SOS alerts from Sheet 1 tabs directly into Jira.
+ * Marks rows as SYNCED with their Jira issue key to ensure zero duplicates.
+ */
+function SYNC_ALL_LEADS_TO_JIRA() {
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) {}
+
+  var ss = getSpreadsheet();
+  if (!ss) {
+    if (ui) ui.alert("❌ Error", "Could not open spreadsheet.", ui.ButtonSet.OK);
+    return { success: false, count: 0 };
+  }
+
+  function cleanVal(v) { return (v === undefined || v === null) ? "" : String(v).trim(); }
+  var syncedCount = 0;
+
+  var leadTabs = [
+    { name: "Booking_Leads", type: "Booking", nameCol: ["customer_name", "name"], phoneCol: ["mobile", "phone"], refCol: "booking_ref" },
+    { name: "Callback_Enquiries", type: "Callback Enquiry", nameCol: ["name"], phoneCol: ["phone"], refCol: "enquiry_id" },
+    { name: "Contact_Submissions", type: "Contact Submission", nameCol: ["name"], phoneCol: ["phone"], refCol: "contact_id" },
+    { name: "Partner_Applications", type: "Partner Application", nameCol: ["contact_person", "name"], phoneCol: ["phone"], refCol: "partner_id" },
+    { name: "Chatbot_Leads", type: "Chatbot Lead", nameCol: ["name"], phoneCol: ["phone"], refCol: "lead_id" },
+    { name: "SOS_Emergency_Alerts", type: "Emergency SOS Alert", nameCol: ["caller_name"], phoneCol: ["caller_phone"], refCol: "alert_id" }
+  ];
+
+  leadTabs.forEach(function (tabDef) {
+    try {
+      var sheet = ss.getSheetByName(tabDef.name);
+      if (!sheet || sheet.getLastRow() < 2) return;
+
+      var data = sheet.getDataRange().getValues();
+      if (!data || data.length < 2) return;
+
+      var headers = data[0].map(function (c) { return String(c || "").trim(); });
+      var syncedColIdx = headers.indexOf("jira_synced");
+      var keyColIdx = headers.indexOf("jira_issue_key");
+
+      // Auto-append headers if not yet in row 1
+      if (syncedColIdx === -1) {
+        headers.push("jira_synced");
+        syncedColIdx = headers.length - 1;
+        sheet.getRange(1, headers.length).setValue("jira_synced").setFontWeight("bold");
+      }
+      if (keyColIdx === -1) {
+        headers.push("jira_issue_key");
+        keyColIdx = headers.length - 1;
+        sheet.getRange(1, headers.length).setValue("jira_issue_key").setFontWeight("bold");
+      }
+
+      for (var r = 1; r < data.length; r++) {
+        var row = data[r];
+        var isAlreadySynced = cleanVal(row[syncedColIdx]).toUpperCase() === "SYNCED" || cleanVal(row[keyColIdx]).length > 0;
+        if (isAlreadySynced) continue;
+
+        var obj = {};
+        for (var c = 0; c < headers.length; c++) {
+          obj[headers[c]] = row[c];
+        }
+
+        var custName = "";
+        for (var n = 0; n < tabDef.nameCol.length; n++) {
+          if (cleanVal(obj[tabDef.nameCol[n]])) { custName = cleanVal(obj[tabDef.nameCol[n]]); break; }
+        }
+        var custPhone = "";
+        for (var p = 0; p < tabDef.phoneCol.length; p++) {
+          if (cleanVal(obj[tabDef.phoneCol[p]])) { custPhone = cleanVal(obj[tabDef.phoneCol[p]]); break; }
+        }
+
+        if (!custName && !custPhone) continue;
+
+        var refId = cleanVal(obj[tabDef.refCol]);
+        var detailsText = "";
+        if (tabDef.type === "Booking") {
+          detailsText = "Start: " + cleanVal(obj.start_date) + " " + cleanVal(obj.start_time) + 
+                        " | Days: " + cleanVal(obj.duration_days) + 
+                        " | Amount: ₹" + cleanVal(obj.total_amount) + 
+                        " | Notes: " + cleanVal(obj.special_notes);
+        } else if (tabDef.type === "Callback Enquiry") {
+          detailsText = "Message: " + cleanVal(obj.message) + " | Status: " + cleanVal(obj.lead_status);
+        } else if (tabDef.type === "Contact Submission") {
+          detailsText = "Subject: " + cleanVal(obj.subject) + " | Message: " + cleanVal(obj.message);
+        } else if (tabDef.type === "Partner Application") {
+          detailsText = "Org: " + cleanVal(obj.org_name) + " (" + cleanVal(obj.org_type) + ") | Notes: " + cleanVal(obj.interest_notes);
+        } else if (tabDef.type === "Chatbot Lead") {
+          detailsText = "Query: " + cleanVal(obj.user_query) + " | Action: " + cleanVal(obj.recommended_action);
+        } else if (tabDef.type === "Emergency SOS Alert") {
+          detailsText = "Alert: " + cleanVal(obj.alert_type) + " | Status: " + cleanVal(obj.status) + " | Operator: " + cleanVal(obj.operator_notes);
+        }
+
+        var leadPayload = {
+          Name: custName,
+          Phone: custPhone,
+          Email: cleanVal(obj.email),
+          Service: cleanVal(obj.service_name || obj.service || obj.requested_service || obj.service_context || "Care Service"),
+          City: cleanVal(obj.city || "India"),
+          LeadType: tabDef.type,
+          ReferenceID: refId,
+          Details: detailsText,
+          PagePath: cleanVal(obj.page_path || "/"),
+          Timestamp: cleanVal(obj.received_at),
+          SourceEnvironment: cleanVal(obj.source_environment || "production")
+        };
+
+        var priority = (tabDef.type === "Emergency SOS Alert") ? "Highest" : null;
+        var jiraRes = pushLeadToJira(leadPayload, { priority: priority });
+
+        if (jiraRes && jiraRes.success) {
+          syncedCount++;
+          sheet.getRange(r + 1, syncedColIdx + 1).setValue("SYNCED");
+          if (jiraRes.key) {
+            sheet.getRange(r + 1, keyColIdx + 1).setValue(jiraRes.key);
+          }
+        }
+        Utilities.sleep(150); // Respect Jira API rate limits
+      }
+    } catch (tabErr) {
+      Logger.log("Error syncing " + tabDef.name + " to Jira: " + tabErr.message);
+    }
+  });
+
+  var msg = "Jira Sync Complete: " + syncedCount + " new lead(s) successfully created in Jira!";
+  Logger.log(msg);
+  if (ui) {
+    ui.alert("✅ Jira Sync Complete", msg, ui.ButtonSet.OK);
+  }
+  return { success: true, count: syncedCount };
+}
+
+/**
+ * 10-Minute recurring cron trigger to automatically forward any new leads to Jira.
+ */
+function AUTOMATED_JIRA_SYNC_TRIGGER() {
+  Logger.log("⏰ Running Scheduled Jira Lead Sync...");
+  var res = SYNC_ALL_LEADS_TO_JIRA();
+  Logger.log("⏰ Jira sync complete: " + res.count + " new leads synced.");
+}
+
+function setupJiraAutomation() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === "AUTOMATED_JIRA_SYNC_TRIGGER") {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger("AUTOMATED_JIRA_SYNC_TRIGGER").timeBased().everyMinutes(10).create();
+  try {
+    SpreadsheetApp.getUi().alert("✅ 24/7 Automatic Jira Sync Activated!\n\nNew inbound leads will be checked and synced to Jira every 10 minutes.");
+  } catch (e) {}
+}
+
+function stopJiraAutomation() {
+  var triggers = ScriptApp.getProjectTriggers();
+  var count = 0;
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === "AUTOMATED_JIRA_SYNC_TRIGGER") {
+      ScriptApp.deleteTrigger(triggers[i]);
+      count++;
+    }
+  }
+  try {
+    SpreadsheetApp.getUi().alert("🛑 Automatic Jira Sync Stopped.\n\nRemoved " + count + " active trigger(s).");
+  } catch (e) {}
+}
+
+/**
+ * Validates Jira connection and creates a verification test issue in Jira.
+ */
+function TEST_JIRA_CONNECTION() {
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) {}
+
+  var testPayload = {
+    Name: "Dr. Ananya Sundaram (Test Lead)",
+    Phone: "+91 98401 23456",
+    Email: "divabhrati.ramco@gmail.com",
+    Service: "Elderly Care Attendant",
+    City: "Bengaluru",
+    LeadType: "Booking Test",
+    ReferenceID: "AC-TEST-" + Date.now().toString(36).toUpperCase(),
+    Details: "Verification test ticket from ApnaCare Google Sheets integration engine.",
+    PagePath: "/booking",
+    Timestamp: Utilities.formatDate(new Date(), CONFIG.TIMEZONE || "Asia/Kolkata", "yyyy-MM-dd HH:mm:ss"),
+    SourceEnvironment: "test"
+  };
+
+  var res = pushLeadToJira(testPayload);
+  if (res.success) {
+    var successMsg = "🎉 Jira Connected Successfully!\n\nCreated ticket: " + res.key + "\nProject: " + JIRA_CONFIG.PROJECT_KEY + "\nHost: " + JIRA_CONFIG.DOMAIN;
+    Logger.log(successMsg);
+    if (ui) ui.alert("✅ Jira Test Passed", successMsg, ui.ButtonSet.OK);
+    return { success: true, key: res.key };
+  } else {
+    var errMsg = "❌ Jira Connection Failed:\n\n" + (res.error || "Unknown error") + "\n\nPlease verify:\n1. JIRA_DOMAIN (" + JIRA_CONFIG.DOMAIN + ")\n2. JIRA_PROJECT_KEY (" + JIRA_CONFIG.PROJECT_KEY + ")\n3. JIRA_EMAIL (" + JIRA_CONFIG.EMAIL + ")\n4. JIRA_API_TOKEN";
+    Logger.log(errMsg);
+    if (ui) ui.alert("⚠️ Jira Test Failed", errMsg, ui.ButtonSet.OK);
+    return { success: false, error: res.error };
+  }
+}
+
+// =========================================================================================
 // MAIN WEBHOOK ENTRYPOINTS (doPost & doGet)
 // =========================================================================================
 function doGet(e) {
@@ -615,6 +997,25 @@ function doGet(e) {
       status: "success",
       message: "Synced leads from Google Sheet 1 to Airtable.",
       syncedCount: airtableRes.count,
+      timestamp: normalizeTimestamp(new Date())
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (p.action === "sync_jira" || p.action === "jira") {
+    var jiraRes = SYNC_ALL_LEADS_TO_JIRA();
+    return ContentService.createTextOutput(JSON.stringify({
+      status: jiraRes.success ? "success" : "warning",
+      message: "Synced leads from Google Sheet 1 to Jira.",
+      syncedCount: jiraRes.count,
+      timestamp: normalizeTimestamp(new Date())
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (p.action === "test_jira") {
+    var testJiraRes = TEST_JIRA_CONNECTION();
+    return ContentService.createTextOutput(JSON.stringify({
+      status: testJiraRes.success ? "success" : "error",
+      result: testJiraRes,
       timestamp: normalizeTimestamp(new Date())
     })).setMimeType(ContentService.MimeType.JSON);
   }
@@ -695,6 +1096,22 @@ function doPost(e) {
       });
       p.airtable_synced = airtableOk ? "SYNCED" : "";
 
+      var jiraBookingRes = pushLeadToJira({
+        Name: p.customer_name,
+        Phone: p.mobile,
+        Email: p.email,
+        Service: p.service_name,
+        City: p.city,
+        LeadType: "Booking",
+        ReferenceID: p.booking_ref,
+        Details: "Start: " + p.start_date + " " + p.start_time + " | Duration: " + p.duration_days + " days | Amount: ₹" + p.total_amount + " | Address: " + p.location_address + " | Notes: " + p.special_notes,
+        PagePath: p.page_path || "/booking",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
+      p.jira_synced = jiraBookingRes && jiraBookingRes.success ? "SYNCED" : "";
+      p.jira_issue_key = (jiraBookingRes && jiraBookingRes.key) || "";
+
       writeResults.push(appendRowToTab(ss, "Booking_Leads", p));
       writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendBookingAlertEmail(p);
@@ -723,6 +1140,22 @@ function doPost(e) {
         SourceEnvironment: p.source_environment || "production"
       });
       p.airtable_synced = cbAirtableOk ? "SYNCED" : "";
+
+      var cbJiraRes = pushLeadToJira({
+        Name: p.name,
+        Phone: p.phone,
+        Email: p.email,
+        Service: p.service,
+        City: "Bengaluru",
+        LeadType: "Callback Enquiry",
+        ReferenceID: p.enquiry_id,
+        Details: "Message: " + p.message + " | Status: " + p.lead_status,
+        PagePath: p.page_path || "/",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
+      p.jira_synced = cbJiraRes && cbJiraRes.success ? "SYNCED" : "";
+      p.jira_issue_key = (cbJiraRes && cbJiraRes.key) || "";
 
       writeResults.push(appendRowToTab(ss, "Callback_Enquiries", p));
       writeResults.push(appendRowToTab(ss, "Lead_Management", p));
@@ -753,6 +1186,22 @@ function doPost(e) {
       });
       p.airtable_synced = ctAirtableOk ? "SYNCED" : "";
 
+      var ctJiraRes = pushLeadToJira({
+        Name: p.name,
+        Phone: p.phone,
+        Email: p.email,
+        Service: p.subject,
+        City: p.city,
+        LeadType: "Contact Submission",
+        ReferenceID: p.contact_id,
+        Details: "Subject: " + p.subject + " | Message: " + p.message,
+        PagePath: p.page_path || "/contact",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
+      p.jira_synced = ctJiraRes && ctJiraRes.success ? "SYNCED" : "";
+      p.jira_issue_key = (ctJiraRes && ctJiraRes.key) || "";
+
       writeResults.push(appendRowToTab(ss, "Contact_Submissions", p));
       writeResults.push(appendRowToTab(ss, "Lead_Management", p));
       sendContactAlertEmail(p);
@@ -780,6 +1229,22 @@ function doPost(e) {
         SourceEnvironment: p.source_environment || "production"
       });
       p.airtable_synced = ptAirtableOk ? "SYNCED" : "";
+
+      var ptJiraRes = pushLeadToJira({
+        Name: p.contact_person,
+        Phone: p.phone,
+        Email: p.email,
+        Service: p.category,
+        City: p.city,
+        LeadType: "Partner Application",
+        ReferenceID: p.partner_id,
+        Details: "Org: " + p.org_name + " (" + p.org_type + ") | Notes: " + p.interest_notes,
+        PagePath: p.page_path || "/partner",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
+      p.jira_synced = ptJiraRes && ptJiraRes.success ? "SYNCED" : "";
+      p.jira_issue_key = (ptJiraRes && ptJiraRes.key) || "";
 
       writeResults.push(appendRowToTab(ss, "Partner_Applications", p));
       writeResults.push(appendRowToTab(ss, "Lead_Management", p));
@@ -809,6 +1274,22 @@ function doPost(e) {
           SourceEnvironment: p.source_environment || "production"
         });
         p.airtable_synced = chatAirtableOk ? "SYNCED" : "";
+
+        var chatJiraRes = pushLeadToJira({
+          Name: p.name || "Chatbot Lead",
+          Phone: p.phone,
+          Email: p.email,
+          Service: p.requested_service || "Chatbot Assistance",
+          City: p.city || "Bengaluru",
+          LeadType: "Chatbot Lead",
+          ReferenceID: p.lead_id,
+          Details: "Query: " + (p.user_query || "") + " | Action: " + (p.recommended_action || ""),
+          PagePath: p.page_path || "/",
+          Timestamp: p.received_at,
+          SourceEnvironment: p.source_environment || "production"
+        });
+        p.jira_synced = chatJiraRes && chatJiraRes.success ? "SYNCED" : "";
+        p.jira_issue_key = (chatJiraRes && chatJiraRes.key) || "";
       }
 
       writeResults.push(appendRowToTab(ss, "Chatbot_Leads", p));
@@ -834,6 +1315,7 @@ function doPost(e) {
         p.status = "Simulation Test (No Dispatch Required)";
         p.operator_notes = "Website interactive simulation; control room dispatch inhibited.";
         p.airtable_synced = "SIMULATION";
+        p.jira_synced = "SIMULATION";
         writeResults.push(appendRowToTab(ss, "SOS_Emergency_Alerts", p));
         // Safeguard: Do NOT send panic emergency emails for training / demo simulations!
       } else {
@@ -856,6 +1338,22 @@ function doPost(e) {
           SourceEnvironment: p.source_environment || "production"
         });
         p.airtable_synced = sosAirtableOk ? "SYNCED" : "";
+
+        var sosJiraRes = pushLeadToJira({
+          Name: p.caller_name || "Emergency Caller",
+          Phone: p.caller_phone,
+          Email: p.email,
+          Service: p.service_context || "Emergency SOS",
+          City: p.city || p.location || "Bengaluru",
+          LeadType: "Emergency SOS Alert",
+          ReferenceID: p.alert_id,
+          Details: "Status: " + p.status + " | Operator: " + p.operator_notes,
+          PagePath: "/sos",
+          Timestamp: p.received_at,
+          SourceEnvironment: p.source_environment || "production"
+        }, { priority: "Highest" });
+        p.jira_synced = sosJiraRes && sosJiraRes.success ? "SYNCED" : "";
+        p.jira_issue_key = (sosJiraRes && sosJiraRes.key) || "";
 
         writeResults.push(appendRowToTab(ss, "SOS_Emergency_Alerts", p));
         sendSOSAlertEmail(p);
@@ -1628,6 +2126,27 @@ function sendPeriodicExecutiveDigest(intervalName) {
       replyTo: EMAIL_CONFIG.replyTo
     });
   });
+
+  // Also push digest intelligence to Jira as a tracking Task ticket
+  try {
+    pushDigestToJira(intervalName, {
+      period: period,
+      events: events,
+      visitors: visitors,
+      pageViews: pageViews,
+      bookings: bookings,
+      callbacks: callbacks,
+      contacts: contacts,
+      partners: partners,
+      chatbots: chatbots,
+      totalLeads: totalLeads,
+      convRate: convRate,
+      avgSec: avgSec,
+      sheetUrl: ss.getUrl()
+    });
+  } catch (jErr) {
+    Logger.log("Notice: Failed to push digest to Jira: " + jErr.message);
+  }
 }
 
 function dailyReport() { sendPeriodicExecutiveDigest("Daily"); }
@@ -1668,6 +2187,7 @@ function PURGE_DUPLICATES_FROM_ALL_TABS() {
   if (!ss) return;
   var tabs = Object.keys(TAB_HEADERS);
   var totalRemoved = 0;
+  var seen = new Set();
 
   tabs.forEach(function (tabName) {
     var sheet = ss.getSheetByName(tabName);
@@ -1681,7 +2201,6 @@ function PURGE_DUPLICATES_FROM_ALL_TABS() {
     if (idCol === -1) idCol = headers.indexOf("lead_id");
     if (idCol === -1) idCol = headers.indexOf("enquiry_id");
 
-    var seen = new Set();
     var rowsToKeep = [headers];
 
     for (var r = 1; r < data.length; r++) {
@@ -1718,8 +2237,11 @@ function setupAllApnaCareTriggers() {
   // 4. Automatic Airtable Lead Sync every 10 minutes
   ScriptApp.newTrigger("AUTOMATED_AIRTABLE_SYNC_TRIGGER").timeBased().everyMinutes(10).create();
 
+  // 5. Automatic Jira Lead Sync every 10 minutes
+  ScriptApp.newTrigger("AUTOMATED_JIRA_SYNC_TRIGGER").timeBased().everyMinutes(10).create();
+
   try {
-    SpreadsheetApp.getUi().alert("✅ Automated Email Report Triggers Activated (Daily, Weekly & Monthly)!");
+    SpreadsheetApp.getUi().alert("✅ Automated Report & Lead Sync Triggers Activated!\n\n• Daily, Weekly & Monthly Digests (Email + Jira)\n• 10-Minute Airtable Lead Sync\n• 10-Minute Jira Lead Sync");
   } catch (e) { }
 }
 
@@ -1735,7 +2257,12 @@ function onOpen() {
       .addItem('📤 Sync Unsynced Leads to Airtable Now', 'SYNC_ALL_LEADS_TO_AIRTABLE')
       .addItem('🛑 Stop Automatic Airtable Sync', 'stopAirtableAutomation')
       .addSeparator()
-      .addItem('⏰ Enable Automated Daily/Weekly/Monthly Reports', 'setupAllApnaCareTriggers')
+      .addItem('🚀 Enable 24/7 Automatic Jira Sync', 'setupJiraAutomation')
+      .addItem('📤 Sync Unsynced Leads to Jira Now', 'SYNC_ALL_LEADS_TO_JIRA')
+      .addItem('🛑 Stop Automatic Jira Sync', 'stopJiraAutomation')
+      .addItem('🧪 Test Jira Connection & Create Ticket', 'TEST_JIRA_CONNECTION')
+      .addSeparator()
+      .addItem('⏰ Enable All Scheduled Triggers (Daily, Weekly, Monthly, Airtable & Jira)', 'setupAllApnaCareTriggers')
       .addItem('🧪 Test Inbound Booking Alert Now', 'TEST_BOOKING_ALERT')
       .addToUi();
   } catch (e) { }
