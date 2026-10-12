@@ -538,13 +538,23 @@ export function Assistant() {
 
   // Build a persona-prefixed greeting for the initial bot message
   const personaGreeting = useMemo(() => {
-    const prefix = persona.isReturning
-      ? persona.lastService
-        ? `${persona.greeting}! Welcome back — I see you were interested in **${persona.lastService.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}** last time. `
-        : `${persona.greeting}! Good to see you again. `
-      : `${persona.greeting}! `;
+    let prefix = "";
+    if (persona.isReturning) {
+      if (persona.hasBookingDraft) {
+        prefix = `${persona.greeting}! Welcome back — you have an unfinished booking saved. I can help you continue it. `;
+      } else if (persona.lastService) {
+        const svcLabel = persona.lastService.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        prefix = `${persona.greeting}! Good to see you again — you were exploring **${svcLabel}** last time. `;
+      } else if (persona.visitCount >= 3) {
+        prefix = `${persona.greeting}! Great to have you back (visit #${persona.visitCount}). `;
+      } else {
+        prefix = `${persona.greeting}! Good to see you again. `;
+      }
+    } else {
+      prefix = `${persona.greeting}! `;
+    }
     return `${prefix}${pageContext.greeting}`;
-  }, [persona.greeting, persona.isReturning, persona.lastService, pageContext.greeting]);
+  }, [persona.greeting, persona.isReturning, persona.lastService, persona.hasBookingDraft, persona.visitCount, pageContext.greeting]);
 
   // Messages state — initial message uses persona greeting
   const [msgs, setMsgs] = useState<BotMsg[]>(() => [

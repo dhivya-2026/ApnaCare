@@ -1,88 +1,68 @@
 /**
- * useVisitorPersona
- * ─────────────────
- * Tracks anonymous visitor context in localStorage (no PII collected).
- * Provides time-aware greetings, returning-visitor recognition, and
- * "continue where you left off" shortcuts for the Smart Welcome Engine.
+ * useVisitorPersona  (v2 — Session-Intelligence-aware)
+ * ──────────────────────────────────────────────────────
+ * Builds a personalization persona from the Session Intelligence Engine.
+ * All personalization is anonymous — no PII, no fingerprinting.
  *
- * Storage Keys (all prefixed `apnacare_`):
- *  apnacare_visit_count       — total number of site visits
- *  apnacare_last_visit        — ISO timestamp of previous visit
- *  apnacare_last_page         — last browsed page path
- *  apnacare_last_service      — last service the visitor showed interest in
- *  apnacare_welcome_dismissed — whether the welcome card has been dismissed today
+ * Visit counting rules (defined in sessionEngine.ts):
+ *  - A "visit" = a new browser session (new tab / session expired)
+ *  - Navigation within the same session DOES NOT increment the count
+ *  - React Strict Mode double-mounts DO NOT increment the count
+ *  - Page refreshes within the same tab DO NOT increment the count
  */
 
 import { useState, useEffect, useCallback } from "react";
 import { isBrowser } from "@/lib/analytics";
-
-// ─── Storage helpers ──────────────────────────────────────────────────────────
-
-function lsGet(key: string): string | null {
-  if (!isBrowser()) return null;
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-
-function lsSet(key: string, value: string): void {
-  if (!isBrowser()) return;
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    // ignore quota / private-browsing errors
-  }
-}
+import {
+  initSession,
+  recordPageVisit,
+  recordServiceInteraction,
+  dismissWelcomeToday,
+  isWelcomeDismissedToday,
+  clearJourney,
+  validateResumePath,
+  type SessionState,
+} from "@/lib/sessionEngine";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type TimeSlot = "morning" | "afternoon" | "evening" | "night";
 
 export interface VisitorPersona {
-  /** 1 on very first visit, 2+ on subsequent visits */
   visitCount: number;
-  /** true when visitCount > 1 */
   isReturning: boolean;
-  /** ISO string of last visit (before the current session), or null */
   lastVisitAt: string | null;
-  /** Path of the last page the visitor browsed (from localStorage), or null */
+  /** Validated last page path (allowlisted) or null */
   lastPage: string | null;
-  /** Slug of the last service the visitor interacted with, or null */
   lastService: string | null;
-  /** Current local time slot */
+  lastActionLabel: string | null;
+  /** Whether a resumable booking draft exists */
+  hasBookingDraft: boolean;
   timeSlot: TimeSlot;
-  /** Human-readable greeting line (e.g. "Good morning 👋") */
   greeting: string;
-  /** Context-aware sub-greeting tailored to visitor history */
   subGreeting: string;
-  /** Whether the welcome card should be shown */
   showWelcome: boolean;
-  /** Call this when the visitor dismisses the welcome card */
+  /** Session state from the engine */
+  session: SessionState | null;
+  /** Dismiss welcome for today */
   dismissWelcome: () => void;
-  /** Record that the visitor visited a certain page */
+  /** Record a page visit */
   recordPage: (path: string) => void;
-  /** Record that the visitor showed interest in a service slug */
-  recordService: (slug: string) => void;
+  /** Record a service interaction */
+  recordService: (slug: string, label?: string) => void;
+  /** Reset all journey data (privacy reset) */
+  clearJourney: () => void;
 }
 
-// ─── Time-slot helper ────────────────────────────────────────────────────────
+// ─── Time-slot helpers ────────────────────────────────────────────────────────
 
 function getTimeSlot(): TimeSlot {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return "morning";
-  if (hour >= 12 && hour < 17) return "afternoon";
-  if (hour >= 17 && hour < 21) return "evening";
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return "morning";
+  if (h >= 12 && h < 17) return "afternoon";
+  if (h >= 17 && h < 21) return "evening";
   return "night";
 }
-
-const SLOT_EMOJI: Record<TimeSlot, string> = {
-  morning: "🌅",
-  afternoon: "☀️",
-  evening: "🌆",
-  night: "🌙",
-};
 
 const SLOT_WORD: Record<TimeSlot, string> = {
   morning: "morning",
@@ -91,7 +71,14 @@ const SLOT_WORD: Record<TimeSlot, string> = {
   night: "night",
 };
 
-// ─── Friendly service label map ───────────────────────────────────────────────
+const SLOT_EMOJI: Record<TimeSlot, string> = {
+  morning: "🌅",
+  afternoon: "☀️",
+  evening: "🌆",
+  night: "🌙",
+};
+
+// ─── Service label map ────────────────────────────────────────────────────────
 
 const SERVICE_LABELS: Record<string, string> = {
   "elderly-care": "Elderly Care",
@@ -100,136 +87,188 @@ const SERVICE_LABELS: Record<string, string> = {
   "post-natal-care": "Post-Natal Care",
   "women-drivers": "Women Drivers",
   "airport-transfers": "Airport Transfers",
+  "airport-pickup": "Airport Transfers",
   "travel-companions": "Travel Companionship",
   "home-care": "Home Care",
 };
 
-function friendlyService(slug: string): string {
+export function friendlyService(slug: string): string {
   return (
     SERVICE_LABELS[slug] ??
     slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
   );
 }
 
-// ─── Sub-greeting builder ─────────────────────────────────────────────────────
+// ─── Greeting builders ────────────────────────────────────────────────────────
+
+function buildGreeting(timeSlot: TimeSlot): string {
+  return `Good ${SLOT_WORD[timeSlot]} ${SLOT_EMOJI[timeSlot]}`;
+}
 
 function buildSubGreeting(
   isReturning: boolean,
   visitCount: number,
   lastService: string | null,
   lastPage: string | null,
+  hasBookingDraft: boolean,
   timeSlot: TimeSlot
 ): string {
-  if (isReturning) {
-    if (lastService) {
-      return `Welcome back! You were exploring **${friendlyService(lastService)}** last time — shall we pick up where you left off?`;
-    }
-    if (lastPage && lastPage !== "/" && lastPage !== "") {
-      const pageLabel = lastPage
-        .replace(/^\//, "")
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-      return `Welcome back! You were last browsing our **${pageLabel}** page. Shall we continue?`;
-    }
-    if (visitCount >= 5) {
-      return `Great to see you again! 🌸 Your trust in ApnaCare means everything to us. How can we assist you today?`;
-    }
-    return `Welcome back! We're glad you've returned. Our care coordinators are ready to help.`;
+  if (!isReturning) {
+    // First visit — warm introduction
+    const intros: Record<TimeSlot, string> = {
+      morning: "Starting your morning with care research? Let us help you find the perfect attendant — quickly and safely.",
+      afternoon: "Good afternoon! We're here to help you find trusted women attendants for every care need.",
+      evening: "Good evening! Looking for care support? Our verified attendants are available 24/7.",
+      night: "Up late ensuring your loved one's care? We're here whenever you need us — around the clock. 💙",
+    };
+    return intros[timeSlot];
   }
 
-  const messages: Record<TimeSlot, string> = {
-    morning:
-      "Starting your morning with care research? Let us help you find the perfect attendant — quickly and safely.",
-    afternoon:
-      "Good afternoon! We're here to help you find trusted women attendants for every care need.",
-    evening:
-      "Good evening! Looking for care support? Our verified attendants are available 24/7.",
-    night:
-      "Up late ensuring your loved one's care? We're here whenever you need us — around the clock. 💙",
-  };
+  // Returning visitor — prioritise most contextual message
 
-  return messages[timeSlot];
-}
+  // Priority 1: Incomplete booking draft
+  if (hasBookingDraft) {
+    return "Welcome back! You have an **unfinished booking** saved. Ready to continue where you left off?";
+  }
 
-// ─── Dismiss key (resets daily) ───────────────────────────────────────────────
+  // Priority 2: Known service interest
+  if (lastService) {
+    return `Welcome back! You were exploring **${friendlyService(lastService)}** — shall we pick up where you left off?`;
+  }
 
-function getDismissKey(): string {
-  const today = new Date().toISOString().slice(0, 10);
-  return `apnacare_welcome_dismissed_${today}`;
+  // Priority 3: Known page
+  const validPage = validateResumePath(lastPage);
+  if (validPage && validPage !== "/" && validPage !== "/booking") {
+    const pageLabel = validPage
+      .replace(/^\//, "")
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    return `Welcome back! You were browsing our **${pageLabel}** page. Shall we continue?`;
+  }
+
+  // Priority 4: Visit-count milestones
+  if (visitCount === 2) {
+    return "Welcome back! We're happy to see you again. Our care coordinators are ready to help you today.";
+  }
+  if (visitCount === 3) {
+    return "Welcome back for your **third visit**! 🌸 Let us help you find exactly the right care.";
+  }
+  if (visitCount >= 4) {
+    return "Welcome back to ApnaCare. 💚 Your trust means everything to us — how can we help you today?";
+  }
+
+  return "Welcome back! We're glad you've returned. Our care coordinators are ready to assist.";
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useVisitorPersona(): VisitorPersona {
-  const [persona, setPersona] = useState<
-    Omit<VisitorPersona, "dismissWelcome" | "recordPage" | "recordService">
-  >(() => {
-    const timeSlot = getTimeSlot();
-    return {
-      visitCount: 1,
-      isReturning: false,
-      lastVisitAt: null,
-      lastPage: null,
-      lastService: null,
-      timeSlot,
-      greeting: `Good ${SLOT_WORD[timeSlot]} ${SLOT_EMOJI[timeSlot]}`,
-      subGreeting: buildSubGreeting(false, 1, null, null, timeSlot),
-      showWelcome: false,
-    };
-  });
+  const [initialized, setInitialized] = useState(false);
+  const [session, setSession] = useState<SessionState | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     if (!isBrowser()) return;
 
-    const rawCount = lsGet("apnacare_visit_count");
-    const prevVisitAt = lsGet("apnacare_last_visit");
-    const lastPage = lsGet("apnacare_last_page");
-    const lastService = lsGet("apnacare_last_service");
+    // Initialize session engine — idempotent, safe to call once
+    const state = initSession();
+    setSession(state);
 
-    const visitCount = rawCount ? parseInt(rawCount, 10) + 1 : 1;
-    const isReturning = visitCount > 1;
-
-    lsSet("apnacare_visit_count", String(visitCount));
-    lsSet("apnacare_last_visit", new Date().toISOString());
-
-    const dismissKey = getDismissKey();
-    const alreadyDismissed = lsGet(dismissKey) === "1";
-
-    const timeSlot = getTimeSlot();
-
-    setPersona({
-      visitCount,
-      isReturning,
-      lastVisitAt: prevVisitAt,
-      lastPage,
-      lastService,
-      timeSlot,
-      greeting: `Good ${SLOT_WORD[timeSlot]} ${SLOT_EMOJI[timeSlot]}`,
-      subGreeting: buildSubGreeting(
-        isReturning,
-        visitCount,
-        lastService,
-        lastPage,
-        timeSlot
-      ),
-      showWelcome: !alreadyDismissed,
-    });
+    // Show welcome only if not dismissed today
+    const dismissed = isWelcomeDismissedToday();
+    setShowWelcome(!dismissed);
+    setInitialized(true);
   }, []);
 
-  const dismissWelcome = useCallback(() => {
-    lsSet(getDismissKey(), "1");
-    setPersona((prev) => ({ ...prev, showWelcome: false }));
+  const handleDismissWelcome = useCallback(() => {
+    dismissWelcomeToday();
+    setShowWelcome(false);
   }, []);
 
-  const recordPage = useCallback((path: string) => {
-    if (!path || path === "/") return;
-    lsSet("apnacare_last_page", path);
+  const handleRecordPage = useCallback((path: string) => {
+    recordPageVisit(path);
+    // Update local session state with new page
+    setSession((prev) =>
+      prev
+        ? {
+            ...prev,
+            journey: {
+              ...prev.journey,
+              lastPage: path,
+            },
+          }
+        : prev
+    );
   }, []);
 
-  const recordService = useCallback((slug: string) => {
-    if (!slug) return;
-    lsSet("apnacare_last_service", slug);
+  const handleRecordService = useCallback((slug: string, label?: string) => {
+    recordServiceInteraction(slug, label);
+    setSession((prev) =>
+      prev
+        ? {
+            ...prev,
+            journey: {
+              ...prev.journey,
+              lastService: slug,
+            },
+          }
+        : prev
+    );
   }, []);
 
-  return { ...persona, dismissWelcome, recordPage, recordService };
+  const handleClearJourney = useCallback(() => {
+    clearJourney();
+    setSession((prev) =>
+      prev
+        ? {
+            ...prev,
+            visitCount: 1,
+            isReturning: false,
+            journey: {
+              lastPage: null,
+              lastService: null,
+              lastActionLabel: null,
+              lastActionTs: null,
+              reachedBooking: false,
+              bookingDraftSavedAt: null,
+            },
+            hasBookingDraft: false,
+          }
+        : prev
+    );
+    setShowWelcome(false);
+  }, []);
+
+  // Build derived values
+  const visitCount = session?.visitCount ?? 1;
+  const isReturning = session?.isReturning ?? false;
+  const lastPage = validateResumePath(session?.journey?.lastPage ?? null);
+  const lastService = session?.journey?.lastService ?? null;
+  const hasBookingDraft = session?.hasBookingDraft ?? false;
+  const lastActionLabel = session?.journey?.lastActionLabel ?? null;
+  const timeSlot = getTimeSlot();
+
+  const greeting = buildGreeting(timeSlot);
+  const subGreeting = initialized
+    ? buildSubGreeting(isReturning, visitCount, lastService, lastPage, hasBookingDraft, timeSlot)
+    : "We're here to help you find the right care.";
+
+  return {
+    visitCount,
+    isReturning,
+    lastVisitAt: session?.lastVisitAt ?? null,
+    lastPage,
+    lastService,
+    lastActionLabel,
+    hasBookingDraft,
+    timeSlot,
+    greeting,
+    subGreeting,
+    showWelcome: initialized && showWelcome,
+    session,
+    dismissWelcome: handleDismissWelcome,
+    recordPage: handleRecordPage,
+    recordService: handleRecordService,
+    clearJourney: handleClearJourney,
+  };
 }

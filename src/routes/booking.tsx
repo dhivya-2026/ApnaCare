@@ -12,6 +12,7 @@ import { fieldErrors, nameSchema, optionalEmail, phoneSchema } from "@/lib/valid
 import { findPromo, getSavedPromo, savePromo } from "@/lib/promo";
 import { calcBookingTotal } from "@/lib/pricing";
 import { track, sendToGoogleSheet } from "@/lib/analytics";
+import { recordBookingDraft, recordServiceInteraction } from "@/lib/sessionEngine";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
@@ -91,15 +92,23 @@ function BookingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<string | null>(null);
 
-  // Sync draft to sessionStorage
+  // Sync draft to sessionStorage + record cross-session timestamp
   useEffect(() => {
     if (typeof window !== "undefined") {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(f));
+      // Record draft timestamp in journey memory for cross-session resumption
+      // Only record when visitor has entered meaningful data (not just landing)
+      const hasContent = !!(f.serviceId || f.city || f.date);
+      if (hasContent) {
+        recordBookingDraft();
+      }
     }
   }, [f]);
 
   useEffect(() => {
-    track("booking_started");
+    track("booking_flow_started", { page_path: "/booking" });
+    // Record that the visitor reached the booking page
+    recordBookingDraft();
     const p = getSavedPromo();
     if (p) {
       setPromoInput(p);
@@ -107,6 +116,14 @@ function BookingPage() {
       if (matched) setPromo(matched.code);
     }
   }, []);
+
+  // Record service interaction when service is selected
+  useEffect(() => {
+    if (f.serviceId) {
+      const svcObj = SERVICES.find((s) => s.slug === f.serviceId);
+      recordServiceInteraction(f.serviceId, svcObj?.name);
+    }
+  }, [f.serviceId]);
 
   const svc = SERVICES.find((s) => s.slug === f.serviceId);
   const totals = useMemo(
