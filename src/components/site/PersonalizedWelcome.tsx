@@ -171,17 +171,15 @@ export function PersonalizedWelcome() {
         pointerEvents: visible && !exiting ? "auto" : "none",
       }}
     >
-      {/* Card */}
+      {/* Card — fully opaque so it's readable over dark hero images */}
       <div
         style={{
-          background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)",
-          border: "1px solid hsl(var(--border))",
+          background: "#ffffff",
+          border: "1px solid rgba(0,0,0,0.10)",
           borderRadius: "1rem",
           boxShadow:
-            "0 8px 32px -4px rgba(0,0,0,0.18), 0 2px 8px -2px rgba(0,0,0,0.10), 0 0 0 1px hsl(var(--border)/0.5)",
+            "0 12px 40px -4px rgba(0,0,0,0.28), 0 4px 12px -2px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.06)",
           overflow: "hidden",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
         }}
       >
         {/* Top accent gradient strip */}
@@ -190,7 +188,7 @@ export function PersonalizedWelcome() {
           style={{
             height: "3px",
             background:
-              "linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.6) 60%, transparent 100%)",
+              "linear-gradient(90deg, #2d6a4f 0%, rgba(45,106,79,0.5) 60%, transparent 100%)",
           }}
         />
 
@@ -211,9 +209,10 @@ export function PersonalizedWelcome() {
                 fontSize: "1.05rem",
                 fontWeight: 700,
                 letterSpacing: "-0.01em",
-                color: "hsl(var(--foreground))",
+                color: "#111827",
                 lineHeight: 1.25,
                 marginBottom: "0.3rem",
+                margin: "0 0 0.3rem 0",
               }}
             >
               {persona.greeting}
@@ -223,7 +222,7 @@ export function PersonalizedWelcome() {
             <p
               style={{
                 fontSize: "0.78rem",
-                color: "hsl(var(--muted-foreground))",
+                color: "#6b7280",
                 lineHeight: 1.5,
                 margin: 0,
               }}
@@ -245,24 +244,20 @@ export function PersonalizedWelcome() {
               width: "1.75rem",
               height: "1.75rem",
               borderRadius: "50%",
-              background: "hsl(var(--muted))",
+              background: "#f3f4f6",
               border: "none",
               cursor: "pointer",
-              color: "hsl(var(--muted-foreground))",
+              color: "#6b7280",
               transition: "background 0.18s, color 0.18s",
               marginTop: "0.05rem",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background =
-                "hsl(var(--destructive)/0.12)";
-              (e.currentTarget as HTMLButtonElement).style.color =
-                "hsl(var(--destructive))";
+              (e.currentTarget as HTMLButtonElement).style.background = "#fee2e2";
+              (e.currentTarget as HTMLButtonElement).style.color = "#dc2626";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background =
-                "hsl(var(--muted))";
-              (e.currentTarget as HTMLButtonElement).style.color =
-                "hsl(var(--muted-foreground))";
+              (e.currentTarget as HTMLButtonElement).style.background = "#f3f4f6";
+              (e.currentTarget as HTMLButtonElement).style.color = "#6b7280";
             }}
           >
             <X className="size-3.5" />
@@ -274,7 +269,7 @@ export function PersonalizedWelcome() {
           aria-hidden="true"
           style={{
             height: "1px",
-            background: "hsl(var(--border)/0.6)",
+            background: "rgba(0,0,0,0.08)",
             margin: "0 1rem",
           }}
         />
@@ -297,7 +292,7 @@ export function PersonalizedWelcome() {
               borderRadius: "0.5rem",
               fontSize: "0.78rem",
               fontWeight: 500,
-              color: "hsl(var(--foreground))",
+              color: "#111827",
               textDecoration: "none",
               border: "none",
               background: "transparent",
@@ -314,8 +309,8 @@ export function PersonalizedWelcome() {
               width: "1.4rem",
               height: "1.4rem",
               borderRadius: "0.35rem",
-              background: "hsl(var(--primary)/0.12)",
-              color: "hsl(var(--primary))",
+              background: "rgba(45,106,79,0.1)",
+              color: "#2d6a4f",
               flexShrink: 0,
             };
 
@@ -325,12 +320,12 @@ export function PersonalizedWelcome() {
                 <span style={{ flex: 1 }}>{shortcut.label}</span>
                 <ArrowRight
                   className="size-3"
-                  style={{ color: "hsl(var(--muted-foreground))", opacity: 0.7 }}
+                  style={{ color: "#9ca3af", opacity: 0.9 }}
                 />
               </>
             );
 
-            const hoverBg = "hsl(var(--muted)/0.8)";
+            const hoverBg = "#f9fafb";
 
             if (shortcut.to) {
               return (
@@ -417,7 +412,7 @@ export function PersonalizedWelcome() {
           <span
             style={{
               fontSize: "0.68rem",
-              color: "hsl(var(--muted-foreground))",
+              color: "#9ca3af",
               lineHeight: 1,
             }}
           >
