@@ -74,7 +74,14 @@ const KEYS = {
   SID:           PREFIX + "sid",
   SESSION_COUNTED: PREFIX + "session_counted",
   SESSION_START: PREFIX + "session_start",
+  ACTIVE_SID:    PREFIX + "active_sid",
+  LAST_ACTIVE_TS: PREFIX + "last_active_ts",
+  SESSION_LAST_PAGE: PREFIX + "session_last_page",
+  SESSION_PAGES_LIST: PREFIX + "session_pages_list",
 } as const;
+
+/** Active session inactivity timeout — 30 minutes */
+export const SESSION_INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
 
 /** Booking draft key — must match the constant in booking.tsx */
 const BOOKING_DRAFT_KEY = "apnacare_booking_draft_v1";
@@ -82,6 +89,60 @@ const BOOKING_DRAFT_KEY = "apnacare_booking_draft_v1";
 const BOOKING_DRAFT_TTL_MS = 48 * 60 * 60 * 1000;
 /** Journey metadata TTL — 30 days */
 const JOURNEY_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** Human-readable page titles for smart journey resumption */
+const PAGE_TITLES: Record<string, string> = {
+  "/": "Homepage",
+  "/booking": "Booking Care Attendant",
+  "/services": "Our Services",
+  "/services/elderly-care": "Elderly Care",
+  "/services/hospital-attendants": "Hospital Bedside Care",
+  "/services/nursing-services": "Nursing Services",
+  "/services/post-natal-care": "Post-Natal Care",
+  "/services/women-drivers": "Women Drivers",
+  "/services/airport-transfers": "Airport Transfers",
+  "/services/airport-pickup": "Airport Transfers",
+  "/services/travel-companions": "Travel Companionship",
+  "/services/home-care": "Home Care",
+  "/cities": "Our Cities",
+  "/cities/bangalore": "Bangalore Care",
+  "/cities/chennai": "Chennai Care",
+  "/cities/mumbai": "Mumbai Care",
+  "/cities/hyderabad": "Hyderabad Care",
+  "/cities/delhi": "Delhi Care",
+  "/about": "About ApnaCare",
+  "/contact": "Contact Coordinator",
+  "/faq": "FAQs",
+  "/safety": "Safety & Verification",
+  "/safety-guidelines": "Safety Guidelines",
+  "/privacy": "Privacy Policy",
+  "/terms": "Terms of Service",
+  "/refund-policy": "Refund Policy",
+  "/ecosystem-partners": "Ecosystem Partners",
+  "/knowledge-hub": "Care Knowledge Hub",
+  "/attendant-login": "Attendant Login",
+};
+
+export function getFriendlyPageLabel(path: string | null): string {
+  if (!path || path === "/") return "Homepage";
+  if (PAGE_TITLES[path]) return PAGE_TITLES[path];
+  if (path.startsWith("/services/")) {
+    const slug = path.replace("/services/", "").replace(/\/$/, "");
+    return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  if (path.startsWith("/solutions/")) {
+    const slug = path.replace("/solutions/", "").replace(/\/$/, "");
+    return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  if (path.startsWith("/cities/")) {
+    const slug = path.replace("/cities/", "").replace(/\/$/, "");
+    return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) + " Care";
+  }
+  return path
+    .replace(/^\//, "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 /** Allowlisted internal routes that are safe to navigate to */
 export const VALID_RESUME_PATHS = new Set([
@@ -148,14 +209,44 @@ function getOrCreateVisitorId(): string {
 
 // ─── Session ID ───────────────────────────────────────────────────────────────
 
+export function touchSessionActivity(): void {
+  if (!isBrowser()) return;
+  const now = Date.now();
+  lsSet(KEYS.LAST_ACTIVE_TS, String(now));
+}
+
 function getOrCreateSessionId(): string {
   if (!isBrowser()) return "ses_server";
+  const now = Date.now();
   let sid = ssGet(KEYS.SID);
-  if (!sid) {
-    sid = "ses_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
-    ssSet(KEYS.SID, sid);
-    ssSet(KEYS.SESSION_START, new Date().toISOString());
+
+  // Check active session in localStorage within 30 minutes
+  const activeSid = lsGet(KEYS.ACTIVE_SID);
+  const lastActiveStr = lsGet(KEYS.LAST_ACTIVE_TS);
+  const lastActive = lastActiveStr ? parseInt(lastActiveStr, 10) : 0;
+  const isStillActive = Boolean(activeSid && lastActive && now - lastActive < SESSION_INACTIVITY_TIMEOUT_MS);
+
+  if (sid) {
+    // Keep active in localStorage
+    lsSet(KEYS.ACTIVE_SID, sid);
+    lsSet(KEYS.LAST_ACTIVE_TS, String(now));
+    return sid;
   }
+
+  if (isStillActive && activeSid) {
+    // Re-use active session ID from recent visit
+    sid = activeSid;
+    ssSet(KEYS.SID, sid);
+    lsSet(KEYS.LAST_ACTIVE_TS, String(now));
+    return sid;
+  }
+
+  // Brand new session
+  sid = "ses_" + now.toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+  ssSet(KEYS.SID, sid);
+  ssSet(KEYS.SESSION_START, new Date().toISOString());
+  lsSet(KEYS.ACTIVE_SID, sid);
+  lsSet(KEYS.LAST_ACTIVE_TS, String(now));
   return sid;
 }
 
@@ -320,20 +411,39 @@ export function initSession(): SessionState {
 
 /** Record that the visitor viewed a meaningful page */
 export function recordPageVisit(path: string): void {
-  if (!path || path === "/") return;
-  lsSet(KEYS.LAST_PAGE, path);
-  saveJourney({
-    lastPage: path,
-    lastActionLabel: path === "/booking"
-      ? "Visited booking page"
-      : `Visited ${path.replace(/^\//, "").replace(/-/g, " ")}`,
-    reachedBooking: path === "/booking" ? true : undefined as unknown as boolean,
-  });
+  if (!path) return;
+  touchSessionActivity();
+
+  if (path !== "/") {
+    lsSet(KEYS.LAST_PAGE, path);
+    lsSet(KEYS.SESSION_LAST_PAGE, path);
+    ssSet(KEYS.SESSION_LAST_PAGE, path);
+    saveJourney({
+      lastPage: path,
+      lastActionLabel: path === "/booking"
+        ? "Visited booking page"
+        : `Visited ${getFriendlyPageLabel(path)}`,
+      reachedBooking: path === "/booking" ? true : undefined as unknown as boolean,
+    });
+  }
+
+  // Record session page trail (capped at last 10)
+  try {
+    const listRaw = ssGet(KEYS.SESSION_PAGES_LIST) || "[]";
+    const list: string[] = JSON.parse(listRaw);
+    if (list[list.length - 1] !== path) {
+      list.push(path);
+      ssSet(KEYS.SESSION_PAGES_LIST, JSON.stringify(list.slice(-10)));
+    }
+  } catch {
+    /* ignore storage errors */
+  }
 }
 
 /** Record that the visitor interacted with a service */
 export function recordServiceInteraction(slug: string, label?: string): void {
   if (!slug) return;
+  touchSessionActivity();
   lsSet(KEYS.LAST_SERVICE, slug);
   saveJourney({
     lastService: slug,
@@ -343,7 +453,28 @@ export function recordServiceInteraction(slug: string, label?: string): void {
 
 /** Record that the visitor saved a booking draft (only the timestamp, not the content) */
 export function recordBookingDraft(): void {
+  touchSessionActivity();
   saveJourney({ bookingDraftSavedAt: Date.now(), reachedBooking: true });
+}
+
+/** Get the last visited page for the active session */
+export function getLastSessionPage(): {
+  path: string | null;
+  label: string;
+  hasDraft: boolean;
+  sessionId: string;
+} {
+  const sid = getOrCreateSessionId();
+  const sessionPage = ssGet(KEYS.SESSION_LAST_PAGE) || lsGet(KEYS.SESSION_LAST_PAGE) || lsGet(KEYS.LAST_PAGE);
+  const validated = validateResumePath(sessionPage);
+  const { hasDraft } = checkBookingDraft();
+
+  return {
+    path: validated,
+    label: getFriendlyPageLabel(validated),
+    hasDraft,
+    sessionId: sid,
+  };
 }
 
 /** Clear all journey personalization data */
@@ -353,6 +484,16 @@ export function clearJourney(): void {
   lsDel(KEYS.LAST_SERVICE);
   lsDel(KEYS.VISIT_COUNT);
   lsDel(KEYS.LAST_VISIT);
+  lsDel(KEYS.ACTIVE_SID);
+  lsDel(KEYS.LAST_ACTIVE_TS);
+  lsDel(KEYS.SESSION_LAST_PAGE);
+  lsDel(KEYS.SESSION_PAGES_LIST);
+  try {
+    sessionStorage.removeItem(KEYS.SESSION_LAST_PAGE);
+    sessionStorage.removeItem(KEYS.SESSION_PAGES_LIST);
+  } catch {
+    /* ignore */
+  }
   // Also clear daily dismiss flags
   if (!isBrowser()) return;
   try {

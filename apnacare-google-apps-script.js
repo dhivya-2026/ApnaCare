@@ -388,7 +388,7 @@ function pushLeadToAirtable(lead) {
  */
 function SYNC_ALL_LEADS_TO_AIRTABLE() {
   var ui = null;
-  try { ui = SpreadsheetApp.getUi(); } catch (e) {}
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { }
 
   var ss = getSpreadsheet();
   if (!ss) {
@@ -404,20 +404,20 @@ function SYNC_ALL_LEADS_TO_AIRTABLE() {
     var bSheet = ss.getSheetByName("Booking_Leads");
     if (bSheet && bSheet.getLastRow() > 1) {
       var rows = bSheet.getDataRange().getValues();
-      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      var h = rows[0].map(function (c) { return String(c || "").trim(); });
       for (var r = 1; r < rows.length; r++) {
         var row = rows[r];
         var obj = {};
-        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        h.forEach(function (colName, i) { obj[colName] = row[i]; });
         var name = cleanVal(obj.customer_name || obj.name);
         var phone = cleanVal(obj.mobile || obj.phone);
         if (!name && !phone) continue;
 
-        var details = "Start: " + cleanVal(obj.start_date) + " " + cleanVal(obj.start_time) + 
-                      " | Duration: " + cleanVal(obj.duration_days) + " days" +
-                      " | Amount: ₹" + cleanVal(obj.total_amount) +
-                      " | Address: " + cleanVal(obj.location_address) +
-                      " | Notes: " + cleanVal(obj.special_notes);
+        var details = "Start: " + cleanVal(obj.start_date) + " " + cleanVal(obj.start_time) +
+          " | Duration: " + cleanVal(obj.duration_days) + " days" +
+          " | Amount: ₹" + cleanVal(obj.total_amount) +
+          " | Address: " + cleanVal(obj.location_address) +
+          " | Notes: " + cleanVal(obj.special_notes);
 
         var fields = {
           "Name": name,
@@ -442,11 +442,11 @@ function SYNC_ALL_LEADS_TO_AIRTABLE() {
     var cbSheet = ss.getSheetByName("Callback_Enquiries");
     if (cbSheet && cbSheet.getLastRow() > 1) {
       var rows = cbSheet.getDataRange().getValues();
-      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      var h = rows[0].map(function (c) { return String(c || "").trim(); });
       for (var r = 1; r < rows.length; r++) {
         var row = rows[r];
         var obj = {};
-        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        h.forEach(function (colName, i) { obj[colName] = row[i]; });
         var name = cleanVal(obj.name);
         var phone = cleanVal(obj.phone);
         if (!name && !phone) continue;
@@ -473,11 +473,11 @@ function SYNC_ALL_LEADS_TO_AIRTABLE() {
     var ctSheet = ss.getSheetByName("Contact_Submissions");
     if (ctSheet && ctSheet.getLastRow() > 1) {
       var rows = ctSheet.getDataRange().getValues();
-      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      var h = rows[0].map(function (c) { return String(c || "").trim(); });
       for (var r = 1; r < rows.length; r++) {
         var row = rows[r];
         var obj = {};
-        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        h.forEach(function (colName, i) { obj[colName] = row[i]; });
         var name = cleanVal(obj.name);
         var phone = cleanVal(obj.phone);
         if (!name && !phone) continue;
@@ -505,11 +505,11 @@ function SYNC_ALL_LEADS_TO_AIRTABLE() {
     var chatSheet = ss.getSheetByName("Chatbot_Leads");
     if (chatSheet && chatSheet.getLastRow() > 1) {
       var rows = chatSheet.getDataRange().getValues();
-      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      var h = rows[0].map(function (c) { return String(c || "").trim(); });
       for (var r = 1; r < rows.length; r++) {
         var row = rows[r];
         var obj = {};
-        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        h.forEach(function (colName, i) { obj[colName] = row[i]; });
         var name = cleanVal(obj.name);
         var phone = cleanVal(obj.phone);
         if (!name && !phone) continue;
@@ -537,11 +537,11 @@ function SYNC_ALL_LEADS_TO_AIRTABLE() {
     var sosSheet = ss.getSheetByName("SOS_Emergency_Alerts");
     if (sosSheet && sosSheet.getLastRow() > 1) {
       var rows = sosSheet.getDataRange().getValues();
-      var h = rows[0].map(function(c){ return String(c || "").trim(); });
+      var h = rows[0].map(function (c) { return String(c || "").trim(); });
       for (var r = 1; r < rows.length; r++) {
         var row = rows[r];
         var obj = {};
-        h.forEach(function(colName, i){ obj[colName] = row[i]; });
+        h.forEach(function (colName, i) { obj[colName] = row[i]; });
         var name = cleanVal(obj.caller_name || "Emergency Caller");
         var phone = cleanVal(obj.caller_phone);
         if (!phone) continue;
@@ -783,7 +783,7 @@ function pushDigestToJira(intervalName, digestData) {
  */
 function SYNC_ALL_LEADS_TO_JIRA() {
   var ui = null;
-  try { ui = SpreadsheetApp.getUi(); } catch (e) {}
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { }
 
   var ss = getSpreadsheet();
   if (!ss) {
@@ -851,10 +851,10 @@ function SYNC_ALL_LEADS_TO_JIRA() {
         var refId = cleanVal(obj[tabDef.refCol]);
         var detailsText = "";
         if (tabDef.type === "Booking") {
-          detailsText = "Start: " + cleanVal(obj.start_date) + " " + cleanVal(obj.start_time) + 
-                        " | Days: " + cleanVal(obj.duration_days) + 
-                        " | Amount: ₹" + cleanVal(obj.total_amount) + 
-                        " | Notes: " + cleanVal(obj.special_notes);
+          detailsText = "Start: " + cleanVal(obj.start_date) + " " + cleanVal(obj.start_time) +
+            " | Days: " + cleanVal(obj.duration_days) +
+            " | Amount: ₹" + cleanVal(obj.total_amount) +
+            " | Notes: " + cleanVal(obj.special_notes);
         } else if (tabDef.type === "Callback Enquiry") {
           detailsText = "Message: " + cleanVal(obj.message) + " | Status: " + cleanVal(obj.lead_status);
         } else if (tabDef.type === "Contact Submission") {
@@ -925,7 +925,7 @@ function setupJiraAutomation() {
   ScriptApp.newTrigger("AUTOMATED_JIRA_SYNC_TRIGGER").timeBased().everyMinutes(10).create();
   try {
     SpreadsheetApp.getUi().alert("✅ 24/7 Automatic Jira Sync Activated!\n\nNew inbound leads will be checked and synced to Jira every 10 minutes.");
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function stopJiraAutomation() {
@@ -939,7 +939,7 @@ function stopJiraAutomation() {
   }
   try {
     SpreadsheetApp.getUi().alert("🛑 Automatic Jira Sync Stopped.\n\nRemoved " + count + " active trigger(s).");
-  } catch (e) {}
+  } catch (e) { }
 }
 
 /**
@@ -947,7 +947,7 @@ function stopJiraAutomation() {
  */
 function TEST_JIRA_CONNECTION() {
   var ui = null;
-  try { ui = SpreadsheetApp.getUi(); } catch (e) {}
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { }
 
   var testPayload = {
     Name: "Dr. Ananya Sundaram (Test Lead)",
@@ -982,7 +982,7 @@ function TEST_JIRA_CONNECTION() {
  */
 function CREATE_JIRA_PROJECT() {
   var ui = null;
-  try { ui = SpreadsheetApp.getUi(); } catch (e) {}
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { }
 
   try {
     if (!JIRA_CONFIG.API_TOKEN || !JIRA_CONFIG.EMAIL || !JIRA_CONFIG.DOMAIN) {

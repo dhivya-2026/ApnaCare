@@ -21,6 +21,7 @@ import {
   isWelcomeDismissedToday,
   clearJourney,
   validateResumePath,
+  getFriendlyPageLabel,
   type SessionState,
 } from "@/lib/sessionEngine";
 
@@ -31,9 +32,12 @@ export type TimeSlot = "morning" | "afternoon" | "evening" | "night";
 export interface VisitorPersona {
   visitCount: number;
   isReturning: boolean;
+  sessionId: string;
   lastVisitAt: string | null;
   /** Validated last page path (allowlisted) or null */
   lastPage: string | null;
+  /** Human-friendly label of last visited page */
+  lastPageLabel: string;
   lastService: string | null;
   lastActionLabel: string | null;
   /** Whether a resumable booking draft exists */
@@ -139,25 +143,22 @@ function buildSubGreeting(
   // Priority 3: Known page
   const validPage = validateResumePath(lastPage);
   if (validPage && validPage !== "/" && validPage !== "/booking") {
-    const pageLabel = validPage
-      .replace(/^\//, "")
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase());
-    return `Welcome back! You were browsing our **${pageLabel}** page. Shall we continue?`;
+    const pageLabel = getFriendlyPageLabel(validPage);
+    return `Welcome back! You were exploring **${pageLabel}** — do you want to start where you left off?`;
   }
 
   // Priority 4: Visit-count milestones
   if (visitCount === 2) {
-    return "Welcome back! We're happy to see you again. Our care coordinators are ready to help you today.";
+    return "Welcome back! We're happy to see you again. Ready to start where you left off?";
   }
   if (visitCount === 3) {
-    return "Welcome back for your **third visit**! 🌸 Let us help you find exactly the right care.";
+    return "Welcome back for your **third visit**! 🌸 Ready to start where you left off?";
   }
   if (visitCount >= 4) {
-    return "Welcome back to ApnaCare. 💚 Your trust means everything to us — how can we help you today?";
+    return "Welcome back to ApnaCare. 💚 How can we help you today?";
   }
 
-  return "Welcome back! We're glad you've returned. Our care coordinators are ready to assist.";
+  return "Welcome back! Do you want to start where you left off?";
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -242,7 +243,9 @@ export function useVisitorPersona(): VisitorPersona {
   // Build derived values
   const visitCount = session?.visitCount ?? 1;
   const isReturning = session?.isReturning ?? false;
+  const sessionId = session?.sessionId ?? "";
   const lastPage = validateResumePath(session?.journey?.lastPage ?? null);
+  const lastPageLabel = getFriendlyPageLabel(lastPage);
   const lastService = session?.journey?.lastService ?? null;
   const hasBookingDraft = session?.hasBookingDraft ?? false;
   const lastActionLabel = session?.journey?.lastActionLabel ?? null;
@@ -256,8 +259,10 @@ export function useVisitorPersona(): VisitorPersona {
   return {
     visitCount,
     isReturning,
+    sessionId,
     lastVisitAt: session?.lastVisitAt ?? null,
     lastPage,
+    lastPageLabel,
     lastService,
     lastActionLabel,
     hasBookingDraft,

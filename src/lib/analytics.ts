@@ -171,11 +171,21 @@ export function getSessionId(): string {
   if (!isBrowser()) return "ses_server";
   try {
     let sid = sessionStorage.getItem("apnacare_sid");
+    const now = Date.now();
     if (!sid) {
-      sid = "ses_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 7);
+      const activeSid = localStorage.getItem("apnacare_active_sid");
+      const lastActiveStr = localStorage.getItem("apnacare_last_active_ts");
+      const lastActive = lastActiveStr ? parseInt(lastActiveStr, 10) : 0;
+      if (activeSid && lastActive && now - lastActive < 30 * 60 * 1000) {
+        sid = activeSid;
+      } else {
+        sid = "ses_" + now.toString(36) + "_" + Math.random().toString(36).substring(2, 7);
+      }
       sessionStorage.setItem("apnacare_sid", sid);
-      sessionStorage.setItem("apnacare_session_start_time", Date.now().toString());
+      sessionStorage.setItem("apnacare_session_start_time", now.toString());
     }
+    localStorage.setItem("apnacare_active_sid", sid);
+    localStorage.setItem("apnacare_last_active_ts", now.toString());
     return sid;
   } catch {
     return "ses_" + Math.random().toString(36).substring(2, 9);
