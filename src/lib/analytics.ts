@@ -32,7 +32,7 @@ export const JIRA_EMAIL =
   (import.meta.env.VITE_JIRA_EMAIL as string) || "divabhrati.ramco@gmail.com";
 
 export const JIRA_DOMAIN =
-  (import.meta.env.VITE_JIRA_DOMAIN as string) || "apnacare.atlassian.net";
+  (import.meta.env.VITE_JIRA_DOMAIN as string) || "divabhratiramco.atlassian.net";
 
 export const JIRA_PROJECT_KEY =
   (import.meta.env.VITE_JIRA_PROJECT_KEY as string) || "APNA";

@@ -50,7 +50,7 @@ var JIRA_CONFIG = {
   // Configured in Apps Script: Project Settings > Script Properties > JIRA_API_TOKEN
   API_TOKEN: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_API_TOKEN")) || "ATATT3xFfGF07V4pvlPDfd3g_WlE3iyOMfQND6XsNNEgndQ6Ol9utpLxe3ZeYW-iucw07v3GLYkp6i1IfbXF8XD30tCN3XHT3q-aOnRY_46GSID7q3HhzfRud2WfuW6d08iwerrbOKzIHDMiKuvM_THtDEIyGVNziJz89_BCjHLtla6Xv00IHCg=E96CC16C",
   EMAIL: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_EMAIL")) || "divabhrati.ramco@gmail.com",
-  DOMAIN: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_DOMAIN")) || "apnacare.atlassian.net",
+  DOMAIN: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_DOMAIN")) || "divabhratiramco.atlassian.net",
   PROJECT_KEY: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_PROJECT_KEY")) || "APNA",
   ISSUE_TYPE: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_ISSUE_TYPE")) || "Task"
 };
@@ -977,6 +977,105 @@ function TEST_JIRA_CONNECTION() {
   }
 }
 
+/**
+ * Automatically creates the Jira Project / Space ("APNA") via the Jira REST API.
+ */
+function CREATE_JIRA_PROJECT() {
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) {}
+
+  try {
+    if (!JIRA_CONFIG.API_TOKEN || !JIRA_CONFIG.EMAIL || !JIRA_CONFIG.DOMAIN) {
+      var errMissing = "Jira configuration missing. Please verify JIRA_DOMAIN, JIRA_EMAIL, and JIRA_API_TOKEN in JIRA_CONFIG.";
+      if (ui) ui.alert("❌ Configuration Missing", errMissing, ui.ButtonSet.OK);
+      return { success: false, error: errMissing };
+    }
+
+    var cleanHost = String(JIRA_CONFIG.DOMAIN).trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+    var authString = String(JIRA_CONFIG.EMAIL).trim() + ":" + String(JIRA_CONFIG.API_TOKEN).trim();
+    var authHeader = "Basic " + Utilities.base64Encode(authString);
+
+    // 1. Fetch authenticated user details
+    var userUrl = "https://" + cleanHost + "/rest/api/2/myself";
+    var userRes = UrlFetchApp.fetch(userUrl, {
+      method: "get",
+      headers: { "Authorization": authHeader, "Accept": "application/json" },
+      muteHttpExceptions: true
+    });
+
+    var userCode = userRes.getResponseCode();
+    if (userCode === 404) {
+      var siteNotFoundMsg = "The Jira Cloud site (" + cleanHost + ") was not found.\n\n" +
+        "Atlassian requires you to claim your free site URL once:\n" +
+        "1. Open https://www.atlassian.com/software/jira/free in your browser.\n" +
+        "2. Choose your site subdomain (e.g., apnacare-ops.atlassian.net).\n" +
+        "3. Once created, paste that subdomain into JIRA_CONFIG.DOMAIN in this script.";
+      Logger.log(siteNotFoundMsg);
+      if (ui) ui.alert("⚠️ Jira Site Not Found", siteNotFoundMsg, ui.ButtonSet.OK);
+      return { success: false, error: "Jira site not found (404)", details: siteNotFoundMsg };
+    }
+
+    if (userCode !== 200) {
+      var authFailMsg = "Failed to authenticate with Jira (HTTP " + userCode + "): " + userRes.getContentText();
+      Logger.log(authFailMsg);
+      if (ui) ui.alert("❌ Authentication Error", authFailMsg, ui.ButtonSet.OK);
+      return { success: false, error: authFailMsg };
+    }
+
+    var userJson = JSON.parse(userRes.getContentText());
+    var accountId = userJson.accountId || userJson.name;
+
+    // 2. Create the project space
+    var projectKey = String(JIRA_CONFIG.PROJECT_KEY || "APNA").trim().toUpperCase();
+    var projectPayload = {
+      key: projectKey,
+      name: "ApnaCare Operations Desk",
+      projectTypeKey: "business",
+      projectTemplateKey: "com.atlassian.jira-core-project-templates:jira-core-simplified-task-tracking",
+      description: "Dedicated workspace for ApnaCare patient leads, 6-step bookings, and automated telemetry triggers.",
+      leadAccountId: accountId
+    };
+
+    var projectUrl = "https://" + cleanHost + "/rest/api/2/project";
+    var projRes = UrlFetchApp.fetch(projectUrl, {
+      method: "post",
+      headers: {
+        "Authorization": authHeader,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      payload: JSON.stringify(projectPayload),
+      muteHttpExceptions: true
+    });
+
+    var projCode = projRes.getResponseCode();
+    var projText = projRes.getContentText();
+
+    if (projCode >= 200 && projCode < 300) {
+      var okMsg = "🎉 Jira Project Space (" + projectKey + ") Created Successfully!\n\nName: ApnaCare Operations Desk\nSite: https://" + cleanHost + "/jira/projects/" + projectKey;
+      Logger.log(okMsg);
+      if (ui) ui.alert("✅ Project Created", okMsg, ui.ButtonSet.OK);
+      return { success: true, key: projectKey };
+    } else {
+      // If already exists
+      if (projText.indexOf("project with that key already exists") !== -1 || projCode === 400) {
+        var existsMsg = "ℹ️ Jira Project Space (" + projectKey + ") already exists on " + cleanHost + " and is ready for leads!";
+        Logger.log(existsMsg);
+        if (ui) ui.alert("ℹ️ Project Ready", existsMsg, ui.ButtonSet.OK);
+        return { success: true, key: projectKey, existed: true };
+      }
+      var failMsg = "Failed to create Jira project space (HTTP " + projCode + "):\n\n" + projText;
+      Logger.log(failMsg);
+      if (ui) ui.alert("⚠️ Creation Failed", failMsg, ui.ButtonSet.OK);
+      return { success: false, error: projText };
+    }
+  } catch (err) {
+    Logger.log("⚠️ Error creating Jira project: " + err.message);
+    if (ui) ui.alert("❌ Error", err.message, ui.ButtonSet.OK);
+    return { success: false, error: err.message };
+  }
+}
+
 // =========================================================================================
 // MAIN WEBHOOK ENTRYPOINTS (doPost & doGet)
 // =========================================================================================
@@ -1016,6 +1115,15 @@ function doGet(e) {
     return ContentService.createTextOutput(JSON.stringify({
       status: testJiraRes.success ? "success" : "error",
       result: testJiraRes,
+      timestamp: normalizeTimestamp(new Date())
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (p.action === "create_jira_project" || p.action === "create_project") {
+    var createRes = CREATE_JIRA_PROJECT();
+    return ContentService.createTextOutput(JSON.stringify({
+      status: createRes.success ? "success" : "error",
+      result: createRes,
       timestamp: normalizeTimestamp(new Date())
     })).setMimeType(ContentService.MimeType.JSON);
   }
@@ -2260,6 +2368,7 @@ function onOpen() {
       .addItem('🚀 Enable 24/7 Automatic Jira Sync', 'setupJiraAutomation')
       .addItem('📤 Sync Unsynced Leads to Jira Now', 'SYNC_ALL_LEADS_TO_JIRA')
       .addItem('🛑 Stop Automatic Jira Sync', 'stopJiraAutomation')
+      .addItem('🏗️ Auto-Create Jira Project Space (APNA)', 'CREATE_JIRA_PROJECT')
       .addItem('🧪 Test Jira Connection & Create Ticket', 'TEST_JIRA_CONNECTION')
       .addSeparator()
       .addItem('⏰ Enable All Scheduled Triggers (Daily, Weekly, Monthly, Airtable & Jira)', 'setupAllApnaCareTriggers')
