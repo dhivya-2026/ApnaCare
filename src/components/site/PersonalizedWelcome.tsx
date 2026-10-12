@@ -179,9 +179,9 @@ export function PersonalizedWelcome() {
   // Whether the card has triggered on initial mount in this view
   const initialTriggerRef = useRef(false);
 
-  // Threshold for tab away: 2.5 seconds (2500 ms)
-  // Short enough to catch tab switches, long enough to avoid false positives on quick clicks
-  const TAB_AWAY_THRESHOLD_MS = 2500;
+  // Threshold for tab away: 1.5 seconds (1500 ms)
+  // Ensures any genuine tab switch or window blur triggers resumption on return
+  const TAB_AWAY_THRESHOLD_MS = 1500;
 
   // 1. Record every meaningful route change
   useEffect(() => {
@@ -209,7 +209,7 @@ export function PersonalizedWelcome() {
       }
 
       setIsReturnTrigger(isReturn);
-      const delay = reduceMotion ? 150 : 500;
+      const delay = reduceMotion ? 100 : 350;
 
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
@@ -245,7 +245,6 @@ export function PersonalizedWelcome() {
 
           if (awayMs >= TAB_AWAY_THRESHOLD_MS) {
             // User moved away to another tab and returned!
-            // Show the "Start where you left off" popup
             showCard("tab_return", true);
           }
         }
@@ -280,7 +279,20 @@ export function PersonalizedWelcome() {
     };
   }, [showCard]);
 
-  // ─── Trigger 2: Re-entering the site in the same session or returning visit ───
+  // ─── Trigger 2: Homepage return with existing session page history ──────────
+  useEffect(() => {
+    if (location.pathname === "/") {
+      const sessionPage = getLastSessionPage();
+      if (sessionPage.path && sessionPage.path !== "/") {
+        const timer = setTimeout(() => {
+          showCard("session_reentry", true);
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location.pathname, showCard]);
+
+  // ─── Trigger 3: Re-entering the site in the same session or returning visit ───
   useEffect(() => {
     if (initialTriggerRef.current) return;
     initialTriggerRef.current = true;
@@ -291,18 +303,15 @@ export function PersonalizedWelcome() {
       sessionPage.path || sessionPage.hasDraft || persona.lastService
     );
 
-    // If returning with the same session ID and having history (e.g. reopened in new tab or came back to home):
     if (hasRecordedHistory) {
-      // Re-entering site with existing session history
       const timer = setTimeout(() => {
         showCard("session_reentry", true);
-      }, 700);
+      }, 600);
       return () => clearTimeout(timer);
     } else if (persona.isReturning && persona.showWelcome) {
-      // Returning visitor across days
       const timer = setTimeout(() => {
         showCard("new_session", false);
-      }, 900);
+      }, 800);
       return () => clearTimeout(timer);
     }
   }, [persona.isReturning, persona.showWelcome, persona.lastService, showCard]);
@@ -373,7 +382,7 @@ export function PersonalizedWelcome() {
         position: "fixed",
         bottom: "6.5rem",
         left: "1rem",
-        zIndex: 45,
+        zIndex: 60,
         width: "min(22.5rem, calc(100vw - 2rem))",
         transform: reduceMotion
           ? undefined
