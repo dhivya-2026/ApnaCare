@@ -153,6 +153,10 @@ export function PersonalizedWelcome() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const reduceMotion = prefersReducedMotion();
+  // Tracks when the page was hidden so we can measure away-time on re-focus
+  const hiddenAtRef = useRef<number | null>(null);
+  // Whether the popup was already triggered in this session (so tab-switch doesn't re-trigger infinitely)
+  const triggeredRef = useRef(false);
 
   // Record meaningful page visits (not homepage)
   useEffect(() => {
@@ -170,16 +174,29 @@ export function PersonalizedWelcome() {
     }
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Entrance delay
-  useEffect(() => {
-    if (!persona.showWelcome) {
-      setVisible(false);
-      return;
-    }
-    const delay = reduceMotion ? 500 : 1800;
+  // ─── Re-entry trigger logic ───────────────────────────────────────────────
+  // The popup should ONLY appear when the visitor re-enters the site:
+  //   1. New session after a previous visit (isReturning = true)
+  //   2. Returning to this tab after being away on another tab for 2+ minutes
+  //
+  // It does NOT show:
+  //   - On first-ever visit (no history)
+  //   - While actively browsing within the same tab session
+  //   - If dismissed today
+  //
+  // TAB_AWAY_THRESHOLD: 2 minutes (120 000 ms)
+  const TAB_AWAY_THRESHOLD_MS = 2 * 60 * 1000;
+
+  function triggerWelcome(trigger: "new_session" | "tab_return") {
+    if (triggeredRef.current) return; // only once per session
+    if (!persona.showWelcome) return; // dismissed today
+    triggeredRef.current = true;
+    const delay = reduceMotion ? 300 : 900;
+    if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       setVisible(true);
       track("welcome_shown", {
+        trigger,
         is_returning: persona.isReturning,
         time_slot: persona.timeSlot,
         visit_count: persona.visitCount,
@@ -188,11 +205,52 @@ export function PersonalizedWelcome() {
         page_path: location.pathname,
       });
     }, delay);
+  }
 
+  // Trigger 1: New session for a returning visitor
+  useEffect(() => {
+    if (!persona.showWelcome) return;
+    // Only show on returning sessions (visitCount > 1)
+    // isReturning becomes true after the engine initialises
+    if (persona.isReturning && !triggeredRef.current) {
+      triggerWelcome("new_session");
+    }
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [persona.showWelcome]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [persona.showWelcome, persona.isReturning]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Trigger 2: Tab re-focus after being away ≥ 2 minutes
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "hidden") {
+        // Record when the user left
+        hiddenAtRef.current = Date.now();
+      } else if (document.visibilityState === "visible") {
+        // User returned to the tab
+        const hiddenAt = hiddenAtRef.current;
+        if (hiddenAt === null) return; // wasn't hidden before
+        const awayMs = Date.now() - hiddenAt;
+        hiddenAtRef.current = null;
+
+        if (awayMs >= TAB_AWAY_THRESHOLD_MS) {
+          // Been away long enough — show the welcome card again
+          // Reset triggeredRef so it can fire again after a meaningful absence
+          triggeredRef.current = false;
+          // Also reset dismiss for cross-tab re-entry (don't reset daily dismiss,
+          // but allow it to show if persona.showWelcome is still true)
+          if (!visible) {
+            triggerWelcome("tab_return");
+          }
+        }
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [persona.showWelcome, persona.isReturning, visible]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDismiss = useCallback(() => {
     setExiting(true);
