@@ -108,36 +108,42 @@ var TAB_HEADERS = {
     "service_id", "service_name", "city", "location_address", "start_date", "start_time",
     "duration_days", "preferred_language", "special_notes", "promo_code", "base_price",
     "discount", "gst", "total_amount", "booking_status", "follow_up_status", "lead_source",
-    "page_path", "source_environment"
+    "page_path", "source_environment",
+    "airtable_synced"
   ],
 
   Callback_Enquiries: [
     "received_at", "enquiry_id", "visitor_id", "session_id", "name", "phone", "service",
-    "message", "page_path", "lead_source", "lead_status", "follow_up_status", "source_environment"
+    "message", "page_path", "lead_source", "lead_status", "follow_up_status", "source_environment",
+    "airtable_synced"
   ],
 
   Contact_Submissions: [
     "received_at", "contact_id", "visitor_id", "session_id", "name", "phone", "email", "city",
     "subject", "message", "page_path", "lead_source", "lead_status", "follow_up_status",
-    "source_environment"
+    "source_environment",
+    "airtable_synced"
   ],
 
   Partner_Applications: [
     "received_at", "partner_id", "visitor_id", "session_id", "org_name", "org_type",
     "contact_person", "email", "phone", "website", "state", "city", "members_count",
-    "category", "interest_notes", "page_path", "lead_source", "lead_status", "source_environment"
+    "category", "interest_notes", "page_path", "lead_source", "lead_status", "source_environment",
+    "airtable_synced"
   ],
 
   Chatbot_Leads: [
     "received_at", "lead_id", "visitor_id", "session_id", "name", "email", "phone",
     "requested_service", "city", "page_context_badge", "user_query", "recommended_action",
-    "conversation_notes", "page_path", "lead_source", "lead_status", "source_environment"
+    "conversation_notes", "page_path", "lead_source", "lead_status", "source_environment",
+    "airtable_synced"
   ],
 
   SOS_Emergency_Alerts: [
     "received_at", "alert_id", "visitor_id", "session_id", "alert_type", "trigger_step",
     "caller_name", "caller_phone", "location", "city", "service_context", "status",
-    "operator_notes", "response_time_sec", "source_environment"
+    "operator_notes", "response_time_sec", "source_environment",
+    "airtable_synced"
   ],
 
   Attendant_Portal_Logs: [
@@ -148,7 +154,8 @@ var TAB_HEADERS = {
   Lead_Management: [
     "received_at", "lead_id", "lead_type", "visitor_id", "session_id", "name", "phone", "email",
     "service_or_requirement", "city", "lead_source", "form_name", "lead_status", "follow_up_status",
-    "total_value", "source_environment"
+    "total_value", "source_environment",
+    "airtable_synced"
   ],
 
   Visitor_Sessions: [
@@ -673,11 +680,7 @@ function doPost(e) {
       p.booking_status = p.booking_status || "Confirmed";
       p.follow_up_status = p.follow_up_status || "Coordinator Assigned";
 
-      writeResults.push(appendRowToTab(ss, "Booking_Leads", p));
-      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
-      sendBookingAlertEmail(p);
-
-      pushLeadToAirtable({
+      var airtableOk = pushLeadToAirtable({
         Name: p.customer_name,
         Phone: p.mobile,
         Email: p.email,
@@ -690,6 +693,11 @@ function doPost(e) {
         Timestamp: p.received_at,
         SourceEnvironment: p.source_environment || "production"
       });
+      p.airtable_synced = airtableOk ? "SYNCED" : "";
+
+      writeResults.push(appendRowToTab(ss, "Booking_Leads", p));
+      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
+      sendBookingAlertEmail(p);
     }
 
     // B. QUICK CALLBACK ENQUIRY
@@ -701,11 +709,7 @@ function doPost(e) {
       p.lead_status = p.lead_status || "New";
       p.follow_up_status = p.follow_up_status || "Callback Due (<2 hrs)";
 
-      writeResults.push(appendRowToTab(ss, "Callback_Enquiries", p));
-      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
-      sendCallbackAlertEmail(p);
-
-      pushLeadToAirtable({
+      var cbAirtableOk = pushLeadToAirtable({
         Name: p.name,
         Phone: p.phone,
         Email: p.email,
@@ -718,6 +722,11 @@ function doPost(e) {
         Timestamp: p.received_at,
         SourceEnvironment: p.source_environment || "production"
       });
+      p.airtable_synced = cbAirtableOk ? "SYNCED" : "";
+
+      writeResults.push(appendRowToTab(ss, "Callback_Enquiries", p));
+      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
+      sendCallbackAlertEmail(p);
     }
 
     // C. CONTACT FORM MESSAGE
@@ -729,11 +738,7 @@ function doPost(e) {
       p.lead_status = p.lead_status || "New";
       p.follow_up_status = p.follow_up_status || "Pending";
 
-      writeResults.push(appendRowToTab(ss, "Contact_Submissions", p));
-      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
-      sendContactAlertEmail(p);
-
-      pushLeadToAirtable({
+      var ctAirtableOk = pushLeadToAirtable({
         Name: p.name,
         Phone: p.phone,
         Email: p.email,
@@ -746,6 +751,11 @@ function doPost(e) {
         Timestamp: p.received_at,
         SourceEnvironment: p.source_environment || "production"
       });
+      p.airtable_synced = ctAirtableOk ? "SYNCED" : "";
+
+      writeResults.push(appendRowToTab(ss, "Contact_Submissions", p));
+      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
+      sendContactAlertEmail(p);
     }
 
     // D. ECOSYSTEM PARTNER REGISTRATION
@@ -756,11 +766,7 @@ function doPost(e) {
       p.contact_person = p.contact || p.contact_person || p.name || "";
       p.lead_status = p.lead_status || "Under Review";
 
-      writeResults.push(appendRowToTab(ss, "Partner_Applications", p));
-      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
-      sendPartnerAlertEmail(p);
-
-      pushLeadToAirtable({
+      var ptAirtableOk = pushLeadToAirtable({
         Name: p.contact_person,
         Phone: p.phone,
         Email: p.email,
@@ -773,6 +779,11 @@ function doPost(e) {
         Timestamp: p.received_at,
         SourceEnvironment: p.source_environment || "production"
       });
+      p.airtable_synced = ptAirtableOk ? "SYNCED" : "";
+
+      writeResults.push(appendRowToTab(ss, "Partner_Applications", p));
+      writeResults.push(appendRowToTab(ss, "Lead_Management", p));
+      sendPartnerAlertEmail(p);
     }
 
     // E. CHATBOT / AI CARE ASSISTANT LEAD
@@ -782,6 +793,23 @@ function doPost(e) {
       p.requested_service = p.requested_service || p.service || p.context || "";
       p.page_context_badge = p.context_badge || p.badge || p.page_context || "";
       p.lead_status = p.lead_status || "Bot Inquired";
+
+      if (p.phone || (p.email && p.email.includes("@"))) {
+        var chatAirtableOk = pushLeadToAirtable({
+          Name: p.name || "Chatbot Lead",
+          Phone: p.phone,
+          Email: p.email,
+          Service: p.requested_service || "Chatbot Assistance",
+          City: p.city || "Bengaluru",
+          LeadType: "Chatbot Lead",
+          ReferenceID: p.lead_id,
+          Details: "Query: " + (p.user_query || "") + " | Action: " + (p.recommended_action || ""),
+          PagePath: p.page_path || "/",
+          Timestamp: p.received_at,
+          SourceEnvironment: p.source_environment || "production"
+        });
+        p.airtable_synced = chatAirtableOk ? "SYNCED" : "";
+      }
 
       writeResults.push(appendRowToTab(ss, "Chatbot_Leads", p));
       if (p.phone || (p.email && p.email.includes("@"))) {
@@ -805,6 +833,7 @@ function doPost(e) {
         p.alert_type = "Simulation Demo";
         p.status = "Simulation Test (No Dispatch Required)";
         p.operator_notes = "Website interactive simulation; control room dispatch inhibited.";
+        p.airtable_synced = "SIMULATION";
         writeResults.push(appendRowToTab(ss, "SOS_Emergency_Alerts", p));
         // Safeguard: Do NOT send panic emergency emails for training / demo simulations!
       } else {
@@ -812,6 +841,22 @@ function doPost(e) {
         p.alert_type = p.alert_type || "Live SOS Trigger";
         p.status = "CRITICAL: Escalated to 24/7 Control Room";
         p.operator_notes = "Immediate response protocol active";
+
+        var sosAirtableOk = pushLeadToAirtable({
+          Name: p.caller_name || "Emergency Caller",
+          Phone: p.caller_phone,
+          Email: p.email,
+          Service: p.service_context || "Emergency SOS",
+          City: p.city || p.location || "Bengaluru",
+          LeadType: "Emergency SOS Alert",
+          ReferenceID: p.alert_id,
+          Details: "Status: " + p.status + " | Operator: " + p.operator_notes,
+          PagePath: "/sos",
+          Timestamp: p.received_at,
+          SourceEnvironment: p.source_environment || "production"
+        });
+        p.airtable_synced = sosAirtableOk ? "SYNCED" : "";
+
         writeResults.push(appendRowToTab(ss, "SOS_Emergency_Alerts", p));
         sendSOSAlertEmail(p);
       }
@@ -1670,6 +1715,9 @@ function setupAllApnaCareTriggers() {
   // 3. Monthly Executive Summary on the 1st of every month at 9:00 AM IST
   ScriptApp.newTrigger("monthlyReport").timeBased().onMonthDay(1).atHour(9).create();
 
+  // 4. Automatic Airtable Lead Sync every 10 minutes
+  ScriptApp.newTrigger("AUTOMATED_AIRTABLE_SYNC_TRIGGER").timeBased().everyMinutes(10).create();
+
   try {
     SpreadsheetApp.getUi().alert("✅ Automated Email Report Triggers Activated (Daily, Weekly & Monthly)!");
   } catch (e) { }
@@ -1683,7 +1731,9 @@ function onOpen() {
       .addItem('📁 Initialize All Database Tabs', 'INITIALIZE_ALL_TABS')
       .addItem('🧹 Purge Duplicates Across Tabs', 'PURGE_DUPLICATES_FROM_ALL_TABS')
       .addSeparator()
-      .addItem('📤 Sync All Leads to Airtable', 'SYNC_ALL_LEADS_TO_AIRTABLE')
+      .addItem('🚀 Enable 24/7 Automatic Airtable Sync', 'setupAirtableAutomation')
+      .addItem('📤 Sync Unsynced Leads to Airtable Now', 'SYNC_ALL_LEADS_TO_AIRTABLE')
+      .addItem('🛑 Stop Automatic Airtable Sync', 'stopAirtableAutomation')
       .addSeparator()
       .addItem('⏰ Enable Automated Daily/Weekly/Monthly Reports', 'setupAllApnaCareTriggers')
       .addItem('🧪 Test Inbound Booking Alert Now', 'TEST_BOOKING_ALERT')
