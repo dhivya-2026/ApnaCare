@@ -449,11 +449,11 @@ function ApplicationForm() {
       )}
 
       {/* ── Section A: Personal Information ── */}
-      <fieldset className="card-soft p-6 md:p-8 space-y-5">
-        <legend className="flex items-center gap-2 font-semibold text-lg mb-2">
+      <div role="group" aria-labelledby="section-a-title" className="card-soft p-6 md:p-8 space-y-5">
+        <p id="section-a-title" className="flex items-center gap-2 font-semibold text-lg">
           <UserCheck className="size-5 text-primary" />
           Section A — Personal Information
-        </legend>
+        </p>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="Full Name" required error={errors.fullName} id="fullName">
@@ -467,15 +467,17 @@ function ApplicationForm() {
             />
           </FormField>
           <FormField label="Mobile Number" required error={errors.mobile} id="mobile">
-            <div className="flex items-center rounded-xl border border-input overflow-hidden focus-within:border-primary h-12">
-              <span className="px-3 text-sm text-muted-foreground bg-secondary border-r border-input h-full flex items-center select-none">+91</span>
+            <div className="flex h-12 w-full rounded-xl border border-input bg-card focus-within:border-primary overflow-hidden">
+              <span className="shrink-0 inline-flex items-center px-3 bg-muted border-r border-input text-sm text-muted-foreground font-medium select-none">
+                +91
+              </span>
               <input
                 id="mobile"
                 type="tel"
                 value={f.mobile}
                 onChange={set("mobile")}
                 placeholder="98765 43210"
-                className="flex-1 h-full bg-card px-3 text-sm outline-none"
+                className="flex-1 min-w-0 h-full bg-transparent px-3 text-sm outline-none"
                 aria-describedby={errors.mobile ? "mobile-error" : undefined}
               />
             </div>
@@ -510,7 +512,7 @@ function ApplicationForm() {
               id="gender"
               value={f.gender}
               onChange={set("gender")}
-              className="h-12 w-full rounded-xl border border-input bg-card px-3 text-sm outline-none focus:border-primary"
+              className="h-12 w-full min-w-0 rounded-xl border border-input bg-card px-3 text-sm outline-none focus:border-primary"
             >
               <option value="">Prefer not to say</option>
               <option>Female</option>
@@ -536,21 +538,21 @@ function ApplicationForm() {
               id="state"
               value={f.state}
               onChange={set("state")}
-              className="h-12 w-full rounded-xl border border-input bg-card px-3 text-sm outline-none focus:border-primary"
+              className="h-12 w-full min-w-0 rounded-xl border border-input bg-card px-3 text-sm outline-none focus:border-primary"
             >
               <option value="">Select your state</option>
               {INDIAN_STATES.map((s) => <option key={s}>{s}</option>)}
             </select>
           </FormField>
         </div>
-      </fieldset>
+      </div>
 
       {/* ── Section B: Professional Information ── */}
-      <fieldset className="card-soft p-6 md:p-8 space-y-5">
-        <legend className="flex items-center gap-2 font-semibold text-lg mb-2">
+      <div role="group" aria-labelledby="section-b-title" className="card-soft p-6 md:p-8 space-y-5">
+        <p id="section-b-title" className="flex items-center gap-2 font-semibold text-lg">
           <BriefcaseMedical className="size-5 text-primary" />
           Section B — Professional Information
-        </legend>
+        </p>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="Applying For" required error={errors.role} id="role">
@@ -558,7 +560,7 @@ function ApplicationForm() {
               id="role"
               value={f.role}
               onChange={set("role")}
-              className="h-12 w-full rounded-xl border border-input bg-card px-3 text-sm outline-none focus:border-primary"
+              className="h-12 w-full min-w-0 rounded-xl border border-input bg-card px-3 text-sm outline-none focus:border-primary"
             >
               <option value="">Select a role</option>
               {ATTENDANT_ROLES.map((r) => <option key={r}>{r}</option>)}
@@ -569,7 +571,7 @@ function ApplicationForm() {
               id="experience"
               value={f.experience}
               onChange={set("experience")}
-              className="h-12 w-full rounded-xl border border-input bg-card px-3 text-sm outline-none focus:border-primary"
+              className="h-12 w-full min-w-0 rounded-xl border border-input bg-card px-3 text-sm outline-none focus:border-primary"
             >
               <option value="">Select experience level</option>
               {EXPERIENCE_LEVELS.map((e) => <option key={e}>{e}</option>)}
@@ -673,14 +675,14 @@ function ApplicationForm() {
             {f.experienceSummary.length}/2000
           </p>
         </FormField>
-      </fieldset>
+      </div>
 
       {/* ── Section C: Document Upload ── */}
-      <fieldset className="card-soft p-6 md:p-8 space-y-5">
-        <legend className="flex items-center gap-2 font-semibold text-lg mb-2">
+      <div role="group" aria-labelledby="section-c-title" className="card-soft p-6 md:p-8 space-y-5">
+        <p id="section-c-title" className="flex items-center gap-2 font-semibold text-lg">
           <Paperclip className="size-5 text-primary" />
           Section C — Verification Documents
-        </legend>
+        </p>
 
         <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm space-y-1.5">
           <p className="font-medium flex items-center gap-2">
@@ -768,14 +770,14 @@ function ApplicationForm() {
             ))}
           </ul>
         )}
-      </fieldset>
+      </div>
 
       {/* ── Section D: Consent & Submit ── */}
-      <fieldset className="card-soft p-6 md:p-8 space-y-5">
-        <legend className="flex items-center gap-2 font-semibold text-lg mb-2">
+      <div role="group" aria-labelledby="section-d-title" className="card-soft p-6 md:p-8 space-y-5">
+        <p id="section-d-title" className="flex items-center gap-2 font-semibold text-lg">
           <ShieldCheck className="size-5 text-primary" />
-          Section D — Consent & Submission
-        </legend>
+          Section D — Consent &amp; Submission
+        </p>
 
         <div className="rounded-xl bg-secondary/50 p-4 text-sm text-muted-foreground leading-relaxed">
           <p>
@@ -834,7 +836,7 @@ function ApplicationForm() {
         <p className="text-center text-xs text-muted-foreground">
           By submitting, you agree to our recruitment data processing policy. We do not share your information with third parties for commercial purposes.
         </p>
-      </fieldset>
+      </div>
     </form>
   );
 }
