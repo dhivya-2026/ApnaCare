@@ -25,7 +25,6 @@ describe("App routing", () => {
     "/ecosystem-partners",
     "/contact",
     "/attendant-login",
-    "/analytics",
     "/knowledge-hub",
     "/knowledge-hub/women-travel-safety-rights",
     "/solutions/women-commuters",

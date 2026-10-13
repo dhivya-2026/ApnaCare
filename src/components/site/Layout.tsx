@@ -225,11 +225,6 @@ const NAV_ITEMS: NavItem[] = [
         to: "/attendant-login",
         description: "Portal for care professionals",
       },
-      {
-        label: "Mission Control & Analytics",
-        to: "/analytics",
-        description: "Website intelligence & telemetry dashboard",
-      },
     ],
   },
   {
@@ -709,12 +704,6 @@ function Footer() {
             <li>
               <Link to="/attendant-login" className="hover:text-ink-foreground">
                 Attendant Portal Login
-              </Link>
-            </li>
-            <li>
-              <Link to="/analytics" className="hover:text-ink-foreground flex items-center gap-1.5 text-xs text-primary-foreground/80 font-medium">
-                <span className="size-1.5 rounded-full bg-emerald-400" />
-                Intelligence & Telemetry Desk
               </Link>
             </li>
           </ul>

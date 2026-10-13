@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AttendantLoginRouteImport } from './routes/attendant-login'
 import { Route as BookingRouteImport } from './routes/booking'
 import { Route as CitiesRouteImport } from './routes/cities'
@@ -38,11 +37,6 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AnalyticsRoute = AnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AttendantLoginRoute = AttendantLoginRouteImport.update({
@@ -134,7 +128,6 @@ const SolutionsSlugRoute = SolutionsSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/analytics': typeof AnalyticsRoute
   '/attendant-login': typeof AttendantLoginRoute
   '/booking': typeof BookingRoute
   '/cities': typeof CitiesRouteWithChildren
@@ -156,7 +149,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/analytics': typeof AnalyticsRoute
   '/attendant-login': typeof AttendantLoginRoute
   '/booking': typeof BookingRoute
   '/cities': typeof CitiesRouteWithChildren
@@ -179,7 +171,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/analytics': typeof AnalyticsRoute
   '/attendant-login': typeof AttendantLoginRoute
   '/booking': typeof BookingRoute
   '/cities': typeof CitiesRouteWithChildren
@@ -203,7 +194,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
-    | '/analytics'
     | '/attendant-login'
     | '/booking'
     | '/cities'
@@ -225,7 +215,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/analytics'
     | '/attendant-login'
     | '/booking'
     | '/cities'
@@ -247,7 +236,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
-    | '/analytics'
     | '/attendant-login'
     | '/booking'
     | '/cities'
@@ -270,7 +258,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AnalyticsRoute: typeof AnalyticsRoute
   AttendantLoginRoute: typeof AttendantLoginRoute
   BookingRoute: typeof BookingRoute
   CitiesRoute: typeof CitiesRouteWithChildren
@@ -303,13 +290,6 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/analytics': {
-      id: '/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof AnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/attendant-login': {
@@ -448,7 +428,6 @@ const CitiesRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AnalyticsRoute: AnalyticsRoute,
   AttendantLoginRoute: AttendantLoginRoute,
   BookingRoute: BookingRoute,
   CitiesRoute: CitiesRouteWithChildren,
