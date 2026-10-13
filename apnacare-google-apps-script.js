@@ -53,7 +53,9 @@ var JIRA_CONFIG = {
   EMAIL: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_EMAIL")) || "divabhrati.ramco@gmail.com",
   DOMAIN: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_DOMAIN")) || "divabhratiramco.atlassian.net",
   PROJECT_KEY: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_PROJECT_KEY")) || "APNA",
-  ISSUE_TYPE: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_ISSUE_TYPE")) || "Task"
+  ISSUE_TYPE: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_ISSUE_TYPE")) || "Task",
+  SUBTASK_ISSUE_TYPE: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_SUBTASK_ISSUE_TYPE")) || "Sub-task",
+  AUTO_CREATE_SUBTASKS: true
 };
 
 var EMAIL_CONFIG = {
@@ -697,7 +699,19 @@ function pushLeadToJira(lead, options) {
     if (code >= 200 && code < 300) {
       var json = JSON.parse(respText);
       Logger.log("✅ Created Jira Issue " + json.key + " for " + (lead.ReferenceID || customerName));
-      return { success: true, key: json.key, id: json.id };
+
+      // Automatically create exactly 8 operational subtasks for every parent task
+      var subtasks = [];
+      if (JIRA_CONFIG.AUTO_CREATE_SUBTASKS !== false) {
+        subtasks = createSubtasksForJiraIssue(json.key, lead, options, authHeader, cleanHost);
+      }
+
+      return {
+        success: true,
+        key: json.key,
+        id: json.id,
+        subtasks: subtasks
+      };
     } else {
       Logger.log("⚠️ Jira API returned HTTP " + code + ": " + respText);
       return { success: false, error: respText, statusCode: code };
@@ -706,6 +720,263 @@ function pushLeadToJira(lead, options) {
     Logger.log("⚠️ Failed to dispatch to Jira: " + err.message);
     return { success: false, error: err.message };
   }
+}
+
+// =========================================================================================
+// AUTOMATED 8-SUBTASK CREATION ENGINE FOR JIRA TASKS
+// =========================================================================================
+
+/**
+ * Automatically creates exactly 8 sequential operational subtasks under a parent Jira issue.
+ */
+function createSubtasksForJiraIssue(parentKey, lead, options, authHeader, cleanHost) {
+  if (!parentKey) return [];
+
+  if (!authHeader || !cleanHost) {
+    cleanHost = String(JIRA_CONFIG.DOMAIN).trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+    var authString = String(JIRA_CONFIG.EMAIL).trim() + ":" + String(JIRA_CONFIG.API_TOKEN).trim();
+    authHeader = "Basic " + Utilities.base64Encode(authString);
+  }
+
+  var templates = getSubtaskTemplatesForLead(lead);
+  var created = [];
+
+  Logger.log("⚙️ Auto-generating " + templates.length + " operational subtasks under Jira task " + parentKey + "...");
+
+  for (var i = 0; i < templates.length; i++) {
+    try {
+      var res = createSingleJiraSubtask(parentKey, templates[i], authHeader, cleanHost);
+      if (res && res.success) {
+        created.push(res.key);
+      }
+    } catch (e) {
+      Logger.log("⚠️ Error creating subtask #" + (i + 1) + " for " + parentKey + ": " + e.message);
+    }
+  }
+
+  Logger.log("🏁 Subtasks complete for " + parentKey + ": " + created.length + "/" + templates.length + " subtasks created.");
+  return created;
+}
+
+/**
+ * Creates an individual Jira Sub-task under a parent issue.
+ * Includes automatic retry with alternate subtask issue type name ("Sub-task" vs "Subtask").
+ */
+function createSingleJiraSubtask(parentKey, subtaskData, authHeader, cleanHost) {
+  var url = "https://" + cleanHost + "/rest/api/2/issue";
+  var preferredType = JIRA_CONFIG.SUBTASK_ISSUE_TYPE || "Sub-task";
+
+  var payload = {
+    fields: {
+      project: { key: String(JIRA_CONFIG.PROJECT_KEY).trim().toUpperCase() },
+      parent: { key: parentKey },
+      summary: subtaskData.summary,
+      description: subtaskData.description || subtaskData.summary,
+      issuetype: { name: preferredType },
+      labels: [
+        "apnacare",
+        "subtask",
+        parentKey.toLowerCase()
+      ]
+    }
+  };
+
+  var fetchOptions = {
+    method: "post",
+    headers: {
+      "Authorization": authHeader,
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+
+  var res = UrlFetchApp.fetch(url, fetchOptions);
+  var code = res.getResponseCode();
+  var respText = res.getContentText();
+
+  // If failed due to issue type name discrepancy ("Sub-task" vs "Subtask"), automatically retry with the alternate name
+  if ((code === 400 || code === 404) && (respText.indexOf("issuetype") !== -1 || respText.indexOf("issue type") !== -1)) {
+    var alternateType = (preferredType === "Sub-task") ? "Subtask" : "Sub-task";
+    payload.fields.issuetype.name = alternateType;
+    fetchOptions.payload = JSON.stringify(payload);
+    res = UrlFetchApp.fetch(url, fetchOptions);
+    code = res.getResponseCode();
+    respText = res.getContentText();
+    if (code >= 200 && code < 300) {
+      JIRA_CONFIG.SUBTASK_ISSUE_TYPE = alternateType; // Cache the working issue type
+    }
+  }
+
+  if (code >= 200 && code < 300) {
+    var json = JSON.parse(respText);
+    Logger.log("   ↳ Subtask " + json.key + " created: " + subtaskData.summary);
+    return { success: true, key: json.key, summary: subtaskData.summary };
+  } else {
+    Logger.log("   ⚠️ Subtask creation failed ('" + subtaskData.summary + "'): HTTP " + code + " — " + respText);
+    return { success: false, error: respText, statusCode: code, summary: subtaskData.summary };
+  }
+}
+
+/**
+ * Returns exactly 8 operational subtask templates tailored to the specific lead/task category.
+ */
+function getSubtaskTemplatesForLead(lead) {
+  lead = lead || {};
+  var leadType = String(lead.LeadType || lead.lead_type || "").toUpperCase();
+  var customerName = String(lead.Name || lead.customer_name || lead.full_name || "Applicant / Patient").trim();
+  var service = String(lead.Service || lead.service_name || lead.role || "Care Service").trim();
+
+  // 1. RECRUITMENT WORKFLOW (Attendant Applications & Career Submissions)
+  if (leadType.includes("ATTENDANT") || leadType.includes("CAREER") || leadType.includes("APPLICATION")) {
+    return [
+      {
+        summary: "1. Screen Application & Credentials (" + customerName + ")",
+        description: "Review submitted role (" + service + "), experience history, certifications, and shift preferences for " + customerName + "."
+      },
+      {
+        summary: "2. Conduct Initial HR Telephonic Screening",
+        description: "Verify spoken languages, communication skills, commute/live-in feasibility, and bedside care experience."
+      },
+      {
+        summary: "3. Government Identity Verification (Aadhaar / Address)",
+        description: "Inspect government photo ID proof, verify residential address, and authenticate candidate identity."
+      },
+      {
+        summary: "4. Verify Skill Certifications & Past References",
+        description: "Validate GDA/nursing certification and contact past healthcare/hospital employers for reference checks."
+      },
+      {
+        summary: "5. Background Check & Police Verification Audit",
+        description: "Initiate criminal background verification check and ensure zero adverse records before deployment."
+      },
+      {
+        summary: "6. Practical Care & Clinical Competency Assessment",
+        description: "Evaluate hands-on skills in patient mobility transfers, vitals logging, emergency response, and hygiene maintenance."
+      },
+      {
+        summary: "7. ApnaCare Caregiver Orientation & Portal Setup",
+        description: "Issue ApnaCare caregiver badge, explain patient care standards, configure mobile portal credentials, and issue uniform."
+      },
+      {
+        summary: "8. Activate Profile & Assign First Supervised Care Case",
+        description: "Mark candidate verified in caregiver directory and allocate initial care shift under coordinator supervision."
+      }
+    ];
+  }
+
+  // 2. EMERGENCY SOS WORKFLOW
+  if (leadType.includes("SOS") || leadType.includes("EMERGENCY")) {
+    return [
+      {
+        summary: "1. Immediate Emergency Command Center Acknowledgement",
+        description: "Establish contact with caller within 60 seconds; log patient address and primary emergency contact."
+      },
+      {
+        summary: "2. Critical Triage & Medical Condition Assessment",
+        description: "Determine emergency severity: fall, cardiac distress, vitals collapse, or immediate caregiver absence."
+      },
+      {
+        summary: "3. Paramedic / Ambulance Dispatch Coordination",
+        description: "Liaise with local ambulance and partner hospital emergency room if hospital transfer is indicated."
+      },
+      {
+        summary: "4. Rapid-Response Field Nurse / Attendant Deployment",
+        description: "Dispatch nearest verified emergency attendant to patient premises for immediate on-site support."
+      },
+      {
+        summary: "5. Family Emergency Contact Status Update",
+        description: "Continuously update patient's next-of-kin regarding caregiver transit ETA and emergency interventions."
+      },
+      {
+        summary: "6. On-Site Vitals Stabilization & Clinical Logging",
+        description: "Field responder arrives on-site, measures Blood Pressure, Pulse, SpO2, and logs status to coordinator."
+      },
+      {
+        summary: "7. Physician / Hospital Handoff Documentation",
+        description: "Execute formal medical case handover with attending ER physician or consulting homecare doctor."
+      },
+      {
+        summary: "8. Post-Incident Review & Safety Contingency Protocol",
+        description: "Conduct 24-hour follow-up with patient family, confirm recovery stability, and update long-term safety plan."
+      }
+    ];
+  }
+
+  // 3. ECOSYSTEM PARTNERSHIP WORKFLOW
+  if (leadType.includes("PARTNER") || leadType.includes("ORGANIZATION")) {
+    return [
+      {
+        summary: "1. Review Partner Organization Background (" + customerName + ")",
+        description: "Assess partner organization profile, services offered, capacity, and proposed collaboration model."
+      },
+      {
+        summary: "2. Discovery & Strategic Alignment Meeting",
+        description: "Host introductory discovery video call with partner leadership to align on mutual care objectives."
+      },
+      {
+        summary: "3. Compliance & Hospital Accreditation Verification",
+        description: "Verify statutory legal credentials, clinical licensing, NABH/ISO certifications, and address details."
+      },
+      {
+        summary: "4. Draft Partnership Agreement & Mutual NDA",
+        description: "Formulate Memorandum of Understanding (MOU) defining service-level agreements and patient referral protocols."
+      },
+      {
+        summary: "5. Commercial Terms & Referral Protocol Sign-off",
+        description: "Finalize payment arrangements, billing cadence, or subsidized healthcare arrangements."
+      },
+      {
+        summary: "6. Establish Care Operations Communication Bridge",
+        description: "Configure direct helpline channels between partner dispatch desk and ApnaCare patient support team."
+      },
+      {
+        summary: "7. Joint Care Operations Kick-off & Team Briefing",
+        description: "Train care coordinators and attendant managers on partner-specific patient routing standards."
+      },
+      {
+        summary: "8. Monthly Partnership Performance & Feedback Review",
+        description: "Establish monthly review rhythm to evaluate joint patient outcomes, response times, and quality satisfaction."
+      }
+    ];
+  }
+
+  // 4. DEFAULT: PATIENT CARE / CUSTOMER BOOKING WORKFLOW (Bookings, Callbacks, Contacts, Chatbot Leads)
+  return [
+    {
+      summary: "1. Patient Intake & Medical Needs Assessment (" + customerName + ")",
+      description: "Call family coordinator within 15 mins. Validate patient age, medical condition/mobility status, shift hours, and special requirements for " + service + "."
+    },
+    {
+      summary: "2. Attendant Profile Matching & Shortlisting",
+      description: "Match patient needs against verified attendant pool based on required skills (elderly/bedridden/post-op), spoken languages, and location."
+    },
+    {
+      summary: "3. Caregiver Credential & Background Verification",
+      description: "Perform final verification check of selected attendant's Aadhaar card, police verification, and health clearance certificates."
+    },
+    {
+      summary: "4. Customer Confirmation & Caregiver Profile Presentation",
+      description: "Share caregiver profile badge and credentials with the family; confirm start date, timings, and daily/monthly rates."
+    },
+    {
+      summary: "5. Care Protocol Briefing & Special Instructions",
+      description: "Brief caregiver on patient dietary restrictions, medication schedule, mobility assistance protocols, and emergency contacts."
+    },
+    {
+      summary: "6. Advance Deposit & Billing Confirmation",
+      description: "Generate booking invoice, apply approved promo codes (if applicable), send payment link, and confirm receipt of advance deposit."
+    },
+    {
+      summary: "7. Day-1 Shift Deployment & Portal Check-in Audit",
+      description: "Track attendant arrival on Day 1, confirm physical check-in via ApnaCare Attendant Portal, and audit initial vitals log."
+    },
+    {
+      summary: "8. Day-3 Quality NPS Check & Ongoing Care Management",
+      description: "Conduct Day-3 feedback call with patient family, ensure satisfaction with attendant care, and establish ongoing weekly monitoring."
+    }
+  ];
 }
 
 /**
@@ -2600,5 +2871,27 @@ function manualTestAttendantApplication() {
       })
     }
   });
+}
+
+// Standalone manual test function for verifying Jira Task + 8 Subtasks creation
+function manualTestJiraTaskWith8Subtasks() {
+  Logger.log("Running manual test for Jira Task + 8 Subtasks...");
+  var testLead = {
+    Name: "Smt. Kamala Ramanathan (Manual Subtask Verification)",
+    Phone: "+91 98401 77777",
+    Email: "divabhrati.ramco@gmail.com",
+    Service: "Elderly Care & Bedside Assistance",
+    City: "Bengaluru",
+    LeadType: "Booking",
+    ReferenceID: "AC-SUBTEST-" + Date.now().toString(36).toUpperCase(),
+    Details: "Manual verification ticket to test automatic generation of 8 sequential operational subtasks in Jira.",
+    PagePath: "/booking",
+    Timestamp: Utilities.formatDate(new Date(), CONFIG.TIMEZONE || "Asia/Kolkata", "yyyy-MM-dd HH:mm:ss"),
+    SourceEnvironment: "test"
+  };
+
+  var res = pushLeadToJira(testLead);
+  Logger.log("Result: " + JSON.stringify(res));
+  return res;
 }
 
