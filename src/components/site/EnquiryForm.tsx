@@ -7,7 +7,7 @@
  */
 
 import { useState } from "react";
-import { CheckCircle2, Phone } from "lucide-react";
+import { Calendar, CheckCircle2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,8 @@ interface EnquiryFormProps {
   subtitle?: string;
   /** Extra className for the wrapper */
   className?: string;
+  /** Google Calendar appointment booking URL */
+  bookingUrl?: string;
 }
 
 interface FormState {
@@ -41,6 +43,7 @@ export function EnquiryForm({
   title = "Request a Callback",
   subtitle = "Share your details and we'll call you within 2 hours.",
   className,
+  bookingUrl = "https://calendar.app.google/tZ4exnXrAWnu9PuQ9",
 }: EnquiryFormProps) {
   const [f, setF] = useState<FormState>({
     name: "",
@@ -110,15 +113,33 @@ export function EnquiryForm({
         <p className="mt-3 text-xs text-muted-foreground">
           Our regional care desk has logged your request and an experienced coordinator will connect with you promptly.
         </p>
-        <button
-          onClick={() => {
-            setDone(false);
-            setF({ name: "", phone: "", service: "", message: "" });
-          }}
-          className="mt-4 text-xs font-medium text-primary underline"
-        >
-          Submit another request
-        </button>
+        <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Button
+            asChild
+            variant="warm"
+            size="sm"
+            className="gap-2 shadow-soft hover:shadow-lift"
+          >
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track("book_time_slot_click", { location: "quick_callback_form_success" })}
+            >
+              <Calendar className="size-3.5" />
+              <span>Book a Time Slot on Calendar</span>
+            </a>
+          </Button>
+          <button
+            onClick={() => {
+              setDone(false);
+              setF({ name: "", phone: "", service: "", message: "" });
+            }}
+            className="text-xs font-medium text-primary underline hover:text-primary/80"
+          >
+            Submit another request
+          </button>
+        </div>
       </div>
     );
   }
@@ -201,10 +222,35 @@ export function EnquiryForm({
           />
         </div>
 
-        <Button type="submit" disabled={submitting} className="w-full gap-2" size="lg">
-          <Phone className="size-4" />
-          {submitting ? "Sending…" : "Request a Callback"}
-        </Button>
+        {/* Action Buttons: Request a Callback + Book a Time Slot */}
+        <div className="flex flex-col sm:flex-row gap-3 pt-1">
+          <Button
+            type="submit"
+            disabled={submitting}
+            className="flex-1 gap-2 whitespace-nowrap shadow-soft hover:shadow-lift"
+            size="lg"
+          >
+            <Phone className="size-4" />
+            {submitting ? "Sending…" : "Request a Callback"}
+          </Button>
+
+          <Button
+            asChild
+            variant="warm"
+            size="lg"
+            className="flex-1 gap-2 whitespace-nowrap shadow-soft hover:shadow-lift"
+          >
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track("book_time_slot_click", { location: "quick_callback_form" })}
+            >
+              <Calendar className="size-4" />
+              <span>Book a Time Slot</span>
+            </a>
+          </Button>
+        </div>
 
         <p className="text-center text-xs text-muted-foreground">
           We typically respond within 2 hours during operating hours. For urgent enquiries, call{" "}
