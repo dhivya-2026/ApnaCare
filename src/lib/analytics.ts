@@ -1,5 +1,7 @@
 // Provider-agnostic analytics and ApnaCare Google Sheets integration.
 import { useEffect } from "react";
+import { recordEvent, recordSecuritySignal, type TrafficChannel } from "./intelligenceStore";
+import { maskIpAddress } from "./serverIntelligence";
 
 export type Props = Record<string, unknown>;
 export type Adapter = (event: string, props: Props) => void;
@@ -252,6 +254,51 @@ export async function sendToGoogleSheet(payload: Props): Promise<boolean> {
       ...attribution,
       ...payload,
     };
+
+    // Ingest into unified intelligence store for instant dashboard awareness
+    try {
+      let trafficChannel: TrafficChannel = "Direct";
+      const srcLower = (attribution.traffic_source || "").toLowerCase();
+      const medLower = (attribution.utm_medium || "").toLowerCase();
+      if (medLower.includes("cpc") || medLower.includes("ppc") || attribution.utm_source?.includes("ads")) {
+        trafficChannel = "Paid Search";
+      } else if (srcLower.includes("organic") || srcLower.includes("search")) {
+        trafficChannel = "Organic Search";
+      } else if (srcLower.includes("social")) {
+        trafficChannel = "Social";
+      } else if (srcLower.includes("referral")) {
+        trafficChannel = "Referral";
+      } else if (medLower.includes("email")) {
+        trafficChannel = "Email";
+      } else if (attribution.utm_campaign && attribution.utm_campaign !== "(none)") {
+        trafficChannel = "Campaign";
+      }
+
+      recordEvent({
+        eventName: String(payload.event_name || payload.event_type || "interaction"),
+        eventType: (payload.event_type as any) || (isLead ? "conversion" : "click"),
+        sessionId: sid,
+        visitorId: vid,
+        pagePath: window.location.pathname,
+        pageTitle: document.title,
+        referrer: attribution.referrer_url,
+        trafficChannel,
+        utmSource: attribution.utm_source !== "(direct)" ? attribution.utm_source : undefined,
+        utmMedium: attribution.utm_medium !== "(none)" ? attribution.utm_medium : undefined,
+        utmCampaign: attribution.utm_campaign !== "(none)" ? attribution.utm_campaign : undefined,
+        deviceType: getDeviceType(),
+        browser,
+        os,
+        country: "India",
+        region: "Karnataka",
+        city: "Bengaluru",
+        browserTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata",
+        ipMasked: "103.xxx.xxx.xxx",
+        timeOnPageSeconds: Number(payload.time_on_page_seconds || payload.session_duration_seconds || 0),
+      });
+    } catch {
+      // ignore
+    }
 
     // In parallel, if this payload represents a customer lead, booking, or enquiry, forward to Airtable
     const isLead =
@@ -614,6 +661,18 @@ export async function trackSecuritySignal(
     const { browser, version: _v, os } = getBrowserInfo();
     const attribution = getTrafficAttribution();
 
+    recordSecuritySignal({
+      sessionId: getSessionId(),
+      ipMasked: "103.xxx.xxx.xxx",
+      riskLevel: risk || base.risk_level,
+      signalName: signal || base.security_signal,
+      reason: reason || base.detection_reason,
+      actionTaken: (action as any) || base.action_taken,
+      requestCount: base.request_count,
+      pagePath: window.location.pathname,
+      userAgentSnippet: isBrowser() ? (navigator.userAgent || "").slice(0, 80) : "",
+    });
+
     await sendToGoogleSheet({
       event_type: "security_signal",
       event_name: "security_signal",
@@ -913,13 +972,37 @@ export function useAutoTelemetry(pathname: string) {
       }, 250);
     }
 
+    // 5. Track visibilitychange for accurate session end and exit page metrics
+    function handleVisibility() {
+      if (document.visibilityState === "hidden") {
+        const timeOnPage = Math.round((Date.now() - pageStartTime) / 1000);
+        trackSessionEnd(pathname, timeOnPage);
+      }
+    }
+
     window.addEventListener("scroll", throttledScroll, { passive: true });
     document.addEventListener("click", handleClick, { passive: true });
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       window.removeEventListener("scroll", throttledScroll);
       document.removeEventListener("click", handleClick);
+      document.removeEventListener("visibilitychange", handleVisibility);
       if (scrollTimeout) clearTimeout(scrollTimeout);
     };
   }, [pathname]);
 }
+
+export function trackSessionEnd(lastPath: string, durationSeconds: number) {
+  if (!isBrowser()) return;
+  const totalDuration = getSessionDurationSeconds();
+  sendToGoogleSheet({
+    event_type: "session_end",
+    event_name: "session_end",
+    exit_page: lastPath,
+    page_path: lastPath,
+    time_on_page_seconds: durationSeconds,
+    session_duration_seconds: totalDuration,
+  }).catch(() => {});
+}
+
