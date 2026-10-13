@@ -13,16 +13,17 @@
  * 5.  Partner_Applications: Healthcare, hospital, NGO & corporate partner registrations.
  * 6.  Chatbot_Leads: Contextual AI Care Assistant conversations & requested services.
  * 7.  SOS_Emergency_Alerts: High-priority 24/7 command center triggers & simulations.
- * 8.  Attendant_Portal_Logs: Attendant sign-in, shift check-ins, vitals logging.
- * 9.  Lead_Management: Master consolidated directory of all inbound leads.
- * 10. Visitor_Sessions: Device, browser, and user session lifecycles.
- * 11. Page_Performance: Load times, page dwell, and bounce metrics.
- * 12. Click_Interactions: Element clicks, coordinates & Left-vs-Right Hand zones.
- * 13. Scroll_Engagement: Depth milestones (25%, 50%, 75%, 100%) & section engagement.
- * 14. Form_Interactions: Step-by-step funnel drop-offs.
- * 15. Conversion_Events: Completed bookings, callback submissions & phone calls.
- * 16. Traffic_Sources: Referrers, direct entries, and marketing campaign attribution.
- * 17. 📅 Daily_Summary, Weekly_Summary, Monthly_Summary: Auto-aggregated analytics.
+ * 8.  Attendant_Applications: Caregiver, nurse & companion recruitment submissions.
+ * 9.  Attendant_Portal_Logs: Attendant sign-in, shift check-ins, vitals logging.
+ * 10. Lead_Management: Master consolidated directory of all inbound leads.
+ * 11. Visitor_Sessions: Device, browser, and user session lifecycles.
+ * 12. Page_Performance: Load times, page dwell, and bounce metrics.
+ * 13. Click_Interactions: Element clicks, coordinates & Left-vs-Right Hand zones.
+ * 14. Scroll_Engagement: Depth milestones (25%, 50%, 75%, 100%) & section engagement.
+ * 15. Form_Interactions: Step-by-step funnel drop-offs.
+ * 16. Conversion_Events: Completed bookings, callback submissions & phone calls.
+ * 17. Traffic_Sources: Referrers, direct entries, and marketing campaign attribution.
+ * 18. 📅 Daily_Summary, Weekly_Summary, Monthly_Summary: Auto-aggregated analytics.
  * =========================================================================================
  */
 
@@ -152,6 +153,14 @@ var TAB_HEADERS = {
     "received_at", "alert_id", "visitor_id", "session_id", "alert_type", "trigger_step",
     "caller_name", "caller_phone", "location", "city", "service_context", "status",
     "operator_notes", "response_time_sec", "source_environment",
+    "airtable_synced", "jira_synced", "jira_issue_key"
+  ],
+
+  Attendant_Applications: [
+    "received_at", "application_ref", "visitor_id", "session_id", "full_name", "mobile", "email",
+    "dob", "gender", "city", "state", "role", "experience", "qualifications", "languages",
+    "employment_type", "experience_summary", "document_count", "documents", "consent_given",
+    "lead_status", "follow_up_status", "source_environment",
     "airtable_synced", "jira_synced", "jira_issue_key"
   ],
 
@@ -1468,8 +1477,83 @@ function doPost(e) {
       }
     }
 
-    // G. ATTENDANT PORTAL ACTIONS
-    else if (formName.includes("attendant") || p.action_type || evtName.includes("attendant_")) {
+    // G. ATTENDANT CAREER APPLICATION (Become an Attendant recruitment flow)
+    else if (
+      leadType === "ATTENDANT_APPLICATION" ||
+      evtName === "attendant_application_submitted" ||
+      evtName === "attendant_application" ||
+      p.event_type === "attendant_application" ||
+      (formName.includes("become an attendant") || (formName.includes("attendant") && p.role && (p.experience || p.application_ref)))
+    ) {
+      p.lead_type = "ATTENDANT_APPLICATION";
+      p.application_ref = p.application_ref || p.ref || ("APP-" + Date.now().toString(36).toUpperCase().slice(-6));
+      p.lead_id = p.application_ref;
+      p.full_name = p.full_name || p.name || "";
+      p.lead_status = p.lead_status || "Pending Review";
+      p.follow_up_status = p.follow_up_status || "HR Screening Due";
+
+      var appAirtableOk = pushLeadToAirtable({
+        Name: p.full_name,
+        Phone: p.mobile || p.phone,
+        Email: p.email,
+        Service: p.role,
+        City: p.city + (p.state ? ", " + p.state : ""),
+        LeadType: "Attendant Application",
+        ReferenceID: p.application_ref,
+        Details: "Role: " + p.role + " | Exp: " + p.experience + " | Type: " + p.employment_type + " | Languages: " + p.languages + " | Docs: " + (p.document_count || 0),
+        PagePath: p.page_path || "/become-an-attendant",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
+      p.airtable_synced = appAirtableOk ? "SYNCED" : "";
+
+      var appJiraRes = pushLeadToJira({
+        Name: p.full_name,
+        Phone: p.mobile || p.phone,
+        Email: p.email,
+        Service: p.role,
+        City: p.city + (p.state ? ", " + p.state : ""),
+        LeadType: "Attendant Application",
+        ReferenceID: p.application_ref,
+        Details: "Role: " + p.role + " | Experience: " + p.experience + " | Qualifications: " + (p.qualifications || "None specified") + " | Languages: " + p.languages + " | Employment Type: " + p.employment_type + " | Summary: " + (p.experience_summary || "None") + " | Attached Docs: " + (p.document_count || 0),
+        PagePath: p.page_path || "/become-an-attendant",
+        Timestamp: p.received_at,
+        SourceEnvironment: p.source_environment || "production"
+      });
+      p.jira_synced = appJiraRes && appJiraRes.success ? "SYNCED" : "";
+      p.jira_issue_key = (appJiraRes && appJiraRes.key) || "";
+
+      writeResults.push(appendRowToTab(ss, "Attendant_Applications", p));
+
+      // Mirror into Master Lead Directory
+      var careerLeadEntry = {
+        received_at: p.received_at,
+        lead_id: p.application_ref,
+        lead_type: "ATTENDANT_APPLICATION",
+        visitor_id: p.visitor_id,
+        session_id: p.session_id,
+        name: p.full_name,
+        phone: p.mobile || p.phone,
+        email: p.email,
+        service_or_requirement: (p.role || "Attendant") + " (" + (p.experience || "Exp N/A") + ")",
+        city: p.city + (p.state ? ", " + p.state : ""),
+        lead_source: p.lead_source || "Careers Page",
+        form_name: p.form_name || "Become an Attendant Form",
+        lead_status: p.lead_status,
+        follow_up_status: p.follow_up_status,
+        total_value: "Recruitment Applicant",
+        source_environment: p.source_environment || "production",
+        airtable_synced: p.airtable_synced,
+        jira_synced: p.jira_synced,
+        jira_issue_key: p.jira_issue_key
+      };
+      writeResults.push(appendRowToTab(ss, "Lead_Management", careerLeadEntry));
+
+      sendAttendantApplicationAlertEmail(p);
+    }
+
+    // H. ATTENDANT PORTAL ACTIONS (Shift punch-ins, vitals logging)
+    else if (p.action_type || evtName.includes("portal_") || (formName.includes("attendant") && p.shift_status)) {
       p.log_id = p.log_id || ("ATT-" + Date.now().toString(36).toUpperCase());
       writeResults.push(appendRowToTab(ss, "Attendant_Portal_Logs", p));
     }
@@ -2010,6 +2094,59 @@ function sendSOSAlertEmail(p) {
 }
 
 // =========================================================================================
+// 6. ATTENDANT CAREER APPLICATION ALERT (HR / Recruitment Operations)
+// =========================================================================================
+function sendAttendantApplicationAlertEmail(p) {
+  var name = p.full_name || p.name || "Care Candidate";
+  var role = p.role || "Healthcare Attendant";
+  var ref = p.application_ref || "N/A";
+  var exp = p.experience || "N/A";
+  var city = p.city || "N/A";
+  var state = p.state || "";
+
+  var html = [
+    '<div style="max-width:620px;margin:0 auto;font-family:sans-serif;background:#fff;border-radius:12px;border:1px solid #cbd5e1;overflow:hidden;">',
+    '  <div style="background:#047857;padding:22px;color:#fff;">',
+    '    <span style="background:#a7f3d0;color:#064e3b;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:bold;">NEW CAREGIVER APPLICATION</span>',
+    '    <h2 style="margin:8px 0 2px 0;">' + escapeHtml(name) + ' — ' + escapeHtml(role) + '</h2>',
+    '    <p style="margin:0;opacity:0.9;font-size:13px;">Ref: <strong>' + escapeHtml(ref) + '</strong> | Location: ' + escapeHtml(city + (state ? ", " + state : "")) + '</p>',
+    '  </div>',
+    '  <div style="padding:18px;">',
+    '    <table width="100%" style="border-collapse:collapse;">',
+    makeRow("applicant_name", name, true),
+    makeRow("role_applied", role, true),
+    makeRow("phone", p.mobile || p.phone || "N/A", true),
+    makeRow("email", p.email || "N/A", true),
+    makeRow("experience", exp, true),
+    makeRow("employment_type", p.employment_type || "N/A"),
+    makeRow("location", city + (state ? ", " + state : "")),
+    makeRow("languages", p.languages || "N/A"),
+    makeRow("dob_gender", (p.dob || "N/A") + (p.gender ? " (" + p.gender + ")" : "")),
+    makeRow("qualifications", p.qualifications || "Not specified"),
+    makeRow("documents_uploaded", (p.document_count || 0) + " document(s) attached"),
+    makeRow("experience_summary", p.experience_summary || "None provided"),
+    makeRow("status", p.lead_status || "Pending Review"),
+    makeRow("received_at", p.received_at),
+    '    </table>',
+    '  </div>',
+    '  <div style="padding:14px 18px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;">',
+    '    Review candidate documents and initiate HR phone screening within 24 hours.',
+    '  </div>',
+    '</div>'
+  ].join('');
+
+  getUniqueRecipients(EMAIL_CONFIG.leadEmails).forEach(function (em) {
+    safeSendEmail({
+      to: em,
+      subject: "🩺 [Career Application] " + name + " — " + role + " (" + city + ")",
+      htmlBody: html,
+      name: "ApnaCare Recruitment Desk",
+      replyTo: p.email || EMAIL_CONFIG.replyTo
+    });
+  });
+}
+
+// =========================================================================================
 // DAILY, WEEKLY, MONTHLY INTERVAL AGGREGATION ENGINE
 // =========================================================================================
 function BUILD_AGGREGATED_INTERVAL_SUMMARIES() {
@@ -2421,6 +2558,45 @@ function manualTestBookingSimulation() {
         notes: "Manual test booking run from script editor",
         total_amount: 38970,
         page_path: "/booking"
+      })
+    }
+  });
+}
+
+// Standalone test function for testing attendant application flow
+function manualTestAttendantApplication() {
+  Logger.log("Running manual test attendant application simulation...");
+  return doPost({
+    postData: {
+      contents: JSON.stringify({
+        event_type: "attendant_application",
+        event_name: "attendant_application_submitted",
+        lead_type: "ATTENDANT_APPLICATION",
+        form_name: "Become an Attendant Form",
+        application_ref: "APP-TEST-999",
+        name: "Priya Lakshmi (Test Candidate)",
+        full_name: "Priya Lakshmi (Test Candidate)",
+        mobile: "+91 98401 55555",
+        email: "divabhrati.ramco@gmail.com",
+        dob: "1994-06-12",
+        gender: "Female",
+        city: "Bengaluru",
+        state: "Karnataka",
+        role: "Elderly Care Companion",
+        experience: "3-5 years",
+        qualifications: "Certified GDA (General Duty Assistant), First Aid Certified",
+        languages: "English, Hindi, Kannada, Tamil",
+        employment_type: "Full-Time (Live-in)",
+        experience_summary: "5 years caring for senior dementia and post-stroke recovery patients with daily vitals management.",
+        document_count: 2,
+        documents: JSON.stringify([
+          { id: "doc-1", name: "Aadhaar_Card.pdf", size: "1.2 MB", type: "application/pdf", category: "Aadhaar / ID Proof" },
+          { id: "doc-2", name: "Nursing_Certificate.pdf", size: "850 KB", type: "application/pdf", category: "Nursing / Care Certificate" }
+        ]),
+        consent_given: "true",
+        page_path: "/become-an-attendant",
+        lead_status: "New",
+        follow_up_status: "Pending Review"
       })
     }
   });
