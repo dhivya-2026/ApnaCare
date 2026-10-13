@@ -256,10 +256,10 @@ export async function sendToGoogleSheet(payload: Props): Promise<boolean> {
     // In parallel, if this payload represents a customer lead, booking, or enquiry, forward to Airtable
     const isLead =
       Boolean(payload.customer_name || payload.name || payload.mobile || payload.phone || payload.email) ||
-      ["booking", "callback", "contact", "sos", "partner", "chatbot", "lead"].includes(
+      ["booking", "callback", "contact", "sos", "partner", "chatbot", "lead", "attendant_application", "career"].includes(
         String(payload.event_type || "").toLowerCase()
       ) ||
-      Boolean(payload.booking_ref || payload.enquiry_id || payload.contact_id || payload.alert_id);
+      Boolean(payload.booking_ref || payload.enquiry_id || payload.contact_id || payload.alert_id || payload.application_ref);
 
     if (isLead) {
       sendToAirtable(enriched).catch((err) => {
@@ -329,11 +329,14 @@ export async function sendToAirtable(payload: Props): Promise<boolean> {
           ? "Contact"
           : payload.event_type === "partner"
           ? "Partner"
+          : payload.event_type === "attendant_application" || payload.event_type === "career"
+          ? "Attendant Application"
           : "Website Lead")
     ).trim();
 
     const refId = String(
-      payload.booking_ref ||
+      payload.application_ref ||
+        payload.booking_ref ||
         payload.enquiry_id ||
         payload.contact_id ||
         payload.alert_id ||
@@ -345,6 +348,13 @@ export async function sendToAirtable(payload: Props): Promise<boolean> {
 
     // Summary details string
     const detailsParts: string[] = [];
+    if (payload.role) detailsParts.push(`Role: ${payload.role}`);
+    if (payload.experience) detailsParts.push(`Exp: ${payload.experience}`);
+    if (payload.employment_type) detailsParts.push(`Type: ${payload.employment_type}`);
+    if (payload.languages) detailsParts.push(`Languages: ${payload.languages}`);
+    if (payload.qualifications) detailsParts.push(`Qualifications: ${payload.qualifications}`);
+    if (payload.document_count) detailsParts.push(`Docs: ${payload.document_count}`);
+    if (payload.application_status) detailsParts.push(`Status: ${payload.application_status}`);
     if (payload.start_date) detailsParts.push(`Start: ${payload.start_date} ${payload.start_time || ""}`);
     if (payload.duration_days) detailsParts.push(`Duration: ${payload.duration_days} days`);
     if (payload.total_amount) detailsParts.push(`Total: ₹${payload.total_amount}`);

@@ -30,6 +30,7 @@ describe("App routing", () => {
     "/solutions/women-commuters",
     "/solutions/urban-professionals",
     "/solutions/safety-partners",
+    "/become-an-attendant",
   ];
 
   routesToTest.forEach((path) => {

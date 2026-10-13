@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AttendantLoginRouteImport } from './routes/attendant-login'
+import { Route as BecomeAnAttendantRouteImport } from './routes/become-an-attendant'
 import { Route as BookingRouteImport } from './routes/booking'
 import { Route as CitiesRouteImport } from './routes/cities'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -42,6 +43,11 @@ const AboutRoute = AboutRouteImport.update({
 const AttendantLoginRoute = AttendantLoginRouteImport.update({
   id: '/attendant-login',
   path: '/attendant-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BecomeAnAttendantRoute = BecomeAnAttendantRouteImport.update({
+  id: '/become-an-attendant',
+  path: '/become-an-attendant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingRoute = BookingRouteImport.update({
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/attendant-login': typeof AttendantLoginRoute
+  '/become-an-attendant': typeof BecomeAnAttendantRoute
   '/booking': typeof BookingRoute
   '/cities': typeof CitiesRouteWithChildren
   '/contact': typeof ContactRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/attendant-login': typeof AttendantLoginRoute
+  '/become-an-attendant': typeof BecomeAnAttendantRoute
   '/booking': typeof BookingRoute
   '/cities': typeof CitiesRouteWithChildren
   '/contact': typeof ContactRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/attendant-login': typeof AttendantLoginRoute
+  '/become-an-attendant': typeof BecomeAnAttendantRoute
   '/booking': typeof BookingRoute
   '/cities': typeof CitiesRouteWithChildren
   '/contact': typeof ContactRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/attendant-login'
+    | '/become-an-attendant'
     | '/booking'
     | '/cities'
     | '/contact'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/attendant-login'
+    | '/become-an-attendant'
     | '/booking'
     | '/cities'
     | '/contact'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/attendant-login'
+    | '/become-an-attendant'
     | '/booking'
     | '/cities'
     | '/contact'
@@ -259,6 +271,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AttendantLoginRoute: typeof AttendantLoginRoute
+  BecomeAnAttendantRoute: typeof BecomeAnAttendantRoute
   BookingRoute: typeof BookingRoute
   CitiesRoute: typeof CitiesRouteWithChildren
   ContactRoute: typeof ContactRoute
@@ -297,6 +310,13 @@ declare module '@tanstack/react-router' {
       path: '/attendant-login'
       fullPath: '/attendant-login'
       preLoaderRoute: typeof AttendantLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/become-an-attendant': {
+      id: '/become-an-attendant'
+      path: '/become-an-attendant'
+      fullPath: '/become-an-attendant'
+      preLoaderRoute: typeof BecomeAnAttendantRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/booking': {
@@ -429,6 +449,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AttendantLoginRoute: AttendantLoginRoute,
+  BecomeAnAttendantRoute: BecomeAnAttendantRoute,
   BookingRoute: BookingRoute,
   CitiesRoute: CitiesRouteWithChildren,
   ContactRoute: ContactRoute,

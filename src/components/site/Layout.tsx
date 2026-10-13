@@ -225,6 +225,11 @@ const NAV_ITEMS: NavItem[] = [
         to: "/attendant-login",
         description: "Portal for care professionals",
       },
+      {
+        label: "Become an Attendant",
+        to: "/become-an-attendant",
+        description: "Apply to join the Apna Care team",
+      },
     ],
   },
   {
@@ -704,6 +709,11 @@ function Footer() {
             <li>
               <Link to="/attendant-login" className="hover:text-ink-foreground">
                 Attendant Portal Login
+              </Link>
+            </li>
+            <li>
+              <Link to="/become-an-attendant" className="hover:text-ink-foreground">
+                Become an Attendant
               </Link>
             </li>
           </ul>
