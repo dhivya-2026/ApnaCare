@@ -1381,6 +1381,7 @@ function CREATE_JIRA_PROJECT() {
   } catch (err) {
     Logger.log("⚠️ Error creating Jira project: " + err.message);
     if (ui) ui.alert("❌ Error", err.message, ui.ButtonSet.OK);
+  }
 }
 
 // =========================================================================================
