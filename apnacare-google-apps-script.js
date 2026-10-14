@@ -61,8 +61,7 @@ var JIRA_CONFIG = {
 
 var YOUTUBE_CONFIG = {
   // Configured in Apps Script: Project Settings > Script Properties > YOUTUBE_API_KEY
-  // or paste your Google Cloud YouTube Data API v3 Key below:
-  API_KEY: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("YOUTUBE_API_KEY")) || "",
+  API_KEY: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("YOUTUBE_API_KEY")) || "AIzaSyBXiniCcLzhqZyZqAZed66YKLS1flnbUoQ",
 
   // YouTube Channel ID (e.g. UCxxxxxxxxxxxxxxxxxxxxxx). If empty, auto-detected from authenticated user or handle.
   CHANNEL_ID: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("YOUTUBE_CHANNEL_ID")) || "",
