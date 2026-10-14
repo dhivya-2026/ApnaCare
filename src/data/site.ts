@@ -20,6 +20,7 @@ export const SITE = {
   retentionRate: "98.4%",
   operatingHours: "24 Hours / 7 Days a Week",
   headquarters: "4th Floor, SafeHub Towers, Indiranagar, Bengaluru, Karnataka 560038",
+  LINKEDIN_URL: "https://www.linkedin.com/company/apna-care-india/",
 };
 
 export type ServiceCategory = "home" | "healthcare" | "safety" | "travel" | "lifestyle";

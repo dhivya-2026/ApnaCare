@@ -8,6 +8,7 @@ import {
   MessageCircle,
   ChevronDown,
   ChevronRight,
+  Linkedin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE, CITIES, buildWhatsAppUrl } from "@/data/site";
@@ -751,6 +752,18 @@ function Footer() {
                 WhatsApp Us
               </a>
             </li>
+            <li>
+              <a
+                href={SITE.LINKEDIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => track("linkedin_footer_click")}
+                className="hover:text-ink-foreground flex items-center gap-1.5 text-sky-400 hover:text-sky-300 transition-colors"
+              >
+                <Linkedin className="size-3.5" />
+                Follow on LinkedIn
+              </a>
+            </li>
             <li>24/7 Command Emergency Desk</li>
             <li>
               <Link to="/contact" className="hover:text-ink-foreground">
@@ -783,6 +796,17 @@ function Footer() {
             <Link to="/safety-guidelines" className="hover:text-ink-foreground hover:underline">
               Safety Guidelines
             </Link>
+            <span>·</span>
+            <a
+              href={SITE.LINKEDIN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track("linkedin_footer_bottom_click")}
+              className="hover:text-ink-foreground hover:underline flex items-center gap-1 text-sky-400 hover:text-sky-300"
+            >
+              <Linkedin className="size-3" />
+              LinkedIn
+            </a>
           </div>
         </div>
       </div>
