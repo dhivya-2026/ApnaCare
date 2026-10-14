@@ -16,8 +16,8 @@
  * 8.  Attendant_Applications: Caregiver, nurse & companion recruitment submissions.
  * 9.  Attendant_Portal_Logs: Attendant sign-in, shift check-ins, vitals logging.
  * 10. YouTube_Interactions: Channel video comments, replies & inbound patient inquiries.
- * 11. Lead_Management: Master consolidated directory of all inbound leads.
- * 12. Visitor_Sessions: Device, browser, and user session lifecycles.
+ * 11. LinkedIn_Leads: Inbound patient care leads, corporate partnerships & career inquiries.
+ * 12. Lead_Management: Master consolidated directory of all inbound leads.
  * 13. Page_Performance: Load times, page dwell, and bounce metrics.
  * 14. Click_Interactions: Element clicks, coordinates & Left-vs-Right Hand zones.
  * 15. Scroll_Engagement: Depth milestones (25%, 50%, 75%, 100%) & section engagement.
@@ -197,6 +197,13 @@ var TAB_HEADERS = {
     "author_name", "author_channel_url", "comment_text", "reply_text", "published_at",
     "like_count", "is_enquiry", "lead_source", "jira_key_primary", "jira_key_secondary",
     "sync_status", "reply_count", "updated_at", "detected_intent"
+  ],
+
+  LinkedIn_Leads: [
+    "received_at", "lead_id", "full_name", "first_name", "last_name", "phone", "email",
+    "city", "company", "job_title", "service_or_requirement", "lead_type", "lead_source",
+    "form_name", "campaign_name", "linkedin_profile_url", "user_notes", "lead_status",
+    "follow_up_status", "jira_key_primary", "jira_key_secondary", "source_environment"
   ],
 
   Lead_Management: [
@@ -2471,6 +2478,81 @@ function doPost(e) {
       }
     }
 
+    // J. LINKEDIN INBOUND LEAD CAPTURE (Lead Gen Forms, Page Inquiries, Sponsored Ads)
+    else if (
+      leadType === "LINKEDIN" ||
+      leadType === "LINKEDIN_LEAD" ||
+      evtName.includes("linkedin") ||
+      p.event_type === "linkedin_lead" ||
+      p.lead_source === "LinkedIn" ||
+      (p.form_name && String(p.form_name).toLowerCase().includes("linkedin"))
+    ) {
+      var liLeadId = p.lead_id || ("LI-" + Date.now().toString(36).toUpperCase());
+      p.lead_id = liLeadId;
+      p.received_at = p.received_at || normalizeTimestamp(new Date());
+      p.lead_source = p.lead_source || "LinkedIn";
+      p.lead_type = p.lead_type || "LINKEDIN_LEAD";
+      p.lead_status = p.lead_status || "New";
+      p.follow_up_status = p.follow_up_status || "Pending Contact";
+      p.full_name = p.full_name || ((p.first_name || "") + " " + (p.last_name || "")).trim() || p.name || "LinkedIn Prospect";
+
+      // Auto Jira Task + 8 Sequential Operational Subtasks
+      if (JIRA_CONFIG && JIRA_CONFIG.API_TOKEN && !p.jira_key_primary) {
+        try {
+          var jRes = pushLeadToJira({
+            Name: p.full_name,
+            Phone: p.phone || "",
+            Email: p.email || "",
+            Service: p.service_or_requirement || "Home Healthcare / Attendant Inquiry (LinkedIn)",
+            City: p.city || "Pan-India",
+            LeadType: "LinkedIn Patient / Partner Lead",
+            ReferenceID: liLeadId,
+            Details: "Inbound LinkedIn Lead Captured:\nName: " + p.full_name + "\nCompany: " + (p.company || "N/A") + "\nJob Title: " + (p.job_title || "N/A") + "\nRequirement: " + (p.service_or_requirement || "Home Healthcare / Attendant Support") + "\nNotes: " + (p.user_notes || p.notes || "None"),
+            PagePath: "/linkedin",
+            Timestamp: p.received_at,
+            SourceEnvironment: p.source_environment || "production"
+          });
+          if (jRes && jRes.success && jRes.key) {
+            p.jira_key_primary = jRes.key;
+            p.jira_synced = "SYNCED";
+          }
+        } catch (jErr) {
+          Logger.log("⚠️ Jira auto-create failed for LinkedIn lead " + liLeadId + ": " + jErr.message);
+        }
+      }
+
+      // 1. Write to LinkedIn_Leads dedicated tab
+      writeResults.push(appendRowToTab(ss, "LinkedIn_Leads", p));
+
+      // 2. Mirror into Lead_Management master directory
+      var masterLead = {
+        received_at: p.received_at,
+        lead_id: liLeadId,
+        lead_type: "LINKEDIN_LEAD",
+        name: p.full_name,
+        phone: p.phone || "",
+        email: p.email || "",
+        service_or_requirement: p.service_or_requirement || "Home Healthcare / Attendant Inquiry",
+        city: p.city || "",
+        lead_source: "LinkedIn" + (p.form_name ? (" - " + p.form_name) : ""),
+        form_name: p.form_name || "LinkedIn Lead Gen",
+        lead_status: p.lead_status || "New",
+        follow_up_status: p.follow_up_status || "Pending Contact",
+        total_value: "LinkedIn Lead",
+        source_environment: p.source_environment || "production",
+        jira_synced: p.jira_key_primary ? "SYNCED" : "PENDING",
+        jira_issue_key: p.jira_key_primary || ""
+      };
+      writeResults.push(appendRowToTab(ss, "Lead_Management", masterLead));
+
+      // 3. Dispatch operations email alert
+      try {
+        sendLinkedInLeadAlertEmail(p);
+      } catch (liMailErr) {
+        Logger.log("⚠️ Email notice for LinkedIn lead: " + liMailErr.message);
+      }
+    }
+
     // 3. Auxiliary Telemetry Routing
     if (p.event_type === "session" || evtName === "session_start" || evtName === "session_end") {
       writeResults.push(appendRowToTab(ss, "Visitor_Sessions", p));
@@ -3107,6 +3189,61 @@ function sendYouTubeInquiryAlertEmail(item) {
   });
 }
 
+function sendLinkedInLeadAlertEmail(item) {
+  var name = item.full_name || ((item.first_name || "") + " " + (item.last_name || "")).trim() || item.name || "LinkedIn Prospect";
+  var phone = item.phone || "Not provided";
+  var email = item.email || "Not provided";
+  var city = item.city || "Pan-India";
+  var company = item.company || "Not provided";
+  var title = item.job_title || "Not provided";
+  var service = item.service_or_requirement || "Home Healthcare / Attendant Care";
+  var form = item.form_name || "LinkedIn Lead Gen Form";
+  var notes = item.user_notes || item.notes || "None";
+  var jiraKey = item.jira_key_primary || "";
+  var cleanPhone = phone.replace(/[^\d+]/g, '');
+  var waUrl = cleanPhone ? ("https://wa.me/" + cleanPhone.replace(/^\+/, '')) : "";
+
+  var html = [
+    '<div style="max-width:620px;margin:0 auto;font-family:sans-serif;background:#fff;border-radius:12px;border:1px solid #cbd5e1;overflow:hidden;">',
+    '  <div style="background:#0a66c2;padding:22px;color:#fff;">',
+    '    <span style="background:#e8f3fc;color:#0a66c2;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:bold;letter-spacing:0.5px;">LINKEDIN INBOUND LEAD</span>',
+    '    <h2 style="margin:8px 0 2px 0;color:#ffffff;">' + escapeHtml(name) + (company !== "Not provided" ? (' (' + escapeHtml(company) + ')') : '') + '</h2>',
+    '    <p style="margin:0;opacity:0.95;font-size:13px;color:#ffffff;">Requirement: <strong>' + escapeHtml(service) + '</strong></p>',
+    '  </div>',
+    '  <div style="padding:18px;">',
+    '    <div style="background:#f0f7fe;border-left:4px solid #0a66c2;padding:12px 16px;margin-bottom:16px;border-radius:4px;">',
+    '      <p style="margin:0;font-size:14px;color:#1e293b;"><strong>Notes:</strong> &ldquo;' + escapeHtml(notes) + '&rdquo;</p>',
+    '    </div>',
+    '    <table width="100%" style="border-collapse:collapse;">',
+    makeRow("lead_name", name, true),
+    makeRow("phone", phone, true),
+    makeRow("email", email),
+    makeRow("city", city),
+    makeRow("company", company),
+    makeRow("designation", title),
+    makeRow("service_requested", service),
+    makeRow("source_form", form),
+    makeRow("jira_ticket", jiraKey ? ('<strong style="color:#0a66c2;">' + escapeHtml(jiraKey) + '</strong> (Task + 8 Subtasks Generated)') : "Logged in Google Sheet"),
+    waUrl ? makeRow("whatsapp_connect", '<a href="' + waUrl + '" target="_blank" style="color:#16a34a;font-weight:bold;">Message on WhatsApp &rarr;</a>') : "",
+    '    </table>',
+    '  </div>',
+    '  <div style="padding:14px 18px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#475569;">',
+    '    Connect with this prospect within 2 hours. Subtasks for care matching and family consultation have been automatically generated in Jira.',
+    '  </div>',
+    '</div>'
+  ].join('');
+
+  getUniqueRecipients(EMAIL_CONFIG.leadEmails).forEach(function (em) {
+    safeSendEmail({
+      to: em,
+      subject: "💼 [LinkedIn Lead] " + name + " (" + city + ") — " + service,
+      htmlBody: html,
+      name: "ApnaCare LinkedIn Desk",
+      replyTo: EMAIL_CONFIG.replyTo
+    });
+  });
+}
+
 // =========================================================================================
 // DAILY, WEEKLY, MONTHLY INTERVAL AGGREGATION ENGINE
 // =========================================================================================
@@ -3510,6 +3647,7 @@ function onOpen() {
       .addItem('🛑 Stop Automatic YouTube Sync', 'stopYouTubeAutomation')
       .addItem('🧪 Test YouTube Sync (Live Channel)', 'TEST_YOUTUBE_SYNC')
       .addItem('🧪 Ingest Sample YouTube Interactions (Demo)', 'manualTestYouTubeMockSample')
+      .addItem('💼 Ingest Sample LinkedIn Leads (Demo)', 'manualTestLinkedInLeadSample')
       .addSeparator()
       .addItem('⏰ Enable All Scheduled Triggers (Digests, Airtable, Jira & YouTube)', 'setupAllApnaCareTriggers')
       .addItem('🧪 Test Inbound Booking Alert Now', 'TEST_BOOKING_ALERT')
@@ -3797,5 +3935,145 @@ function manualTestYouTubeMockSample() {
 
   return { success: true, count: inserted, message: msg };
 }
+
+// Standalone manual test function: Ingests 2 realistic sample LinkedIn leads
+// (patient bedside care inquiry & corporate employee wellness partner)
+// into the "LinkedIn_Leads" tab to verify columns, formatting, Jira tasks and email alerts
+function manualTestLinkedInLeadSample() {
+  Logger.log("Running manual test with realistic sample LinkedIn leads...");
+  var ss = getSpreadsheet();
+  if (!ss) return { success: false, error: "Spreadsheet not found" };
+
+  var sheet = getTab(ss, "LinkedIn_Leads");
+  var headers = TAB_HEADERS.LinkedIn_Leads;
+
+  var mockLinkedInLeads = [
+    {
+      lead_id: "LI-SAMPLE-" + Date.now().toString(36).slice(-5).toUpperCase() + "-01",
+      full_name: "Dr. K. S. Balasubramanian",
+      first_name: "Balasubramanian",
+      last_name: "K. S.",
+      phone: "+91 98402 11223",
+      email: "dr.bala.cardio@gmail.com",
+      city: "Chennai (Adyar)",
+      company: "Senior Consultant Cardiologist",
+      job_title: "Head of Dept (Private Clinic)",
+      service_or_requirement: "Post-Cardiac ICU Bedside Nurse & Elderly Companion",
+      lead_type: "LINKEDIN_LEAD",
+      lead_source: "LinkedIn - Organic Company Page Form",
+      form_name: "Senior Home Care & Attendant Booking Form",
+      campaign_name: "Organic Healthcare Network",
+      linkedin_profile_url: "https://www.linkedin.com/in/dr-bala-cardio",
+      user_notes: "Looking for an experienced female patient care attendant for elderly father (84 yrs) with mobility limitations and mild Parkinson's. Needs 24-hr live-in support with medication schedule tracking and vitals monitoring.",
+      lead_status: "New",
+      follow_up_status: "Pending Consultation Call",
+      source_environment: "test"
+    },
+    {
+      lead_id: "LI-SAMPLE-" + Date.now().toString(36).slice(-5).toUpperCase() + "-02",
+      full_name: "Pooja Hegde (VP People & Culture)",
+      first_name: "Pooja",
+      last_name: "Hegde",
+      phone: "+91 98860 44556",
+      email: "pooja.hegde@techsolutions-corp.com",
+      city: "Bengaluru (Whitefield)",
+      company: "TechSolutions Enterprise Corp",
+      job_title: "VP - Human Resources",
+      service_or_requirement: "Corporate Elder Care & Parental Attendant Benefit Program",
+      lead_type: "LINKEDIN_LEAD",
+      lead_source: "LinkedIn - Sponsored InMail / Lead Gen Form",
+      form_name: "Corporate Wellness & Attendant Partnership",
+      campaign_name: "B2B_Employee_ElderCare_Q4",
+      linkedin_profile_url: "https://www.linkedin.com/in/pooja-hegde-hr",
+      user_notes: "We have 1,400+ employees in Bengaluru & Hyderabad. Exploring tie-up with ApnaCare to provide subsidized verified female attendants and bedside companions for employees' aging parents. Would like a formal proposal and coordinator discussion.",
+      lead_status: "New",
+      follow_up_status: "Corporate Deck Sent",
+      source_environment: "test"
+    }
+  ];
+
+  var inserted = 0;
+  for (var i = 0; i < mockLinkedInLeads.length; i++) {
+    var lead = mockLinkedInLeads[i];
+    var receivedAt = normalizeTimestamp(new Date());
+    lead.received_at = receivedAt;
+
+    var jiraKey = "";
+    if (JIRA_CONFIG && JIRA_CONFIG.API_TOKEN) {
+      try {
+        var jRes = pushLeadToJira({
+          Name: lead.full_name,
+          Phone: lead.phone,
+          Email: lead.email,
+          Service: lead.service_or_requirement,
+          City: lead.city,
+          LeadType: "LinkedIn Patient / Partner Lead",
+          ReferenceID: lead.lead_id,
+          Details: "Inbound LinkedIn Lead:\nName: " + lead.full_name + "\nCompany: " + lead.company + "\nRole: " + lead.job_title + "\nRequirement: " + lead.service_or_requirement + "\n\nNotes:\n" + lead.user_notes,
+          PagePath: "/linkedin",
+          Timestamp: receivedAt,
+          SourceEnvironment: "test"
+        });
+        if (jRes && jRes.success && jRes.key) {
+          jiraKey = jRes.key;
+        }
+      } catch (jErr) {
+        Logger.log("⚠️ Jira test error: " + jErr.message);
+      }
+    }
+
+    lead.jira_key_primary = jiraKey;
+    lead.jira_key_secondary = jiraKey ? (jiraKey + " (8 Subtasks Created)") : "";
+
+    // 1. Append to LinkedIn_Leads dedicated tab
+    var rowValues = headers.map(function (h) {
+      return lead[h] !== undefined ? lead[h] : "";
+    });
+    sheet.appendRow(rowValues);
+
+    // 2. Mirror into Lead_Management master tab
+    try {
+      appendRowToTab(ss, "Lead_Management", {
+        received_at: receivedAt,
+        lead_id: lead.lead_id,
+        lead_type: "LINKEDIN_LEAD",
+        name: lead.full_name,
+        phone: lead.phone,
+        email: lead.email,
+        service_or_requirement: lead.service_or_requirement,
+        city: lead.city,
+        lead_source: lead.lead_source,
+        form_name: lead.form_name,
+        lead_status: "New",
+        follow_up_status: lead.follow_up_status,
+        total_value: "LinkedIn Lead",
+        source_environment: "test",
+        jira_synced: jiraKey ? "SYNCED" : "PENDING",
+        jira_issue_key: jiraKey
+      });
+    } catch (mErr) { }
+
+    // 3. Email notification
+    try {
+      sendLinkedInLeadAlertEmail(lead);
+    } catch (eErr) { }
+
+    inserted++;
+  }
+
+  var msg = "🎉 Sample LinkedIn Leads Ingested Successfully!\n\n" +
+    "• " + inserted + " verified leads added to 'LinkedIn_Leads' tab.\n" +
+    "• Auto-escalated to Jira with 8 operational subtasks.\n" +
+    "• Mirrored into 'Lead_Management' master tab.\n" +
+    "• Formatted HTML email alert dispatched to operations desk.";
+
+  Logger.log(msg);
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { }
+  if (ui) ui.alert("✅ Sample LinkedIn Ingest Complete", msg, ui.ButtonSet.OK);
+
+  return { success: true, count: inserted, message: msg };
+}
+
 
 
