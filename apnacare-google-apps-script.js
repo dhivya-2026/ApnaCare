@@ -15,15 +15,16 @@
  * 7.  SOS_Emergency_Alerts: High-priority 24/7 command center triggers & simulations.
  * 8.  Attendant_Applications: Caregiver, nurse & companion recruitment submissions.
  * 9.  Attendant_Portal_Logs: Attendant sign-in, shift check-ins, vitals logging.
- * 10. Lead_Management: Master consolidated directory of all inbound leads.
- * 11. Visitor_Sessions: Device, browser, and user session lifecycles.
- * 12. Page_Performance: Load times, page dwell, and bounce metrics.
- * 13. Click_Interactions: Element clicks, coordinates & Left-vs-Right Hand zones.
- * 14. Scroll_Engagement: Depth milestones (25%, 50%, 75%, 100%) & section engagement.
- * 15. Form_Interactions: Step-by-step funnel drop-offs.
- * 16. Conversion_Events: Completed bookings, callback submissions & phone calls.
- * 17. Traffic_Sources: Referrers, direct entries, and marketing campaign attribution.
- * 18. 📅 Daily_Summary, Weekly_Summary, Monthly_Summary: Auto-aggregated analytics.
+ * 10. YouTube_Interactions: Channel video comments, replies & inbound patient inquiries.
+ * 11. Lead_Management: Master consolidated directory of all inbound leads.
+ * 12. Visitor_Sessions: Device, browser, and user session lifecycles.
+ * 13. Page_Performance: Load times, page dwell, and bounce metrics.
+ * 14. Click_Interactions: Element clicks, coordinates & Left-vs-Right Hand zones.
+ * 15. Scroll_Engagement: Depth milestones (25%, 50%, 75%, 100%) & section engagement.
+ * 16. Form_Interactions: Step-by-step funnel drop-offs.
+ * 17. Conversion_Events: Completed bookings, callback submissions & phone calls.
+ * 18. Traffic_Sources: Referrers, direct entries, and marketing campaign attribution.
+ * 19. 📅 Daily_Summary, Weekly_Summary, Monthly_Summary: Auto-aggregated analytics.
  * =========================================================================================
  */
 
@@ -56,6 +57,27 @@ var JIRA_CONFIG = {
   ISSUE_TYPE: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_ISSUE_TYPE")) || "Task",
   SUBTASK_ISSUE_TYPE: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("JIRA_SUBTASK_ISSUE_TYPE")) || "Sub-task",
   AUTO_CREATE_SUBTASKS: true
+};
+
+var YOUTUBE_CONFIG = {
+  // Configured in Apps Script: Project Settings > Script Properties > YOUTUBE_API_KEY
+  // or paste your Google Cloud YouTube Data API v3 Key below:
+  API_KEY: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("YOUTUBE_API_KEY")) || "",
+
+  // YouTube Channel ID (e.g. UCxxxxxxxxxxxxxxxxxxxxxx). If empty, auto-detected from authenticated user or handle.
+  CHANNEL_ID: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("YOUTUBE_CHANNEL_ID")) || "",
+
+  // YouTube Channel Handle (e.g. @apnacare)
+  CHANNEL_HANDLE: (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties && PropertiesService.getScriptProperties().getProperty("YOUTUBE_CHANNEL_HANDLE")) || "@apnacare",
+
+  // Auto-generate Jira Lead Task + 8 Subtasks when a patient enquiry is detected
+  AUTO_JIRA_LEADS: true,
+
+  // Auto-send email notifications to operations desk for new YouTube inquiries
+  AUTO_EMAIL_ALERTS: true,
+
+  // Max video count to scan per sync cycle
+  MAX_VIDEOS_TO_SCAN: 50
 };
 
 var EMAIL_CONFIG = {
@@ -169,6 +191,13 @@ var TAB_HEADERS = {
   Attendant_Portal_Logs: [
     "received_at", "log_id", "attendant_id", "attendant_name", "mobile", "role", "city",
     "action_type", "shift_status", "patient_name", "vitals_summary", "notes", "source_environment"
+  ],
+
+  YouTube_Interactions: [
+    "synced_at", "comment_id", "video_id", "video_title", "video_url", "channel",
+    "author_name", "author_channel_url", "comment_text", "reply_text", "published_at",
+    "like_count", "is_enquiry", "lead_source", "jira_key_primary", "jira_key_secondary",
+    "sync_status", "reply_count", "updated_at", "detected_intent"
   ],
 
   Lead_Management: [
@@ -1352,7 +1381,585 @@ function CREATE_JIRA_PROJECT() {
   } catch (err) {
     Logger.log("⚠️ Error creating Jira project: " + err.message);
     if (ui) ui.alert("❌ Error", err.message, ui.ButtonSet.OK);
-    return { success: false, error: err.message };
+}
+
+// =========================================================================================
+// YOUTUBE DATA API V3 — COMMUNITY INTERACTIONS, COMMENTS & INQUIRIES ENGINE
+// =========================================================================================
+
+/**
+ * Main synchronizer: Fetches latest YouTube comments and replies across the channel/videos,
+ * stores them in "YouTube_Interactions", detects patient care inquiries, auto-generates Jira tasks
+ * with 8 subtasks, mirrors leads to Lead_Management, and sends email alerts.
+ */
+function syncYouTubeChannelInteractions(options) {
+  options = options || {};
+  var ss = getSpreadsheet();
+  if (!ss) return { success: false, error: "Could not open spreadsheet" };
+
+  var sheet = getTab(ss, "YouTube_Interactions");
+  if (!sheet) return { success: false, error: "Could not access or create YouTube_Interactions tab" };
+
+  var headers = TAB_HEADERS.YouTube_Interactions;
+
+  // 1. Map existing comments in sheet to prevent duplicate rows & allow in-place updates
+  var existingMap = {}; // comment_id -> { rowNum, data }
+  var lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    var rawData = sheet.getRange(2, 1, lastRow - 1, headers.length).getValues();
+    var commentIdCol = headers.indexOf("comment_id");
+    for (var r = 0; r < rawData.length; r++) {
+      var cid = String(rawData[r][commentIdCol] || "").trim();
+      if (cid) {
+        existingMap[cid] = {
+          rowNum: r + 2,
+          data: rawData[r]
+        };
+      }
+    }
+  }
+
+  // 2. Fetch comments from YouTube Data API (via Advanced Service or REST)
+  var fetchResult = fetchYouTubeCommentsData();
+  if (!fetchResult.success) {
+    Logger.log("⚠️ YouTube Fetch Notice: " + fetchResult.error);
+    return fetchResult;
+  }
+
+  var comments = fetchResult.comments || [];
+  Logger.log("▶️ Fetched " + comments.length + " YouTube comment threads to process...");
+
+  var newCount = 0;
+  var updatedCount = 0;
+  var enquiryCount = 0;
+  var jiraCount = 0;
+  var syncedAt = normalizeTimestamp(new Date());
+
+  for (var i = 0; i < comments.length; i++) {
+    var c = comments[i];
+    var commentId = String(c.comment_id || "").trim();
+    if (!commentId) continue;
+
+    // Detect if this comment is a patient/customer care enquiry or caregiver recruitment query
+    var enquiryAnalysis = detectHealthcareEnquiryIntent(c.comment_text);
+    var isEnquiry = enquiryAnalysis.isEnquiry ? "Yes" : "No";
+    var detectedIntent = enquiryAnalysis.intent || "Community Comment";
+    if (enquiryAnalysis.isEnquiry) enquiryCount++;
+
+    var jiraKeyPrimary = "";
+    var jiraKeySecondary = "";
+
+    // Check if previously created Jira ticket
+    if (existingMap[commentId]) {
+      var existingRowData = existingMap[commentId].data;
+      var pCol = headers.indexOf("jira_key_primary");
+      var sCol = headers.indexOf("jira_key_secondary");
+      if (pCol !== -1 && existingRowData[pCol]) jiraKeyPrimary = String(existingRowData[pCol]);
+      if (sCol !== -1 && existingRowData[sCol]) jiraKeySecondary = String(existingRowData[sCol]);
+    }
+
+    // Auto-create Jira Task with 8 Subtasks for new inquiries
+    if (isEnquiry === "Yes" && !jiraKeyPrimary && YOUTUBE_CONFIG.AUTO_JIRA_LEADS) {
+      try {
+        var jiraRes = pushLeadToJira({
+          Name: c.author_name || "YouTube Commenter",
+          Phone: "",
+          Email: "",
+          Service: detectedIntent + " (" + (c.video_title || "YouTube Video") + ")",
+          City: "YouTube Channel (" + (c.channel || YOUTUBE_CONFIG.CHANNEL_HANDLE) + ")",
+          LeadType: "YouTube Community Lead",
+          ReferenceID: "YT-" + commentId.replace(/[^a-zA-Z0-9]/g, "").slice(-8).toUpperCase(),
+          Details: "Inbound inquiry on video: " + c.video_title + "\nVideo URL: " + c.video_url + "\nAuthor: " + c.author_name + " (" + c.author_channel_url + ")\nIntent: " + detectedIntent + "\n\nComment:\n\"" + c.comment_text + "\"",
+          PagePath: "/youtube",
+          Timestamp: syncedAt,
+          SourceEnvironment: "production"
+        });
+
+        if (jiraRes && jiraRes.success) {
+          jiraKeyPrimary = jiraRes.key;
+          jiraKeySecondary = (jiraRes.subtasks && jiraRes.subtasks[0]) || "";
+          jiraCount++;
+
+          // Mirror into master Lead_Management table
+          var ytLeadEntry = {
+            received_at: syncedAt,
+            lead_id: "YT-" + commentId.replace(/[^a-zA-Z0-9]/g, "").slice(-8).toUpperCase(),
+            lead_type: "YOUTUBE_INQUIRY",
+            name: c.author_name || "YouTube Commenter",
+            service_or_requirement: detectedIntent + " on " + c.video_title,
+            city: "YouTube",
+            lead_source: "YouTube - " + (c.video_title || "Channel"),
+            lead_status: "New",
+            follow_up_status: "Social Desk Reply Due",
+            total_value: "YouTube Lead",
+            source_environment: "production",
+            jira_synced: "SYNCED",
+            jira_issue_key: jiraKeyPrimary
+          };
+          appendRowToTab(ss, "Lead_Management", ytLeadEntry);
+
+          // Alert notification email to care coordinators
+          if (YOUTUBE_CONFIG.AUTO_EMAIL_ALERTS) {
+            sendYouTubeInquiryAlertEmail({
+              author_name: c.author_name,
+              video_title: c.video_title,
+              video_url: c.video_url,
+              comment_text: c.comment_text,
+              detected_intent: detectedIntent,
+              published_at: c.published_at,
+              jira_key_primary: jiraKeyPrimary
+            });
+          }
+        }
+      } catch (jiraErr) {
+        Logger.log("⚠️ Jira auto-create failed for YouTube comment " + commentId + ": " + jiraErr.message);
+      }
+    }
+
+    var record = {
+      synced_at: syncedAt,
+      comment_id: commentId,
+      video_id: c.video_id || "",
+      video_title: c.video_title || "",
+      video_url: c.video_url || ("https://www.youtube.com/watch?v=" + (c.video_id || "")),
+      channel: c.channel || YOUTUBE_CONFIG.CHANNEL_HANDLE || "ApnaCare YouTube",
+      author_name: c.author_name || "Anonymous",
+      author_channel_url: c.author_channel_url || "",
+      comment_text: c.comment_text || "",
+      reply_text: c.reply_text || "",
+      published_at: c.published_at || syncedAt,
+      like_count: c.like_count || 0,
+      is_enquiry: isEnquiry,
+      lead_source: "YouTube - " + (c.video_title || "Channel Video"),
+      jira_key_primary: jiraKeyPrimary,
+      jira_key_secondary: jiraKeySecondary,
+      sync_status: isEnquiry === "Yes" ? (jiraKeyPrimary ? "ENQUIRY_ESCALATED" : "NEW_ENQUIRY") : "SYNCED",
+      reply_count: c.reply_count || 0,
+      updated_at: c.updated_at || c.published_at || syncedAt,
+      detected_intent: detectedIntent
+    };
+
+    var rowValues = headers.map(function (h) {
+      return record[h] !== undefined ? record[h] : "";
+    });
+
+    if (existingMap[commentId]) {
+      // Update existing row in place
+      var targetRowNum = existingMap[commentId].rowNum;
+      sheet.getRange(targetRowNum, 1, 1, headers.length).setValues([rowValues]);
+      updatedCount++;
+    } else {
+      // Append new interaction row
+      sheet.appendRow(rowValues);
+      existingMap[commentId] = { rowNum: sheet.getLastRow(), data: rowValues };
+      newCount++;
+    }
+  }
+
+  var summaryMsg = "✅ YouTube Sync Complete!\n\n" +
+    "• Total Comments Processed: " + comments.length + "\n" +
+    "• New Interactions Logged: " + newCount + "\n" +
+    "• Existing Interactions Updated: " + updatedCount + "\n" +
+    "• Patient / Recruitment Inquiries Identified: " + enquiryCount + "\n" +
+    "• Jira Tasks (with 8 Subtasks) Created: " + jiraCount;
+
+  Logger.log(summaryMsg);
+  return {
+    success: true,
+    total: comments.length,
+    newCount: newCount,
+    updatedCount: updatedCount,
+    enquiryCount: enquiryCount,
+    jiraCount: jiraCount,
+    message: summaryMsg
+  };
+}
+
+/**
+ * Fetches comment threads from YouTube Data API v3 using Advanced Service or REST API.
+ */
+function fetchYouTubeCommentsData() {
+  var apiKey = YOUTUBE_CONFIG.API_KEY || (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties().getProperty("YOUTUBE_API_KEY")) || "";
+  var channelId = YOUTUBE_CONFIG.CHANNEL_ID || (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties().getProperty("YOUTUBE_CHANNEL_ID")) || "";
+  var handle = YOUTUBE_CONFIG.CHANNEL_HANDLE || "@apnacare";
+
+  // Method 1: If YouTube Advanced Google Service is enabled in Apps Script editor
+  if (typeof YouTube !== "undefined" && YouTube.CommentThreads) {
+    try {
+      Logger.log("Using Apps Script built-in YouTube Advanced Service...");
+      if (!channelId) {
+        try {
+          var chMine = YouTube.Channels.list("id,snippet,contentDetails", { mine: true });
+          if (chMine && chMine.items && chMine.items.length > 0) {
+            channelId = chMine.items[0].id;
+            YOUTUBE_CONFIG.CHANNEL_ID = channelId;
+          }
+        } catch (eMine) { }
+      }
+
+      var listOptions = {
+        part: "snippet,replies",
+        maxResults: 100,
+        order: "time"
+      };
+
+      if (channelId) {
+        listOptions.allThreadsRelatedToChannelId = channelId;
+      }
+
+      var resp = YouTube.CommentThreads.list(listOptions.part, listOptions);
+      if (resp && resp.items && resp.items.length > 0) {
+        return { success: true, comments: parseYouTubeCommentThreadItems(resp.items, channelId) };
+      }
+    } catch (advErr) {
+      Logger.log("ℹ️ YouTube Advanced Service call notice: " + advErr.message + " (Checking REST API)");
+    }
+  }
+
+  // Method 2: Standard REST API via UrlFetchApp (Works with API Key or OAuth Token)
+  var authHeader = null;
+  if (!apiKey) {
+    try {
+      authHeader = "Bearer " + ScriptApp.getOAuthToken();
+    } catch (eAuth) { }
+  }
+
+  if (!apiKey && !authHeader) {
+    return {
+      success: false,
+      error: "YouTube API Key or OAuth authorization missing. Set YOUTUBE_API_KEY in YOUTUBE_CONFIG or in Project Settings > Script Properties. Or run 'manualTestYouTubeMockSample' to verify sheet row formatting.",
+      comments: []
+    };
+  }
+
+  var baseUrl = "https://www.googleapis.com/youtube/v3/";
+
+  // 1. Resolve Channel ID if needed
+  if (!channelId) {
+    var chanUrl = baseUrl + "channels?part=id,snippet,contentDetails";
+    if (apiKey) chanUrl += "&key=" + encodeURIComponent(apiKey);
+    if (handle) {
+      chanUrl += "&forHandle=" + encodeURIComponent(handle.replace(/^@/, ''));
+    } else {
+      chanUrl += "&mine=true";
+    }
+
+    var chFetchOptions = { method: "get", muteHttpExceptions: true };
+    if (authHeader) chFetchOptions.headers = { "Authorization": authHeader };
+
+    try {
+      var chRes = UrlFetchApp.fetch(chanUrl, chFetchOptions);
+      if (chRes.getResponseCode() === 200) {
+        var chJson = JSON.parse(chRes.getContentText());
+        if (chJson.items && chJson.items.length > 0) {
+          channelId = chJson.items[0].id;
+          YOUTUBE_CONFIG.CHANNEL_ID = channelId;
+        }
+      }
+    } catch (chErr) { }
+  }
+
+  // 2. Fetch Comment Threads
+  var threadUrl = baseUrl + "commentThreads?part=snippet,replies&maxResults=100&order=time";
+  if (channelId) {
+    threadUrl += "&allThreadsRelatedToChannelId=" + encodeURIComponent(channelId);
+  }
+  if (apiKey) {
+    threadUrl += "&key=" + encodeURIComponent(apiKey);
+  }
+
+  var threadFetchOptions = { method: "get", muteHttpExceptions: true };
+  if (authHeader) threadFetchOptions.headers = { "Authorization": authHeader };
+
+  try {
+    var tRes = UrlFetchApp.fetch(threadUrl, threadFetchOptions);
+    var tCode = tRes.getResponseCode();
+    var tText = tRes.getContentText();
+
+    if (tCode >= 200 && tCode < 300) {
+      var tJson = JSON.parse(tText);
+      var parsed = parseYouTubeCommentThreadItems(tJson.items || [], channelId);
+      return { success: true, comments: parsed };
+    } else {
+      // If allThreadsRelatedToChannelId fails, try uploads playlist fallback
+      Logger.log("ℹ️ Trying video uploads playlist fallback (HTTP " + tCode + ": " + tText.substring(0, 150) + ")...");
+      var playlistComments = fetchCommentsFromChannelUploads(channelId, apiKey, authHeader);
+      if (playlistComments && playlistComments.length > 0) {
+        return { success: true, comments: playlistComments };
+      }
+      return {
+        success: false,
+        statusCode: tCode,
+        error: tText,
+        comments: []
+      };
+    }
+  } catch (netErr) {
+    return { success: false, error: netErr.message, comments: [] };
+  }
+}
+
+/**
+ * Fallback comment fetcher: Scans uploaded videos from the channel's uploads playlist
+ * and retrieves comments for each video individually.
+ */
+function fetchCommentsFromChannelUploads(channelId, apiKey, authHeader) {
+  if (!channelId) return [];
+  var baseUrl = "https://www.googleapis.com/youtube/v3/";
+
+  try {
+    // 1. Get channel's uploads playlist ID
+    var chanUrl = baseUrl + "channels?part=contentDetails,snippet&id=" + encodeURIComponent(channelId);
+    if (apiKey) chanUrl += "&key=" + encodeURIComponent(apiKey);
+
+    var fetchOpt = { method: "get", muteHttpExceptions: true };
+    if (authHeader) fetchOpt.headers = { "Authorization": authHeader };
+
+    var cRes = UrlFetchApp.fetch(chanUrl, fetchOpt);
+    if (cRes.getResponseCode() !== 200) return [];
+
+    var cJson = JSON.parse(cRes.getContentText());
+    if (!cJson.items || !cJson.items.length) return [];
+
+    var uploadsPlaylistId = cJson.items[0].contentDetails.relatedPlaylists.uploads;
+    if (!uploadsPlaylistId) return [];
+
+    // 2. Fetch recent videos in the uploads playlist
+    var plUrl = baseUrl + "playlistItems?part=snippet,contentDetails&maxResults=" + (YOUTUBE_CONFIG.MAX_VIDEOS_TO_SCAN || 25) + "&playlistId=" + encodeURIComponent(uploadsPlaylistId);
+    if (apiKey) plUrl += "&key=" + encodeURIComponent(apiKey);
+
+    var plRes = UrlFetchApp.fetch(plUrl, fetchOpt);
+    if (plRes.getResponseCode() !== 200) return [];
+
+    var plJson = JSON.parse(plRes.getContentText());
+    var vItems = plJson.items || [];
+    var allComments = [];
+
+    for (var i = 0; i < vItems.length; i++) {
+      var vId = vItems[i].contentDetails && vItems[i].contentDetails.videoId;
+      var vTitle = (vItems[i].snippet && vItems[i].snippet.title) || ("Video " + vId);
+      if (!vId) continue;
+
+      var vCommentUrl = baseUrl + "commentThreads?part=snippet,replies&maxResults=50&order=time&videoId=" + encodeURIComponent(vId);
+      if (apiKey) vCommentUrl += "&key=" + encodeURIComponent(apiKey);
+
+      var vcRes = UrlFetchApp.fetch(vCommentUrl, fetchOpt);
+      if (vcRes.getResponseCode() === 200) {
+        var vcJson = JSON.parse(vcRes.getContentText());
+        var parsed = parseYouTubeCommentThreadItems(vcJson.items || [], channelId, vTitle);
+        allComments = allComments.concat(parsed);
+      }
+      Utilities.sleep(100); // Quota safeguard
+    }
+
+    return allComments;
+  } catch (e) {
+    Logger.log("⚠️ Uploads playlist fallback error: " + e.message);
+    return [];
+  }
+}
+
+/**
+ * Parses raw YouTube comment thread objects into standard ApnaCare interaction rows.
+ */
+function parseYouTubeCommentThreadItems(items, channelId, defaultVideoTitle) {
+  var results = [];
+  if (!items || !items.length) return results;
+
+  // Collect video IDs needing title lookup
+  var videoIdSet = {};
+  for (var i = 0; i < items.length; i++) {
+    var vId = (items[i].snippet && items[i].snippet.videoId) || "";
+    if (vId && !defaultVideoTitle) videoIdSet[vId] = true;
+  }
+
+  var videoTitles = defaultVideoTitle ? {} : fetchVideoTitlesMap(Object.keys(videoIdSet));
+
+  for (var j = 0; j < items.length; j++) {
+    var it = items[j];
+    var top = it.snippet && it.snippet.topLevelComment;
+    if (!top || !top.snippet) continue;
+
+    var s = top.snippet;
+    var vId = it.snippet.videoId || "";
+    var vTitle = defaultVideoTitle || videoTitles[vId] || (vId ? ("Video " + vId) : "ApnaCare YouTube");
+
+    // Extract channel owner reply if available
+    var replyText = "";
+    if (it.replies && it.replies.comments && it.replies.comments.length > 0) {
+      var replyList = it.replies.comments.map(function (rc) {
+        var rAuth = (rc.snippet && rc.snippet.authorDisplayName) || "Admin";
+        var rBody = (rc.snippet && rc.snippet.textOriginal) || (rc.snippet && rc.snippet.textDisplay) || "";
+        return rAuth + ": " + rBody;
+      });
+      replyText = replyList.join(" || ");
+    }
+
+    results.push({
+      comment_id: it.id || top.id,
+      video_id: vId,
+      video_title: vTitle,
+      video_url: vId ? ("https://www.youtube.com/watch?v=" + vId) : ("https://www.youtube.com/channel/" + (channelId || "")),
+      channel: s.channelTitle || YOUTUBE_CONFIG.CHANNEL_HANDLE || "ApnaCare",
+      author_name: s.authorDisplayName || "YouTube User",
+      author_channel_url: (s.authorChannelUrl || (s.authorChannelId && s.authorChannelId.value ? ("https://www.youtube.com/channel/" + s.authorChannelId.value) : "")),
+      comment_text: s.textOriginal || s.textDisplay || "",
+      reply_text: replyText,
+      reply_count: it.snippet.totalReplyCount || 0,
+      published_at: s.publishedAt || normalizeTimestamp(new Date()),
+      updated_at: s.updatedAt || s.publishedAt || normalizeTimestamp(new Date()),
+      like_count: s.likeCount || 0
+    });
+  }
+
+  return results;
+}
+
+/**
+ * Batch-fetches video titles for given video IDs to enrich the interaction records.
+ */
+function fetchVideoTitlesMap(videoIds) {
+  var map = {};
+  if (!videoIds || !videoIds.length) return map;
+
+  var apiKey = YOUTUBE_CONFIG.API_KEY || (typeof PropertiesService !== "undefined" && PropertiesService.getScriptProperties().getProperty("YOUTUBE_API_KEY")) || "";
+  var authHeader = null;
+  if (!apiKey) {
+    try { authHeader = "Bearer " + ScriptApp.getOAuthToken(); } catch (e) { }
+  }
+
+  try {
+    var chunks = [];
+    for (var i = 0; i < videoIds.length; i += 50) {
+      chunks.push(videoIds.slice(i, i + 50));
+    }
+
+    for (var c = 0; c < chunks.length; c++) {
+      var url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + chunks[c].join(",");
+      if (apiKey) url += "&key=" + encodeURIComponent(apiKey);
+
+      var opt = { method: "get", muteHttpExceptions: true };
+      if (authHeader) opt.headers = { "Authorization": authHeader };
+
+      var res = UrlFetchApp.fetch(url, opt);
+      if (res.getResponseCode() === 200) {
+        var json = JSON.parse(res.getContentText());
+        (json.items || []).forEach(function (vi) {
+          if (vi.id && vi.snippet) {
+            map[vi.id] = vi.snippet.title;
+          }
+        });
+      }
+    }
+  } catch (err) {
+    Logger.log("⚠️ Video title batch fetch error: " + err.message);
+  }
+
+  return map;
+}
+
+/**
+ * Intelligent healthcare inquiry detection: Determines whether a YouTube comment
+ * represents an inbound customer inquiry, caregiver recruitment query, or general feedback.
+ */
+function detectHealthcareEnquiryIntent(text) {
+  if (!text) return { isEnquiry: false, intent: "General Comment" };
+  var t = String(text).toLowerCase();
+
+  // 1. Caregiver / Job applicant intent
+  if (/(job|salary|vacancy|hiring|how to join|recruitment|apply for job|can i join|looking for job|i am nurse|i am attendant|work as|opening)/i.test(t)) {
+    return { isEnquiry: true, intent: "Attendant Job Query" };
+  }
+
+  // 2. Pricing & cost inquiries
+  if (/(price|cost|charges?|how much|fee|fees|rates?|per day|monthly charge|package price|expensive|quote)/i.test(t)) {
+    return { isEnquiry: true, intent: "Pricing & Rate Inquiry" };
+  }
+
+  // 3. Urgent / Critical care need
+  if (/(urgent|emergency|bedridden|icu|paralysis|stroke|critical|fall|immediate|today itself)/i.test(t)) {
+    return { isEnquiry: true, intent: "Urgent Care Support" };
+  }
+
+  // 4. Service / Location availability
+  if (/(service in|available in|do you provide|send attendant|need nurse|need attendant|elderly care|baby care|patient care|contact number|phone number|call me|whatsapp number|bengaluru|bangalore|chennai|hyderabad|mumbai|delhi|coimbatore)/i.test(t)) {
+    return { isEnquiry: true, intent: "Service Availability Inquiry" };
+  }
+
+  // 5. Question marks with health/care terms
+  if (t.indexOf("?") !== -1 && /(service|care|attendant|nurse|book|home|patient|cost|help|contact)/i.test(t)) {
+    return { isEnquiry: true, intent: "General Care Inquiry" };
+  }
+
+  return { isEnquiry: false, intent: "Community Comment" };
+}
+
+/**
+ * 1-Hour recurring cron trigger for YouTube Channel comment syncing.
+ */
+function AUTOMATED_YOUTUBE_SYNC_TRIGGER() {
+  Logger.log("⏰ Running Scheduled YouTube Interactions Sync...");
+  var res = syncYouTubeChannelInteractions();
+  Logger.log("⏰ YouTube sync complete: " + JSON.stringify(res));
+}
+
+function setupYouTubeAutomation() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === "AUTOMATED_YOUTUBE_SYNC_TRIGGER") {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger("AUTOMATED_YOUTUBE_SYNC_TRIGGER").timeBased().everyHours(1).create();
+  try {
+    SpreadsheetApp.getUi().alert("✅ 24/7 Automatic YouTube Sync Activated!\n\nNew channel comments, replies, and video inquiries will be synchronized every hour.");
+  } catch (e) { }
+}
+
+function stopYouTubeAutomation() {
+  var triggers = ScriptApp.getProjectTriggers();
+  var count = 0;
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === "AUTOMATED_YOUTUBE_SYNC_TRIGGER") {
+      ScriptApp.deleteTrigger(triggers[i]);
+      count++;
+    }
+  }
+  try {
+    SpreadsheetApp.getUi().alert("🛑 Automatic YouTube Sync Stopped.\n\nRemoved " + count + " active trigger(s).");
+  } catch (e) { }
+}
+
+function SYNC_YOUTUBE_INTERACTIONS_NOW() {
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { }
+
+  var res = syncYouTubeChannelInteractions();
+  if (ui) {
+    if (res.success) {
+      ui.alert("✅ YouTube Sync Succeeded", res.message, ui.ButtonSet.OK);
+    } else {
+      ui.alert("⚠️ YouTube Sync", (res.error || "Please verify YOUTUBE_CONFIG.API_KEY or YOUTUBE_CHANNEL_ID.") + "\n\nTip: You can run 'manualTestYouTubeMockSample' to verify sheet row formatting immediately.", ui.ButtonSet.OK);
+    }
+  }
+  return res;
+}
+
+function TEST_YOUTUBE_SYNC() {
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { }
+
+  var res = syncYouTubeChannelInteractions();
+  if (res.success) {
+    var okMsg = "🎉 YouTube Connected Successfully!\n\n" + res.message;
+    Logger.log(okMsg);
+    if (ui) ui.alert("✅ YouTube Test Passed", okMsg, ui.ButtonSet.OK);
+    return res;
+  } else {
+    var errMsg = "⚠️ YouTube Sync Notice:\n\n" + (res.error || "Unknown error") + "\n\nOptions to enable:\n1. Enable 'YouTube Data API v3' in Google Cloud Console & paste key in YOUTUBE_CONFIG.API_KEY\n2. Or click Services (+) in Apps Script > Add 'YouTube Data API v3'\n3. Run 'manualTestYouTubeMockSample' to test row ingestion immediately.";
+    Logger.log(errMsg);
+    if (ui) ui.alert("ℹ️ YouTube Setup Guidance", errMsg, ui.ButtonSet.OK);
+    return res;
   }
 }
 
@@ -1404,6 +2011,15 @@ function doGet(e) {
     return ContentService.createTextOutput(JSON.stringify({
       status: createRes.success ? "success" : "error",
       result: createRes,
+      timestamp: normalizeTimestamp(new Date())
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (p.action === "sync_youtube" || p.action === "youtube") {
+    var ytRes = syncYouTubeChannelInteractions();
+    return ContentService.createTextOutput(JSON.stringify({
+      status: ytRes.success ? "success" : "warning",
+      result: ytRes,
       timestamp: normalizeTimestamp(new Date())
     })).setMimeType(ContentService.MimeType.JSON);
   }
@@ -1827,6 +2443,32 @@ function doPost(e) {
     else if (p.action_type || evtName.includes("portal_") || (formName.includes("attendant") && p.shift_status)) {
       p.log_id = p.log_id || ("ATT-" + Date.now().toString(36).toUpperCase());
       writeResults.push(appendRowToTab(ss, "Attendant_Portal_Logs", p));
+    }
+
+    // I. YOUTUBE COMMUNITY INTERACTION / INBOUND WEBHOOK INGEST
+    else if (
+      leadType === "YOUTUBE" ||
+      evtName.includes("youtube") ||
+      p.event_type === "youtube_interaction" ||
+      p.event_type === "youtube_comment" ||
+      p.comment_id
+    ) {
+      writeResults.push(appendRowToTab(ss, "YouTube_Interactions", p));
+      if (p.is_enquiry === "Yes" || p.is_enquiry === true) {
+        var ytLead = {
+          received_at: p.synced_at || p.received_at,
+          lead_id: "YT-" + String(p.comment_id || Date.now()).slice(-8),
+          lead_type: "YOUTUBE_INQUIRY",
+          name: p.author_name || "YouTube User",
+          service_or_requirement: p.video_title || "YouTube Video Inquiry",
+          lead_source: p.lead_source || "YouTube Channel",
+          lead_status: "New",
+          follow_up_status: "Social Desk Reply Due",
+          source_environment: p.source_environment || "production",
+          jira_key_primary: p.jira_key_primary || ""
+        };
+        writeResults.push(appendRowToTab(ss, "Lead_Management", ytLead));
+      }
     }
 
     // 3. Auxiliary Telemetry Routing
@@ -2418,6 +3060,54 @@ function sendAttendantApplicationAlertEmail(p) {
 }
 
 // =========================================================================================
+// 7. YOUTUBE INBOUND COMMUNITY INQUIRY ALERT (Social Care Desk)
+// =========================================================================================
+function sendYouTubeInquiryAlertEmail(item) {
+  var author = item.author_name || "YouTube User";
+  var video = item.video_title || "ApnaCare Video";
+  var comment = item.comment_text || "";
+  var url = item.video_url || "https://www.youtube.com";
+  var intent = item.detected_intent || "Service Inquiry";
+  var jiraKey = item.jira_key_primary || "";
+
+  var html = [
+    '<div style="max-width:620px;margin:0 auto;font-family:sans-serif;background:#fff;border-radius:12px;border:1px solid #cbd5e1;overflow:hidden;">',
+    '  <div style="background:#dc2626;padding:22px;color:#fff;">',
+    '    <span style="background:#fef2f2;color:#991b1b;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:bold;">YOUTUBE INBOUND INQUIRY</span>',
+    '    <h2 style="margin:8px 0 2px 0;">' + escapeHtml(author) + ' — ' + escapeHtml(intent) + '</h2>',
+    '    <p style="margin:0;opacity:0.9;font-size:13px;">Video: <strong>' + escapeHtml(video) + '</strong></p>',
+    '  </div>',
+    '  <div style="padding:18px;">',
+    '    <div style="background:#f8fafc;border-left:4px solid #dc2626;padding:12px 16px;margin-bottom:16px;border-radius:4px;">',
+    '      <p style="margin:0;font-size:14px;color:#334155;font-style:italic;">&ldquo;' + escapeHtml(comment) + '&rdquo;</p>',
+    '    </div>',
+    '    <table width="100%" style="border-collapse:collapse;">',
+    makeRow("commenter", author, true),
+    makeRow("detected_intent", intent, true),
+    makeRow("video_title", video),
+    makeRow("published_at", item.published_at || "Just now"),
+    makeRow("jira_ticket", jiraKey ? ('<strong>' + escapeHtml(jiraKey) + '</strong> (Task + 8 Subtasks Generated)') : "N/A"),
+    makeRow("video_link", '<a href="' + url + '" target="_blank" style="color:#047857;font-weight:bold;">Open Video & Reply on YouTube &rarr;</a>'),
+    '    </table>',
+    '  </div>',
+    '  <div style="padding:14px 18px;background:#fef2f2;border-top:1px solid #fecaca;font-size:12px;color:#991b1b;">',
+    '    Reply directly to this commenter on YouTube or assign the auto-generated Jira ticket to initiate care outreach.',
+    '  </div>',
+    '</div>'
+  ].join('');
+
+  getUniqueRecipients(EMAIL_CONFIG.leadEmails).forEach(function (em) {
+    safeSendEmail({
+      to: em,
+      subject: "🎥 [YouTube Lead] " + author + " on \"" + (video.length > 40 ? video.substring(0, 37) + "..." : video) + "\"",
+      htmlBody: html,
+      name: "ApnaCare YouTube Desk",
+      replyTo: EMAIL_CONFIG.replyTo
+    });
+  });
+}
+
+// =========================================================================================
 // DAILY, WEEKLY, MONTHLY INTERVAL AGGREGATION ENGINE
 // =========================================================================================
 function BUILD_AGGREGATED_INTERVAL_SUMMARIES() {
@@ -2756,8 +3446,44 @@ function setupAllApnaCareTriggers() {
   // 5. Automatic Jira Lead Sync every 10 minutes
   ScriptApp.newTrigger("AUTOMATED_JIRA_SYNC_TRIGGER").timeBased().everyMinutes(10).create();
 
+  // 6. Automatic YouTube Interactions Sync every hour
+  ScriptApp.newTrigger("AUTOMATED_YOUTUBE_SYNC_TRIGGER").timeBased().everyHours(1).create();
+
   try {
-    SpreadsheetApp.getUi().alert("✅ Automated Report & Lead Sync Triggers Activated!\n\n• Daily, Weekly & Monthly Digests (Email + Jira)\n• 10-Minute Airtable Lead Sync\n• 10-Minute Jira Lead Sync");
+    SpreadsheetApp.getUi().alert("✅ Automated Report & Sync Triggers Activated!\n\n• Daily, Weekly & Monthly Digests (Email + Jira)\n• 10-Minute Airtable Lead Sync\n• 10-Minute Jira Lead Sync\n• 1-Hour YouTube Interactions Sync");
+  } catch (e) { }
+}
+
+function AUTOMATED_AIRTABLE_SYNC_TRIGGER() {
+  Logger.log("⏰ Running Scheduled Airtable Lead Sync...");
+  var res = SYNC_ALL_LEADS_TO_AIRTABLE();
+  Logger.log("⏰ Airtable sync complete: " + (res.count || 0) + " leads pushed.");
+}
+
+function setupAirtableAutomation() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === "AUTOMATED_AIRTABLE_SYNC_TRIGGER") {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger("AUTOMATED_AIRTABLE_SYNC_TRIGGER").timeBased().everyMinutes(10).create();
+  try {
+    SpreadsheetApp.getUi().alert("✅ 24/7 Automatic Airtable Sync Activated!\n\nNew inbound leads will be checked and synced to Airtable every 10 minutes.");
+  } catch (e) { }
+}
+
+function stopAirtableAutomation() {
+  var triggers = ScriptApp.getProjectTriggers();
+  var count = 0;
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === "AUTOMATED_AIRTABLE_SYNC_TRIGGER") {
+      ScriptApp.deleteTrigger(triggers[i]);
+      count++;
+    }
+  }
+  try {
+    SpreadsheetApp.getUi().alert("🛑 Automatic Airtable Sync Stopped.\n\nRemoved " + count + " active trigger(s).");
   } catch (e) { }
 }
 
@@ -2779,7 +3505,13 @@ function onOpen() {
       .addItem('🏗️ Auto-Create Jira Project Space (APNA)', 'CREATE_JIRA_PROJECT')
       .addItem('🧪 Test Jira Connection & Create Ticket', 'TEST_JIRA_CONNECTION')
       .addSeparator()
-      .addItem('⏰ Enable All Scheduled Triggers (Daily, Weekly, Monthly, Airtable & Jira)', 'setupAllApnaCareTriggers')
+      .addItem('▶️ Sync YouTube Comments & Interactions Now', 'SYNC_YOUTUBE_INTERACTIONS_NOW')
+      .addItem('🚀 Enable Hourly Automatic YouTube Sync', 'setupYouTubeAutomation')
+      .addItem('🛑 Stop Automatic YouTube Sync', 'stopYouTubeAutomation')
+      .addItem('🧪 Test YouTube Sync (Live Channel)', 'TEST_YOUTUBE_SYNC')
+      .addItem('🧪 Ingest Sample YouTube Interactions (Demo)', 'manualTestYouTubeMockSample')
+      .addSeparator()
+      .addItem('⏰ Enable All Scheduled Triggers (Digests, Airtable, Jira & YouTube)', 'setupAllApnaCareTriggers')
       .addItem('🧪 Test Inbound Booking Alert Now', 'TEST_BOOKING_ALERT')
       .addToUi();
   } catch (e) { }
@@ -2894,4 +3626,176 @@ function manualTestJiraTaskWith8Subtasks() {
   Logger.log("Result: " + JSON.stringify(res));
   return res;
 }
+
+// Standalone manual test function for verifying live YouTube sync execution
+function manualTestYouTubeSync() {
+  Logger.log("Running manual test for YouTube channel sync...");
+  return syncYouTubeChannelInteractions();
+}
+
+// Standalone manual test function: Ingests 3 realistic sample YouTube interactions (inquiry, job query, feedback)
+// into the "YouTube_Interactions" sheet tab to verify columns, formatting, Jira tasks and email alerts
+function manualTestYouTubeMockSample() {
+  Logger.log("Running manual test with realistic sample YouTube interactions...");
+  var ss = getSpreadsheet();
+  if (!ss) return { success: false, error: "Spreadsheet not found" };
+
+  var sheet = getTab(ss, "YouTube_Interactions");
+  var headers = TAB_HEADERS.YouTube_Interactions;
+
+  var mockComments = [
+    {
+      comment_id: "UgxSAMPLE_INQUIRY_001",
+      video_id: "dQw4w9WgXcQ",
+      video_title: "Elderly Home Care Companionship & Vitals Support | ApnaCare",
+      video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      channel: "@apnacare",
+      author_name: "Smt. Revathi Meenakshi",
+      author_channel_url: "https://www.youtube.com/@revathi.meenakshi",
+      comment_text: "My 78-year-old mother recently had hip replacement surgery in Jayanagar, Bengaluru. We need a full-time 24-hr woman attendant for bedside care and daily mobility assistance. How much do you charge per month and how soon can you provide one? Please contact.",
+      reply_text: "ApnaCare: Hello ma'am, our senior care coordinators have reached out. We provide verified hospital-trained companions across Bengaluru. A coordinator will connect with you within 2 hours.",
+      reply_count: 1,
+      published_at: "2026-10-14 10:15:00",
+      updated_at: "2026-10-14 10:30:00",
+      like_count: 4
+    },
+    {
+      comment_id: "UgxSAMPLE_JOB_QUERY_002",
+      video_id: "abc987xyz12",
+      video_title: "Join ApnaCare: Trusted Careers for Female Nurses & Healthcare Companions",
+      video_url: "https://www.youtube.com/watch?v=abc987xyz12",
+      channel: "@apnacare",
+      author_name: "Sister Sunita Mary (GDA Certified)",
+      author_channel_url: "https://www.youtube.com/@sunita.nurse",
+      comment_text: "I have 4 years of experience as General Duty Assistant (GDA) in post-operative care and tracheostomy care. Is there any vacancy for night shift or live-in attendant in Chennai? What is the salary package and how can I apply?",
+      reply_text: "",
+      reply_count: 0,
+      published_at: "2026-10-14 11:45:00",
+      updated_at: "2026-10-14 11:45:00",
+      like_count: 2
+    },
+    {
+      comment_id: "UgxSAMPLE_FEEDBACK_003",
+      video_id: "dQw4w9WgXcQ",
+      video_title: "Elderly Home Care Companionship & Vitals Support | ApnaCare",
+      video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      channel: "@apnacare",
+      author_name: "Arvind Swaminathan",
+      author_channel_url: "https://www.youtube.com/@arvind_swami",
+      comment_text: "Wonderful initiative! Having verified female companions provides tremendous peace of mind for families with elderly parents staying alone in India. Kudos to the ApnaCare team!",
+      reply_text: "ApnaCare: Thank you so much for your kind words and trust Arvind!",
+      reply_count: 1,
+      published_at: "2026-10-14 09:00:00",
+      updated_at: "2026-10-14 09:12:00",
+      like_count: 12
+    }
+  ];
+
+  var syncedAt = normalizeTimestamp(new Date());
+  var inserted = 0;
+
+  for (var i = 0; i < mockComments.length; i++) {
+    var c = mockComments[i];
+    var analysis = detectHealthcareEnquiryIntent(c.comment_text);
+    var isEnq = analysis.isEnquiry ? "Yes" : "No";
+
+    var jiraKeyPrimary = "";
+    var jiraKeySecondary = "";
+
+    if (isEnq === "Yes" && YOUTUBE_CONFIG.AUTO_JIRA_LEADS) {
+      try {
+        var jRes = pushLeadToJira({
+          Name: c.author_name,
+          Phone: "",
+          Email: "",
+          Service: analysis.intent + " (" + c.video_title + ")",
+          City: "YouTube (" + c.channel + ")",
+          LeadType: "YouTube Community Lead",
+          ReferenceID: "YT-" + c.comment_id.slice(-8),
+          Details: "Inbound YouTube Inquiry on video: " + c.video_title + "\nAuthor: " + c.author_name + "\nIntent: " + analysis.intent + "\n\nComment:\n\"" + c.comment_text + "\"",
+          PagePath: "/youtube",
+          Timestamp: syncedAt,
+          SourceEnvironment: "test"
+        });
+        if (jRes && jRes.success) {
+          jiraKeyPrimary = jRes.key;
+          jiraKeySecondary = (jRes.subtasks && jRes.subtasks[0]) || "";
+
+          // Mirror into master Lead_Management table
+          appendRowToTab(ss, "Lead_Management", {
+            received_at: syncedAt,
+            lead_id: "YT-" + c.comment_id.slice(-8),
+            lead_type: "YOUTUBE_INQUIRY",
+            name: c.author_name,
+            service_or_requirement: analysis.intent + " on " + c.video_title,
+            city: "YouTube",
+            lead_source: "YouTube - " + c.video_title,
+            lead_status: "New",
+            follow_up_status: "Social Desk Reply Due",
+            total_value: "YouTube Lead",
+            source_environment: "test",
+            jira_synced: "SYNCED",
+            jira_issue_key: jiraKeyPrimary
+          });
+
+          sendYouTubeInquiryAlertEmail({
+            author_name: c.author_name,
+            video_title: c.video_title,
+            video_url: c.video_url,
+            comment_text: c.comment_text,
+            detected_intent: analysis.intent,
+            published_at: c.published_at,
+            jira_key_primary: jiraKeyPrimary
+          });
+        }
+      } catch (err) {
+        Logger.log("Mock sample Jira creation notice: " + err.message);
+      }
+    }
+
+    var record = {
+      synced_at: syncedAt,
+      comment_id: c.comment_id,
+      video_id: c.video_id,
+      video_title: c.video_title,
+      video_url: c.video_url,
+      channel: c.channel,
+      author_name: c.author_name,
+      author_channel_url: c.author_channel_url,
+      comment_text: c.comment_text,
+      reply_text: c.reply_text,
+      published_at: c.published_at,
+      like_count: c.like_count,
+      is_enquiry: isEnq,
+      lead_source: "YouTube - " + c.video_title,
+      jira_key_primary: jiraKeyPrimary,
+      jira_key_secondary: jiraKeySecondary,
+      sync_status: isEnq === "Yes" ? (jiraKeyPrimary ? "ENQUIRY_ESCALATED" : "NEW_ENQUIRY") : "SYNCED",
+      reply_count: c.reply_count,
+      updated_at: c.updated_at,
+      detected_intent: analysis.intent
+    };
+
+    var rowValues = headers.map(function (h) {
+      return record[h] !== undefined ? record[h] : "";
+    });
+
+    sheet.appendRow(rowValues);
+    inserted++;
+  }
+
+  var msg = "🎉 Sample YouTube Interactions Ingested Successfully!\n\n" +
+    "• " + inserted + " sample comments added to 'YouTube_Interactions' tab.\n" +
+    "• Inquiries auto-classified and escalated to Jira (with 8 subtasks).\n" +
+    "• Mirrored to 'Lead_Management' tab.\n" +
+    "• Email alerts dispatched to operations desk.";
+
+  Logger.log(msg);
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { }
+  if (ui) ui.alert("✅ Sample Ingest Complete", msg, ui.ButtonSet.OK);
+
+  return { success: true, count: inserted, message: msg };
+}
+
 
