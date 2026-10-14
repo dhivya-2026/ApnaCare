@@ -71,13 +71,9 @@ var YOUTUBE_CONFIG = {
 
   // Auto-generate Jira Lead Task + 8 Subtasks when a patient enquiry is detected
   AUTO_JIRA_LEADS: true,
-  // If true, create Jira tasks with 8 subtasks for ALL YouTube comments & interactions
-  JIRA_FOR_ALL_INTERACTIONS: true,
 
-  // Auto-send email notifications to operations desk for new YouTube interactions
+  // Auto-send email notifications to operations desk for new YouTube inquiries
   AUTO_EMAIL_ALERTS: true,
-  // If true, send email alerts for ALL YouTube comments & interactions (not just inquiries)
-  EMAIL_FOR_ALL_INTERACTIONS: true,
 
   // Max video count to scan per sync cycle
   MAX_VIDEOS_TO_SCAN: 50
@@ -1462,21 +1458,18 @@ function syncYouTubeChannelInteractions(options) {
       if (sCol !== -1 && existingRowData[sCol]) jiraKeySecondary = String(existingRowData[sCol]);
     }
 
-    // Auto-create Jira Task with 8 Subtasks for inquiries or all interactions
-    var shouldCreateJira = !jiraKeyPrimary && YOUTUBE_CONFIG.AUTO_JIRA_LEADS && (isEnquiry === "Yes" || YOUTUBE_CONFIG.JIRA_FOR_ALL_INTERACTIONS);
-    if (shouldCreateJira) {
+    // Auto-create Jira Task with 8 Subtasks for new inquiries
+    if (isEnquiry === "Yes" && !jiraKeyPrimary && YOUTUBE_CONFIG.AUTO_JIRA_LEADS) {
       try {
-        var jiraLeadType = isEnquiry === "Yes" ? "YouTube Patient Lead" : "YouTube Community Interaction";
-        var jiraService = (isEnquiry === "Yes" ? detectedIntent : "YouTube Comment") + " (" + (c.video_title || "YouTube Video") + ")";
         var jiraRes = pushLeadToJira({
           Name: c.author_name || "YouTube Commenter",
           Phone: "",
           Email: "",
-          Service: jiraService,
-          City: "YouTube (" + (c.channel || YOUTUBE_CONFIG.CHANNEL_HANDLE) + ")",
-          LeadType: jiraLeadType,
+          Service: detectedIntent + " (" + (c.video_title || "YouTube Video") + ")",
+          City: "YouTube Channel (" + (c.channel || YOUTUBE_CONFIG.CHANNEL_HANDLE) + ")",
+          LeadType: "YouTube Community Lead",
           ReferenceID: "YT-" + commentId.replace(/[^a-zA-Z0-9]/g, "").slice(-8).toUpperCase(),
-          Details: "YouTube interaction on video: " + c.video_title + "\nVideo URL: " + c.video_url + "\nAuthor: " + c.author_name + " (" + c.author_channel_url + ")\nIntent / Category: " + detectedIntent + "\n\nComment:\n\"" + c.comment_text + "\"",
+          Details: "Inbound inquiry on video: " + c.video_title + "\nVideo URL: " + c.video_url + "\nAuthor: " + c.author_name + " (" + c.author_channel_url + ")\nIntent: " + detectedIntent + "\n\nComment:\n\"" + c.comment_text + "\"",
           PagePath: "/youtube",
           Timestamp: syncedAt,
           SourceEnvironment: "production"
@@ -1491,44 +1484,35 @@ function syncYouTubeChannelInteractions(options) {
           var ytLeadEntry = {
             received_at: syncedAt,
             lead_id: "YT-" + commentId.replace(/[^a-zA-Z0-9]/g, "").slice(-8).toUpperCase(),
-            lead_type: isEnquiry === "Yes" ? "YOUTUBE_INQUIRY" : "YOUTUBE_INTERACTION",
+            lead_type: "YOUTUBE_INQUIRY",
             name: c.author_name || "YouTube Commenter",
             service_or_requirement: detectedIntent + " on " + c.video_title,
             city: "YouTube",
             lead_source: "YouTube - " + (c.video_title || "Channel"),
             lead_status: "New",
             follow_up_status: "Social Desk Reply Due",
-            total_value: "YouTube Interaction",
+            total_value: "YouTube Lead",
             source_environment: "production",
             jira_synced: "SYNCED",
             jira_issue_key: jiraKeyPrimary
           };
           appendRowToTab(ss, "Lead_Management", ytLeadEntry);
+
+          // Alert notification email to care coordinators
+          if (YOUTUBE_CONFIG.AUTO_EMAIL_ALERTS) {
+            sendYouTubeInquiryAlertEmail({
+              author_name: c.author_name,
+              video_title: c.video_title,
+              video_url: c.video_url,
+              comment_text: c.comment_text,
+              detected_intent: detectedIntent,
+              published_at: c.published_at,
+              jira_key_primary: jiraKeyPrimary
+            });
+          }
         }
       } catch (jiraErr) {
-        Logger.log("⚠️ Jira auto-create notice for YouTube comment " + commentId + ": " + jiraErr.message);
-      }
-    }
-
-    // Alert notification email to care coordinators (Decoupled from Jira so ops always receives it!)
-    var isExistingInSheet = !!existingMap[commentId];
-    var previouslyHadJira = isExistingInSheet && existingMap[commentId].data && existingMap[commentId].data[headers.indexOf("jira_key_primary")];
-    var shouldSendEmail = YOUTUBE_CONFIG.AUTO_EMAIL_ALERTS && (!previouslyHadJira || !isExistingInSheet) && (isEnquiry === "Yes" || YOUTUBE_CONFIG.EMAIL_FOR_ALL_INTERACTIONS);
-
-    if (shouldSendEmail) {
-      try {
-        sendYouTubeInquiryAlertEmail({
-          author_name: c.author_name,
-          video_title: c.video_title,
-          video_url: c.video_url,
-          comment_text: c.comment_text,
-          detected_intent: detectedIntent,
-          is_enquiry: isEnquiry,
-          published_at: c.published_at,
-          jira_key_primary: jiraKeyPrimary
-        });
-      } catch (mailErr) {
-        Logger.log("⚠️ Email alert notice for YouTube comment " + commentId + ": " + mailErr.message);
+        Logger.log("⚠️ Jira auto-create failed for YouTube comment " + commentId + ": " + jiraErr.message);
       }
     }
 
@@ -3085,38 +3069,29 @@ function sendYouTubeInquiryAlertEmail(item) {
   var url = item.video_url || "https://www.youtube.com";
   var intent = item.detected_intent || "Service Inquiry";
   var jiraKey = item.jira_key_primary || "";
-  var isEnquiry = item.is_enquiry === "Yes" || (intent !== "Community Comment" && intent !== "General Comment");
-
-  var headerBg = isEnquiry ? "#dc2626" : "#0f766e";
-  var badgeBg = isEnquiry ? "#fef2f2" : "#f0fdfa";
-  var badgeColor = isEnquiry ? "#991b1b" : "#115e59";
-  var badgeText = isEnquiry ? "YOUTUBE INBOUND INQUIRY / LEAD" : "YOUTUBE COMMUNITY INTERACTION";
-  var subjectPrefix = isEnquiry ? "🎥 [YouTube Lead]" : "💬 [YouTube Comment]";
 
   var html = [
     '<div style="max-width:620px;margin:0 auto;font-family:sans-serif;background:#fff;border-radius:12px;border:1px solid #cbd5e1;overflow:hidden;">',
-    '  <div style="background:' + headerBg + ';padding:22px;color:#fff;">',
-    '    <span style="background:' + badgeBg + ';color:' + badgeColor + ';padding:3px 10px;border-radius:12px;font-size:11px;font-weight:bold;">' + badgeText + '</span>',
+    '  <div style="background:#dc2626;padding:22px;color:#fff;">',
+    '    <span style="background:#fef2f2;color:#991b1b;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:bold;">YOUTUBE INBOUND INQUIRY</span>',
     '    <h2 style="margin:8px 0 2px 0;">' + escapeHtml(author) + ' — ' + escapeHtml(intent) + '</h2>',
     '    <p style="margin:0;opacity:0.9;font-size:13px;">Video: <strong>' + escapeHtml(video) + '</strong></p>',
     '  </div>',
     '  <div style="padding:18px;">',
-    '    <div style="background:#f8fafc;border-left:4px solid ' + headerBg + ';padding:12px 16px;margin-bottom:16px;border-radius:4px;">',
+    '    <div style="background:#f8fafc;border-left:4px solid #dc2626;padding:12px 16px;margin-bottom:16px;border-radius:4px;">',
     '      <p style="margin:0;font-size:14px;color:#334155;font-style:italic;">&ldquo;' + escapeHtml(comment) + '&rdquo;</p>',
     '    </div>',
     '    <table width="100%" style="border-collapse:collapse;">',
     makeRow("commenter", author, true),
-    makeRow("interaction_type", intent, true),
+    makeRow("detected_intent", intent, true),
     makeRow("video_title", video),
     makeRow("published_at", item.published_at || "Just now"),
-    makeRow("jira_ticket", jiraKey ? ('<strong>' + escapeHtml(jiraKey) + '</strong> (Task + 8 Subtasks Generated)') : "Logged in Google Sheet"),
+    makeRow("jira_ticket", jiraKey ? ('<strong>' + escapeHtml(jiraKey) + '</strong> (Task + 8 Subtasks Generated)') : "N/A"),
     makeRow("video_link", '<a href="' + url + '" target="_blank" style="color:#047857;font-weight:bold;">Open Video & Reply on YouTube &rarr;</a>'),
     '    </table>',
     '  </div>',
-    '  <div style="padding:14px 18px;background:' + badgeBg + ';border-top:1px solid #e2e8f0;font-size:12px;color:' + badgeColor + ';">',
-    isEnquiry
-      ? 'Reply directly to this commenter on YouTube or manage via the auto-generated Jira ticket to initiate care outreach.'
-      : 'Acknowledge and engage with your YouTube audience directly on the video link above.',
+    '  <div style="padding:14px 18px;background:#fef2f2;border-top:1px solid #fecaca;font-size:12px;color:#991b1b;">',
+    '    Reply directly to this commenter on YouTube or assign the auto-generated Jira ticket to initiate care outreach.',
     '  </div>',
     '</div>'
   ].join('');
@@ -3124,7 +3099,7 @@ function sendYouTubeInquiryAlertEmail(item) {
   getUniqueRecipients(EMAIL_CONFIG.leadEmails).forEach(function (em) {
     safeSendEmail({
       to: em,
-      subject: subjectPrefix + " " + author + " on \"" + (video.length > 40 ? video.substring(0, 37) + "..." : video) + "\"",
+      subject: "🎥 [YouTube Lead] " + author + " on \"" + (video.length > 40 ? video.substring(0, 37) + "..." : video) + "\"",
       htmlBody: html,
       name: "ApnaCare YouTube Desk",
       replyTo: EMAIL_CONFIG.replyTo
@@ -3535,7 +3510,6 @@ function onOpen() {
       .addItem('🛑 Stop Automatic YouTube Sync', 'stopYouTubeAutomation')
       .addItem('🧪 Test YouTube Sync (Live Channel)', 'TEST_YOUTUBE_SYNC')
       .addItem('🧪 Ingest Sample YouTube Interactions (Demo)', 'manualTestYouTubeMockSample')
-      .addItem('🧪 Send Live Test YouTube Lead to Jira & Email Now', 'TEST_YOUTUBE_LEAD_DISPATCH')
       .addSeparator()
       .addItem('⏰ Enable All Scheduled Triggers (Digests, Airtable, Jira & YouTube)', 'setupAllApnaCareTriggers')
       .addItem('🧪 Test Inbound Booking Alert Now', 'TEST_BOOKING_ALERT')
@@ -3651,58 +3625,6 @@ function manualTestJiraTaskWith8Subtasks() {
   var res = pushLeadToJira(testLead);
   Logger.log("Result: " + JSON.stringify(res));
   return res;
-}
-
-// Standalone manual test function: Dispatches a live test YouTube patient inquiry,
-// creates an APNA Jira task with 8 subtasks, and dispatches a notification email immediately.
-function TEST_YOUTUBE_LEAD_DISPATCH() {
-  Logger.log("Triggering live YouTube lead dispatch test...");
-  var sampleLead = {
-    author_name: "Smt. Shanti Ramanathan",
-    video_title: "ApnaCare - Women-Led Caregiving Solutions",
-    video_url: "https://www.youtube.com/watch?v=sample",
-    comment_text: "We require a trained 12-hour daytime attendant for my 82-year-old mother in Chennai. Please share pricing and attendant profiles.",
-    detected_intent: "Home Care Inquiry",
-    published_at: Utilities.formatDate(new Date(), CONFIG.TIMEZONE || "Asia/Kolkata", "yyyy-MM-dd HH:mm:ss"),
-    channel: "@apnacare"
-  };
-
-  var jiraRes = pushLeadToJira({
-    Name: sampleLead.author_name,
-    Phone: "+91 98401 98765",
-    Email: "divabhrati.ramco@gmail.com",
-    Service: sampleLead.detected_intent + " (YouTube Inquiry)",
-    City: "Chennai",
-    LeadType: "YouTube Patient Lead",
-    ReferenceID: "YT-TEST-" + Date.now().toString(36).slice(-6).toUpperCase(),
-    Details: "Inbound YouTube Inquiry test to verify real-time Jira issue creation with 8 subtasks and email dispatch.\nComment: \"" + sampleLead.comment_text + "\"",
-    PagePath: "/youtube",
-    Timestamp: sampleLead.published_at,
-    SourceEnvironment: "test"
-  });
-
-  var jiraKey = (jiraRes && jiraRes.success) ? jiraRes.key : "";
-
-  sendYouTubeInquiryAlertEmail({
-    author_name: sampleLead.author_name,
-    video_title: sampleLead.video_title,
-    video_url: sampleLead.video_url,
-    comment_text: sampleLead.comment_text,
-    detected_intent: sampleLead.detected_intent,
-    is_enquiry: "Yes",
-    published_at: sampleLead.published_at,
-    jira_key_primary: jiraKey
-  });
-
-  var ui = null;
-  try { ui = SpreadsheetApp.getUi(); } catch (e) { }
-  var subtaskCount = (jiraRes && jiraRes.subtasks) ? jiraRes.subtasks.length : 0;
-  var msg = "🎉 Live YouTube Lead Test Dispatched!\n\n" +
-    "• Jira Issue: " + (jiraKey ? (jiraKey + " (" + subtaskCount + " subtasks created)") : ("Status: " + JSON.stringify(jiraRes))) + "\n" +
-    "• Email Sent: Check inbox for " + EMAIL_CONFIG.leadEmails.join(", ");
-  Logger.log(msg);
-  if (ui) ui.alert("✅ Test Dispatch Complete", msg, ui.ButtonSet.OK);
-  return { success: true, jira: jiraRes, message: msg };
 }
 
 // Standalone manual test function for verifying live YouTube sync execution
