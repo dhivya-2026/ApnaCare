@@ -3648,6 +3648,7 @@ function onOpen() {
       .addItem('🧪 Test YouTube Sync (Live Channel)', 'TEST_YOUTUBE_SYNC')
       .addItem('🧪 Ingest Sample YouTube Interactions (Demo)', 'manualTestYouTubeMockSample')
       .addItem('💼 Ingest Sample LinkedIn Leads (Demo)', 'manualTestLinkedInLeadSample')
+      .addItem('💬 Quick-Log Inbound LinkedIn Comment (Dialog)', 'LOG_LINKEDIN_POST_INTERACTION')
       .addSeparator()
       .addItem('⏰ Enable All Scheduled Triggers (Digests, Airtable, Jira & YouTube)', 'setupAllApnaCareTriggers')
       .addItem('🧪 Test Inbound Booking Alert Now', 'TEST_BOOKING_ALERT')
@@ -4074,6 +4075,133 @@ function manualTestLinkedInLeadSample() {
 
   return { success: true, count: inserted, message: msg };
 }
+
+// Interactive helper function for Google Sheets:
+// Prompts the user to quickly paste any LinkedIn post comment or direct message inquiry,
+// auto-classifies healthcare intent, generates Jira issue with 8 subtasks,
+// appends to LinkedIn_Leads, Live_Traffic_Events and Lead_Management tabs, and dispatches email alert!
+function LOG_LINKEDIN_POST_INTERACTION() {
+  var ui = SpreadsheetApp.getUi();
+  var nameRes = ui.prompt("💬 Log LinkedIn Post Lead", "Enter Commenter Full Name (or LinkedIn Headline):", ui.ButtonSet.OK_CANCEL);
+  if (nameRes.getSelectedButton() !== ui.Button.OK) return;
+  var name = nameRes.getResponseText().trim();
+  if (!name) {
+    ui.alert("⚠️ Name is required.");
+    return;
+  }
+
+  var commentRes = ui.prompt("💬 Comment / Inquiry", "Enter the Comment text or requirement:", ui.ButtonSet.OK_CANCEL);
+  if (commentRes.getSelectedButton() !== ui.Button.OK) return;
+  var commentText = commentRes.getResponseText().trim();
+
+  var contactRes = ui.prompt("📞 Contact / Location (Optional)", "Enter Phone, City or LinkedIn Profile URL (or leave blank):", ui.ButtonSet.OK_CANCEL);
+  var extraInfo = contactRes.getSelectedButton() === ui.Button.OK ? contactRes.getResponseText().trim() : "";
+
+  // Auto-detect intent using ApnaCare healthcare NLP classifier
+  var analysis = detectHealthcareEnquiryIntent(commentText);
+  var intent = analysis.intent;
+
+  var ss = getSpreadsheet();
+  var sheet = getTab(ss, "LinkedIn_Leads");
+  var headers = TAB_HEADERS.LinkedIn_Leads;
+
+  var leadId = "LI-POST-" + Date.now().toString(36).toUpperCase().slice(-6);
+  var receivedAt = normalizeTimestamp(new Date());
+
+  var jiraKey = "";
+  if (JIRA_CONFIG && JIRA_CONFIG.API_TOKEN) {
+    try {
+      var jRes = pushLeadToJira({
+        Name: name,
+        Phone: extraInfo.match(/\+?\d[\d -]{7,}\d/) ? extraInfo : "",
+        Email: "",
+        Service: intent + " (LinkedIn Post Comment)",
+        City: extraInfo.match(/(chennai|bengaluru|bangalore|hyderabad|mumbai|delhi|coimbatore)/i) ? extraInfo : "Pan-India",
+        LeadType: "LinkedIn Post Comment Lead",
+        ReferenceID: leadId,
+        Details: "Inbound LinkedIn Post Comment Logged:\nCommenter: " + name + "\nIntent: " + intent + "\nDetails: " + extraInfo + "\n\nComment:\n\"" + commentText + "\"",
+        PagePath: "/linkedin",
+        Timestamp: receivedAt,
+        SourceEnvironment: "production"
+      });
+      if (jRes && jRes.success && jRes.key) {
+        jiraKey = jRes.key;
+      }
+    } catch (jErr) {
+      Logger.log("⚠️ Jira error: " + jErr.message);
+    }
+  }
+
+  var leadRecord = {
+    received_at: receivedAt,
+    lead_id: leadId,
+    full_name: name,
+    service_or_requirement: intent,
+    lead_type: "LINKEDIN_COMMENT_LEAD",
+    lead_source: "LinkedIn Post Comment",
+    form_name: "Post Comment Triage",
+    user_notes: commentText + (extraInfo ? (" | Contact/Info: " + extraInfo) : ""),
+    lead_status: "New",
+    follow_up_status: "Pending Response",
+    jira_key_primary: jiraKey,
+    jira_key_secondary: jiraKey ? (jiraKey + " (8 Subtasks Created)") : "",
+    source_environment: "production"
+  };
+
+  // 1. Append to LinkedIn_Leads
+  var rowValues = headers.map(function (h) {
+    return leadRecord[h] !== undefined ? leadRecord[h] : "";
+  });
+  sheet.appendRow(rowValues);
+
+  // 2. Append to Live_Traffic_Events (Raw firehose)
+  try {
+    appendRowToTab(ss, "Live_Traffic_Events", {
+      received_at: receivedAt,
+      event_id: leadId,
+      event_type: "linkedin_comment_lead",
+      event_name: "linkedin_comment_logged",
+      event_category: "Lead",
+      lead_type: "LINKEDIN_LEAD",
+      lead_source: "LinkedIn Post Comment",
+      source_environment: "production"
+    });
+  } catch (eRaw) { }
+
+  // 3. Mirror into Lead_Management
+  try {
+    appendRowToTab(ss, "Lead_Management", {
+      received_at: receivedAt,
+      lead_id: leadId,
+      lead_type: "LINKEDIN_LEAD",
+      name: name,
+      service_or_requirement: intent,
+      lead_source: "LinkedIn Post Comment",
+      form_name: "LinkedIn Post Interaction",
+      lead_status: "New",
+      follow_up_status: "Pending Response",
+      total_value: "LinkedIn Lead",
+      source_environment: "production",
+      jira_synced: jiraKey ? "SYNCED" : "PENDING",
+      jira_issue_key: jiraKey
+    });
+  } catch (eLead) { }
+
+  // 4. Send email alert
+  try {
+    sendLinkedInLeadAlertEmail(leadRecord);
+  } catch (eMail) { }
+
+  ui.alert(
+    "✅ LinkedIn Lead Logged Successfully!",
+    "• Logged in 'LinkedIn_Leads', 'Live_Traffic_Events' and 'Lead_Management' tabs.\n" +
+    "• Detected Intent: " + intent + "\n" +
+    "• Jira Issue: " + (jiraKey ? (jiraKey + " (with 8 Subtasks)") : "Sheet Logged") + "\n" +
+    "• Operations email notification dispatched.",
+    ui.ButtonSet.OK
+  );
+}
+
 
 
 
