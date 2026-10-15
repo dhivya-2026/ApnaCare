@@ -98,6 +98,18 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", to: "/" },
   {
+    label: "About",
+    children: [
+      { label: "About ApnaCare", to: "/about", description: "Our story, mission & compassionate care values" },
+      {
+        label: "Ecosystem Partners",
+        to: "/ecosystem-partners",
+        description: "Hospitals, NGOs & healthcare skill centers",
+      },
+      { label: "Contact Us", to: "/contact", description: "24/7 command center & regional care desks" },
+    ],
+  },
+  {
     label: "Who We Serve",
     children: [
       {
@@ -168,27 +180,6 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: "How It Works",
-    children: [
-      {
-        label: "Our Process",
-        to: "/#how-it-works",
-        description: "How ApnaCare matches and deploys attendants",
-      },
-      {
-        label: "Book a Service",
-        to: "/booking",
-        description: "Start your booking in 6 simple steps",
-      },
-      {
-        label: "Pricing & Packages",
-        to: "/#pricing",
-        description: "Transparent per-day and per-trip rates",
-      },
-      { label: "FAQs", to: "/faq", description: "Answers to common questions" },
-    ],
-  },
-  {
     label: "Safety & Trust",
     children: [
       {
@@ -234,61 +225,33 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: "Cities",
-    children: [
-      { label: "All Cities", to: "/cities", description: "Coverage across South India" },
-      ...CITIES.map((c) => ({
-        label: c.name,
-        to: `/cities/${c.slug}` as string,
-        description: `${c.attendants} attendants · ${c.dispatch} dispatch`,
-      })),
-    ],
-  },
-  {
-    label: "Knowledge Hub",
+    label: "More",
     children: [
       {
-        label: "All Articles",
+        label: "How It Works",
+        to: "/#how-it-works",
+        description: "How ApnaCare matches & deploys attendants",
+      },
+      {
+        label: "Knowledge Hub",
         to: "/knowledge-hub",
-        description: "Health, safety & wellness resources",
+        description: "Health, safety & elder wellness resources",
       },
       {
-        label: "Women's Safety",
-        to: "/knowledge-hub/women-travel-safety-rights",
-        description: "Travel mandates & safety rights",
+        label: "Pricing & Packages",
+        to: "/#pricing",
+        description: "Transparent per-day and per-trip rates",
       },
       {
-        label: "Elderly Care",
-        to: "/knowledge-hub/health-monitoring-elder-care",
-        description: "Daily health monitoring guide",
+        label: "Cities Covered",
+        to: "/cities",
+        description: "Attendant networks across South India",
       },
       {
-        label: "Home Safety",
-        to: "/knowledge-hub/fall-proof-home",
-        description: "Fall-proof household tips",
+        label: "Frequently Asked Questions",
+        to: "/faq",
+        description: "Answers to common care questions",
       },
-      {
-        label: "Travel Safety",
-        to: "/knowledge-hub/safe-travel-for-seniors",
-        description: "Senior citizen travel guide",
-      },
-      {
-        label: "Senior Schemes",
-        to: "/knowledge-hub/senior-citizen-schemes-pension",
-        description: "Government pension & welfare",
-      },
-    ],
-  },
-  {
-    label: "About",
-    children: [
-      { label: "About ApnaCare", to: "/about", description: "Our story, mission & values" },
-      {
-        label: "Ecosystem Partners",
-        to: "/ecosystem-partners",
-        description: "NGOs, hospitals & skill centers",
-      },
-      { label: "Contact Us", to: "/contact", description: "Get in touch with our team" },
     ],
   },
 ];
@@ -382,7 +345,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
         <div
           role="menu"
           style={{ backgroundColor: "#ffffff" }}
-          className="absolute left-0 top-full z-[200] mt-1.5 w-80 overflow-hidden rounded-2xl border border-border/80 text-foreground shadow-2xl ring-1 ring-black/10 animate-fade-in dark:bg-card"
+          className={`absolute ${item.label === "More" ? "right-0" : "left-0"} top-full z-[200] mt-1.5 w-80 overflow-hidden rounded-2xl border border-border/80 text-foreground shadow-2xl ring-1 ring-black/10 animate-fade-in dark:bg-card`}
         >
           <div style={{ backgroundColor: "#ffffff" }} className="grid gap-1 p-2.5 dark:bg-card">
             {item.children.map((child) => {
