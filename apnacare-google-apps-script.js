@@ -281,6 +281,11 @@ var TAB_HEADERS = {
     "Timestamp", "Session_ID", "Visitor_ID", "IP_Identifier", "IP_Data_Source",
     "Country", "Region", "Request_Path", "Referrer", "User_Agent", "Event_Type",
     "Security_Signal", "Risk_Level", "Request_Count", "Detection_Reason", "Action_Taken"
+  ],
+
+  Report_Delivery_Logs: [
+    "received_at", "report_type", "reporting_period", "delivery_status",
+    "message_id", "provider", "recipient_emails", "error"
   ]
 };
 
@@ -2031,6 +2036,25 @@ function doGet(e) {
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
+  // --- VERCEL REPORTING SYSTEM INTEGRATION (READ-ONLY OPERATIONS & IDEMPOTENCY) ---
+  if (p.action === "get_report_data") {
+    var reportMetrics = GET_REPORT_METRICS(p.type, p.period_key, p.start_date, p.end_date, p.timezone);
+    return ContentService.createTextOutput(JSON.stringify(reportMetrics))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (p.action === "check_report_delivery") {
+    var checkDeliv = CHECK_REPORT_DELIVERY(p.report_type, p.period_key);
+    return ContentService.createTextOutput(JSON.stringify(checkDeliv))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (p.action === "get_delivery_history") {
+    var deliveryHist = GET_DELIVERY_HISTORY(p.limit);
+    return ContentService.createTextOutput(JSON.stringify(deliveryHist))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   return ContentService.createTextOutput(JSON.stringify({
     status: "online",
     system: CONFIG.SYSTEM_NAME,
@@ -2056,6 +2080,13 @@ function doPost(e) {
         status: "error",
         message: "Spreadsheet inaccessible. Check SPREADSHEET_ID in CONFIG."
       })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Handle Report Delivery Logging (from Vercel API routes)
+    if (rawPayload.action === "log_report_delivery") {
+      var logResult = LOG_REPORT_DELIVERY(ss, rawPayload);
+      return ContentService.createTextOutput(JSON.stringify(logResult))
+        .setMimeType(ContentService.MimeType.JSON);
     }
 
     var receivedAt = normalizeTimestamp(new Date());
@@ -3460,17 +3491,12 @@ function sendPeriodicExecutiveDigest(intervalName) {
     '</div>'
   ].join('');
 
-  getUniqueRecipients(EMAIL_CONFIG.reportEmails).forEach(function (em) {
-    safeSendEmail({
-      to: em,
-      subject: "[ApnaCare] " + intervalName + " Digest — " + period + " (" + totalLeads + " Inbound Leads)",
-      htmlBody: html,
-      name: EMAIL_CONFIG.name,
-      replyTo: EMAIL_CONFIG.replyTo
-    });
-  });
+  // ARCHITECTURAL UPDATE: Report email generation & delivery has been completely migrated
+  // to Vercel Serverless Functions + Resend API (/api/cron/daily-report, weekly-report, monthly-report).
+  // Google Apps Script is strictly NOT responsible for sending report emails.
+  Logger.log("Notice: " + intervalName + " digest emails are generated and delivered via Vercel Serverless Functions + Resend.");
 
-  // Also push digest intelligence to Jira as a tracking Task ticket
+  // Push digest intelligence to Jira as a tracking Task ticket if needed
   try {
     pushDigestToJira(intervalName, {
       period: period,
@@ -3492,9 +3518,15 @@ function sendPeriodicExecutiveDigest(intervalName) {
   }
 }
 
-function dailyReport() { sendPeriodicExecutiveDigest("Daily"); }
-function weeklyReport() { sendPeriodicExecutiveDigest("Weekly"); }
-function monthlyReport() { sendPeriodicExecutiveDigest("Monthly"); }
+function dailyReport() {
+  Logger.log("Notice: Daily reports are scheduled and delivered via Vercel Serverless API (/api/cron/daily-report) + Resend.");
+}
+function weeklyReport() {
+  Logger.log("Notice: Weekly reports are scheduled and delivered via Vercel Serverless API (/api/cron/weekly-report) + Resend.");
+}
+function monthlyReport() {
+  Logger.log("Notice: Monthly reports are scheduled and delivered via Vercel Serverless API (/api/cron/monthly-report) + Resend.");
+}
 
 // =========================================================================================
 // ONE-CLICK REFRESH, DUPLICATE PURGE & INITIALIZATION
@@ -3564,30 +3596,242 @@ function PURGE_DUPLICATES_FROM_ALL_TABS() {
   console.log("🧹 Duplicates removed: " + totalRemoved);
 }
 
+// =========================================================================================
+// VERCEL REPORTING READ API & IDEMPOTENCY LOGGING
+// =========================================================================================
+
+function LOG_REPORT_DELIVERY(ss, payload) {
+  try {
+    var tabName = "Report_Delivery_Logs";
+    var sheet = ss.getSheetByName(tabName);
+    if (!sheet) {
+      sheet = ss.insertSheet(tabName);
+      sheet.appendRow(TAB_HEADERS.Report_Delivery_Logs);
+      sheet.setFrozenRows(1);
+    }
+
+    var row = [
+      payload.timestamp || normalizeTimestamp(new Date()),
+      payload.report_type || "",
+      payload.reporting_period || "",
+      payload.delivery_status || "DELIVERED",
+      payload.message_id || "",
+      payload.provider || "resend",
+      payload.recipient_emails || "",
+      payload.error || ""
+    ];
+
+    sheet.appendRow(row);
+    return {
+      status: "success",
+      message: "Report delivery recorded for " + payload.report_type + " " + payload.reporting_period
+    };
+  } catch (err) {
+    console.error("LOG_REPORT_DELIVERY error: " + err.toString());
+    return { status: "error", message: err.toString() };
+  }
+}
+
+function CHECK_REPORT_DELIVERY(reportType, periodKey) {
+  try {
+    var ss = getSpreadsheet();
+    if (!ss) return { status: "error", message: "Spreadsheet inaccessible" };
+
+    var sheet = ss.getSheetByName("Report_Delivery_Logs");
+    if (!sheet || sheet.getLastRow() < 2) {
+      return { status: "success", delivered: false };
+    }
+
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues();
+    // Search from bottom up for newest status
+    for (var i = data.length - 1; i >= 0; i--) {
+      var row = data[i];
+      var rType = String(row[1] || "").toLowerCase();
+      var rPeriod = String(row[2] || "");
+      var rStatus = String(row[3] || "").toUpperCase();
+
+      if (rType === String(reportType || "").toLowerCase() && rPeriod === String(periodKey || "")) {
+        if (rStatus === "DELIVERED") {
+          return {
+            status: "success",
+            delivered: true,
+            record: {
+              timestamp: row[0],
+              report_type: row[1],
+              reporting_period: row[2],
+              delivery_status: row[3],
+              message_id: row[4],
+              provider: row[5],
+              recipients: String(row[6] || "").split(",").map(function(s) { return s.trim(); }).filter(Boolean)
+            }
+          };
+        }
+      }
+    }
+
+    return { status: "success", delivered: false };
+  } catch (err) {
+    return { status: "error", message: err.toString() };
+  }
+}
+
+function GET_DELIVERY_HISTORY(limit) {
+  try {
+    var ss = getSpreadsheet();
+    if (!ss) return { status: "error", message: "Spreadsheet inaccessible" };
+
+    var sheet = ss.getSheetByName("Report_Delivery_Logs");
+    if (!sheet || sheet.getLastRow() < 2) {
+      return { status: "success", history: [] };
+    }
+
+    var maxRows = parseInt(limit, 10) || 50;
+    var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues();
+    var history = [];
+
+    for (var i = data.length - 1; i >= 0 && history.length < maxRows; i--) {
+      var row = data[i];
+      history.push({
+        timestamp: row[0],
+        report_type: row[1],
+        reporting_period: row[2],
+        delivery_status: row[3],
+        message_id: row[4],
+        provider: row[5],
+        recipient_emails: row[6],
+        error: row[7]
+      });
+    }
+
+    return { status: "success", history: history };
+  } catch (err) {
+    return { status: "error", message: err.toString() };
+  }
+}
+
+function GET_REPORT_METRICS(reportType, periodKey, startDate, endDate, timezone) {
+  try {
+    var ss = getSpreadsheet();
+    if (!ss) return { status: "error", message: "Spreadsheet inaccessible" };
+
+    // Refresh aggregated tables first
+    try {
+      BUILD_AGGREGATED_INTERVAL_SUMMARIES();
+    } catch (e) {
+      console.warn("BUILD_AGGREGATED_INTERVAL_SUMMARIES notice: " + e.toString());
+    }
+
+    var tabMap = { daily: "Daily_Summary", weekly: "Weekly_Summary", monthly: "Monthly_Summary" };
+    var tabName = tabMap[String(reportType || "").toLowerCase()] || "Daily_Summary";
+    var summarySheet = ss.getSheetByName(tabName);
+
+    var metrics = {
+      totalLeads: 0,
+      bookings: 0,
+      callbacks: 0,
+      contacts: 0,
+      partners: 0,
+      chatbots: 0,
+      emergencyAlerts: 0,
+      attendantApplications: 0,
+      uniqueVisitors: 0,
+      pageViews: 0,
+      telemetryEvents: 0,
+      conversionRate: "0%",
+      avgEngagementSeconds: 0
+    };
+
+    var foundInSummary = false;
+    if (summarySheet && summarySheet.getLastRow() >= 2) {
+      var summaryRows = summarySheet.getRange(2, 1, summarySheet.getLastRow() - 1, 12).getValues();
+      for (var s = 0; s < summaryRows.length; s++) {
+        var rowPeriod = String(summaryRows[s][0] || "");
+        if (rowPeriod === String(periodKey || "")) {
+          metrics.telemetryEvents = Number(summaryRows[s][1]) || 0;
+          metrics.uniqueVisitors = Number(summaryRows[s][2]) || 0;
+          metrics.pageViews = Number(summaryRows[s][3]) || 0;
+          metrics.bookings = Number(summaryRows[s][4]) || 0;
+          metrics.callbacks = Number(summaryRows[s][5]) || 0;
+          metrics.contacts = Number(summaryRows[s][6]) || 0;
+          metrics.partners = Number(summaryRows[s][7]) || 0;
+          metrics.chatbots = Number(summaryRows[s][8]) || 0;
+          metrics.totalLeads = Number(summaryRows[s][9]) || 0;
+          metrics.conversionRate = String(summaryRows[s][10] || "0%");
+          metrics.avgEngagementSeconds = Number(summaryRows[s][11]) || 0;
+          foundInSummary = true;
+          break;
+        }
+      }
+    }
+
+    // Also count Emergency Alerts and Attendant Applications within the period
+    metrics.emergencyAlerts = countRowsInDateRange(ss, "SOS_Emergency_Alerts", startDate, endDate);
+    metrics.attendantApplications = countRowsInDateRange(ss, "Attendant_Applications", startDate, endDate);
+
+    // If not found in summary, scan the individual tabs directly
+    if (!foundInSummary) {
+      metrics.bookings = countRowsInDateRange(ss, "Booking_Leads", startDate, endDate);
+      metrics.callbacks = countRowsInDateRange(ss, "Callback_Enquiries", startDate, endDate);
+      metrics.contacts = countRowsInDateRange(ss, "Contact_Submissions", startDate, endDate);
+      metrics.partners = countRowsInDateRange(ss, "Partner_Applications", startDate, endDate);
+      metrics.chatbots = countRowsInDateRange(ss, "Chatbot_Leads", startDate, endDate);
+      metrics.totalLeads = metrics.bookings + metrics.callbacks + metrics.contacts + metrics.partners + metrics.chatbots;
+    }
+
+    return {
+      status: "success",
+      type: reportType,
+      period_key: periodKey,
+      metrics: metrics,
+      timestamp: normalizeTimestamp(new Date())
+    };
+  } catch (err) {
+    return { status: "error", message: err.toString() };
+  }
+}
+
+function countRowsInDateRange(ss, tabName, startIso, endIso) {
+  try {
+    var sheet = ss.getSheetByName(tabName);
+    if (!sheet || sheet.getLastRow() < 2) return 0;
+    var dates = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+    var count = 0;
+    var start = startIso ? new Date(startIso).getTime() : 0;
+    var end = endIso ? new Date(endIso).getTime() : Infinity;
+
+    for (var i = 0; i < dates.length; i++) {
+      var dStr = dates[i][0];
+      if (!dStr) continue;
+      var t = new Date(dStr).getTime();
+      if (!isNaN(t) && t >= start && t <= end) {
+        count++;
+      }
+    }
+    return count;
+  } catch (e) {
+    return 0;
+  }
+}
+
 function setupAllApnaCareTriggers() {
   var triggers = ScriptApp.getProjectTriggers();
   triggers.forEach(function (t) { ScriptApp.deleteTrigger(t); });
 
-  // 1. Daily Executive Briefing every evening at 9:00 PM IST
-  ScriptApp.newTrigger("dailyReport").timeBased().everyDays(1).atHour(21).create();
+  // NOTE: Daily, Weekly & Monthly executive report emails are now generated and delivered
+  // by Vercel Serverless Functions (/api/cron/daily-report, weekly-report, monthly-report) + Resend.
+  // Google Apps Script is no longer responsible for sending report emails.
 
-  // 2. Weekly Executive Digest every Friday at 9:00 PM IST
-  ScriptApp.newTrigger("weeklyReport").timeBased().onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(21).create();
-
-  // 3. Monthly Executive Summary on the 1st of every month at 9:00 AM IST
-  ScriptApp.newTrigger("monthlyReport").timeBased().onMonthDay(1).atHour(9).create();
-
-  // 4. Automatic Airtable Lead Sync every 10 minutes
+  // 1. Automatic Airtable Lead Sync every 10 minutes
   ScriptApp.newTrigger("AUTOMATED_AIRTABLE_SYNC_TRIGGER").timeBased().everyMinutes(10).create();
 
-  // 5. Automatic Jira Lead Sync every 10 minutes
+  // 2. Automatic Jira Lead Sync every 10 minutes
   ScriptApp.newTrigger("AUTOMATED_JIRA_SYNC_TRIGGER").timeBased().everyMinutes(10).create();
 
-  // 6. Automatic YouTube Interactions Sync every hour
+  // 3. Automatic YouTube Interactions Sync every hour
   ScriptApp.newTrigger("AUTOMATED_YOUTUBE_SYNC_TRIGGER").timeBased().everyHours(1).create();
 
   try {
-    SpreadsheetApp.getUi().alert("✅ Automated Report & Sync Triggers Activated!\n\n• Daily, Weekly & Monthly Digests (Email + Jira)\n• 10-Minute Airtable Lead Sync\n• 10-Minute Jira Lead Sync\n• 1-Hour YouTube Interactions Sync");
+    SpreadsheetApp.getUi().alert("✅ Automated Sync Triggers Activated!\n\n• Reports handled by Vercel Serverless Functions + Resend\n• 10-Minute Airtable Lead Sync\n• 10-Minute Jira Lead Sync\n• 1-Hour YouTube Interactions Sync");
   } catch (e) { }
 }
 
@@ -3650,7 +3894,7 @@ function onOpen() {
       .addItem('💼 Ingest Sample LinkedIn Leads (Demo)', 'manualTestLinkedInLeadSample')
       .addItem('💬 Quick-Log Inbound LinkedIn Comment (Dialog)', 'LOG_LINKEDIN_POST_INTERACTION')
       .addSeparator()
-      .addItem('⏰ Enable All Scheduled Triggers (Digests, Airtable, Jira & YouTube)', 'setupAllApnaCareTriggers')
+      .addItem('⏰ Enable Scheduled Sync Triggers (Airtable, Jira & YouTube)', 'setupAllApnaCareTriggers')
       .addItem('🧪 Test Inbound Booking Alert Now', 'TEST_BOOKING_ALERT')
       .addToUi();
   } catch (e) { }
