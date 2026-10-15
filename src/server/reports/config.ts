@@ -35,19 +35,17 @@ export function getServerReportConfig(): ServerReportConfig {
   const smtpUser = env.SMTP_USER || "divabhrati.ramco@gmail.com";
   const smtpPass = env.SMTP_PASS || "";
 
-  // Resend API Key (optional fallback)
+  // Resend API Key: Server-only
   const resendApiKey = env.RESEND_API_KEY || "";
 
-  // Choose provider: Nodemailer is default whenever SMTP or no resend key is supplied
-  const emailProvider: "nodemailer" | "resend" =
-    smtpPass || !resendApiKey ? "nodemailer" : "resend";
+  // Choose provider: Resend is primary (unless SMTP_PASS is explicitly provided without RESEND_API_KEY)
+  const emailProvider: "resend" | "nodemailer" =
+    smtpPass && !resendApiKey ? "nodemailer" : "resend";
 
-  // From Email: Verified sender address (e.g. ApnaCare Reports <divabhrati.ramco@gmail.com>)
+  // From Email: Verified sender address or Resend onboarding sandbox
   const fromEmail =
     env.REPORT_FROM_EMAIL ||
-    (smtpUser
-      ? `ApnaCare Reports <${smtpUser}>`
-      : "ApnaCare Intelligence <reports@apnacare.in>");
+    "ApnaCare Reports <onboarding@resend.dev>";
 
   // Recipient Emails: Multiple comma-separated recipients supported
   const rawToEmails =

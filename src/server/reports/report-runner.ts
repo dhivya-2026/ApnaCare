@@ -126,18 +126,18 @@ export async function runReport(options: RunReportOptions): Promise<ReportExecut
   const isTest = Boolean(options.isTest);
   const rendered = generateReportEmail(period, metrics, isTest);
 
-  // 5. Deliver via Nodemailer (or Resend fallback)
+  // 5. Deliver via Resend (or Nodemailer if SMTP configured)
   let emailResult: EmailDeliveryResult;
   try {
-    if (config.emailProvider === "resend" && config.resendApiKey) {
-      emailResult = await sendReportEmail(rendered, config);
-    } else {
+    if (config.emailProvider === "nodemailer" && config.smtpPass) {
       emailResult = await sendReportEmailViaNodemailer(rendered, config);
+    } else {
+      emailResult = await sendReportEmail(rendered, config);
     }
   } catch (err) {
     emailResult = {
       success: false,
-      provider: config.emailProvider === "resend" ? "resend" : "nodemailer",
+      provider: config.emailProvider === "nodemailer" && config.smtpPass ? "nodemailer" : "resend",
       recipients: config.toEmails,
       latencyMs: 0,
       error: err instanceof Error ? err.message : String(err),

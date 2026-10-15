@@ -96,7 +96,7 @@ describe("Report Date Utilities", () => {
 
 describe("Authorization and Security (CRON_SECRET)", () => {
   const mockConfig: ServerReportConfig = {
-    emailProvider: "nodemailer",
+    emailProvider: "resend",
     smtpHost: "smtp.gmail.com",
     smtpPort: 465,
     smtpSecure: true,
