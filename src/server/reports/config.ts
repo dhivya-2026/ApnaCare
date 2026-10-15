@@ -4,7 +4,16 @@
  */
 
 export interface ServerReportConfig {
+  emailProvider: "nodemailer" | "resend";
+  // SMTP / Nodemailer configuration
+  smtpHost: string;
+  smtpPort: number;
+  smtpSecure: boolean;
+  smtpUser: string;
+  smtpPass: string;
+  // Resend fallback configuration
   resendApiKey: string;
+  // Common email configuration
   fromEmail: string;
   toEmails: string[];
   cronSecret: string;
@@ -16,13 +25,29 @@ export interface ServerReportConfig {
 export function getServerReportConfig(): ServerReportConfig {
   const env = process.env;
 
-  // Resend API Key: Server-only
+  // SMTP Settings for Nodemailer
+  const smtpHost = env.SMTP_HOST || "smtp.gmail.com";
+  const smtpPort = parseInt(env.SMTP_PORT || "465", 10);
+  const smtpSecure =
+    env.SMTP_SECURE !== undefined
+      ? env.SMTP_SECURE === "true"
+      : smtpPort === 465;
+  const smtpUser = env.SMTP_USER || "divabhrati.ramco@gmail.com";
+  const smtpPass = env.SMTP_PASS || "";
+
+  // Resend API Key (optional fallback)
   const resendApiKey = env.RESEND_API_KEY || "";
 
-  // From Email: Verified sender domain or Resend sandbox fallback
+  // Choose provider: Nodemailer is default whenever SMTP or no resend key is supplied
+  const emailProvider: "nodemailer" | "resend" =
+    smtpPass || !resendApiKey ? "nodemailer" : "resend";
+
+  // From Email: Verified sender address (e.g. ApnaCare Reports <divabhrati.ramco@gmail.com>)
   const fromEmail =
     env.REPORT_FROM_EMAIL ||
-    "ApnaCare Intelligence <onboarding@resend.dev>";
+    (smtpUser
+      ? `ApnaCare Reports <${smtpUser}>`
+      : "ApnaCare Intelligence <reports@apnacare.in>");
 
   // Recipient Emails: Multiple comma-separated recipients supported
   const rawToEmails =
@@ -54,6 +79,12 @@ export function getServerReportConfig(): ServerReportConfig {
     env.NODE_ENV !== "production" && env.VERCEL_ENV !== "production";
 
   return {
+    emailProvider,
+    smtpHost,
+    smtpPort,
+    smtpSecure,
+    smtpUser,
+    smtpPass,
     resendApiKey,
     fromEmail,
     toEmails,

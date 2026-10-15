@@ -226,7 +226,7 @@ function generateHtml(period: ReportPeriod, m: ReportMetrics, isTest: boolean): 
 
     <!-- Footer -->
     <div style="background:#f8fafc;padding:20px 28px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;text-align:center;">
-      <p style="margin:0 0 4px 0;">This report was generated and dispatched automatically by <strong>Vercel Serverless Intelligence</strong> via Resend.</p>
+      <p style="margin:0 0 4px 0;">This report was generated and dispatched automatically by <strong>Vercel Serverless Intelligence</strong> via Nodemailer SMTP.</p>
       <p style="margin:0;">ApnaCare Health & Mobility Support Services Pvt. Ltd. · 24/7 Command Operations</p>
     </div>
 
@@ -284,7 +284,7 @@ CHANNEL BREAKDOWN:
 Open ApnaCare Portal: https://apna-care.vercel.app/
 
 --
-Generated automatically by Vercel Serverless Reporting via Resend.
+Generated automatically by Vercel Serverless Reporting via Nodemailer SMTP.
 ApnaCare Operations Desk
 `.trim();
 }

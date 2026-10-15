@@ -59,7 +59,7 @@ export interface ReportMetrics {
 export interface EmailDeliveryResult {
   success: boolean;
   messageId?: string;
-  provider: "resend";
+  provider: "nodemailer" | "smtp" | "resend";
   recipients: string[];
   latencyMs: number;
   error?: string;

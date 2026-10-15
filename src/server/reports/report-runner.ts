@@ -9,6 +9,7 @@ import { calculateReportPeriod } from "./date-utils";
 import { fetchReportMetrics } from "./data-source";
 import { generateReportEmail } from "./email-templates";
 import { sendReportEmail } from "./resend-client";
+import { sendReportEmailViaNodemailer } from "./nodemailer-client";
 import { checkReportDelivery, recordReportDelivery } from "./idempotency";
 
 export interface RunReportOptions {
@@ -125,14 +126,18 @@ export async function runReport(options: RunReportOptions): Promise<ReportExecut
   const isTest = Boolean(options.isTest);
   const rendered = generateReportEmail(period, metrics, isTest);
 
-  // 5. Deliver via Resend
+  // 5. Deliver via Nodemailer (or Resend fallback)
   let emailResult: EmailDeliveryResult;
   try {
-    emailResult = await sendReportEmail(rendered, config);
+    if (config.emailProvider === "resend" && config.resendApiKey) {
+      emailResult = await sendReportEmail(rendered, config);
+    } else {
+      emailResult = await sendReportEmailViaNodemailer(rendered, config);
+    }
   } catch (err) {
     emailResult = {
       success: false,
-      provider: "resend",
+      provider: config.emailProvider === "resend" ? "resend" : "nodemailer",
       recipients: config.toEmails,
       latencyMs: 0,
       error: err instanceof Error ? err.message : String(err),
@@ -148,7 +153,7 @@ export async function runReport(options: RunReportOptions): Promise<ReportExecut
       timestamp: new Date().toISOString(),
       messageId: emailResult.messageId,
       recipients: emailResult.recipients,
-      provider: "resend",
+      provider: emailResult.provider,
     };
     await recordReportDelivery(deliveryRecord, config);
   }

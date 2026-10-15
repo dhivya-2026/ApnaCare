@@ -96,6 +96,12 @@ describe("Report Date Utilities", () => {
 
 describe("Authorization and Security (CRON_SECRET)", () => {
   const mockConfig: ServerReportConfig = {
+    emailProvider: "nodemailer",
+    smtpHost: "smtp.gmail.com",
+    smtpPort: 465,
+    smtpSecure: true,
+    smtpUser: "test@apnacare.in",
+    smtpPass: "test_password_123",
     resendApiKey: "re_test_key",
     fromEmail: "ApnaCare Reports <reports@apnacare.in>",
     toEmails: ["test@apnacare.in"],
@@ -266,3 +272,97 @@ describe("Email Template Generation", () => {
     expect(email.text).toContain("Total Inbound Leads: 0");
   });
 });
+
+describe("Nodemailer Client Delivery", () => {
+  it("rejects send if recipient list is empty", async () => {
+    const { sendReportEmailViaNodemailer } = await import(
+      "../server/reports/nodemailer-client"
+    );
+
+    const emptyRecipientConfig: ServerReportConfig = {
+      emailProvider: "nodemailer",
+      smtpHost: "smtp.gmail.com",
+      smtpPort: 465,
+      smtpSecure: true,
+      smtpUser: "test@apnacare.in",
+      smtpPass: "app_password_123",
+      resendApiKey: "",
+      fromEmail: "test@apnacare.in",
+      toEmails: [],
+      cronSecret: "secret",
+      timezone: "Asia/Kolkata",
+      googleAppsScriptUrl: "",
+      isDevelopment: false,
+    };
+
+    const result = await sendReportEmailViaNodemailer(
+      { subject: "Test", html: "<p>test</p>", text: "test" },
+      emptyRecipientConfig
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("No valid recipient");
+  });
+
+  it("handles development mode without SMTP_PASS by simulating delivery", async () => {
+    const { sendReportEmailViaNodemailer } = await import(
+      "../server/reports/nodemailer-client"
+    );
+
+    const devConfigWithoutPass: ServerReportConfig = {
+      emailProvider: "nodemailer",
+      smtpHost: "smtp.gmail.com",
+      smtpPort: 465,
+      smtpSecure: true,
+      smtpUser: "test@apnacare.in",
+      smtpPass: "",
+      resendApiKey: "",
+      fromEmail: "test@apnacare.in",
+      toEmails: ["recipient@apnacare.in"],
+      cronSecret: "secret",
+      timezone: "Asia/Kolkata",
+      googleAppsScriptUrl: "",
+      isDevelopment: true,
+    };
+
+    const result = await sendReportEmailViaNodemailer(
+      { subject: "Test", html: "<p>test</p>", text: "test" },
+      devConfigWithoutPass
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.provider).toBe("nodemailer");
+    expect(result.warning).toContain("Simulated delivery");
+  });
+
+  it("fails in production when SMTP_PASS is missing", async () => {
+    const { sendReportEmailViaNodemailer } = await import(
+      "../server/reports/nodemailer-client"
+    );
+
+    const prodConfigWithoutPass: ServerReportConfig = {
+      emailProvider: "nodemailer",
+      smtpHost: "smtp.gmail.com",
+      smtpPort: 465,
+      smtpSecure: true,
+      smtpUser: "test@apnacare.in",
+      smtpPass: "",
+      resendApiKey: "",
+      fromEmail: "test@apnacare.in",
+      toEmails: ["recipient@apnacare.in"],
+      cronSecret: "secret",
+      timezone: "Asia/Kolkata",
+      googleAppsScriptUrl: "",
+      isDevelopment: false,
+    };
+
+    const result = await sendReportEmailViaNodemailer(
+      { subject: "Test", html: "<p>test</p>", text: "test" },
+      prodConfigWithoutPass
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("SMTP_PASS is not configured");
+  });
+});
+
