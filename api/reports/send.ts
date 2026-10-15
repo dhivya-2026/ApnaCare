@@ -1,7 +1,6 @@
-import { runReport, validateCronAuth } from "../_lib/reports/report-runner";
-import { getServerReportConfig } from "../_lib/reports/config";
-import { ReportType } from "../_lib/reports/types";
-import { toStandardRequest, sendNodeResponse } from "../_lib/reports/adapter";
+import { runReport, validateCronAuth } from "../../src/server/reports/report-runner";
+import { getServerReportConfig } from "../../src/server/reports/config";
+import { ReportType } from "../../src/server/reports/types";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +32,7 @@ export async function POST(request: Request) {
       JSON.stringify({
         status: "error",
         code: "UNAUTHORIZED",
-        message:
-          auth.reason ||
-          "Unauthorized. Supply Bearer <CRON_SECRET> or { secret: '...' } in body.",
+        message: auth.reason || "Unauthorized. Supply Bearer <CRON_SECRET> or { secret: '...' } in body.",
       }),
       {
         status: 401,
@@ -93,9 +90,7 @@ export async function GET(request: Request) {
       JSON.stringify({
         status: "error",
         code: "UNAUTHORIZED",
-        message:
-          auth.reason ||
-          "Unauthorized. Provide ?secret=<CRON_SECRET> or Authorization header.",
+        message: auth.reason || "Unauthorized. Provide ?secret=<CRON_SECRET> or Authorization header.",
       }),
       {
         status: 401,
@@ -143,16 +138,7 @@ export async function GET(request: Request) {
   }
 }
 
-export default async function handler(req: any, res?: any) {
-  const request = await toStandardRequest(req);
-  let response: Response;
-  if (request.method === "POST") {
-    response = await POST(request);
-  } else {
-    response = await GET(request);
-  }
-  if (res && typeof res.status === "function") {
-    return await sendNodeResponse(res, response);
-  }
-  return response;
+export default async function handler(request: Request) {
+  if (request.method === "POST") return POST(request);
+  return GET(request);
 }

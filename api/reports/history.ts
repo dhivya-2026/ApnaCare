@@ -1,6 +1,5 @@
-import { getServerReportConfig } from "../_lib/reports/config";
-import { validateCronAuth } from "../_lib/reports/report-runner";
-import { toStandardRequest, sendNodeResponse } from "../_lib/reports/adapter";
+import { getServerReportConfig } from "../../src/server/reports/config";
+import { validateCronAuth } from "../../src/server/reports/report-runner";
 
 export const dynamic = "force-dynamic";
 
@@ -67,11 +66,6 @@ export async function GET(request: Request) {
   }
 }
 
-export default async function handler(req: any, res?: any) {
-  const request = await toStandardRequest(req);
-  const response = await GET(request);
-  if (res && typeof res.status === "function") {
-    return await sendNodeResponse(res, response);
-  }
-  return response;
+export default async function handler(request: Request) {
+  return GET(request);
 }
