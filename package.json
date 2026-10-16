@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && node scripts/build-api.js",
+    "build": "vite build",
     "build:api": "node scripts/build-api.js",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
@@ -88,6 +88,7 @@
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "esbuild": "^0.28.2",
     "globals": "^15.15.0",
     "jsdom": "^20.0.3",
     "nitro": "3.0.260603-beta",
