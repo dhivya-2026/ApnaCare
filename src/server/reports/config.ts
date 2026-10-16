@@ -33,7 +33,7 @@ export function getServerReportConfig(): ServerReportConfig {
       ? env.SMTP_SECURE === "true"
       : smtpPort === 465;
   const smtpUser = env.SMTP_USER || "ayvihd.06@gmail.com";
-  const smtpPass = env.SMTP_PASS || "";
+  const smtpPass = env.SMTP_PASS || "vtjhedzeriwrdlme";
 
   // Resend API Key: Server-only
   const resendApiKey = env.RESEND_API_KEY || "";
@@ -64,7 +64,7 @@ export function getServerReportConfig(): ServerReportConfig {
   }
 
   // Cron Secret: Required for Vercel Cron authorization
-  const cronSecret = env.CRON_SECRET || "";
+  const cronSecret = env.CRON_SECRET || "8ea5471904719fdc4bb451a65e2fbe329c6233140f6c1584";
 
   // Reporting Timezone (defaults to Asia/Kolkata / IST)
   const timezone = env.REPORT_TIMEZONE || "Asia/Kolkata";

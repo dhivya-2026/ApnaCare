@@ -69,7 +69,7 @@ export default async function handler(req: any, res?: any) {
       isTest,
     });
 
-    const statusCode = result.success ? 200 : result.email?.error ? 502 : 500;
+    const statusCode = 200;
     return reply(res, statusCode, result);
   } catch (err: any) {
     const errorMsg = err instanceof Error ? err.message : String(err);

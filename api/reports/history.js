@@ -5,7 +5,7 @@ function getServerReportConfig() {
   const smtpPort = parseInt(env.SMTP_PORT || "465", 10);
   const smtpSecure = env.SMTP_SECURE !== void 0 ? env.SMTP_SECURE === "true" : smtpPort === 465;
   const smtpUser = env.SMTP_USER || "ayvihd.06@gmail.com";
-  const smtpPass = env.SMTP_PASS || "";
+  const smtpPass = env.SMTP_PASS || "vtjhedzeriwrdlme";
   const resendApiKey = env.RESEND_API_KEY || "";
   const emailProvider = env.EMAIL_PROVIDER === "resend" ? "resend" : "nodemailer";
   const fromEmail = env.REPORT_FROM_EMAIL || (smtpUser ? `ApnaCare Reports <${smtpUser}>` : "ApnaCare Reports <ayvihd.06@gmail.com>");
@@ -14,7 +14,7 @@ function getServerReportConfig() {
   if (toEmails.length === 0) {
     toEmails.push("divabhrati.ramco@gmail.com");
   }
-  const cronSecret = env.CRON_SECRET || "";
+  const cronSecret = env.CRON_SECRET || "8ea5471904719fdc4bb451a65e2fbe329c6233140f6c1584";
   const timezone = env.REPORT_TIMEZONE || "Asia/Kolkata";
   const googleAppsScriptUrl = env.GOOGLE_APPS_SCRIPT_URL || env.VITE_GOOGLE_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbx6gwpPkEgsO9y0lksDo2MS4LFXna4dnv20XkC4_KJd3voXqxTCyBuwPg4g_BM896YV/exec";
   const isDevelopment = env.NODE_ENV !== "production" && env.VERCEL_ENV !== "production";
