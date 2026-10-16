@@ -38,14 +38,16 @@ export function getServerReportConfig(): ServerReportConfig {
   // Resend API Key: Server-only
   const resendApiKey = env.RESEND_API_KEY || "";
 
-  // Choose provider: Resend is primary (unless SMTP_PASS is explicitly provided without RESEND_API_KEY)
-  const emailProvider: "resend" | "nodemailer" =
-    smtpPass && !resendApiKey ? "nodemailer" : "resend";
+  // Choose provider: Nodemailer is primary per user requirement
+  const emailProvider: "nodemailer" | "resend" =
+    env.EMAIL_PROVIDER === "resend" ? "resend" : "nodemailer";
 
-  // From Email: Verified sender address or Resend onboarding sandbox
+  // From Email: Verified sender address (e.g. ApnaCare Reports <divabhrati.ramco@gmail.com>)
   const fromEmail =
     env.REPORT_FROM_EMAIL ||
-    "ApnaCare Reports <onboarding@resend.dev>";
+    (smtpUser
+      ? `ApnaCare Reports <${smtpUser}>`
+      : "ApnaCare Reports <divabhrati.ramco@gmail.com>");
 
   // Recipient Emails: Multiple comma-separated recipients supported
   const rawToEmails =
