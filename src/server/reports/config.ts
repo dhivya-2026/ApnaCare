@@ -32,7 +32,7 @@ export function getServerReportConfig(): ServerReportConfig {
     env.SMTP_SECURE !== undefined
       ? env.SMTP_SECURE === "true"
       : smtpPort === 465;
-  const smtpUser = env.SMTP_USER || "divabhrati.ramco@gmail.com";
+  const smtpUser = env.SMTP_USER || "ayvihd.06@gmail.com";
   const smtpPass = env.SMTP_PASS || "";
 
   // Resend API Key: Server-only
@@ -42,12 +42,12 @@ export function getServerReportConfig(): ServerReportConfig {
   const emailProvider: "nodemailer" | "resend" =
     env.EMAIL_PROVIDER === "resend" ? "resend" : "nodemailer";
 
-  // From Email: Verified sender address (e.g. ApnaCare Reports <divabhrati.ramco@gmail.com>)
+  // From Email: Verified sender address (e.g. ApnaCare Reports <ayvihd.06@gmail.com>)
   const fromEmail =
     env.REPORT_FROM_EMAIL ||
     (smtpUser
       ? `ApnaCare Reports <${smtpUser}>`
-      : "ApnaCare Reports <divabhrati.ramco@gmail.com>");
+      : "ApnaCare Reports <ayvihd.06@gmail.com>");
 
   // Recipient Emails: Multiple comma-separated recipients supported
   const rawToEmails =
