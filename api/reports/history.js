@@ -86,8 +86,26 @@ function validateCronAuth(request, config) {
 
 // src/server/reports/routes/history.ts
 var dynamic = "force-dynamic";
+function reply(res, statusCode, data) {
+  const payload = JSON.stringify(data);
+  if (res && typeof res.status === "function" && typeof res.json === "function") {
+    return res.status(statusCode).json(data);
+  }
+  if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
+    res.statusCode = statusCode;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(payload);
+  }
+  if (res && typeof res.writeHead === "function" && typeof res.end === "function") {
+    res.writeHead(statusCode, { "Content-Type": "application/json" });
+    return res.end(payload);
+  }
+  return new Response(payload, {
+    status: statusCode,
+    headers: { "Content-Type": "application/json" }
+  });
+}
 async function handler(req, res) {
-  const isNode = res && typeof res.status === "function";
   try {
     const config = getServerReportConfig();
     let query = {};
@@ -112,15 +130,10 @@ async function handler(req, res) {
     };
     const auth = validateCronAuth(authReq, config);
     if (!auth.authorized) {
-      const errPayload = {
+      return reply(res, 401, {
         status: "error",
         code: "UNAUTHORIZED",
         message: auth.reason || "Unauthorized"
-      };
-      if (isNode) return res.status(401).json(errPayload);
-      return new Response(JSON.stringify(errPayload), {
-        status: 401,
-        headers: { "Content-Type": "application/json" }
       });
     }
     if (config.googleAppsScriptUrl) {
@@ -133,37 +146,23 @@ async function handler(req, res) {
         });
         if (response.ok) {
           const data = await response.json();
-          if (isNode) return res.status(200).json(data);
-          return new Response(JSON.stringify(data), {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-          });
+          return reply(res, 200, data);
         }
       } catch (fetchErr) {
         console.warn("[ReportHistory] Remote fetch failed, returning fallback:", fetchErr);
       }
     }
-    const fallback = {
+    return reply(res, 200, {
       status: "success",
       history: [],
       message: "No delivery logs found or remote sheet not configured."
-    };
-    if (isNode) return res.status(200).json(fallback);
-    return new Response(JSON.stringify(fallback), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
     });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     console.error("[ReportHistory] Unhandled error:", err);
-    const errPayload = {
+    return reply(res, 500, {
       status: "error",
       message: errorMsg
-    };
-    if (isNode) return res.status(500).json(errPayload);
-    return new Response(JSON.stringify(errPayload), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
     });
   }
 }

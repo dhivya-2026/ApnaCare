@@ -3,9 +3,27 @@ import { getServerReportConfig } from "../config";
 
 export const dynamic = "force-dynamic";
 
-export default async function handler(req: any, res?: any) {
-  const isNode = res && typeof res.status === "function";
+function reply(res: any, statusCode: number, data: any) {
+  const payload = JSON.stringify(data);
+  if (res && typeof res.status === "function" && typeof res.json === "function") {
+    return res.status(statusCode).json(data);
+  }
+  if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
+    res.statusCode = statusCode;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(payload);
+  }
+  if (res && typeof res.writeHead === "function" && typeof res.end === "function") {
+    res.writeHead(statusCode, { "Content-Type": "application/json" });
+    return res.end(payload);
+  }
+  return new Response(payload, {
+    status: statusCode,
+    headers: { "Content-Type": "application/json" },
+  });
+}
 
+export default async function handler(req: any, res?: any) {
   try {
     const config = getServerReportConfig();
 
@@ -33,15 +51,10 @@ export default async function handler(req: any, res?: any) {
 
     const auth = validateCronAuth(authReq, config);
     if (!auth.authorized) {
-      const errPayload = {
+      return reply(res, 401, {
         status: "error",
         code: "UNAUTHORIZED",
         message: auth.reason || "Unauthorized",
-      };
-      if (isNode) return res.status(401).json(errPayload);
-      return new Response(JSON.stringify(errPayload), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -57,24 +70,14 @@ export default async function handler(req: any, res?: any) {
     });
 
     const statusCode = result.success ? 200 : result.email?.error ? 502 : 500;
-
-    if (isNode) return res.status(statusCode).json(result);
-    return new Response(JSON.stringify(result), {
-      status: statusCode,
-      headers: { "Content-Type": "application/json" },
-    });
+    return reply(res, statusCode, result);
   } catch (err: any) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     console.error("[MonthlyReportCron] Unhandled error:", err);
-    const errPayload = {
+    return reply(res, 500, {
       status: "error",
       code: "INTERNAL_ERROR",
       message: errorMsg,
-    };
-    if (isNode) return res.status(500).json(errPayload);
-    return new Response(JSON.stringify(errPayload), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
     });
   }
 }

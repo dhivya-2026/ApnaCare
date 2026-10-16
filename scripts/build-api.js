@@ -20,7 +20,7 @@ for (const target of targets) {
     platform: "node",
     target: "node20",
     format: "esm",
-    packages: "external",
+    // Do NOT externalize npm packages: bundle nodemailer, resend, date-fns so functions are 100% standalone
   });
-  console.log(`✓ Built serverless function: ${target.out}`);
+  console.log(`✓ Built standalone serverless function: ${target.out}`);
 }
