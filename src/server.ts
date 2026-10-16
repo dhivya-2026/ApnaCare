@@ -49,23 +49,23 @@ export default {
     try {
       const url = new URL(request.url);
       if (url.pathname === "/api/cron/daily-report") {
-        const { GET } = await import("../api/cron/daily-report");
+        const { GET } = await import("./server/reports/routes/daily-report");
         return await GET(request);
       }
       if (url.pathname === "/api/cron/weekly-report") {
-        const { GET } = await import("../api/cron/weekly-report");
+        const { GET } = await import("./server/reports/routes/weekly-report");
         return await GET(request);
       }
       if (url.pathname === "/api/cron/monthly-report") {
-        const { GET } = await import("../api/cron/monthly-report");
+        const { GET } = await import("./server/reports/routes/monthly-report");
         return await GET(request);
       }
       if (url.pathname === "/api/reports/send") {
-        const { default: handler } = await import("../api/reports/send");
+        const { default: handler } = await import("./server/reports/routes/send");
         return await handler(request);
       }
       if (url.pathname === "/api/reports/history") {
-        const { GET } = await import("../api/reports/history");
+        const { GET } = await import("./server/reports/routes/history");
         return await GET(request);
       }
 

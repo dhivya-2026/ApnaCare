@@ -28,7 +28,7 @@ export interface RunReportOptions {
  * - ?secret=<CRON_SECRET>
  */
 export function validateCronAuth(
-  request: Request | undefined,
+  request: any,
   config: ServerReportConfig
 ): { authorized: boolean; reason?: string } {
   // If CRON_SECRET is configured, enforce it strictly
@@ -37,25 +37,44 @@ export function validateCronAuth(
       return { authorized: false, reason: "Request context missing" };
     }
 
-    const authHeader = request.headers.get("authorization") || "";
-    const xCronSecret = request.headers.get("x-cron-secret") || "";
+    // Safely extract authorization headers from Web API or Node.js req
+    let authHeader = "";
+    let xCronSecret = "";
+    if (typeof request.headers?.get === "function") {
+      authHeader = request.headers.get("authorization") || "";
+      xCronSecret = request.headers.get("x-cron-secret") || "";
+    } else if (request.headers && typeof request.headers === "object") {
+      authHeader = String(request.headers["authorization"] || "");
+      xCronSecret = String(request.headers["x-cron-secret"] || "");
+    }
 
-    const url = new URL(request.url);
-    const querySecret = url.searchParams.get("secret") || "";
+    // Safely extract query secret from query object or URL searchParams
+    let querySecret = "";
+    if (request.query && typeof request.query === "object") {
+      querySecret = String(request.query.secret || "");
+    }
+    if (!querySecret && request.url) {
+      try {
+        const url = new URL(request.url, "https://apna-care.vercel.app");
+        querySecret = url.searchParams.get("secret") || "";
+      } catch {
+        querySecret = "";
+      }
+    }
 
     const bearerToken = authHeader.startsWith("Bearer ")
       ? authHeader.slice(7).trim()
       : authHeader.trim();
 
     const isMatch =
-      bearerToken === config.cronSecret ||
-      xCronSecret === config.cronSecret ||
-      querySecret === config.cronSecret;
+      (bearerToken && bearerToken === config.cronSecret) ||
+      (xCronSecret && xCronSecret === config.cronSecret) ||
+      (querySecret && querySecret === config.cronSecret);
 
     if (!isMatch) {
       return {
         authorized: false,
-        reason: "Invalid or missing authorization token. Supply Bearer <CRON_SECRET>.",
+        reason: "Invalid or missing authorization token. Supply Bearer <CRON_SECRET> or ?secret=...",
       };
     }
 
