@@ -1,6 +1,6 @@
-import { runReport, validateCronAuth } from "../../src/server/reports/report-runner";
-import { getServerReportConfig } from "../../src/server/reports/config";
-import { toStandardRequest, sendNodeResponse } from "../../src/server/reports/adapter";
+import { runReport, validateCronAuth } from "../_lib/reports/report-runner";
+import { getServerReportConfig } from "../_lib/reports/config";
+import { toStandardRequest, sendNodeResponse } from "../_lib/reports/adapter";
 
 export const dynamic = "force-dynamic";
 

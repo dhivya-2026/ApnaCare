@@ -3,11 +3,11 @@ import {
   calculateReportPeriod,
   getDatePartsInTimezone,
   getPreviousPeriod,
-} from "../server/reports/date-utils";
-import { generateReportEmail } from "../server/reports/email-templates";
-import { validateCronAuth } from "../server/reports/report-runner";
-import { ServerReportConfig } from "../server/reports/config";
-import { ReportMetrics, ReportPeriod } from "../server/reports/types";
+} from "../../api/_lib/reports/date-utils";
+import { generateReportEmail } from "../../api/_lib/reports/email-templates";
+import { validateCronAuth } from "../../api/_lib/reports/report-runner";
+import { ServerReportConfig } from "../../api/_lib/reports/config";
+import { ReportMetrics, ReportPeriod } from "../../api/_lib/reports/types";
 
 describe("Report Date Utilities", () => {
   it("extracts timezone date parts accurately for Asia/Kolkata", () => {
@@ -276,7 +276,7 @@ describe("Email Template Generation", () => {
 describe("Nodemailer Client Delivery", () => {
   it("rejects send if recipient list is empty", async () => {
     const { sendReportEmailViaNodemailer } = await import(
-      "../server/reports/nodemailer-client"
+      "../../api/_lib/reports/nodemailer-client"
     );
 
     const emptyRecipientConfig: ServerReportConfig = {
@@ -306,7 +306,7 @@ describe("Nodemailer Client Delivery", () => {
 
   it("handles development mode without SMTP_PASS by simulating delivery", async () => {
     const { sendReportEmailViaNodemailer } = await import(
-      "../server/reports/nodemailer-client"
+      "../../api/_lib/reports/nodemailer-client"
     );
 
     const devConfigWithoutPass: ServerReportConfig = {
@@ -337,7 +337,7 @@ describe("Nodemailer Client Delivery", () => {
 
   it("fails in production when SMTP_PASS is missing", async () => {
     const { sendReportEmailViaNodemailer } = await import(
-      "../server/reports/nodemailer-client"
+      "../../api/_lib/reports/nodemailer-client"
     );
 
     const prodConfigWithoutPass: ServerReportConfig = {
