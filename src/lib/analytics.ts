@@ -586,8 +586,9 @@ export function getSecuritySignals(): SecuritySignalResult {
   const ua = navigator.userAgent || "";
 
   // Detect headless / automation signals
+  const navRecord = navigator as unknown as Record<string, unknown>;
   const isHeadless =
-    (typeof (navigator as Record<string, unknown>).webdriver === "boolean" && (navigator as Record<string, unknown>).webdriver === true) ||
+    (typeof navRecord["webdriver"] === "boolean" && navRecord["webdriver"] === true) ||
     /HeadlessChrome|Puppeteer|Playwright|Selenium/i.test(ua);
 
   if (isHeadless) {

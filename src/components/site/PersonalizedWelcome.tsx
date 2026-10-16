@@ -290,6 +290,7 @@ export function PersonalizedWelcome() {
         return () => clearTimeout(timer);
       }
     }
+    return undefined;
   }, [location.pathname, showCard]);
 
   // ─── Trigger 3: Re-entering the site in the same session or returning visit ───
@@ -314,6 +315,7 @@ export function PersonalizedWelcome() {
       }, 800);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [persona.isReturning, persona.showWelcome, persona.lastService, showCard]);
 
   const handleDismiss = useCallback(() => {

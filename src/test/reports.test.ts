@@ -182,23 +182,26 @@ describe("Email Template Generation", () => {
   };
 
   const sampleMetrics: ReportMetrics = {
+    periodKey: "2026-10-14",
+    totalEvents: 3400,
+    uniqueVisitors: 450,
+    pageViews: 1280,
     totalLeads: 12,
     bookings: 5,
     callbacks: 3,
     contacts: 2,
     partners: 1,
     chatbots: 1,
-    emergencyAlerts: 0,
+    youtubeLeads: 0,
+    linkedinLeads: 0,
     attendantApplications: 2,
-    uniqueVisitors: 450,
-    pageViews: 1280,
-    telemetryEvents: 3400,
+    sosAlerts: 0,
     conversionRate: "2.67%",
-    avgEngagementSeconds: 142,
-    source: "google_sheets",
+    avgEngagementSec: 142,
+    dataSource: "google_apps_script",
     comparisons: {
-      totalLeads: { current: 12, previous: 10, delta: 2, percentChange: 20, trend: "up" },
-      bookings: { current: 5, previous: 4, delta: 1, percentChange: 25, trend: "up" },
+      totalLeads: { current: 12, previous: 10, changeDelta: 2, changePercent: 20, trend: "up" },
+      bookings: { current: 5, previous: 4, changeDelta: 1, changePercent: 25, trend: "up" },
     },
   };
 
