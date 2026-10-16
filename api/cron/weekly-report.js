@@ -1085,7 +1085,7 @@ async function fetchFromGoogleAppsScript(period, config) {
   url.searchParams.set("end_date", period.endDate);
   url.searchParams.set("timezone", period.timezone);
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12e3);
+  const timeoutId = setTimeout(() => controller.abort(), 3500);
   try {
     const response = await fetch(url.toString(), {
       method: "GET",
@@ -19515,7 +19515,7 @@ async function checkReportDelivery(reportType, periodKey, config) {
     url.searchParams.set("report_type", reportType);
     url.searchParams.set("period_key", periodKey);
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6e3);
+    const timeout = setTimeout(() => controller.abort(), 2e3);
     const response = await fetch(url.toString(), {
       method: "GET",
       headers: { Accept: "application/json" },

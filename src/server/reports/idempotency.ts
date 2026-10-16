@@ -33,7 +33,7 @@ export async function checkReportDelivery(
     url.searchParams.set("period_key", periodKey);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 2000);
 
     const response = await fetch(url.toString(), {
       method: "GET",

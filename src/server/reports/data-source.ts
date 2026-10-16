@@ -69,7 +69,7 @@ async function fetchFromGoogleAppsScript(
   url.searchParams.set("timezone", period.timezone);
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
+  const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s fast timeout
 
   try {
     const response = await fetch(url.toString(), {
