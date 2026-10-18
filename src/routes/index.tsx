@@ -1,1047 +1,909 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import {
+  ShieldCheck,
   BadgeCheck,
   Clock,
-  HeartHandshake,
   IndianRupee,
-  Pause,
-  Play,
-  Quote,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  Copy,
   ArrowRight,
-  CheckCircle2,
-  SlidersHorizontal,
-  ChevronRight,
-  ChevronLeft,
-  Radio,
-  Zap,
   MessageCircle,
+  Phone,
+  Sparkles,
+  CheckCircle2,
+  Star,
+  ChevronRight,
 } from "lucide-react";
-import { EnquiryForm } from "@/components/site/EnquiryForm";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
-  SITE,
-  SERVICES,
-  PRICING_PLANS,
-  ATTENDANTS,
-  PROMOS,
-  PROMO_ENDS_AT,
-  ARTICLES,
-  REVIEWS,
-  CITIES,
-  CATEGORIES,
-  SAFETY_PILLARS,
-  AUDIENCE_CHALLENGES,
-  REAL_LIFE_STORIES,
-  TRUST_VERIFICATION_STANDARDS,
-  CARE_JOURNEY_STEPS,
-  type ServiceCategory,
-  formatINR,
-  buildWhatsAppUrl,
-} from "@/data/site";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { EnquiryForm } from "@/components/site/EnquiryForm";
 import {
-  SectionHeading,
-  ServiceCard,
-  PricingCard,
-  AttendantCard,
-  ArticleCard,
-  CityCard,
-} from "@/components/site/Cards";
-import { BookLink, CallLink } from "@/components/site/Layout";
-import { SOSDemoButton } from "@/components/site/SOS";
-import { Countdown } from "@/components/site/Countdown";
-import { savePromo } from "@/lib/promo";
+  SITE,
+  buildWhatsAppUrl,
+  formatINR,
+} from "@/data/site";
 import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
-import hero3 from "@/assets/hero-3.jpg";
 import hero4 from "@/assets/hero-4.jpg";
 import hero5 from "@/assets/hero-5.jpg";
-import hero6 from "@/assets/hero-6.jpg";
 
 export const Route = createFileRoute("/")({
   head: () =>
     seo(
-      "ApnaCare — Trusted Women Attendants for Every Stage of Care",
-      "Safe, police-verified and compassionate women attendants for elderly care, hospital assistance, nursing, post-natal care, women drivers and travel across South India.",
+      "ApnaCare — Care for Them. Peace of Mind for You.",
+      "Trusted, police-verified care and support for your loved ones across South India. Compassionate elderly care, hospital assistance, certified nursing, and post-natal support.",
     ),
-  component: Home,
+  component: HomePage,
 });
 
-const SLIDES = [
+// Featured Hero Care Moments for smooth visual preview
+const HERO_CARE_MOMENTS = [
   {
-    src: hero1,
-    alt: "A compassionate woman attendant gently holding hands with a smiling elderly woman at home",
-    caption: "Elderly Care & Home Companionship",
-    heading: "Warm, Dignified Care for Your Loved Ones",
-    sub: "Geriatric-certified women attendants providing 24/7 companionship, medication reminders, and mobility support.",
-    cta: { label: "Book Elderly Care", service: "elderly-care" },
+    image: hero1,
+    title: "Elderly Care at Home",
+    caption: "Compassionate companionship & daily mobility support",
+    badge: "Senior Care",
+    alt: "Caregiver gently holding hands with an elderly woman at home",
   },
   {
-    src: hero2,
-    alt: "An attendant assisting an elderly patient walk safely with a frame in a hospital recovery corridor",
-    caption: "Hospital Bedside & Post-Surgical Support",
-    heading: "Never Leave a Loved One Unattended in Hospital",
-    sub: "Dedicated bedside attendants who coordinate with nurses, assist with hygiene, and keep you updated around the clock.",
-    cta: { label: "Book Hospital Support", service: "hospital-attendants" },
+    image: hero2,
+    title: "Hospital Bedside Vigil",
+    caption: "Attentive assistance during recovery stays",
+    badge: "Hospital Support",
+    alt: "Attendant assisting a patient in hospital corridor",
   },
   {
-    src: hero3,
-    alt: "A professional woman chauffeur opening a vehicle door for an elderly woman at an airport terminal",
-    caption: "Women Drivers & Airport Assistance",
-    heading: "Safe, Reliable Women Drivers for Every Journey",
-    sub: "Licensed and police-verified women chauffeurs for commutes, clinic visits, airport transfers, and outstation trips.",
-    cta: { label: "Book a Driver", service: "women-drivers" },
+    image: hero4,
+    title: "Certified Home Nursing",
+    caption: "Qualified GNM/B.Sc nurses for wound care & vitals",
+    badge: "Clinical Nursing",
+    alt: "Female nurse taking vitals with gentle smile",
   },
   {
-    src: hero4,
-    alt: "A certified female nurse gently taking vitals and checking blood pressure for a home patient",
-    caption: "Clinical Home Nursing & Wound Care",
-    heading: "Hospital-Grade Nursing in the Comfort of Home",
-    sub: "Registered nurses with General Nursing and Midwifery (GNM) or B.Sc. Nursing credentials for wound care, injections, catheter management, and post-operative recovery.",
-    cta: { label: "Book Nursing Services", service: "nursing-services" },
-  },
-  {
-    src: hero5,
-    alt: "A trained maternal care specialist tenderly swaddling a newborn baby while the mother rests",
-    caption: "Post-Natal Maternal & Infant Recuperation",
-    heading: "Cherished Support for New Mothers & Newborns",
-    sub: "Experienced post-natal attendants for newborn massage, feeding guidance, and restorative rest for mothers.",
-    cta: { label: "Book Post-Natal Care", service: "post-natal-care" },
-  },
-  {
-    src: hero6,
-    alt: "A verified woman security companion accompanying an executive safely through a busy transit hub",
-    caption: "Protective Security & Safe Travel Mobility",
-    heading: "Travel & Transit You Can Count On",
-    sub: "Verified women companions for airport meet-and-greet, railway escorts, and end-to-end intercity journeys.",
-    cta: { label: "Book Travel Support", service: "airport-pickup" },
+    image: hero5,
+    title: "Post-Natal Maternal Support",
+    caption: "Infant massage, soothing & restorative maternal rest",
+    badge: "New Mothers",
+    alt: "Post-natal attendant holding a newborn while mother rests",
   },
 ];
 
-function Hero() {
-  const [i, setI] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const slide = SLIDES[i]!;
+// The 4 prominent service discovery cards
+const CORE_SERVICES = [
+  {
+    id: "elderly-care",
+    slug: "elderly-care",
+    title: "Elderly Care",
+    benefit: "Support for the people who cared for you.",
+    description:
+      "Compassionate daily companionship, medication reminders, mobility assistance, and dignity for ageing parents at home.",
+    price: 1299,
+    unit: "day",
+    image: hero1,
+    alt: "Elderly woman sitting comfortably with a friendly caregiver",
+    tag: "Most Requested",
+    highlight: "Geriatric certified · 24/7 or Day Shifts",
+  },
+  {
+    id: "hospital-attendants",
+    slug: "hospital-attendants",
+    title: "Hospital Assistance",
+    benefit: "A helping hand when your family needs it.",
+    description:
+      "Dedicated bedside attendants during hospital stays. Coordinates with nurses, assists with hygiene, and provides peaceful updates.",
+    price: 1499,
+    unit: "day",
+    image: hero2,
+    alt: "Attendant providing walking assistance in hospital",
+    tag: "24/7 Vigil",
+    highlight: "Inpatient coordination · Day & Night shifts",
+  },
+  {
+    id: "nursing-services",
+    slug: "nursing-services",
+    title: "Nursing Services",
+    benefit: "Qualified nursing support for eligible care needs.",
+    description:
+      "Registered GNM and B.Sc nurses providing sterile wound care, injections, vitals monitoring, and post-surgical recovery at home.",
+    price: 1999,
+    unit: "day",
+    image: hero4,
+    alt: "Nurse checking patient vitals and health status",
+    tag: "Clinical Care",
+    highlight: "Registered GNM/B.Sc · Doctor prescription compliant",
+  },
+  {
+    id: "post-natal-care",
+    slug: "post-natal-care",
+    title: "Post-Natal Care",
+    benefit: "More support for the early days of parenthood.",
+    description:
+      "Experienced maternal and infant specialists assisting with newborn massage, bath routines, and soothing so mothers get restorative sleep.",
+    price: 1999,
+    unit: "day",
+    image: hero5,
+    alt: "Caregiver tenderly tending to a newborn baby",
+    tag: "Maternal Care",
+    highlight: "Japa trained · Newborn massage & mother rest",
+  },
+];
 
-  useEffect(() => {
-    if (paused) return;
-    const t = setInterval(() => setI((x) => (x + 1) % SLIDES.length), 5500);
-    return () => clearInterval(t);
-  }, [paused]);
+// Visual Storytelling: Because Every Family Has a Story
+const FAMILY_STORIES = [
+  {
+    category: "Working Professionals & Ageing Parents",
+    headline: "Distance Shouldn't Mean Worrying Alone",
+    sentence1:
+      "Balancing demanding work schedules while living away from ageing parents is emotionally heavy when health needs arise.",
+    sentence2:
+      "ApnaCare connects your parents with trustworthy, gentle daily companionship and timely updates so you know they are never alone.",
+    cta: "Explore Elderly Care",
+    link: "/services/elderly-care",
+    image: hero1,
+    alt: "Warm companionship between caregiver and elderly lady",
+  },
+  {
+    category: "Hospitalization & Post-Surgery",
+    headline: "Relief When a Loved One is in Recovery",
+    sentence1:
+      "Hospital corridors and post-operative weeks place immense physical exhaustion on family members balancing office and childcare.",
+    sentence2:
+      "A dedicated ApnaCare bedside attendant stays vigilant around the clock, assisting with hygiene and comforting your loved one so you can recharge.",
+    cta: "Explore Hospital Care",
+    link: "/services/hospital-attendants",
+    image: hero2,
+    alt: "Patient receiving safe walking assistance after surgery",
+  },
+  {
+    category: "Newborn Adjustments & Maternal Healing",
+    headline: "Gentle Hands for the Early Days of Parenthood",
+    sentence1:
+      "Bringing a newborn home brings immense joy, but physical recovery and sleepless nights can leave new mothers overwhelmed without experienced help.",
+    sentence2:
+      "Our post-natal attendants handle gentle baby baths, feeding accompaniment, and soothing, ensuring the mother gets deep, restorative healing sleep.",
+    cta: "Explore Post-Natal Care",
+    link: "/services/post-natal-care",
+    image: hero5,
+    alt: "Caregiver gently cradling a sleeping newborn",
+  },
+];
 
-  // Keyboard navigation
+// Verified Trust Information
+const TRUST_PILLARS = [
+  {
+    icon: ShieldCheck,
+    title: "100% Police & Identity Verified",
+    description:
+      "Every attendant undergoes biometric Aadhaar verification, criminal court screening, and residential address checks before entering any home.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Clinical & Practical Care Training",
+    description:
+      "Comprehensive training in patient ergonomics, infection prevention, mobility transfer, and precise daily medication logging.",
+  },
+  {
+    icon: Clock,
+    title: "Guaranteed 90-Min Backup Protocol",
+    description:
+      "Never left without care. If your assigned attendant experiences an unexpected emergency, our local cluster dispatches a qualified backup within 90 minutes.",
+  },
+  {
+    icon: IndianRupee,
+    title: "Transparent Pricing & GST Invoicing",
+    description:
+      "No hidden agency commissions or surprise dispatch charges. Clear, upfront daily rates accompanied by official 18% GST tax invoices.",
+  },
+];
+
+// Simple 3-step booking explanation
+const SIMPLE_STEPS = [
+  {
+    step: "01",
+    title: "Tell Us What Your Family Needs",
+    description:
+      "Share who requires care, your city, preferred shift timing (day, night, or 24/7), and language preferences in 60 seconds.",
+  },
+  {
+    step: "02",
+    title: "Review Matched Verified Profiles",
+    description:
+      "Our care coordinators match qualified attendants and share digital profiles detailing verified credentials, background checks, and care experience.",
+  },
+  {
+    step: "03",
+    title: "Welcome Dependable Care",
+    description:
+      "Your attendant arrives punctually. Stay informed with scheduled daily check-ins, routine wellness notes, and ongoing care desk support.",
+  },
+];
+
+// Transparent Pricing Highlights
+const PRICING_HIGHLIGHTS = [
+  {
+    title: "Day Shift Care",
+    subtitle: "8 to 12 Hours Daytime",
+    price: 1299,
+    description: "Ideal for daily companionship, mobility assistance, medication routines, and meal assistance while family is at work.",
+    serviceSlug: "elderly-care",
+    popular: false,
+  },
+  {
+    title: "24-Hour Live-in Care",
+    subtitle: "Continuous Day & Night",
+    price: 1799,
+    description: "Complete round-the-clock peace of mind for seniors or recovering individuals who need prompt assistance at any hour.",
+    serviceSlug: "elderly-care",
+    popular: true,
+  },
+  {
+    title: "Hospital Bedside Assistance",
+    subtitle: "12-Hr Shift or 24-Hr Vigil",
+    price: 1499,
+    description: "Dedicated bedside support in private or general wards, nurse bell assistance, hygiene care, and real-time family updates.",
+    serviceSlug: "hospital-attendants",
+    popular: false,
+  },
+  {
+    title: "Certified Nursing Support",
+    subtitle: "Clinical Procedures",
+    price: 1999,
+    description: "Registered GNM/B.Sc nurse visits for sterile surgical wound dressings, injections, catheter care, and doctor prescription compliance.",
+    serviceSlug: "nursing-services",
+    popular: false,
+  },
+];
+
+// Scannable, concise FAQs
+const FAQS = [
+  {
+    q: "How are ApnaCare attendants verified and vetted?",
+    a: "Every attendant undergoes a rigorous 5-step background verification: biometric Aadhaar authentication, court and criminal record checks via authorized law enforcement partners, address verification, credential validation, and hands-on patient handling assessment before any placement.",
+  },
+  {
+    q: "What is the difference between a care attendant and a registered nurse?",
+    a: "A care attendant provides supportive personal care — companionship, mobility assistance, bathing, feeding accompaniment, and prescription reminder logging. A registered nurse (GNM or B.Sc. Nursing) is medically licensed to perform clinical procedures such as sterile wound dressings, IV infusions, injections, and catheter management.",
+  },
+  {
+    q: "How do families receive daily care updates?",
+    a: "Attendants maintain daily digital activity logs recording vital signs, meal intake, and routine comfort. Families receive scheduled daily WhatsApp wellness summaries and have direct contact with their assigned care coordinator at all times.",
+  },
+  {
+    q: "What happens if our assigned attendant falls ill or has an emergency?",
+    a: "We maintain a guaranteed backup dispatch protocol in each active operating cluster (Bengaluru, Chennai, Hyderabad, and Coimbatore). If your primary attendant cannot attend due to an emergency, a verified backup with matched skills is dispatched within 90 minutes with zero transition penalty.",
+  },
+];
+
+function HomePage() {
+  const [activeMoment, setActiveMoment] = useState(0);
+
+  // Auto-cycle hero visual gently every 5 seconds
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") setI((x) => (x - 1 + SLIDES.length) % SLIDES.length);
-      if (e.key === "ArrowRight") setI((x) => (x + 1) % SLIDES.length);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    const timer = setInterval(() => {
+      setActiveMoment((prev) => (prev + 1) % HERO_CARE_MOMENTS.length);
+    }, 5000);
+    return () => clearInterval(timer);
   }, []);
 
-  const prev = () => setI((x) => (x - 1 + SLIDES.length) % SLIDES.length);
-  const next = () => setI((x) => (x + 1) % SLIDES.length);
-
-  return (
-    <section
-      aria-roledescription="carousel"
-      aria-label="ApnaCare care moments"
-      className="relative isolate overflow-hidden bg-ink"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      {/* Slide images */}
-      {SLIDES.map((s, idx) => (
-        <img
-          key={idx}
-          src={s.src}
-          alt={idx === i ? s.alt : ""}
-          aria-hidden={idx !== i}
-          width={1600}
-          height={1008}
-          loading={idx === 0 ? "eager" : "lazy"}
-          fetchPriority={idx === 0 ? "high" : "low"}
-          className={`absolute inset-0 -z-10 h-full w-full object-cover object-[70%_center] transition-opacity duration-1000 ${
-            idx === i ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      ))}
-      <div className="absolute inset-0 -z-10 hero-scrim" />
-
-      {/* Prev / Next arrows */}
-      <button
-        onClick={prev}
-        aria-label="Previous slide"
-        className="absolute left-4 top-1/2 z-10 -translate-y-1/2 grid size-10 place-items-center rounded-full bg-primary-foreground/15 text-primary-foreground backdrop-blur hover:bg-primary-foreground/30 transition-colors md:left-8"
-      >
-        <ChevronLeft className="size-5" />
-      </button>
-      <button
-        onClick={next}
-        aria-label="Next slide"
-        className="absolute right-4 top-1/2 z-10 -translate-y-1/2 grid size-10 place-items-center rounded-full bg-primary-foreground/15 text-primary-foreground backdrop-blur hover:bg-primary-foreground/30 transition-colors md:right-8"
-      >
-        <ChevronRight className="size-5" />
-      </button>
-
-      <div className="container-page flex min-h-[82vh] flex-col justify-center py-20 text-primary-foreground">
-        <div className="max-w-2xl">
-          <p className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/15 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] backdrop-blur">
-            <Sparkles className="size-3.5 text-terracotta" />
-            {slide.caption}
-          </p>
-
-          <h1 className="mt-6 text-balance text-4xl font-semibold leading-[1.08] sm:text-5xl lg:text-6xl animate-fade-up">
-            Caring for Your Loved Ones Shouldn't Mean Carrying Everything Alone.
-          </h1>
-
-          <p className="mt-5 max-w-xl text-lg text-primary-foreground/90 leading-relaxed animate-fade-up">
-            Whether you are supporting ageing parents, recovering after a hospital stay, welcoming a newborn, or balancing work with family responsibilities, ApnaCare helps you find dependable care tailored to your family's needs.
-          </p>
-
-          <div className="mt-8 flex flex-wrap items-center gap-3.5">
-            <Button asChild size="lg" variant="warm">
-              <a href="#audience-challenges">
-                Find the Right Care
-              </a>
-            </Button>
-            <a
-              href={buildWhatsAppUrl("Hi ApnaCare! I would like to speak to your care team about finding the right care for my family.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => track("hero_talk_care_team")}
-              className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/20 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur hover:bg-[#25D366]/30 transition-colors"
-            >
-              <MessageCircle className="size-4 text-[#25D366]" />
-              Talk to Our Care Team
-            </a>
-          </div>
-
-          <div className="mt-7 flex flex-wrap items-center gap-4 text-xs text-primary-foreground/80 font-medium">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="size-4 text-terracotta" /> 100% Police & Biometric Screening
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-4 text-primary" /> Active in Bengaluru, Chennai, Hyderabad & Coimbatore
-            </span>
-          </div>
-        </div>
-
-        {/* Slide indicators & playback controls */}
-        <div className="mt-12 flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            {SLIDES.map((s, idx) => (
-              <button
-                key={idx}
-                onClick={() => setI(idx)}
-                aria-label={`Show slide ${idx + 1}: ${s.caption}`}
-                aria-current={idx === i}
-                className={`h-2 rounded-full transition-all ${
-                  idx === i
-                    ? "w-10 bg-primary-foreground"
-                    : "w-4 bg-primary-foreground/40 hover:bg-primary-foreground/70"
-                }`}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={() => setPaused(!paused)}
-            aria-label={paused ? "Play slideshow" : "Pause slideshow"}
-            className="grid size-8 place-items-center rounded-full bg-primary-foreground/15 hover:bg-primary-foreground/25 backdrop-blur transition-colors"
-          >
-            {paused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}
-          </button>
-
-          <span className="text-xs font-semibold text-primary-foreground/80 tracking-wide uppercase">
-            {i + 1} / {SLIDES.length}
-          </span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const TRUST = [
-  { icon: BadgeCheck, label: "100% Biometric & Police Screening" },
-  { icon: ShieldCheck, label: "Clear Attendant vs Nurse Scope" },
-  { icon: CheckCircle2, label: "Verified Care Continuity" },
-  { icon: MessageCircle, label: "Scheduled WhatsApp Updates" },
-  { icon: IndianRupee, label: "Transparent GST Invoicing" },
-];
-
-const PILLARS = [
-  {
-    t: "Safety",
-    d: "Every companion undergoes biometric Aadhaar checks, court screening, police verification, and is linked to real-time GPS tracking with an instant 24/7 SOS alert trigger.",
-  },
-  {
-    t: "Reliability",
-    d: "Punctual, background-checked attendants with a guaranteed 90-minute backup replacement dispatch, so your family's care schedule is never left compromised.",
-  },
-  {
-    t: "Supportiveness",
-    d: "Gentle bedside presence, active communication, patient understanding and medication reminders — preserving human dignity every single day.",
-  },
-  {
-    t: "Trust",
-    d: `${SITE.yearsOfService} years serving over 1,200+ families with upfront pricing you see before submitting, backed by full refund protection and 18% GST tax invoices.`,
-  },
-];
-
-const JOURNEY_STEPS = [
-  {
-    num: "01",
-    title: "Discover",
-    desc: "Browse 11 specialized categories and explore transparent per-day or per-trip rates.",
-  },
-  {
-    num: "02",
-    title: "Select",
-    desc: "Choose preferred service, location, language fluencies, and required shift hours.",
-  },
-  {
-    num: "03",
-    title: "Verify",
-    desc: "Receive and preview verified digital attendant profiles with credentials and certifications.",
-  },
-  {
-    num: "04",
-    title: "Book",
-    desc: "Submit your reservation with transparent GST pricing, zero hidden fees, and instant confirmation.",
-  },
-  {
-    num: "05",
-    title: "Assign",
-    desc: "Your dedicated woman attendant arrives punctually with supervisor coordination.",
-  },
-  {
-    num: "06",
-    title: "Support",
-    desc: "Live shift check-in tracking, WhatsApp updates to family, and 24/7 control room telemetry.",
-  },
-  {
-    num: "07",
-    title: "Complete",
-    desc: "Shift completion report, transparent rating submission, and effortless schedule renewal.",
-  },
-];
-
-function RecommendationEngine() {
-  const [recipient, setRecipient] = useState<
-    "elder" | "hospital" | "maternal" | "travel" | "driver"
-  >("elder");
-  const [duration, setDuration] = useState<"day" | "livein" | "trip">("day");
-
-  const recommendations = {
-    elder: {
-      name: "Senior Home Companionship & Care",
-      serviceSlug: "elderly-care",
-      price: duration === "livein" ? "₹2,499/day (24-hr live-in)" : "₹1,299/day (8-12 hrs)",
-      points: [
-        "Dedicated elderly care specialist with geriatric certification",
-        "Medicine schedules, walking assistance & vitals logging",
-        "Daily WhatsApp wellness updates to family",
-      ],
-    },
-    hospital: {
-      name: "Hospital Bedside & Staff Coordination",
-      serviceSlug: "hospital-attendants",
-      price: duration === "livein" ? "₹2,799/day (24-hr bedside)" : "₹1,499/day (12 hrs)",
-      points: [
-        "Continuous bedside vigil in inpatient rooms",
-        "Assistance with hygiene, call-bell, and pharmacy errands",
-        "Smooth handover between day and night nursing shifts",
-      ],
-    },
-    maternal: {
-      name: "Maternal Recuperation & Infant Care",
-      serviceSlug: "post-natal-care",
-      price: duration === "livein" ? "₹3,499/day (24-hr care)" : "₹1,999/day (12 hrs)",
-      points: [
-        "Certified infant massage, warm bath, and latch support",
-        "Restorative night care so new mothers heal properly",
-        "Post-delivery nutrition and hygiene supervision",
-      ],
-    },
-    travel: {
-      name: "Safe Transit & Gate-to-Gate Companion",
-      serviceSlug: "airport-pickup",
-      price: "₹999/trip (Airport) · ₹1,599/day (Outstation)",
-      points: [
-        "Arrival gate meet-and-greet with luggage assistance",
-        "Live GPS tracking link shared directly with family",
-        "Coordination with airline wheelchair ground teams",
-      ],
-    },
-    driver: {
-      name: "Professional Women Chauffeur",
-      serviceSlug: "women-drivers",
-      price: "₹1,199/day (8 hrs) · ₹1,799 (Outstation)",
-      points: [
-        "Licensed commercial chauffeuse with clean traffic records",
-        "Defensive driving certified with emergency protocol training",
-        "Safe escort for late-night city errands or elder clinics",
-      ],
-    },
-  };
-
-  const rec = recommendations[recipient];
-
-  return (
-    <div className="mt-12 rounded-3xl border border-border bg-card p-8 md:p-12 shadow-soft">
-      <div className="grid gap-10 lg:grid-cols-2 items-center">
-        <div>
-          <span className="eyebrow text-terracotta">Interactive Matcher</span>
-          <h3 className="mt-2 text-2xl font-semibold md:text-3xl">
-            Find the Perfect Care Package in 2 Clicks
-          </h3>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Tell us who needs assistance, and our matching logic immediately calculates the optimal
-            caregiver profile and transparent rate.
-          </p>
-
-          <div className="mt-6 space-y-4">
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                1. Who requires care?
-              </label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {[
-                  { id: "elder", label: "Aging Parent / Elder" },
-                  { id: "hospital", label: "Patient in Hospital" },
-                  { id: "maternal", label: "Mother & Newborn" },
-                  { id: "travel", label: "Solo / Elder Traveler" },
-                  { id: "driver", label: "Daily Chauffeur" },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() =>
-                      setRecipient(
-                        item.id as "elder" | "hospital" | "maternal" | "travel" | "driver",
-                      )
-                    }
-                    className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
-                      recipient === item.id
-                        ? "bg-primary text-primary-foreground shadow-2xs"
-                        : "bg-secondary text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                2. Shift Type
-              </label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {[
-                  { id: "day", label: "Day Shift (8-12 hrs)" },
-                  { id: "livein", label: "24-Hour Live-In" },
-                  { id: "trip", label: "Transit / Trip Only" },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setDuration(item.id as "day" | "livein" | "trip")}
-                    className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
-                      duration === item.id
-                        ? "bg-terracotta text-terracotta-foreground shadow-2xs"
-                        : "bg-secondary text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-primary/30 bg-primary-soft/40 p-6 md:p-8">
-          <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground uppercase tracking-wider">
-            Recommended Care Package
-          </span>
-          <h4 className="mt-4 font-display text-2xl font-bold text-foreground">{rec.name}</h4>
-          <p className="mt-2 text-xl font-semibold text-primary">{rec.price}</p>
-
-          <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
-            {rec.points.map((pt) => (
-              <li key={pt} className="flex items-start gap-2">
-                <CheckCircle2 className="size-4 shrink-0 text-primary mt-0.5" />
-                <span>{pt}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="default" className="flex-1">
-              <Link to="/booking" search={{ service: rec.serviceSlug }}>
-                Book This Package
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="default">
-              <Link to="/services/$slug" params={{ slug: rec.serviceSlug }}>
-                View Full Details
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Home() {
-  const [selectedCat, setSelectedCat] = useState<"all" | ServiceCategory>("all");
-  const filteredServices = SERVICES.filter(
-    (s) => selectedCat === "all" || s.category === selectedCat,
-  );
+  const currentMoment = HERO_CARE_MOMENTS[activeMoment]!;
   const waUrl = buildWhatsAppUrl(
-    "Hi ApnaCare! I would like to speak to your care team about finding the right care for my family."
+    "Hello ApnaCare team! I would like to learn more about care options for my family.",
   );
 
   return (
-    <>
-      <Hero />
+    <div className="flex flex-col min-h-screen">
+      {/* ─────────────────────────────────────────────────────────────
+          1. HERO SECTION (What ApnaCare does within 5 seconds)
+      ───────────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-secondary/40 via-background to-background py-12 md:py-20 lg:py-24 border-b border-border/50">
+        <div className="container-page">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
+            {/* Left Column: Short copy, immediate clarity, dual CTAs */}
+            <div className="lg:col-span-7 flex flex-col items-start">
+              {/* Eyebrow Pill */}
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-3.5 py-1.5 text-xs font-semibold text-primary backdrop-blur animate-fade-in">
+                <Sparkles className="size-3.5 text-terracotta" />
+                <span>Verified Family & Healthcare Support</span>
+              </div>
 
-      {/* Trust & Standards Bar */}
-      <section aria-label="Trust indicators" className="border-b border-border bg-card">
-        <ul className="container-page grid grid-cols-2 gap-4 py-6 md:grid-cols-5">
-          {TRUST.map((t) => (
-            <li key={t.label} className="flex items-center gap-3 text-sm font-semibold">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary shadow-2xs">
-                <t.icon className="size-5" aria-hidden />
-              </span>
-              <span>{t.label}</span>
-            </li>
-          ))}
-        </ul>
+              {/* Main Headline */}
+              <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.12] animate-fade-up">
+                Care for Them.
+                <br />
+                <span className="text-primary">Peace of Mind for You.</span>
+              </h1>
+
+              {/* Supporting Text */}
+              <p className="mt-4 max-w-xl text-pretty text-lg text-muted-foreground leading-relaxed animate-fade-up animate-delay-100">
+                Trusted care and support for your loved ones, at home and when it matters most.
+                Compassionate, police-verified women attendants for elderly care, hospital recovery, certified nursing, and newborn support.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="mt-8 flex flex-wrap items-center gap-3.5 w-full sm:w-auto animate-fade-up animate-delay-200">
+                <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all">
+                  <a href="#services" onClick={() => track("hero_explore_care")}>
+                    Explore Care
+                    <ArrowRight className="ml-2 size-4" />
+                  </a>
+                </Button>
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => track("hero_talk_to_us")}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/10 px-7 py-3 text-sm font-semibold text-[#128C7E] dark:text-[#25D366] hover:bg-[#25D366]/20 transition-colors"
+                >
+                  <MessageCircle className="size-4 text-[#25D366]" />
+                  Talk to Us
+                </a>
+              </div>
+
+              {/* Reassuring Quick Trust Metrics */}
+              <div className="mt-8 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-medium text-muted-foreground animate-fade-up animate-delay-300">
+                <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
+                  <ShieldCheck className="size-4 text-primary" />
+                  100% Police Verified
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
+                  <Star className="size-4 fill-terracotta text-terracotta" />
+                  4.9/5 from 1,200+ Families
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 className="size-4 text-primary" />
+                  Bengaluru · Chennai · Hyderabad · Coimbatore
+                </span>
+              </div>
+            </div>
+
+            {/* Right Column: Visual lifestyle card with gentle transitions */}
+            <div className="lg:col-span-5 animate-fade-in animate-delay-200">
+              <div className="relative mx-auto max-w-md lg:max-w-none">
+                {/* Background decorative warm blob */}
+                <div
+                  className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-primary/15 via-terracotta/15 to-secondary/30 blur-xl opacity-75 -z-10"
+                  aria-hidden
+                />
+
+                {/* Rounded Card Visual */}
+                <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-lift">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                    <img
+                      src={currentMoment.image}
+                      alt={currentMoment.alt}
+                      width={800}
+                      height={600}
+                      loading="eager"
+                      fetchPriority="high"
+                      className="h-full w-full object-cover transition-opacity duration-700 ease-in-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+
+                    {/* Tag badge top-left */}
+                    <div className="absolute top-4 left-4">
+                      <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold text-foreground shadow-xs backdrop-blur">
+                        {currentMoment.badge}
+                      </span>
+                    </div>
+
+                    {/* Verified badge top-right */}
+                    <div className="absolute top-4 right-4">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2.5 py-1 text-[11px] font-semibold text-primary-foreground shadow-xs backdrop-blur">
+                        <BadgeCheck className="size-3.5" />
+                        Verified Staff
+                      </span>
+                    </div>
+
+                    {/* Caption at bottom of image */}
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      <p className="font-semibold text-base sm:text-lg leading-snug">{currentMoment.title}</p>
+                      <p className="text-xs text-white/85 mt-0.5 line-clamp-1">{currentMoment.caption}</p>
+                    </div>
+                  </div>
+
+                  {/* Moment Switcher Tabs below image */}
+                  <div className="grid grid-cols-4 border-t border-border bg-secondary/20 p-2">
+                    {HERO_CARE_MOMENTS.map((m, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveMoment(idx)}
+                        className={`rounded-xl py-2 px-1 text-center text-[11px] font-medium transition-all ${
+                          idx === activeMoment
+                            ? "bg-card text-foreground font-semibold shadow-xs"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {m.badge}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Floating Reassurance Callout Card */}
+                <div className="mt-3 flex items-center justify-between rounded-2xl border border-border bg-card/90 px-4 py-3 shadow-soft backdrop-blur">
+                  <div className="flex items-center gap-3">
+                    <div className="grid size-9 place-items-center rounded-full bg-primary-soft text-primary">
+                      <Clock className="size-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">Immediate Assistance Available</p>
+                      <p className="text-[11px] text-muted-foreground">Average care coordinator response: 15 mins</p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/booking"
+                    className="text-xs font-semibold text-primary hover:underline shrink-0"
+                  >
+                    Book Now →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* SECTION B: Audience-Based Problem Discovery */}
-      <section id="audience-challenges" className="container-page py-20 md:py-28 scroll-mt-20">
-        <SectionHeading
-          center
-          eyebrow="Who We Support"
-          title="Every Family Faces Different Care Challenges."
-          sub="We understand what your family is going through. Explore tailored support designed around your real-life situation."
-        />
+      {/* ─────────────────────────────────────────────────────────────
+          2. FOUR PROMINENT VISUAL SERVICE CARDS
+      ───────────────────────────────────────────────────────────── */}
+      <section id="services" className="container-page py-16 md:py-24 scroll-mt-20">
+        <div className="max-w-2xl">
+          <p className="eyebrow">Our Core Care Services</p>
+          <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
+            Thoughtful Care, Tailored to Real Family Needs
+          </h2>
+          <p className="mt-3 text-pretty text-base text-muted-foreground">
+            Explore verified care support delivered with warmth and dignity. Every attendant is background-checked and supported by our clinical coordination team.
+          </p>
+        </div>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {AUDIENCE_CHALLENGES.map((item) => (
-            <div
-              key={item.id}
-              className={`card-soft p-7 flex flex-col justify-between border transition-all hover:border-primary/50 hover:shadow-soft ${
-                item.isFutureInitiative ? "bg-secondary/15" : ""
-              }`}
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {CORE_SERVICES.map((s) => (
+            <article
+              key={s.id}
+              className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lift"
             >
-              <div>
-                <span className="inline-block rounded-full bg-terracotta/15 px-3 py-1 text-xs font-bold text-terracotta">
-                  {item.badge}
+              {/* Image with zoom on hover */}
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                <img
+                  src={s.image}
+                  alt={s.alt}
+                  width={600}
+                  height={450}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <span className="absolute top-3 left-3 rounded-full bg-background/90 px-3 py-1 text-[11px] font-semibold text-foreground backdrop-blur">
+                  {s.tag}
                 </span>
-                <h3 className="mt-4 text-xl font-semibold text-foreground leading-snug">
-                  {item.audience}
-                </h3>
+                <span className="absolute bottom-3 left-3 text-xs font-medium text-white/90">
+                  {s.highlight}
+                </span>
+              </div>
 
-                <div className="mt-5 space-y-3.5 text-sm">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      Does this sound familiar?
-                    </p>
-                    <p className="mt-1 text-foreground/90 leading-relaxed bg-background/60 p-3 rounded-xl border border-border/60">
-                      {item.situation}
-                    </p>
+              {/* Content */}
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-xl font-semibold text-foreground">{s.title}</h3>
+                <p className="mt-1.5 text-xs font-semibold text-primary">{s.benefit}</p>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                  {s.description}
+                </p>
+
+                {/* Price pill */}
+                <div className="mt-4 pt-3 border-t border-border flex items-baseline justify-between">
+                  <span className="text-[11px] text-muted-foreground">Starting from</span>
+                  <span className="font-display text-lg font-semibold text-foreground">
+                    {formatINR(s.price)}
+                    <span className="text-xs font-normal text-muted-foreground">/{s.unit}</span>
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-4 flex items-center gap-2 pt-1">
+                  <Button asChild variant="outline" size="sm" className="w-full justify-between group-hover:border-primary transition-colors">
+                    <Link
+                      to="/services/$slug"
+                      params={{ slug: s.slug }}
+                      onClick={() => track("service_card_click", { service: s.slug })}
+                    >
+                      <span>Explore Service</span>
+                      <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* View All Services Link */}
+        <div className="mt-8 text-center">
+          <Link
+            to="/services"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+          >
+            <span>Looking for women chauffeurs, travel companions, or specialized therapy? View all 11 services</span>
+            <ChevronRight className="size-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          3. VISUAL STORYTELLING: “Because Every Family Has a Story”
+      ───────────────────────────────────────────────────────────── */}
+      <section className="bg-secondary/35 py-16 md:py-24 border-y border-border/50">
+        <div className="container-page">
+          <div className="max-w-2xl">
+            <p className="eyebrow">Visual Stories</p>
+            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
+              Because Every Family Has a Story.
+            </h2>
+            <p className="mt-3 text-pretty text-base text-muted-foreground">
+              Real family moments that inspire our care mission every single day.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-8 lg:grid-cols-3">
+            {FAMILY_STORIES.map((story, idx) => (
+              <div
+                key={idx}
+                className="group flex flex-col rounded-3xl border border-border bg-card overflow-hidden shadow-soft transition-all duration-300 hover:shadow-lift"
+              >
+                {/* Image */}
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
+                  <img
+                    src={story.image}
+                    alt={story.alt}
+                    width={700}
+                    height={440}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                  <span className="absolute bottom-3 left-3 text-[11px] font-medium text-white/95 bg-black/40 px-2.5 py-0.5 rounded-full backdrop-blur">
+                    Illustrative Scenario
+                  </span>
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-1 flex-col p-6">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-terracotta">
+                    {story.category}
+                  </span>
+                  <h3 className="mt-2 text-lg font-semibold text-foreground leading-snug">
+                    {story.headline}
+                  </h3>
+                  <div className="mt-3 space-y-2 flex-1">
+                    <p className="text-xs text-muted-foreground leading-relaxed">{story.sentence1}</p>
+                    <p className="text-xs text-foreground/90 leading-relaxed font-medium">{story.sentence2}</p>
                   </div>
-
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-terracotta">
-                      Why this becomes difficult
-                    </p>
-                    <p className="mt-1 text-muted-foreground leading-relaxed">
-                      {item.difficulty}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-destructive/80">
-                      What can happen without support?
-                    </p>
-                    <p className="mt-1 text-muted-foreground leading-relaxed">
-                      {item.whyItMatters}
-                    </p>
+                  <div className="mt-5 pt-4 border-t border-border">
+                    <Link
+                      to={story.link}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline group-hover:gap-2 transition-all"
+                    >
+                      <span>{story.cta}</span>
+                      <ArrowRight className="size-3.5" />
+                    </Link>
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
 
-              <div className="mt-6 pt-5 border-t border-border flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <span className="text-xs font-semibold text-primary block">
-                    {item.isFutureInitiative ? "Educational Guidance" : `Service: ${item.serviceName}`}
-                  </span>
+          <p className="mt-8 text-center text-xs text-muted-foreground">
+            Scenarios depict everyday care situations faced by families across South India.
+          </p>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          4. WHY FAMILIES CAN CONSIDER APNACARE (Verified Trust Information)
+      ───────────────────────────────────────────────────────────── */}
+      <section className="container-page py-16 md:py-24">
+        <div className="max-w-2xl">
+          <p className="eyebrow">Trust & Safety Standards</p>
+          <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
+            Why Families Can Depend on ApnaCare
+          </h2>
+          <p className="mt-3 text-pretty text-base text-muted-foreground">
+            Inviting someone into your home or hospital room requires absolute confidence. We maintain verifiable safety, medical competency, and service continuity standards.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {TRUST_PILLARS.map((p, idx) => {
+            const IconComponent = p.icon;
+            return (
+              <div
+                key={idx}
+                className="rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-200 hover:border-primary/40 hover:shadow-lift"
+              >
+                <div className="grid size-12 place-items-center rounded-2xl bg-primary-soft text-primary">
+                  <IconComponent className="size-6" />
                 </div>
-                <Button asChild variant={item.isFutureInitiative ? "outline" : "warm"} size="sm">
-                  <Link to={item.ctaLink as any}>
-                    {item.ctaText} →
-                  </Link>
+                <h3 className="mt-4 text-base font-semibold text-foreground">{p.title}</h3>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                  {p.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Reassurance Banner */}
+        <div className="mt-8 rounded-2xl border border-primary/20 bg-primary-soft/50 p-4 md:p-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="size-5 text-primary shrink-0" />
+            <p className="text-xs text-foreground font-medium">
+              Every active booking includes live coordinator oversight and complete 18% GST tax invoices with zero hidden agent fees.
+            </p>
+          </div>
+          <Link
+            to="/safety"
+            className="text-xs font-semibold text-primary hover:underline shrink-0"
+          >
+            Learn more about our safety standards →
+          </Link>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          5. SIMPLE THREE-STEP BOOKING EXPLANATION
+      ───────────────────────────────────────────────────────────── */}
+      <section className="bg-secondary/25 py-16 md:py-24 border-y border-border/50">
+        <div className="container-page">
+          <div className="max-w-2xl">
+            <p className="eyebrow">How It Works</p>
+            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
+              Finding Trusted Care is Simple
+            </h2>
+            <p className="mt-3 text-pretty text-base text-muted-foreground">
+              We have eliminated the frustration of unverified agency calls. Connect with the right attendant in three guided steps.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {SIMPLE_STEPS.map((step) => (
+              <div
+                key={step.step}
+                className="relative flex flex-col rounded-3xl border border-border bg-card p-7 shadow-soft"
+              >
+                <span className="font-display text-3xl font-bold text-primary/30">
+                  {step.step}
+                </span>
+                <h3 className="mt-3 text-lg font-semibold text-foreground">{step.title}</h3>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift">
+              <Link to="/booking">Start Care Request</Link>
+            </Button>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
+            >
+              <MessageCircle className="size-4 text-[#25D366]" />
+              Talk to a Care Coordinator
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          6. TRANSPARENT PRICING SECTION (Lower on the page, easy to find)
+      ───────────────────────────────────────────────────────────── */}
+      <section id="pricing" className="container-page py-16 md:py-24 scroll-mt-20">
+        <div className="max-w-2xl">
+          <p className="eyebrow">Transparent Pricing</p>
+          <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
+            Honest Rates with Zero Surprises
+          </h2>
+          <p className="mt-3 text-pretty text-base text-muted-foreground">
+            Clear per-day and per-shift pricing. Includes statutory GST invoices and transparent caregiver compensation with no broker surcharges.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {PRICING_HIGHLIGHTS.map((item, idx) => (
+            <div
+              key={idx}
+              className={`flex flex-col rounded-3xl border p-6 transition-all duration-200 ${
+                item.popular
+                  ? "border-primary bg-primary text-primary-foreground shadow-lift relative"
+                  : "border-border bg-card shadow-soft"
+              }`}
+            >
+              {item.popular && (
+                <span className="absolute -top-3 left-6 rounded-full bg-terracotta px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-terracotta-foreground">
+                  Most Requested
+                </span>
+              )}
+              <h3 className="text-lg font-semibold">{item.title}</h3>
+              <p
+                className={`text-xs mt-0.5 ${
+                  item.popular ? "text-primary-foreground/80" : "text-muted-foreground"
+                }`}
+              >
+                {item.subtitle}
+              </p>
+
+              <div className="mt-4 pt-3 border-t border-current/15">
+                <span className="font-display text-3xl font-semibold">
+                  {formatINR(item.price)}
+                </span>
+                <span
+                  className={`text-xs ml-1 ${
+                    item.popular ? "text-primary-foreground/80" : "text-muted-foreground"
+                  }`}
+                >
+                  /day
+                </span>
+                <p
+                  className={`text-[11px] mt-0.5 ${
+                    item.popular ? "text-primary-foreground/70" : "text-muted-foreground"
+                  }`}
+                >
+                  + 18% statutory GST
+                </p>
+              </div>
+
+              <p
+                className={`mt-3 text-xs leading-relaxed flex-1 ${
+                  item.popular ? "text-primary-foreground/90" : "text-muted-foreground"
+                }`}
+              >
+                {item.description}
+              </p>
+
+              <div className="mt-5 pt-3">
+                <Button
+                  asChild
+                  size="sm"
+                  variant={item.popular ? "secondary" : "outline"}
+                  className="w-full"
+                >
+                  <Link to="/booking">Book Service</Link>
                 </Button>
               </div>
             </div>
           ))}
         </div>
-      </section>
 
-      {/* SECTION C: Real-Life Challenges Section */}
-      <section className="border-y border-border bg-secondary/25 py-20 md:py-28">
-        <div className="container-page">
-          <SectionHeading
-            center
-            eyebrow="Real-Life Situations"
-            title="Behind Every Care Request, There Is a Story."
-            sub="Real situations we see every day — and how dependable care makes a meaningful difference."
-          />
-
-          <div className="mt-4 mx-auto max-w-2xl text-center">
-            <p className="text-xs text-muted-foreground/80 italic">
-              Note: The scenarios below represent illustrative family situations based on everyday care coordination challenges. ApnaCare does not publish fabricated customer testimonials or unverified patient claims.
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-6 lg:grid-cols-2">
-            {REAL_LIFE_STORIES.map((story) => (
-              <div
-                key={story.id}
-                className="card-soft p-8 flex flex-col justify-between border border-border/80 hover:border-primary/40 transition-all hover:shadow-soft"
-              >
-                <div>
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-3">
-                    <span className="text-xs font-bold text-terracotta uppercase tracking-wider">
-                      {story.tag}
-                    </span>
-                    <span className="text-xs text-muted-foreground font-medium">
-                      {story.persona}
-                    </span>
-                  </div>
-
-                  <h3 className="mt-4 text-2xl font-semibold text-foreground">
-                    {story.title}
-                  </h3>
-
-                  <div className="mt-5 space-y-4 text-sm">
-                    <div className="bg-background/80 p-4 rounded-2xl border border-border/60">
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                        Does this sound familiar?
-                      </p>
-                      <p className="text-foreground/90 leading-relaxed">
-                        {story.situation}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-terracotta mb-1">
-                        Why this becomes difficult
-                      </p>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {story.difficulty.replace(/^Why this becomes difficult:\s*/i, "")}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-destructive/80 mb-1">
-                        What can happen without support?
-                      </p>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {story.implication.replace(/^What can happen without support:\s*/i, "")}
-                      </p>
-                    </div>
-
-                    <div className="pt-2 border-t border-border/60">
-                      <p className="text-xs font-bold uppercase tracking-wider text-primary mb-1">
-                        How ApnaCare helps
-                      </p>
-                      <p className="text-foreground leading-relaxed">
-                        {story.solution.replace(/^How ApnaCare helps:\s*/i, "")}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-7 pt-4 border-t border-border flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    Relevant service: {story.relatedServiceName}
-                  </span>
-                  <Button asChild variant="outline" size="sm">
-                    <Link to={story.ctaLink as any}>
-                      Explore This Solution →
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck className="size-4 text-primary" /> Upfront rates before booking
+          </span>
+          <span className="flex items-center gap-1.5">
+            <BadgeCheck className="size-4 text-primary" /> Official 18% GST invoice
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="size-4 text-primary" /> Free replacement within 90 mins
+          </span>
         </div>
       </section>
 
-      {/* SECTION D: How ApnaCare Helps (5-Step Customer Journey) */}
-      <section id="how-it-works" className="container-page py-20 md:py-28 scroll-mt-20">
-        <SectionHeading
-          center
-          eyebrow="Our Care Journey"
-          title="How ApnaCare Helps Your Family"
-          sub="A simple, reassuring care journey from your initial enquiry to verified daily care."
-        />
-
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-          {CARE_JOURNEY_STEPS.map((step) => (
-            <div
-              key={step.step}
-              className="card-soft p-6 flex flex-col justify-between border border-border/80 hover:border-primary/40 transition-all hover:shadow-soft relative"
-            >
-              <div>
-                <span className="font-display text-3xl font-bold text-primary/70">
-                  {step.step}
-                </span>
-                <h4 className="mt-4 text-lg font-semibold text-foreground leading-snug">
-                  {step.title}
-                </h4>
-                <p className="mt-2.5 text-xs text-muted-foreground leading-relaxed">
-                  {step.desc}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-12 text-center">
-          <BookLink size="lg" variant="warm">
-            Start Your Care Request Now
-          </BookLink>
-        </div>
-      </section>
-
-      {/* SECTION E: Trust and Safety Standards */}
-      <section id="safety" className="border-t border-border bg-ink py-20 text-ink-foreground md:py-28 scroll-mt-20">
-        <div className="container-page">
-          <div className="max-w-3xl">
-            <span className="eyebrow text-terracotta">Safety, Trust & Clear Boundaries</span>
-            <h2 className="mt-3 text-3xl font-semibold md:text-5xl text-ink-foreground">
-              We Believe Families Deserve Complete Transparency
+      {/* ─────────────────────────────────────────────────────────────
+          7. SHORT FAQS (Clear, scannable accordion)
+      ───────────────────────────────────────────────────────────── */}
+      <section className="bg-secondary/35 py-16 md:py-24 border-y border-border/50">
+        <div className="container-page max-w-3xl">
+          <div className="text-center">
+            <p className="eyebrow">Clear Answers</p>
+            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
+              Frequently Asked Questions
             </h2>
-            <p className="mt-4 text-base md:text-lg text-ink-foreground/80 leading-relaxed">
-              Caregiving is built on trust. We are explicit about how our caregivers are vetted, the clear scope of attendant practice vs registered nursing, and our daily family communication standards.
+            <p className="mt-3 text-pretty text-base text-muted-foreground">
+              Everything you need to know about safety, verification, and our care coordination.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {TRUST_VERIFICATION_STANDARDS.map((std, idx) => (
-              <div
-                key={idx}
-                className="rounded-2xl border border-white/10 bg-white/5 p-7 backdrop-blur hover:bg-white/10 transition-colors"
-              >
-                <span className="inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
-                  {std.badge}
-                </span>
-                <h3 className="mt-4 text-xl font-semibold text-white">
-                  {std.title}
-                </h3>
-                <p className="mt-3 text-sm text-ink-foreground/80 leading-relaxed">
-                  {std.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 flex flex-wrap gap-4 pt-4 border-t border-white/10">
-            <Button asChild variant="glass">
-              <Link to="/safety">Read Complete Verification Process</Link>
-            </Button>
-            <Button asChild variant="outline" className="border-white/30 text-white hover:bg-white/15">
-              <Link to="/safety-guidelines">Attendant Scope & Guidelines</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION F: Service Discovery */}
-      <section id="services" className="container-page py-20 md:py-28 scroll-mt-20">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <SectionHeading
-            eyebrow="Service Directory"
-            title="Available Care Services"
-            sub="Prioritising elderly care, hospital bedside vigils, qualified clinical nursing, and post-natal support."
-          />
-          <Button asChild variant="outline">
-            <Link to="/services">View All 11 Services</Link>
-          </Button>
-        </div>
-
-        {/* Category Filter Pills */}
-        <div className="mt-8 flex flex-wrap gap-2">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => {
-                setSelectedCat(cat.id);
-                track("service_filter", { category: cat.id });
-              }}
-              className={`rounded-full px-4 py-2 text-xs font-semibold transition-all ${
-                selectedCat === cat.id
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredServices.slice(0, 6).map((s) => (
-            <ServiceCard key={s.id} s={s} />
-          ))}
-        </div>
-
-        {filteredServices.length > 6 && (
-          <div className="mt-10 text-center">
-            <Button asChild variant="warm" size="lg">
-              <Link to="/services">Explore All {SERVICES.length} Services</Link>
-            </Button>
-          </div>
-        )}
-      </section>
-
-      {/* Interactive Personalized Matcher */}
-      <section className="container-page pb-20 md:pb-28">
-        <RecommendationEngine />
-      </section>
-
-      {/* SECTION G: Pricing (Separate and Secondary) */}
-      <section
-        id="pricing"
-        className="border-t border-border bg-secondary/20 py-20 md:py-28 scroll-mt-20"
-        onMouseEnter={() => track("pricing_view")}
-      >
-        <div className="container-page">
-          <SectionHeading
-            center
-            eyebrow="Transparent Pricing"
-            title="Clear, Upfront Pricing With No Surprises"
-            sub="Find starting prices for daytime shifts, overnight bedside care, and 24-hour live-in support. Transparent pricing with 18% statutory GST tax invoices and full refund protection prior to dispatch."
-          />
-
-          <div className="mt-14 grid gap-6 lg:grid-cols-3">
-            {PRICING_PLANS.map((p) => (
-              <PricingCard key={p.id} p={p} />
-            ))}
-          </div>
-
-          <div className="mt-10 flex flex-wrap justify-center gap-6 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="size-4 text-primary" /> Transparent Rates Disclosed Upfront
-            </span>
-            <span className="flex items-center gap-1.5">
-              <BadgeCheck className="size-4 text-primary" /> 18% Statutory GST Tax Invoice Provided
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-4 text-primary" /> Refund Protection Prior to Care Dispatch
-            </span>
+          <div className="mt-10 rounded-3xl border border-border bg-card p-6 md:p-8 shadow-soft">
+            <Accordion type="single" collapsible className="w-full">
+              {FAQS.map((faq, idx) => (
+                <AccordionItem key={idx} value={`item-${idx}`} className={idx === FAQS.length - 1 ? "border-b-0" : ""}>
+                  <AccordionTrigger className="text-left font-semibold text-foreground text-sm sm:text-base py-4 hover:no-underline hover:text-primary">
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pb-4">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
 
           <div className="mt-8 text-center">
             <p className="text-xs text-muted-foreground">
-              Need custom multi-week rates or hospital coordination?{" "}
-              <Link to="/contact" className="text-primary font-semibold hover:underline">
-                Speak with our care coordinators
-              </Link>
+              Have another question?{" "}
+              <Link to="/faq" className="text-primary font-semibold hover:underline">
+                View all FAQs
+              </Link>{" "}
+              or{" "}
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary font-semibold hover:underline"
+              >
+                ask us directly on WhatsApp
+              </a>
             </p>
           </div>
         </div>
       </section>
 
-      {/* Verified Attendants Section */}
-      <section id="attendants" className="container-page py-20 md:py-28 scroll-mt-20">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <SectionHeading
-            eyebrow="Our Verified Caregivers"
-            title="Meet Our Attendant Specialists"
-            sub="Caregivers and chauffeuses with verified police clearance, practical patient care diplomas, and verified reviews."
-          />
-          <Button asChild variant="outline">
-            <Link to="/booking">Request an Attendant</Link>
-          </Button>
-        </div>
-
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {ATTENDANTS.slice(0, 3).map((a) => (
-            <AttendantCard key={a.id} a={a} />
-          ))}
-        </div>
-      </section>
-
-      {/* Integrated Emergency SOS Component */}
-      <section id="sos" className="container-page pb-20 md:pb-28 scroll-mt-20">
-        <div className="grid items-center gap-10 rounded-[2.5rem] border border-sos/25 bg-card p-8 shadow-soft md:p-14 lg:grid-cols-[1.2fr_1fr]">
-          <div>
-            <span className="eyebrow text-sos">Rapid Response Feature</span>
-            <h2 className="mt-3 text-3xl font-semibold md:text-4xl">
-              24/7 Command SOS & Alert Protocol
-            </h2>
-            <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-              Every active booking is backed by our centralized coordination desk. In any crisis, an instant alert triggers emergency escalation, notifies designated family contacts, and coordinates appropriate support.
-            </p>
-            <ul className="mt-6 grid gap-2.5 text-sm sm:grid-cols-2">
-              {[
-                "Instant Emergency alert trigger",
-                "Automated notification to family contacts",
-                "24/7 dedicated care desk coordination",
-                "Direct contact with local responders when needed",
-              ].map((x) => (
-                <li key={x} className="flex items-center gap-2 font-medium">
-                  <ShieldCheck className="size-4 shrink-0 text-primary" />
-                  <span>{x}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex flex-col items-center gap-4 text-center">
-            <div
-              className="grid size-32 place-items-center rounded-full bg-sos text-sos-foreground animate-sos font-display text-3xl font-bold shadow-lift"
-              aria-hidden
-            >
-              SOS
-            </div>
-            <SOSDemoButton />
-            <p className="text-xs text-muted-foreground">
-              Simulation only — no real emergency responders will be dispatched.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Client Reviews */}
-      <section className="container-page py-20 md:py-28">
-        <SectionHeading
-          center
-          eyebrow="Verified Testimonials"
-          title="Trusted by 1,200+ Families Across South India"
-          sub="Read genuine feedback from sons, daughters, and mothers who depend on ApnaCare daily."
-        />
-
-        <div className="mt-14 grid gap-6 md:grid-cols-2">
-          {REVIEWS.map((r) => (
-            <figure key={r.id} className="card-soft flex flex-col justify-between p-8">
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-1" aria-label={`${r.rating} out of 5 stars`}>
-                    {Array.from({ length: r.rating }).map((_, i) => (
-                      <Star key={i} className="size-4 fill-terracotta text-terracotta" />
-                    ))}
-                  </div>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary">
-                    <BadgeCheck className="size-3.5" /> Verified Booking
-                  </span>
-                </div>
-                <blockquote className="mt-5 text-base leading-relaxed text-foreground">
-                  “{r.testimonial}”
-                </blockquote>
-              </div>
-              <figcaption className="mt-6 border-t border-border pt-4 text-sm text-muted-foreground">
-                <p className="font-semibold text-foreground">{r.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {r.relation} · {r.location} · {r.service}
-                </p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
-
-      {/* Problem-Led Knowledge Hub Preview */}
-      <section className="bg-secondary/40 py-20 md:py-28">
-        <div className="container-page">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <SectionHeading
-              eyebrow="Knowledge & Guidance"
-              title="Guides for Family Well-Being"
-              sub="Helpful, problem-led guides on eldercare coordination, questions for bedside attendants, and home preparation after hospital discharge."
-            />
-            <Button asChild variant="outline">
-              <Link to="/knowledge-hub">Browse All Guides</Link>
-            </Button>
-          </div>
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {ARTICLES.slice(0, 6).map((a) => (
-              <ArticleCard key={a.slug} a={a} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Active Operating Cities */}
-      <section className="container-page py-20 md:py-28">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <SectionHeading
-            eyebrow="Active Coverage"
-            title="Operating Cities Across South India"
-            sub="Dedicated care coordination hubs and vetted attendant clusters in Bengaluru, Chennai, Hyderabad, and Coimbatore."
-          />
-          <Button asChild variant="outline">
-            <Link to="/cities">View All Cities</Link>
-          </Button>
-        </div>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {CITIES.map((c) => (
-            <CityCard key={c.slug} c={c} />
-          ))}
-        </div>
-      </section>
-
-      {/* SECTION H: Final CTA */}
-      <section id="enquiry" className="container-page pb-20 pt-10 md:pb-28">
-        <div className="rounded-[3rem] bg-ink p-10 text-ink-foreground md:p-16">
-          <div className="grid gap-12 lg:grid-cols-2 items-center">
+      {/* ─────────────────────────────────────────────────────────────
+          8. FINAL CONTACT AND BOOKING CTA (Warm, human-centered)
+      ───────────────────────────────────────────────────────────── */}
+      <section id="enquiry" className="container-page py-16 md:py-24 scroll-mt-20">
+        <div className="rounded-[2.5rem] bg-ink p-8 text-ink-foreground md:p-14 shadow-lift">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+            {/* Left Column: Reassurance & Direct Contacts */}
             <div>
               <span className="eyebrow text-terracotta">We Are Here For You</span>
-              <h2 className="mt-3 max-w-lg text-balance text-4xl font-semibold md:text-5xl text-white">
-                You Don't Have to Figure Out Care on Your Own.
+              <h2 className="mt-3 max-w-lg text-balance text-3xl font-semibold md:text-4xl lg:text-5xl text-white leading-tight">
+                Care for Them.
+                <br />
+                Peace of Mind for You.
               </h2>
-              <p className="mt-4 max-w-md text-lg text-ink-foreground/80 leading-relaxed">
-                Tell us what your family needs. Our team can help you explore the available care options and find dependable, compassionate support.
+              <p className="mt-4 max-w-md text-base text-ink-foreground/80 leading-relaxed">
+                You don't have to navigate care alone. Tell us what your family is going through, and our dedicated care coordinator will recommend the right support.
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <BookLink size="lg" variant="warm">
-                  Find the Right Care
-                </BookLink>
+
+              {/* Direct Quick Contact Buttons */}
+              <div className="mt-8 flex flex-wrap gap-3.5">
+                <Button asChild size="lg" className="rounded-full bg-white text-ink hover:bg-white/90">
+                  <Link to="/booking">Book Care Now</Link>
+                </Button>
                 <a
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/20 px-6 py-3.5 text-base font-semibold text-white backdrop-blur hover:bg-[#25D366]/30 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/20 px-6 py-3 text-sm font-semibold text-white backdrop-blur hover:bg-[#25D366]/30 transition-colors"
                 >
-                  <MessageCircle className="size-5 text-[#25D366]" />
-                  Talk to Us on WhatsApp
+                  <MessageCircle className="size-4 text-[#25D366]" />
+                  Chat on WhatsApp
                 </a>
               </div>
+
+              {/* Verified Operating Coverage */}
+              <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center gap-4 text-xs text-white/70">
+                <span className="flex items-center gap-1.5 font-medium text-white/90">
+                  <Phone className="size-3.5 text-terracotta" />
+                  Direct Helpline: {SITE.SUPPORT_PHONE}
+                </span>
+                <span>•</span>
+                <span>Active in Bengaluru, Chennai, Hyderabad & Coimbatore</span>
+              </div>
             </div>
-            <EnquiryForm
-              title="Tell Us About Your Care Needs"
-              subtitle="Share your requirements and a dedicated care coordinator will get in touch within 2 hours."
-              className="bg-background text-foreground"
-            />
+
+            {/* Right Column: Embedded Immediate Callback Form */}
+            <div className="rounded-2xl bg-background p-6 text-foreground shadow-lift">
+              <EnquiryForm
+                title="Request a Quick Callback"
+                subtitle="Share your requirement and a care coordinator will contact you within 15 minutes."
+                className="bg-transparent"
+              />
+            </div>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
