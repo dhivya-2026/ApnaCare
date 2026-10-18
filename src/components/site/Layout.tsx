@@ -89,10 +89,24 @@ export function Logo() {
 
 // ─── Dropdown Nav Definitions ────────────────────────────────────────────────
 
+// ─── Dropdown Nav Definitions ────────────────────────────────────────────────
+
+interface DropdownChild {
+  label: string;
+  to: string;
+  description?: string;
+}
+
 interface NavItem {
   label: string;
   to?: string;
-  children?: { label: string; to: string; description?: string }[];
+  children?: DropdownChild[];
+  twoColumn?: {
+    col1Title: string;
+    col1Items: DropdownChild[];
+    col2Title: string;
+    col2Items: DropdownChild[];
+  };
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -113,96 +127,122 @@ const NAV_ITEMS: NavItem[] = [
     label: "Who We Serve",
     children: [
       {
+        label: "Urban Professionals",
+        to: "/solutions/urban-professionals",
+        description: "Balancing intense careers with eldercare & hospital vigils",
+      },
+      {
+        label: "Ageing Parents & Families",
+        to: "/solutions/families-elderly",
+        description: "Dignified in-home companionship & daily living support",
+      },
+      {
+        label: "Post-Hospital Recovery",
+        to: "/solutions/post-hospitalization",
+        description: "Bedside assistance, surgical recovery & smooth discharge transition",
+      },
+      {
+        label: "New Mothers & Newborns",
+        to: "/solutions/new-mothers",
+        description: "Fourth-trimester care, infant handling & maternal healing",
+      },
+      {
+        label: "Women Balancing Caregiving",
+        to: "/solutions/women-caregivers",
+        description: "Equitable care support, dignity, and restorative time for women",
+      },
+      {
+        label: "Community & Family Initiatives",
+        to: "/solutions/community-initiatives",
+        description: "Educational child safety guides & forthcoming community partnerships",
+      },
+      {
         label: "Women Commuters",
         to: "/solutions/women-commuters",
         description: "Verified chauffeuses, station/airport assistance & late-night transit",
       },
       {
-        label: "Urban Professionals",
-        to: "/solutions/urban-professionals",
-        description: "Elderly home care, hospital bedside vigils & daily WhatsApp logs",
-      },
-      {
         label: "Safety-Focused Partners",
         to: "/solutions/safety-partners",
-        description: "Corporate shift compliance, security marshals & hospital attendants",
+        description: "Corporate transport compliance, hospital bedside vigils & escorts",
       },
     ],
   },
   {
     label: "Services",
-    children: [
-      {
-        label: "All Services",
-        to: "/services",
-        description: "Browse our full catalogue of 11+ services",
-      },
-      {
-        label: "Elderly Care",
-        to: "/services/elderly-care",
-        description: "Home companionship & mobility support",
-      },
-      {
-        label: "Hospital Attendants",
-        to: "/services/hospital-attendants",
-        description: "Bedside vigil & staff coordination",
-      },
-      {
-        label: "Nursing Services",
-        to: "/services/nursing-services",
-        description: "Qualified nurses for clinical home care",
-      },
-      {
-        label: "Post-Natal Care",
-        to: "/services/post-natal-care",
-        description: "Maternal recovery & newborn support",
-      },
-      {
-        label: "Women Drivers",
-        to: "/services/women-drivers",
-        description: "Verified women chauffeurs for safe transit",
-      },
-      {
-        label: "Airport Assistance",
-        to: "/services/airport-pickup",
-        description: "Gate-to-curb meet-and-greet escorts",
-      },
-      {
-        label: "Travel Companionship",
-        to: "/services/travel-assistance",
-        description: "End-to-end journey companions",
-      },
-      {
-        label: "Home & Personal Care",
-        to: "/services/home-personal-care",
-        description: "Empathetic daily living support",
-      },
-    ],
-  },
-  {
-    label: "Safety & Trust",
-    children: [
-      {
-        label: "Safety Overview",
-        to: "/safety",
-        description: "Our commitment to verified, safe care",
-      },
-      {
-        label: "Verification Process",
-        to: "/safety#verification",
-        description: "5-step police & biometric screening",
-      },
-      {
-        label: "Attendant Guidelines",
-        to: "/safety-guidelines",
-        description: "Code of conduct & care standards",
-      },
-      {
-        label: "Emergency Support",
-        to: "/safety#emergency",
-        description: "24/7 SOS & command center protocols",
-      },
-    ],
+    twoColumn: {
+      col1Title: "Care Services",
+      col1Items: [
+        {
+          label: "Elderly Care",
+          to: "/services/elderly-care",
+          description: "Compassionate companionship & mobility support",
+        },
+        {
+          label: "Hospital Assistance / Bedside",
+          to: "/services/hospital-attendants",
+          description: "Bedside vigil & hospital ward coordination",
+        },
+        {
+          label: "Nursing Services",
+          to: "/services/nursing-services",
+          description: "Registered GNM/B.Sc nurses for clinical home care",
+        },
+        {
+          label: "Post-Natal Care",
+          to: "/services/post-natal-care",
+          description: "Newborn care assistance & maternal recovery",
+        },
+        {
+          label: "Home & Personal Care",
+          to: "/services/home-personal-care",
+          description: "Empathetic daily living & personal hygiene support",
+        },
+        {
+          label: "Women Drivers",
+          to: "/services/women-drivers",
+          description: "Verified women chauffeuses for safe commutes",
+        },
+        {
+          label: "Travel Assistance",
+          to: "/services/travel-assistance",
+          description: "Airport meet-and-greet & train journey escorts",
+        },
+        {
+          label: "View All 11 Services",
+          to: "/services",
+          description: "Browse our complete directory of care offerings",
+        },
+      ],
+      col2Title: "Cities Served (South India)",
+      col2Items: [
+        {
+          label: "Bengaluru",
+          to: "/cities/bengaluru",
+          description: "Indiranagar, Koramangala, Whitefield, HSR & more",
+        },
+        {
+          label: "Chennai",
+          to: "/cities/chennai",
+          description: "Adyar, Anna Nagar, T. Nagar, Mylapore & more",
+        },
+        {
+          label: "Hyderabad",
+          to: "/cities/hyderabad",
+          description: "Hitec City, Banjara Hills, Gachibowli & more",
+        },
+        {
+          label: "Coimbatore",
+          to: "/cities/coimbatore",
+          description: "RS Puram, Peelamedu, Race Course & more",
+        },
+        {
+          label: "View All Operating Cities",
+          to: "/cities",
+          description: "Regional coordination hubs & local coverage",
+        },
+      ],
+    },
   },
   {
     label: "Attendants",
@@ -210,17 +250,17 @@ const NAV_ITEMS: NavItem[] = [
       {
         label: "Browse Attendants",
         to: "/#attendants",
-        description: "View verified attendant profiles",
+        description: "View verified attendant profiles & ratings",
       },
       {
         label: "Attendant Login",
         to: "/attendant-login",
-        description: "Portal for care professionals",
+        description: "Secure portal for care professionals",
       },
       {
         label: "Become an Attendant",
         to: "/become-an-attendant",
-        description: "Apply to join the Apna Care team",
+        description: "Apply to join our vetted women care network",
       },
     ],
   },
@@ -228,29 +268,29 @@ const NAV_ITEMS: NavItem[] = [
     label: "More",
     children: [
       {
-        label: "How It Works",
+        label: "How ApnaCare Works",
         to: "/#how-it-works",
-        description: "How ApnaCare matches & deploys attendants",
+        description: "5-step transparent journey to dependable care",
       },
       {
         label: "Knowledge Hub",
         to: "/knowledge-hub",
-        description: "Health, safety & elder wellness resources",
+        description: "Problem-first care guides & health resources",
       },
       {
-        label: "Pricing & Packages",
+        label: "Transparent Pricing",
         to: "/#pricing",
-        description: "Transparent per-day and per-trip rates",
+        description: "Clear daytime, overnight & live-in rates with GST",
       },
       {
-        label: "Cities Covered",
-        to: "/cities",
-        description: "Attendant networks across South India",
+        label: "Trust & Verification Standards",
+        to: "/safety",
+        description: "Police clearance & clinical vs attendant boundaries",
       },
       {
         label: "Frequently Asked Questions",
         to: "/faq",
-        description: "Answers to common care questions",
+        description: "Answers to common family care questions",
       },
     ],
   },
@@ -306,7 +346,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
     }
   };
 
-  if (!item.children) {
+  if (!item.children && !item.twoColumn) {
     return (
       <Link
         to={item.to!}
@@ -345,51 +385,136 @@ function DesktopDropdown({ item }: { item: NavItem }) {
         <div
           role="menu"
           style={{ backgroundColor: "#ffffff" }}
-          className={`absolute ${item.label === "More" ? "right-0" : "left-0"} top-full z-[200] mt-1.5 w-80 overflow-hidden rounded-2xl border border-border/80 text-foreground shadow-2xl ring-1 ring-black/10 animate-fade-in dark:bg-card`}
+          className={`absolute ${
+            item.label === "More"
+              ? "right-0"
+              : item.twoColumn
+              ? "-left-24 xl:-left-12 2xl:left-0"
+              : "left-0"
+          } top-full z-[200] mt-1.5 ${
+            item.twoColumn ? "w-[620px] 2xl:w-[680px]" : "w-80"
+          } overflow-hidden rounded-2xl border border-border/80 text-foreground shadow-2xl ring-1 ring-black/10 animate-fade-in dark:bg-card`}
         >
-          <div style={{ backgroundColor: "#ffffff" }} className="grid gap-1 p-2.5 dark:bg-card">
-            {item.children.map((child) => {
-              const isHash = child.to.includes("#");
-              const content = (
-                <>
-                  <span className="text-sm font-medium group-hover:text-primary transition-colors">
-                    {child.label}
-                  </span>
-                  {child.description && (
-                    <span className="mt-0.5 text-xs text-muted-foreground leading-snug">
-                      {child.description}
+          {item.twoColumn ? (
+            <div className="grid grid-cols-2 divide-x divide-border/60 bg-white dark:bg-card">
+              <div className="p-3">
+                <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {item.twoColumn.col1Title}
+                </p>
+                <div className="mt-1 grid gap-0.5">
+                  {item.twoColumn.col1Items.map((child) => {
+                    const isHash = child.to.includes("#");
+                    const content = (
+                      <>
+                        <span className="text-sm font-medium group-hover:text-primary transition-colors">
+                          {child.label}
+                        </span>
+                        {child.description && (
+                          <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1">
+                            {child.description}
+                          </span>
+                        )}
+                      </>
+                    );
+                    if (isHash) {
+                      return (
+                        <a
+                          key={child.to}
+                          href={child.to}
+                          role="menuitem"
+                          onClick={(e) => handleHashLinkClick(e, child.to)}
+                          className="group flex flex-col rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
+                        >
+                          {content}
+                        </a>
+                      );
+                    }
+                    return (
+                      <Link
+                        key={child.to}
+                        to={child.to as any}
+                        role="menuitem"
+                        onClick={() => setOpen(false)}
+                        className="group flex flex-col rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
+                      >
+                        {content}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="p-3 bg-secondary/20">
+                <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {item.twoColumn.col2Title}
+                </p>
+                <div className="mt-1 grid gap-0.5">
+                  {item.twoColumn.col2Items.map((child) => (
+                    <Link
+                      key={child.to}
+                      to={child.to as any}
+                      role="menuitem"
+                      onClick={() => setOpen(false)}
+                      className="group flex flex-col rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
+                    >
+                      <span className="text-sm font-medium group-hover:text-primary transition-colors flex items-center justify-between">
+                        {child.label}
+                        <span className="text-[11px] font-semibold text-primary/80">Active Hub</span>
+                      </span>
+                      {child.description && (
+                        <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1">
+                          {child.description}
+                        </span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ backgroundColor: "#ffffff" }} className="grid gap-1 p-2.5 dark:bg-card">
+              {item.children?.map((child) => {
+                const isHash = child.to.includes("#");
+                const content = (
+                  <>
+                    <span className="text-sm font-medium group-hover:text-primary transition-colors">
+                      {child.label}
                     </span>
-                  )}
-                </>
-              );
+                    {child.description && (
+                      <span className="mt-0.5 text-xs text-muted-foreground leading-snug">
+                        {child.description}
+                      </span>
+                    )}
+                  </>
+                );
 
-              if (isHash) {
+                if (isHash) {
+                  return (
+                    <a
+                      key={child.to}
+                      href={child.to}
+                      role="menuitem"
+                      onClick={(e) => handleHashLinkClick(e, child.to)}
+                      className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
+                    >
+                      {content}
+                    </a>
+                  );
+                }
+
                 return (
-                  <a
+                  <Link
                     key={child.to}
-                    href={child.to}
+                    to={child.to as any}
                     role="menuitem"
-                    onClick={(e) => handleHashLinkClick(e, child.to)}
+                    onClick={() => setOpen(false)}
                     className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
                   >
                     {content}
-                  </a>
+                  </Link>
                 );
-              }
-
-              return (
-                <Link
-                  key={child.to}
-                  to={child.to as any}
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
-                >
-                  {content}
-                </Link>
-              );
-            })}
-          </div>
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -401,7 +526,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
 function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }) {
   const [open, setOpen] = useState(false);
 
-  if (!item.children) {
+  if (!item.children && !item.twoColumn) {
     return (
       <Link
         to={item.to!}
@@ -429,44 +554,83 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
         />
       </button>
       {open && (
-        <div className="ml-3 mt-1 grid gap-0.5 border-l-2 border-border pl-3">
-          {item.children.map((child) => {
-            const isHash = child.to.includes("#");
-            if (isHash) {
-              return (
-                <a
-                  key={child.to}
-                  href={child.to}
-                  onClick={(e) => {
-                    onClose();
-                    const [path, hash] = child.to.split("#");
-                    const targetPath = path || "/";
-                    if (window.location.pathname === targetPath && hash) {
-                      e.preventDefault();
-                      const el = document.getElementById(hash);
-                      if (el) {
-                        el.scrollIntoView({ behavior: "smooth", block: "start" });
-                        window.history.pushState(null, "", child.to);
+        <div className="ml-3 mt-1 grid gap-2 border-l-2 border-border pl-3">
+          {item.twoColumn ? (
+            <>
+              <div>
+                <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {item.twoColumn.col1Title}
+                </p>
+                <div className="grid gap-0.5">
+                  {item.twoColumn.col1Items.map((child) => (
+                    <Link
+                      key={child.to}
+                      to={child.to as any}
+                      onClick={onClose}
+                      className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+              <div className="pt-2 border-t border-border">
+                <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {item.twoColumn.col2Title}
+                </p>
+                <div className="grid gap-0.5">
+                  {item.twoColumn.col2Items.map((child) => (
+                    <Link
+                      key={child.to}
+                      to={child.to as any}
+                      onClick={onClose}
+                      className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            item.children?.map((child) => {
+              const isHash = child.to.includes("#");
+              if (isHash) {
+                return (
+                  <a
+                    key={child.to}
+                    href={child.to}
+                    onClick={(e) => {
+                      onClose();
+                      const [path, hash] = child.to.split("#");
+                      const targetPath = path || "/";
+                      if (window.location.pathname === targetPath && hash) {
+                        e.preventDefault();
+                        const el = document.getElementById(hash);
+                        if (el) {
+                          el.scrollIntoView({ behavior: "smooth", block: "start" });
+                          window.history.pushState(null, "", child.to);
+                        }
                       }
-                    }
-                  }}
+                    }}
+                    className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  >
+                    {child.label}
+                  </a>
+                );
+              }
+              return (
+                <Link
+                  key={child.to}
+                  to={child.to as any}
+                  onClick={onClose}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                 >
                   {child.label}
-                </a>
+                </Link>
               );
-            }
-            return (
-              <Link
-                key={child.to}
-                to={child.to as any}
-                onClick={onClose}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                {child.label}
-              </Link>
-            );
-          })}
+            })
+          )}
         </div>
       )}
     </div>

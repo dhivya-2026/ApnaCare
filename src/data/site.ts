@@ -911,16 +911,20 @@ export type ArticleCategory =
   | "Senior Citizen Care"
   | "Health Awareness"
   | "Travel Safety"
-  | "Home Safety";
+  | "Home Safety"
+  | "Caregiver Guidance"
+  | "Maternal & Newborn";
 
 export const ARTICLE_CATEGORIES: ("All" | ArticleCategory)[] = [
   "All",
+  "Senior Citizen Care",
+  "Caregiver Guidance",
+  "Health Awareness",
+  "Maternal & Newborn",
+  "Home Safety",
   "Government Schemes",
   "Women Safety",
-  "Senior Citizen Care",
-  "Health Awareness",
   "Travel Safety",
-  "Home Safety",
 ];
 
 export interface Article {
@@ -936,6 +940,132 @@ export interface Article {
 }
 
 export const ARTICLES: Article[] = [
+  {
+    slug: "coordinating-care-for-ageing-parents",
+    title: "How Working Professionals Can Coordinate Care for Ageing Parents",
+    category: "Caregiver Guidance",
+    readTime: "5 min read",
+    author: "ApnaCare Family Support Team",
+    date: "October 2026",
+    excerpt:
+      "Practical ways urban professionals can balance demanding careers with elderly care, establish daily communication routines, and avoid burnout.",
+    body: [
+      "Balancing a high-responsibility career while looking after ageing parents is one of the most common challenges faced by urban professionals in India. The worry is rarely about intention; it is about practical bandwidth, unexpected hospital visits, and managing day-to-day safety from afar.",
+      "The first step is establishing clear daily visibility rather than relying on anxious ad-hoc phone calls. Structured morning and evening check-ins, combined with a daily digital update on meals, hydration, and medication, provide immediate peace of mind while at work.",
+      "Identify the true scope of care needed: does your parent need companion support with daily walking and meals, non-clinical bedside assistance, or clinical nursing? Conflating these leads to misaligned expectations and extra stress.",
+      "Create a family shared care document listing attending doctors, current prescriptions, emergency hospital choices, and health insurance policy details so that any family member or caregiver can step in without friction.",
+    ],
+    keyTakeaways: [
+      "Shift from anxious reactive calls to agreed daily check-in rhythms.",
+      "Distinguish between non-clinical daily living support and clinical nursing care.",
+      "Keep an accessible digital copy of medical history, prescriptions, and emergency contacts.",
+    ],
+  },
+  {
+    slug: "questions-before-choosing-bedside-attendant",
+    title: "What Families Should Ask Before Choosing a Bedside Attendant",
+    category: "Caregiver Guidance",
+    readTime: "5 min read",
+    author: "Clinical Operations Desk",
+    date: "October 2026",
+    excerpt:
+      "A comprehensive checklist covering background verification, clinical vs non-clinical boundaries, emergency escalation, and shift continuity.",
+    body: [
+      "Inviting a bedside attendant into your home or hospital room requires immense trust. Families often make quick decisions during an acute health crisis without verifying essential operational details.",
+      "Essential Question 1: How is the caregiver verified? Insist on government ID biometric verification, address validation, and police background clearance. Unverified private brokers often lack accountability.",
+      "Essential Question 2: What are the caregiver's boundaries? Attendants provide compassionate, non-clinical assistance such as personal hygiene, mobility aid, feeding, and companionship. They must never administer IV medications, adjust oxygen flow, or insert catheters unless they hold registered nursing qualifications (GNM/B.Sc).",
+      "Essential Question 3: What is the replacement and escalation protocol? Inquire what happens if the caregiver falls ill or cannot attend a shift. A reliable service will have clear protocols for continuity without leaving your family stranded.",
+    ],
+    keyTakeaways: [
+      "Always verify police clearance and biometric Aadhaar screening.",
+      "Clarify what an attendant can and cannot do clinically to ensure patient safety.",
+      "Confirm backup dispatch policies before confirming multi-day commitments.",
+    ],
+  },
+  {
+    slug: "preparing-home-after-hospital-discharge",
+    title: "Preparing the Home for Recovery After Hospital Discharge",
+    category: "Home Safety",
+    readTime: "6 min read",
+    author: "Geriatric & Post-Op Advisory Cell",
+    date: "October 2026",
+    excerpt:
+      "Essential preparations to arrange bedroom access, fall prevention, bathroom grab rails, and caregiver handovers before bringing a patient home.",
+    body: [
+      "The first 72 hours after leaving the hospital are critical for patient comfort and preventing accidental readmissions. Preparing the home environment in advance ensures a smooth and safe transition.",
+      "Clear mobility pathways: eliminate loose carpets, trailing wires, and low footstools between the bedroom and bathroom. Ensure doorways accommodate walkers or wheelchairs if required.",
+      "Bathroom adaptations: install heavy-duty stainless steel grab bars beside the commode and shower. A sturdy shower chair and non-slip rubber mats significantly reduce the danger of wet-floor falls.",
+      "Establish a clear medication schedule: place morning, afternoon, and night medicines in labelled organizer boxes, and keep the hospital discharge summary clearly pinned where visiting doctors or caregivers can review it.",
+    ],
+    keyTakeaways: [
+      "Inspect and clear all walking corridors before the patient arrives home.",
+      "Install bathroom grab bars and use a seated shower chair for safe hygiene.",
+      "Maintain a centralized medication chart derived directly from the hospital discharge summary.",
+    ],
+  },
+  {
+    slug: "caregiver-vs-qualified-nurse",
+    title: "Understanding the Difference Between a Caregiver and a Qualified Nurse",
+    category: "Health Awareness",
+    readTime: "5 min read",
+    author: "ApnaCare Clinical Board",
+    date: "September 2026",
+    excerpt:
+      "Clarifying credentials, clinical responsibilities, and non-clinical care so families choose the right level of support for their loved one.",
+    body: [
+      "Families often use the terms 'attendant', 'caregiver', and 'nurse' interchangeably, but their training, legal scope of practice, and clinical responsibilities are fundamentally different.",
+      "A Caregiver / Bedside Attendant provides essential non-clinical support. This includes personal hygiene, mobility assistance, companionship, meal assistance, reminders for pre-packaged oral medications, and reporting general comfort observations. They do not perform invasive clinical tasks.",
+      "A Registered Nurse (GNM / B.Sc Nursing) is a licensed healthcare professional trained to administer intravenous (IV) infusions, intramuscular injections, sterile wound dressings, urinary catheter care, tracheostomy care, and complex vital monitoring under doctor prescription.",
+      "Choosing the right level of care prevents clinical complications, avoids unnecessary expenses, and ensures that qualified professionals handle medical procedures safely.",
+    ],
+    keyTakeaways: [
+      "Attendants focus on daily living activities, personal hygiene, and compassionate companionship.",
+      "Registered nurses perform clinical procedures strictly under a doctor's valid prescription.",
+      "Always clarify the clinical requirements of your family member before booking care.",
+    ],
+  },
+  {
+    slug: "supporting-new-mother-after-childbirth",
+    title: "Practical Ways Families Can Support a New Mother After Childbirth",
+    category: "Maternal & Newborn",
+    readTime: "5 min read",
+    author: "Maternal Care Desk",
+    date: "September 2026",
+    excerpt:
+      "How family members and dedicated post-natal caregivers can share the physical load, protect maternal sleep, and foster restorative recovery.",
+    body: [
+      "The arrival of a newborn is a joyous milestone, but the physical and emotional recovery of the mother during the fourth trimester often receives secondary attention.",
+      "Protecting maternal sleep is vital: sleep deprivation slows physical tissue healing and intensifies postpartum emotional fatigue. Partners and family can handle burping, diaper changes, and soothing between feeds so the mother can achieve continuous rest cycles.",
+      "Practical nutritional and hydration support: preparing easily digestible, nutrient-dense traditional meals and ensuring the mother has warm water, broths, and healthy snacks within arm's reach.",
+      "A trained post-natal attendant offers gentle assistance with infant hygiene, newborn sponge baths, and mother comfort routines, allowing the family to enjoy the new baby without feeling overwhelmed.",
+    ],
+    keyTakeaways: [
+      "Prioritise uninterrupted sleep cycles for the recovering mother.",
+      "Share non-feeding tasks like soothing, diapering, and burping.",
+      "A dedicated post-natal attendant brings experienced, gentle support during early recovery.",
+    ],
+  },
+  {
+    slug: "elderly-care-preserving-independence",
+    title: "How Elderly People Can Receive Support While Preserving Independence",
+    category: "Senior Citizen Care",
+    readTime: "5 min read",
+    author: "Geriatric Wellness Desk",
+    date: "September 2026",
+    excerpt:
+      "Caregiving is about enablement, not taking away autonomy. How respectful assistance maintains elder dignity, confidence, and physical health.",
+    body: [
+      "One of the deepest fears elderly parents face when accepting help is losing their autonomy or feeling like a burden to their children. Dignified caregiving must always focus on enablement rather than taking over.",
+      "Encourage active participation: allow seniors to continue making their own daily choices regarding meals, clothes, leisure activities, and personal routines, stepping in only where physical safety requires assistance.",
+      "Mobility encouragement: gentle assisted daily walks inside the home or in the garden preserve muscle tone and balance far better than prolonged bed rest.",
+      "Respectful companionship: a compassionate attendant listens patiently to stories, respects personal space, and treats the senior with the warmth and cultural deference they deserve.",
+    ],
+    keyTakeaways: [
+      "Support should enable seniors rather than take away their decision-making autonomy.",
+      "Maintain safe, guided daily movement routines to preserve muscle strength.",
+      "Treat every interaction with cultural respect, active listening, and patience.",
+    ],
+  },
   {
     slug: "women-travel-safety-rights",
     title: "Understanding Safety Rights & Travel Mandates for Women in India",
@@ -1368,6 +1498,20 @@ export const buildWhatsAppUrl = (msg?: string) => {
 
 // ─── Target Ideal Customer Profiles (ICPs) ───────────────────────────────────
 
+export interface SpinServiceDetail {
+  id: string;
+  name: string;
+  serviceSlug: string;
+  situation: string;
+  problem: string;
+  implication: string;
+  solution: string;
+  benefits: string[];
+  startingPrice: number;
+  pricingUnit: string;
+  ctaText: string;
+}
+
 export interface ICPInfo {
   slug: string;
   name: string;
@@ -1379,9 +1523,362 @@ export interface ICPInfo {
   stat: { value: string; label: string };
   quote: { text: string; author: string; role: string; city: string };
   faqs: { q: string; a: string }[];
+  spinServices?: SpinServiceDetail[];
+  challengesContext?: string;
 }
 
 export const ICPS: ICPInfo[] = [
+  {
+    slug: "urban-professionals",
+    name: "Urban Professionals",
+    badge: "Balanced Career & Family Care",
+    subtitle:
+      "Compassionate home care, bedside assistance, and qualified nursing support so working executives can balance intense careers with family care.",
+    summary:
+      "Managing demanding professional commitments while coordinating reliable care for ageing parents, post-surgical recovery, or a newborn can feel overwhelming. ApnaCare helps urban professionals arrange vetted, dependable support tailored to their family's realistic schedule and specific care needs.",
+    challengesContext:
+      "Does this sound familiar? You're in back-to-back meetings while worrying whether your parents took their afternoon medication, or you are struggling to arrange bedside shifts after a parent's sudden hospitalization. Balancing work with family care shouldn't mean carrying everything alone.",
+    painPoints: [
+      {
+        problem: "Constant worry about ageing parents living alone while you are at work",
+        solution:
+          "Vetted geriatric care attendants provide companionship, mobility support, medication routines, and scheduled WhatsApp daily updates to keep your family informed.",
+      },
+      {
+        problem: "Managing hospital bedside vigils alongside urgent workplace deadlines",
+        solution:
+          "Trained bedside attendants handle continuous non-clinical patient comfort, hygiene, and hospital staff coordination within their permitted attendant role.",
+      },
+      {
+        problem: "Uncertainty regarding attendant qualifications and clinical vs non-clinical boundaries",
+        solution:
+          "Strict transparency: non-clinical daily living tasks are handled by trained attendants, while clinical procedures (injections, catheter, wound dressing) are delivered by registered GNM/B.Sc nurses under doctor prescription.",
+      },
+    ],
+    spinServices: [
+      {
+        id: "elderly-care",
+        name: "Elderly Care",
+        serviceSlug: "elderly-care",
+        situation:
+          "You have a demanding job, long working hours, or frequent travel while your ageing parents live alone or need daily assistance.",
+        problem:
+          "You worry about their mobility, meals, medication routines, companionship, and everyday safety. You cannot always be physically present, and coordinating reliable help takes time.",
+        implication:
+          "Caregiving responsibilities can increase stress, create family coordination difficulties, and make it harder to respond promptly when support is needed.",
+        solution:
+          "ApnaCare's available elderly care services assist with daily activities, companionship, mobility support, and agreed care routines. Attendants log daily care observations so you stay connected with your parents' well-being throughout your working day.",
+        benefits: [
+          "Assistance with daily living activities & mobility",
+          "Timely medication schedule reminders",
+          "Warm companionship & conversation",
+          "Agreed family updates via WhatsApp",
+        ],
+        startingPrice: 1200,
+        pricingUnit: "day",
+        ctaText: "Explore Elderly Care",
+      },
+      {
+        id: "hospital-attendants",
+        name: "Hospital Assistance / Bedside Care",
+        serviceSlug: "hospital-attendants",
+        situation:
+          "A loved one has been admitted to hospital, and your work or family responsibilities prevent you from staying beside them continuously.",
+        problem:
+          "You need dependable assistance with everyday comfort, non-clinical support, and coordination with the hospital team within the attendant's permitted role.",
+        implication:
+          "Managing hospital visits, work commitments, and family communication simultaneously can become exhausting and stressful.",
+        solution:
+          "Available bedside assistance helps with patient comfort, hydration, mobility support to the washroom, and clear coordination with hospital nursing staff. Clinical decisions and clinical nursing remain strictly with hospital medical professionals.",
+        benefits: [
+          "Attentive bedside presence for non-clinical comfort",
+          "Mobility support & personal hygiene assistance",
+          "Coordination with hospital ward staff",
+          "Shift handover notes for visiting family members",
+        ],
+        startingPrice: 1400,
+        pricingUnit: "day",
+        ctaText: "Explore Bedside Care",
+      },
+      {
+        id: "nursing-services",
+        name: "Nursing Services",
+        serviceSlug: "nursing-services",
+        situation:
+          "A family member needs professional nursing care during recovery or while managing a clinician-prescribed care plan at home.",
+        problem:
+          "You need appropriately qualified nursing professionals and a clear understanding of the care they can provide.",
+        implication:
+          "Unclear care arrangements can increase family stress and make it harder to coordinate recovery and follow-up care.",
+        solution:
+          "ApnaCare connects families with registered GNM and B.Sc nurses equipped to provide clinician-prescribed procedures including wound dressing, catheter management, injections, and vital monitoring under authorized medical instructions.",
+        benefits: [
+          "Delivered by registered GNM / B.Sc nurses",
+          "Strict adherence to physician care prescriptions",
+          "Sterile dressing, injections & catheter maintenance",
+          "Clinical documentation of vitals and recovery progress",
+        ],
+        startingPrice: 1800,
+        pricingUnit: "shift",
+        ctaText: "Explore Nursing Services",
+      },
+      {
+        id: "post-natal-care",
+        name: "Post-Natal Care",
+        serviceSlug: "post-natal-care",
+        situation:
+          "Your family has welcomed a newborn, and the mother is recovering while everyone adjusts to feeding, rest, and new responsibilities.",
+        problem:
+          "Limited support can make everyday newborn care and maternal recovery more demanding.",
+        implication:
+          "Exhaustion and competing responsibilities can make the early weeks more stressful for the entire family.",
+        solution:
+          "ApnaCare offers post-natal care assistance with gentle newborn handling, maternal recovery comfort, and everyday practical support. We clearly distinguish non-clinical home assistance from medical lactation or paediatric clinical care.",
+        benefits: [
+          "Gentle newborn care & soothing assistance",
+          "Support for maternal physical rest & recuperation",
+          "Nutritious meal & warm water hydration assistance",
+          "Calm fourth-trimester guidance for first-time parents",
+        ],
+        startingPrice: 1600,
+        pricingUnit: "day",
+        ctaText: "Explore Post-Natal Care",
+      },
+    ],
+    featuredServices: ["elderly-care", "hospital-attendants", "nursing-services", "post-natal-care"],
+    stat: { value: "1,200+", label: "Urban families actively supported" },
+    quote: {
+      text: "As a product director managing long work hours, having an ApnaCare attendant for my mother during her hip surgery recovery was an immense relief. The daily WhatsApp updates gave us peace of mind every single afternoon.",
+      author: "Rahul Sunder",
+      role: "Product Director",
+      city: "Chennai",
+    },
+    faqs: [
+      {
+        q: "How do I get updates on my family member while I am at work?",
+        a: "Attendants record scheduled observations on meals, hydration, and general comfort. Our care coordinators share updates via WhatsApp at agreed intervals during the shift.",
+      },
+      {
+        q: "What is the difference between an attendant and a qualified nurse?",
+        a: "Attendants provide non-clinical support (companionship, bathing, mobility, pre-packaged oral medicine reminders). Registered nurses (GNM/B.Sc) perform clinical procedures like wound dressing, IV injections, and catheter care under doctor prescription.",
+      },
+      {
+        q: "Can attendants handle night shifts or live-in arrangements?",
+        a: "Yes. Depending on your family's needs, we arrange daytime (8-12 hr) shifts, overnight bedside care, or 24-hour live-in support across active service clusters.",
+      },
+    ],
+  },
+  {
+    slug: "families-elderly",
+    name: "Ageing Parents & Families",
+    badge: "Dignified Senior Living",
+    subtitle:
+      "Compassionate daily living support, companionship, and mobility assistance that preserves senior autonomy and family peace of mind.",
+    summary:
+      "Helping older family members live safely and comfortably in their own homes. Our attendants provide respectful companionship, assistance with personal care routines, and walking support while honoring each elder's personal dignity and independence.",
+    painPoints: [
+      {
+        problem: "Fear of falls and mobility accidents when seniors walk unassisted",
+        solution:
+          "Trained attendants assist with walking, bathroom transfers, and posture support, reducing domestic fall risks.",
+      },
+      {
+        problem: "Social isolation and loneliness when children are at work or living away",
+        solution:
+          "Respectful companionship, patient conversation in the senior's native language, and accompaniment for safe garden walks.",
+      },
+      {
+        problem: "Irregular meals and missed medication schedules",
+        solution:
+          "Attendants ensure timely reminders for prescribed medications and assist with warm, nutritious meals.",
+      },
+    ],
+    featuredServices: ["elderly-care", "home-personal-care", "lifestyle-support"],
+    stat: { value: "800+", label: "Elders supported with dignified daily care" },
+    quote: {
+      text: "My mother felt hesitant about having outside help at first. But her attendant spoke fluent Tamil, listened to her stories, and treated her like family. It has brought back her confidence.",
+      author: "Lakshmi Narayanan",
+      role: "Daughter & Teacher",
+      city: "Bengaluru",
+    },
+    faqs: [
+      {
+        q: "Can we request an attendant who speaks our parent's mother tongue?",
+        a: "Yes. During requirement matching, we prioritize language compatibility (Tamil, Kannada, Telugu, Hindi, English) so seniors feel entirely at home.",
+      },
+      {
+        q: "Do your attendants assist with doctor appointments and clinic visits?",
+        a: "Yes. Our attendants can accompany seniors to routine doctor consultations, diagnostics, or neighbourhood visits.",
+      },
+    ],
+  },
+  {
+    slug: "post-hospitalization",
+    name: "Post-Hospital Recovery",
+    badge: "Recovery & Bedside Continuity",
+    subtitle:
+      "Seamless bedside care and home recovery assistance to protect patient comfort and help families transition smoothly after discharge.",
+    summary:
+      "Returning home from a hospital stay or surgical procedure requires attentive care. ApnaCare provides trained bedside attendants and qualified clinical nurses to assist during the critical first weeks of recuperation.",
+    painPoints: [
+      {
+        problem: "Uncertainty about safe transfers between bed, chair, and bathroom at home",
+        solution:
+          "Attendants trained in gentle patient transfer techniques safeguard mobility without straining surgical incisions.",
+      },
+      {
+        problem: "Managing complex medication lists and clinical wound care prescriptions",
+        solution:
+          "Registered nurses handle prescribed sterile dressings and injections; attendants assist with general comfort and schedule tracking.",
+      },
+      {
+        problem: "Family physical exhaustion from round-the-clock recovery vigils",
+        solution:
+          "Flexible shift options (daytime, overnight, or 24-hr live-in) ensure the patient is continuously supported while family members rest.",
+      },
+    ],
+    featuredServices: ["hospital-attendants", "nursing-services", "elderly-care"],
+    stat: { value: "99.1%", label: "Safe post-discharge transition satisfaction" },
+    quote: {
+      text: "When my father was discharged after hip surgery, having a trained bedside attendant at home made the whole difference. We avoided any slips and the hospital handover was completely smooth.",
+      author: "Venkatesh Rao",
+      role: "Son",
+      city: "Hyderabad",
+    },
+    faqs: [
+      {
+        q: "How early should we book care before hospital discharge?",
+        a: "We recommend booking 24 to 48 hours before the expected discharge date so your dedicated coordinator can finalize caregiver matching and shift schedules.",
+      },
+      {
+        q: "Can the same attendant continue care from hospital ward to home?",
+        a: "Yes, subject to hospital attendant permissions and location continuity within the same city.",
+      },
+    ],
+  },
+  {
+    slug: "new-mothers",
+    name: "New Mothers & Families",
+    badge: "Fourth Trimester Support",
+    subtitle:
+      "Gentle maternal recuperation, newborn care assistance, and restorative support during the critical early weeks after childbirth.",
+    summary:
+      "Welcoming a newborn is a transformative journey, but maternal recovery requires dedicated hands. Our experienced post-natal attendants assist with newborn handling, soothing, and practical everyday support so mothers can achieve crucial rest.",
+    painPoints: [
+      {
+        problem: "Severe maternal sleep deprivation slowing physical recovery",
+        solution:
+          "Attendants assist with burping, diapering, and infant soothing between feeds so the mother can experience uninterrupted sleep cycles.",
+      },
+      {
+        problem: "Incision discomfort and limited physical mobility after delivery",
+        solution:
+          "Comfort assistance, warm hydration, and nutritious traditional meal coordination to support physical recovery.",
+      },
+      {
+        problem: "Anxiety for first-time parents managing daily infant hygiene",
+        solution:
+          "Experienced attendants assist with gentle newborn sponge baths, hygienic cord-area care, and soothing techniques.",
+      },
+    ],
+    featuredServices: ["post-natal-care", "home-personal-care"],
+    stat: { value: "350+", label: "New mothers supported with gentle recovery" },
+    quote: {
+      text: "Recovering from a C-section while caring for a newborn was exhausting. Having an experienced post-natal attendant gave me the rest I needed to heal properly.",
+      author: "Ananya Sharma",
+      role: "New Mother",
+      city: "Bengaluru",
+    },
+    faqs: [
+      {
+        q: "Does the attendant provide medical lactation consultations?",
+        a: "No. Our post-natal attendants provide everyday non-clinical comfort support. For clinical lactation issues or medical infant complications, we always recommend consulting your paediatrician or IBCLC specialist.",
+      },
+      {
+        q: "What is the typical duration for post-natal attendant support?",
+        a: "Families typically arrange support for 15, 30, or 45 days during the early recovery period, on 10-hour day shifts or 24-hour live-in arrangements.",
+      },
+    ],
+  },
+  {
+    slug: "women-caregivers",
+    name: "Women Balancing Caregiving",
+    badge: "Shared Responsibility & Rest",
+    subtitle:
+      "Practical care support for women managing careers, household responsibilities, and family care without having to carry everything alone.",
+    summary:
+      "Women frequently shoulder the unspoken mental and physical weight of family caregiving. ApnaCare provides reliable, verified in-home support that enables families to share the caregiving responsibility equitably and protect personal well-being.",
+    painPoints: [
+      {
+        problem: "Physical and emotional burnout from managing work and dual caregiving roles",
+        solution:
+          "Dependable daytime attendants take on everyday elder assistance and home routines, freeing up crucial hours for rest and career focus.",
+      },
+      {
+        problem: "Difficulty finding verified, respectful caregivers you can trust in your home",
+        solution:
+          "100% biometric Aadhaar verification, police background screening, and reference checks for every attendant dispatched.",
+      },
+      {
+        problem: "Guilt when stepping away from eldercare responsibilities for personal commitments",
+        solution:
+          "Compassionate, respectful caregivers who treat elders with genuine warmth, ensuring your family is in loving and competent hands.",
+      },
+    ],
+    featuredServices: ["elderly-care", "home-personal-care", "lifestyle-support"],
+    stat: { value: "100%", label: "Biometric & police verified caregivers" },
+    quote: {
+      text: "Between my managerial role and looking after my mother-in-law, I was heading straight for burnout. Bringing in ApnaCare was the best decision for our whole family.",
+      author: "Deepa Menon",
+      role: "Marketing Director",
+      city: "Bengaluru",
+    },
+    faqs: [
+      {
+        q: "Can I adjust care shifts if my work schedule changes weekly?",
+        a: "Yes. Simply notify your dedicated care coordinator via WhatsApp to modify scheduled hours or plan coverage around travel.",
+      },
+    ],
+  },
+  {
+    slug: "community-initiatives",
+    name: "Community & Family Initiatives",
+    badge: "Future Initiatives & Knowledge",
+    subtitle:
+      "Educational guidance, child safety resources, and forthcoming community partnerships supporting family well-being.",
+    summary:
+      "ApnaCare's active commercial services are focused on eldercare, hospital assistance, clinical nursing, post-natal recovery, and women mobility. As part of our social mission, we share educational safety resources and explore future community initiatives for broader family support.",
+    painPoints: [
+      {
+        problem: "Understanding safe domestic environments for growing children",
+        solution:
+          "Free educational guides in our Knowledge Hub on home child-proofing, emergency contacts, and family safety planning.",
+      },
+      {
+        problem: "Availability of specialized child or paediatric services",
+        solution:
+          "ApnaCare does NOT offer commercial childcare or education services. We provide transparent educational resources and collaborate with community healthcare partners.",
+      },
+    ],
+    featuredServices: ["home-personal-care", "travel-assistance"],
+    stat: { value: "6+", label: "Educational family guidance guides published" },
+    quote: {
+      text: "We appreciate ApnaCare's honesty in focusing on what they genuinely do best in adult care and nursing, while offering helpful educational resources for wider family safety.",
+      author: "Advisory Board",
+      role: "Community Health Initiative",
+      city: "Bengaluru",
+    },
+    faqs: [
+      {
+        q: "Does ApnaCare provide commercial childcare, day-care, or tutoring services?",
+        a: "No. ApnaCare does not provide commercial childcare, education, or nutrition services. Any forthcoming child wellness collaborations will be clearly announced as distinct community initiatives.",
+      },
+      {
+        q: "Where can I find family safety and first-aid guides?",
+        a: "Visit our Knowledge Hub for verified articles on eldercare coordination, home safety checklists, and government healthcare schemes.",
+      },
+    ],
+  },
   {
     slug: "women-commuters",
     name: "Women Commuters",
@@ -1404,7 +1901,7 @@ export const ICPS: ICPInfo[] = [
       {
         problem: "Surge pricing and sudden driver cancellations during emergency commutes",
         solution:
-          "Fixed, pre-booked transparent rates with 90-minute guaranteed backup dispatch.",
+          "Fixed, pre-booked transparent rates with verified backup dispatch.",
       },
     ],
     featuredServices: ["women-drivers", "airport-pickup", "travel-assistance"],
@@ -1423,50 +1920,6 @@ export const ICPS: ICPInfo[] = [
       {
         q: "Does the driver use our personal vehicle or provide one?",
         a: "Our verified chauffeuses can drive your personal car (automatic or manual transmission), or we can coordinate vehicle packages through our mobility partners.",
-      },
-    ],
-  },
-  {
-    slug: "urban-professionals",
-    name: "Urban Professionals",
-    badge: "Elder & Bedside Family Care",
-    subtitle:
-      "Compassionate in-home attendants and hospital bedside companions so working executives can balance intense careers with family care.",
-    summary:
-      "For professionals managing fast-paced careers while caring for aging parents, recovering family members, or newborns. ApnaCare provides dedicated, trained women attendants with daily WhatsApp vitals updates.",
-    painPoints: [
-      {
-        problem: "Constant worry about elderly parents living alone while you are at work",
-        solution:
-          "Dedicated geriatric-certified attendants provide companionship, medicine schedules, walking assistance, and twice-daily digital wellness logs.",
-      },
-      {
-        problem: "Sudden hospital admissions requiring round-the-clock bedside vigilance",
-        solution:
-          "Trained bedside attendants handle continuous inpatient vigils, nursing staff coordination, hygiene, and timely updates so you can fulfill work commitments.",
-      },
-      {
-        problem: "Unreliable agency staff who leave abruptly with no replacement",
-        solution:
-          "Strict replacement guarantee: a verified backup attendant is dispatched within 90 minutes with zero transition penalty.",
-      },
-    ],
-    featuredServices: ["elderly-care", "hospital-attendants", "nursing-services", "post-natal-care"],
-    stat: { value: "1,200+", label: "Urban families actively supported" },
-    quote: {
-      text: "As a product director working 12-hour days, having an ApnaCare attendant for my mother during her hip surgery recovery was an absolute lifesaver. The daily reports and genuine warmth made all the difference.",
-      author: "Rahul Sunder",
-      role: "Product Director",
-      city: "Chennai",
-    },
-    faqs: [
-      {
-        q: "How do I get updates if I am at the office or traveling abroad?",
-        a: "Attendants log vitals, medicine administration, and meals in digital reports delivered directly via WhatsApp to family members at shift start, midday, and shift close.",
-      },
-      {
-        q: "Can attendants handle night shifts or 24-hour live-in care?",
-        a: "Yes. We offer daytime shifts (8-12 hrs), overnight bedside shifts, and 24-hour live-in care options across all active cities.",
       },
     ],
   },
@@ -1517,4 +1970,258 @@ export const ICPS: ICPInfo[] = [
 ];
 
 export const getICP = (slug: string) => ICPS.find((item) => item.slug === slug);
+
+// ─── Homepage Audience Problem Discovery Data ───────────────────────────────
+
+export interface AudienceChallenge {
+  id: string;
+  audience: string;
+  badge: string;
+  situation: string;
+  difficulty: string;
+  whyItMatters: string;
+  relevantServiceSlug: string | null;
+  serviceName: string;
+  ctaText: string;
+  ctaLink: string;
+  isFutureInitiative?: boolean;
+}
+
+export const AUDIENCE_CHALLENGES: AudienceChallenge[] = [
+  {
+    id: "working-professionals",
+    audience: "Working Professionals Caring for Ageing Parents",
+    badge: "Career & Family Balance",
+    situation: "Balancing demanding work deadlines, long commutes, or travel while your ageing parents live alone at home.",
+    difficulty: "Anxiety over unattended slips, missed meals, unmonitored medication times, and delayed communication during working hours.",
+    whyItMatters: "Constant distraction impacts professional focus, while parents risk progressive isolation or unassisted accidents at home.",
+    relevantServiceSlug: "elderly-care",
+    serviceName: "Elderly Care",
+    ctaText: "Explore Elderly Care Options",
+    ctaLink: "/solutions/urban-professionals",
+  },
+  {
+    id: "elderly-independence",
+    audience: "Elderly People Needing Daily Living Support",
+    badge: "Dignified Senior Living",
+    situation: "Desiring to continue living in your cherished home despite slowing mobility, stiff joints, or recovery from illness.",
+    difficulty: "Routine tasks such as safe bathing, walking to the porch, preparing meals, or remembering tablets become tiring hurdles.",
+    whyItMatters: "Preserving personal dignity, daily autonomy, and warm companionship without feeling like a burden to your children.",
+    relevantServiceSlug: "elderly-care",
+    serviceName: "Home & Personal Care",
+    ctaText: "Explore Senior Support",
+    ctaLink: "/solutions/families-elderly",
+  },
+  {
+    id: "post-hospital",
+    audience: "Families Supporting a Loved One After Hospitalisation",
+    badge: "Recovery & Continuity",
+    situation: "Bringing a family member home following surgery, orthopedic intervention, or extended medical treatment.",
+    difficulty: "Managing safe bed-to-chair transfers, fall risks in slippery bathrooms, and continuous bedside vigilance without exhausting the family.",
+    whyItMatters: "The first two weeks post-discharge are critical to prevent accidental falls and unplanned hospital readmissions.",
+    relevantServiceSlug: "hospital-attendants",
+    serviceName: "Hospital & Bedside Assistance",
+    ctaText: "Explore Bedside Care",
+    ctaLink: "/solutions/post-hospitalization",
+  },
+  {
+    id: "new-mothers",
+    audience: "New Mothers & Families Caring for Newborns",
+    badge: "Maternal Recuperation",
+    situation: "Navigating the fourth trimester while recovering from delivery, coping with sleepless nights, and healing physically.",
+    difficulty: "Overwhelming physical exhaustion, wound healing, round-the-clock feeding cycles, and practical household strain.",
+    whyItMatters: "Restorative sleep and gentle maternal support protect maternal mental health, healing, and bonding with the baby.",
+    relevantServiceSlug: "post-natal-care",
+    serviceName: "Post-Natal Care",
+    ctaText: "Explore Post-Natal Support",
+    ctaLink: "/solutions/new-mothers",
+  },
+  {
+    id: "nursing-support",
+    audience: "Families Seeking Qualified Nursing Support at Home",
+    badge: "Clinical Home Care",
+    situation: "A loved one requires professional clinical procedures at home under an active physician's prescription.",
+    difficulty: "Family members cannot safely administer IV infusions, sterile wound dressings, injections, or catheter maintenance.",
+    whyItMatters: "Clinical precision, sterile technique, and qualified nurse monitoring prevent severe infections and ensure recovery progress.",
+    relevantServiceSlug: "nursing-services",
+    serviceName: "Qualified Home Nursing",
+    ctaText: "Explore Nursing Services",
+    ctaLink: "/services/nursing-services",
+  },
+  {
+    id: "women-caregivers",
+    audience: "Women Balancing Careers, Caregiving & Family",
+    badge: "Shared Caregiving",
+    situation: "Carrying the unspoken mental and physical load of household coordination, elder wellness, and career responsibilities.",
+    difficulty: "Severe time poverty, chronic exhaustion, guilt when taking personal time, and lack of trusted help at home.",
+    whyItMatters: "Reliable, vetted caregiving assistance restores personal autonomy, rest, and balance for women caregivers.",
+    relevantServiceSlug: "home-personal-care",
+    serviceName: "Personal & Home Care",
+    ctaText: "Explore Caregiver Support",
+    ctaLink: "/solutions/women-caregivers",
+  },
+  {
+    id: "child-family-support",
+    audience: "Parents Seeking Family Support & Child Safety Guidance",
+    badge: "Educational Guidance · Future Initiative",
+    situation: "Parents looking for trusted guidance on child home safety, emergency preparedness, and family wellness routines.",
+    difficulty: "Finding verified, non-commercial child safety information and reliable family support ecosystems.",
+    whyItMatters: "ApnaCare focuses on adult care, eldercare, and maternal recovery. We provide free educational safety resources while community initiatives develop.",
+    relevantServiceSlug: null,
+    serviceName: "Educational Community Hub",
+    ctaText: "Browse Educational Guides",
+    ctaLink: "/solutions/community-initiatives",
+    isFutureInitiative: true,
+  },
+];
+
+// ─── Real-Life Illustrative Family Scenarios ────────────────────────────────
+
+export interface RealLifeStory {
+  id: string;
+  title: string;
+  persona: string;
+  tag: string;
+  situation: string;
+  difficulty: string;
+  implication: string;
+  solution: string;
+  relatedServiceSlug: string;
+  relatedServiceName: string;
+  ctaLink: string;
+}
+
+export const REAL_LIFE_STORIES: RealLifeStory[] = [
+  {
+    id: "story-tech-professional",
+    title: "The 2 PM Worry: Supporting an Ageing Father Across Town",
+    persona: "Karthik, 36 · Senior Software Engineer, Bengaluru",
+    tag: "Elderly Independence & Coordination",
+    situation: "Karthik manages long workdays at an IT corridor office while his 78-year-old father, who has mild arthritis and unsteady balance, lives across the city.",
+    difficulty: "Why this becomes difficult: A missed phone call at 2 PM causes instant dread of a bathroom slip or missed lunch, but Karthik cannot leave his workstation in the middle of office deliverables.",
+    implication: "What can happen without support: Unmonitored days lead to irregular meals, missed blood pressure medications, progressive loneliness, and severe anxiety for the working son.",
+    solution: "How ApnaCare helps: A verified woman eldercare attendant arrives by 9 AM, prepares warm meals, assists with mobility exercises, and sends an agreed midday WhatsApp update confirming vitals and meals.",
+    relatedServiceSlug: "elderly-care",
+    relatedServiceName: "Elderly Care",
+    ctaLink: "/services/elderly-care",
+  },
+  {
+    id: "story-hospital-bedside",
+    title: "The Hospital Shift: When One Person Cannot Do It All",
+    persona: "Sunita & Arvind · Working Siblings, Chennai",
+    tag: "Post-Surgical Hospital Assistance",
+    situation: "Their 72-year-old mother underwent emergency orthopedic surgery at a central hospital, requiring continuous non-clinical bedside vigilance.",
+    difficulty: "Why this becomes difficult: Both siblings have demanding jobs and children at home; coordinating 24-hour hospital bedside shifts between them was leading to physical exhaustion.",
+    implication: "What can happen without support: An unattended patient may attempt to reach the washroom unassisted, risking a fresh surgical site injury, while the family suffers severe sleep deprivation.",
+    solution: "How ApnaCare helps: A trained bedside attendant takes over the daytime and overnight bedside vigils, assisting with hygiene, sipping water, and calling nurses, while sharing shift handover notes with the family.",
+    relatedServiceSlug: "hospital-attendants",
+    relatedServiceName: "Hospital Bedside Care",
+    ctaLink: "/services/hospital-attendants",
+  },
+  {
+    id: "story-fourth-trimester",
+    title: "The Fourth Trimester: Healing While Caring for a Newborn",
+    persona: "Priyanka, 29 · First-Time Mother, Hyderabad",
+    tag: "Post-Natal Maternal Recovery",
+    situation: "Priyanka returned home following a Caesarean delivery with her first child, while her spouse had to return to work after 10 days of leave.",
+    difficulty: "Why this becomes difficult: Incision pain made lifting and soothing the baby agonizing, and severe sleep deprivation triggered deep emotional and physical exhaustion.",
+    implication: "What can happen without support: Inadequate maternal rest slows tissue recovery, compounds postpartum stress, and turns a joyful family milestone into an overwhelming struggle.",
+    solution: "How ApnaCare helps: A dedicated post-natal attendant assists with newborn soothing, gentle infant sponge baths, and practical comfort care, allowing Priyanka to achieve 3-hour unbroken sleep blocks to heal.",
+    relatedServiceSlug: "post-natal-care",
+    relatedServiceName: "Post-Natal Care",
+    ctaLink: "/services/post-natal-care",
+  },
+  {
+    id: "story-surgery-discharge",
+    title: "Bringing Father Home: Safe Transition After Hip Replacement",
+    persona: "Ramesh, 42 · Financial Analyst, Coimbatore",
+    tag: "Post-Discharge Rehabilitation",
+    situation: "His 74-year-old father was cleared for discharge after hip replacement surgery, but could not safely navigate the bedroom or bathroom without two-person support.",
+    difficulty: "Why this becomes difficult: The family home has standard tile flooring, low seating, and bathroom steps; family members were terrified of causing a hip dislocation during transfers.",
+    implication: "What can happen without support: Secondary falls during home recovery are the leading cause of emergency orthopedic readmissions within 30 days of discharge.",
+    solution: "How ApnaCare helps: ApnaCare arranged a patient-transfer trained attendant to assist with walking frame guidance and personal hygiene, ensuring strict adherence to the surgeon's movement protocol.",
+    relatedServiceSlug: "hospital-attendants",
+    relatedServiceName: "Bedside & Recovery Care",
+    ctaLink: "/services/hospital-attendants",
+  },
+  {
+    id: "story-daughter-caregiver",
+    title: "Balancing Two Homes: Protecting Eldercare Without Burnout",
+    persona: "Meera, 40 · School Vice-Principal, Bengaluru",
+    tag: "Shared Caregiving & Personal Dignity",
+    situation: "Meera was splitting evenings and weekends between managing her own teenagers and visiting her widowed mother to prepare meals and check medicines.",
+    difficulty: "Why this becomes difficult: Constantly rushing between two homes left Meera chronically exhausted and feeling guilty that she wasn't doing enough for either household.",
+    implication: "What can happen without support: Caregiver burnout strains marital relationships, harms mental well-being, and turns visits to an ageing parent into rushed transactional chores.",
+    solution: "How ApnaCare helps: Dependable daytime home care gives her mother warm, respectful company and wholesome daily routines, transforming Meera's evening visits into relaxed, loving family time.",
+    relatedServiceSlug: "elderly-care",
+    relatedServiceName: "Elderly Care",
+    ctaLink: "/services/elderly-care",
+  },
+];
+
+// ─── Trust & Safety Standards ───────────────────────────────────────────────
+
+export const TRUST_VERIFICATION_STANDARDS = [
+  {
+    title: "Biometric & Identity Verification",
+    badge: "100% Verified Identity",
+    desc: "Every attendant's identity is authenticated through direct Aadhaar biometric matching and permanent residential address validation before assignment.",
+  },
+  {
+    title: "Police & Judicial Background Checks",
+    badge: "Law Enforcement Screened",
+    desc: "Formal police verification records and judicial database screenings are conducted to ensure zero past criminal convictions or adverse records.",
+  },
+  {
+    title: "Clear Attendant vs Nursing Scope",
+    badge: "Defined Clinical Boundaries",
+    desc: "Attendants provide compassionate, non-clinical daily living support. Clinical medical tasks (injections, catheter, wound dressing) are strictly handled by registered GNM/B.Sc nurses under valid doctor prescriptions.",
+  },
+  {
+    title: "Caregiver Selection & Skills Assessment",
+    badge: "Practical Care Competence",
+    desc: "Every caregiver completes practical patient-handling assessments, geriatric sensitivity training, infant hygiene standards, and emergency communication protocols.",
+  },
+  {
+    title: "Transparent Family Communication",
+    badge: "Daily Peace of Mind",
+    desc: "Scheduled shift observations and check-ins are shared via WhatsApp, ensuring working family members have visibility into daily care routines.",
+  },
+  {
+    title: "Reliable Continuity & Escalation",
+    badge: "Support You Can Count On",
+    desc: "If an assigned attendant is unwell, our care coordination team works promptly to arrange a verified replacement with matched language and care skills.",
+  },
+];
+
+// ─── 5-Step Customer Journey ────────────────────────────────────────────────
+
+export const CARE_JOURNEY_STEPS = [
+  {
+    step: "01",
+    title: "Tell Us About Your Care Needs",
+    desc: "Share your family member's daily routine, mobility status, preferred shift timings, and language comfort through our simple online form or WhatsApp.",
+  },
+  {
+    step: "02",
+    title: "Get Guidance on the Right Service",
+    desc: "A dedicated care coordinator reviews your requirements, clarifies non-clinical vs clinical needs, and recommends the appropriate service.",
+  },
+  {
+    step: "03",
+    title: "Discuss Arrangements & Availability",
+    desc: "Review transparent shift pricing, discuss caregiver profiles, and confirm start dates with zero hidden charges or unexpected dispatcher fees.",
+  },
+  {
+    step: "04",
+    title: "Arrange Care & Receive Details",
+    desc: "Receive the verified digital profile, photo ID confirmation, and clear service details before your caregiver's first scheduled shift.",
+  },
+  {
+    step: "05",
+    title: "Stay Connected with Your Care Team",
+    desc: "Receive scheduled daily WhatsApp updates on meals, comfort, and routines, with a responsive care desk available whenever adjustments are needed.",
+  },
+];
+
 

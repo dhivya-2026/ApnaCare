@@ -83,13 +83,13 @@ function ICPSolutionPage() {
 
           <div className="flex flex-wrap items-center gap-6 text-xs font-semibold text-muted-foreground">
             <span className="flex items-center gap-1.5 text-foreground">
-              <ShieldCheck className="size-4 text-primary" /> 100% Police Verified
+              <ShieldCheck className="size-4 text-primary" /> 100% Biometric & Police Verified
             </span>
             <span className="flex items-center gap-1.5 text-foreground">
-              <Zap className="size-4 text-terracotta" /> 90-Min Backup Guarantee
+              <CheckCircle2 className="size-4 text-terracotta" /> Verified Replacement Protocol
             </span>
             <span className="flex items-center gap-1.5 text-foreground">
-              <Clock className="size-4 text-primary" /> 24/7 Command SOS
+              <Clock className="size-4 text-primary" /> Dedicated Care Desk
             </span>
           </div>
         </div>
@@ -98,12 +98,12 @@ function ICPSolutionPage() {
       {/* Summary Narrative */}
       <section className="container-page py-16 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="eyebrow">Tailored Care Architecture</span>
+          <span className="eyebrow">Understanding Your Family's Situation</span>
           <h2 className="mt-3 text-3xl font-semibold md:text-4xl text-foreground">
-            Purpose-Built for Your Specific Demands
+            We Understand What Your Family Is Going Through
           </h2>
           <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-            {icp.summary}
+            {icp.challengesContext || icp.summary}
           </p>
         </div>
 
@@ -121,7 +121,7 @@ function ICPSolutionPage() {
               </div>
               <div className="mt-6 pt-5 border-t border-border/70">
                 <p className="text-xs font-bold uppercase tracking-wider text-primary mb-1 flex items-center gap-1">
-                  <CheckCircle2 className="size-3.5" /> ApnaCare Solution
+                  <CheckCircle2 className="size-3.5" /> How ApnaCare Helps
                 </p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {item.solution}
@@ -132,8 +132,111 @@ function ICPSolutionPage() {
         </div>
       </section>
 
+      {/* SPIN Framework Services Section */}
+      {icp.spinServices && icp.spinServices.length > 0 && (
+        <section className="border-t border-border bg-secondary/25 py-16 md:py-24">
+          <div className="container-page">
+            <SectionHeading
+              center
+              eyebrow="Situation · Challenge · Solution"
+              title="How ApnaCare Tailors Care to Your Family"
+              sub="Real-life situations, the specific difficulties families face, and the practical support we provide."
+            />
+
+            <div className="mt-14 grid gap-8 lg:grid-cols-2">
+              {icp.spinServices.map((svc) => (
+                <div
+                  key={svc.id}
+                  className="card-soft flex flex-col justify-between p-8 border border-border/80 hover:border-primary/40 transition-all hover:shadow-soft"
+                >
+                  <div className="space-y-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-4">
+                      <h3 className="text-2xl font-semibold text-foreground">{svc.name}</h3>
+                      <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary">
+                        Starting {formatINR(svc.startingPrice)}/{svc.pricingUnit}
+                      </span>
+                    </div>
+
+                    {/* Situation */}
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                        Does this sound familiar?
+                      </p>
+                      <p className="text-sm text-foreground/90 leading-relaxed bg-card/60 p-3.5 rounded-xl border border-border/50">
+                        {svc.situation}
+                      </p>
+                    </div>
+
+                    {/* Problem */}
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-terracotta mb-1">
+                        Why this becomes difficult
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {svc.problem}
+                      </p>
+                    </div>
+
+                    {/* Implication */}
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-destructive/80 mb-1">
+                        What can happen without support?
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {svc.implication}
+                      </p>
+                    </div>
+
+                    {/* Solution */}
+                    <div className="pt-2 border-t border-border/60">
+                      <p className="text-xs font-bold uppercase tracking-wider text-primary mb-1">
+                        How ApnaCare helps
+                      </p>
+                      <p className="text-sm text-foreground leading-relaxed">
+                        {svc.solution}
+                      </p>
+                    </div>
+
+                    {/* Benefits checklist */}
+                    <ul className="grid gap-2 pt-2 text-xs font-medium sm:grid-cols-2">
+                      {svc.benefits.map((b, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-foreground/90">
+                          <CheckCircle2 className="size-4 shrink-0 text-primary" />
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Card Footer: Secondary Pricing & CTA */}
+                  <div className="mt-8 pt-5 border-t border-border flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Transparent base rate + 18% GST invoice
+                      </p>
+                      <Link
+                        to="/services/$slug"
+                        params={{ slug: svc.serviceSlug }}
+                        className="text-xs font-semibold text-primary hover:underline"
+                      >
+                        View inclusions & shift timings →
+                      </Link>
+                    </div>
+                    <Button asChild variant="warm" size="sm">
+                      <Link to="/services/$slug" params={{ slug: svc.serviceSlug }}>
+                        {svc.ctaText}
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Recommended Services Portfolio */}
-      <section className="border-y border-border bg-secondary/30 py-16 md:py-24">
+      <section className="border-y border-border bg-card py-16 md:py-24">
         <div className="container-page">
           <SectionHeading
             center
@@ -158,11 +261,11 @@ function ICPSolutionPage() {
         </div>
       </section>
 
-      {/* Real Testimonial Spotlight */}
+      {/* Illustrative Scenario / Experience Spotlight */}
       <section className="container-page py-16 md:py-24">
         <div className="rounded-[2.5rem] bg-ink p-8 text-ink-foreground md:p-14">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="eyebrow text-terracotta">Verified Experience</span>
+            <span className="eyebrow text-terracotta">Illustrative Experience</span>
             <blockquote className="mt-4 font-display text-xl leading-relaxed md:text-2xl text-ink-foreground">
               “{icp.quote.text}”
             </blockquote>

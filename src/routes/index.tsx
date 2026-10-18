@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   Radio,
   Zap,
+  MessageCircle,
 } from "lucide-react";
 import { EnquiryForm } from "@/components/site/EnquiryForm";
 import { toast } from "sonner";
@@ -35,8 +36,13 @@ import {
   CITIES,
   CATEGORIES,
   SAFETY_PILLARS,
+  AUDIENCE_CHALLENGES,
+  REAL_LIFE_STORIES,
+  TRUST_VERIFICATION_STANDARDS,
+  CARE_JOURNEY_STEPS,
   type ServiceCategory,
   formatINR,
+  buildWhatsAppUrl,
 } from "@/data/site";
 import {
   SectionHeading,
@@ -193,37 +199,39 @@ function Hero() {
             {slide.caption}
           </p>
 
-          <h1
-            key={`h-${i}`}
-            className="mt-6 text-balance text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl animate-fade-up"
-          >
-            {slide.heading}
+          <h1 className="mt-6 text-balance text-4xl font-semibold leading-[1.08] sm:text-5xl lg:text-6xl animate-fade-up">
+            Caring for Your Loved Ones Shouldn't Mean Carrying Everything Alone.
           </h1>
 
-          <p
-            key={`p-${i}`}
-            className="mt-5 max-w-xl text-lg text-primary-foreground/85 leading-relaxed animate-fade-up"
-          >
-            {slide.sub}
+          <p className="mt-5 max-w-xl text-lg text-primary-foreground/90 leading-relaxed animate-fade-up">
+            Whether you are supporting ageing parents, recovering after a hospital stay, welcoming a newborn, or balancing work with family responsibilities, ApnaCare helps you find dependable care tailored to your family's needs.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <BookLink size="lg" variant="warm" service={slide.cta.service}>
-              {slide.cta.label}
-            </BookLink>
-            <Button
-              asChild
-              size="lg"
-              variant="glass"
-              className="hover:border-primary-foreground/60 transition-colors"
-            >
-              <Link to="/services">Explore Services</Link>
+          <div className="mt-8 flex flex-wrap items-center gap-3.5">
+            <Button asChild size="lg" variant="warm">
+              <a href="#audience-challenges">
+                Find the Right Care
+              </a>
             </Button>
+            <a
+              href={buildWhatsAppUrl("Hi ApnaCare! I would like to speak to your care team about finding the right care for my family.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track("hero_talk_care_team")}
+              className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/20 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur hover:bg-[#25D366]/30 transition-colors"
+            >
+              <MessageCircle className="size-4 text-[#25D366]" />
+              Talk to Our Care Team
+            </a>
           </div>
 
-          <div className="mt-6 flex items-center gap-2 text-xs text-primary-foreground/75 font-medium">
-            <ShieldCheck className="size-4 text-terracotta" />
-            <span>Active in Bengaluru, Chennai, Hyderabad & Coimbatore · &lt; 20m dispatch</span>
+          <div className="mt-7 flex flex-wrap items-center gap-4 text-xs text-primary-foreground/80 font-medium">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="size-4 text-terracotta" /> 100% Police & Biometric Screening
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="size-4 text-primary" /> Active in Bengaluru, Chennai, Hyderabad & Coimbatore
+            </span>
           </div>
         </div>
 
@@ -263,11 +271,11 @@ function Hero() {
 }
 
 const TRUST = [
-  { icon: BadgeCheck, label: "100% Verified Attendants" },
-  { icon: ShieldCheck, label: "Police Record Cleared" },
-  { icon: IndianRupee, label: "Transparent Pricing" },
-  { icon: Clock, label: "24/7 Command Support" },
-  { icon: HeartHandshake, label: `${SITE.yearsOfService} Years of Service` },
+  { icon: BadgeCheck, label: "100% Biometric & Police Screening" },
+  { icon: ShieldCheck, label: "Clear Attendant vs Nurse Scope" },
+  { icon: CheckCircle2, label: "Verified Care Continuity" },
+  { icon: MessageCircle, label: "Scheduled WhatsApp Updates" },
+  { icon: IndianRupee, label: "Transparent GST Invoicing" },
 ];
 
 const PILLARS = [
@@ -496,16 +504,18 @@ function RecommendationEngine() {
 
 function Home() {
   const [selectedCat, setSelectedCat] = useState<"all" | ServiceCategory>("all");
-
   const filteredServices = SERVICES.filter(
     (s) => selectedCat === "all" || s.category === selectedCat,
+  );
+  const waUrl = buildWhatsAppUrl(
+    "Hi ApnaCare! I would like to speak to your care team about finding the right care for my family."
   );
 
   return (
     <>
       <Hero />
 
-      {/* Trust Bar */}
+      {/* Trust & Standards Bar */}
       <section aria-label="Trust indicators" className="border-b border-border bg-card">
         <ul className="container-page grid grid-cols-2 gap-4 py-6 md:grid-cols-5">
           {TRUST.map((t) => (
@@ -519,72 +529,259 @@ function Home() {
         </ul>
       </section>
 
-      {/* Why Families Trust ApnaCare */}
-      <section className="container-page py-20 md:py-28">
+      {/* SECTION B: Audience-Based Problem Discovery */}
+      <section id="audience-challenges" className="container-page py-20 md:py-28 scroll-mt-20">
         <SectionHeading
-          eyebrow="Why ApnaCare"
-          title="Why Families Trust ApnaCare"
-          sub="We are dedicated to giving families peace of mind. We set the highest standards for safety, reliability, and compassionate care."
+          center
+          eyebrow="Who We Support"
+          title="Every Family Faces Different Care Challenges."
+          sub="We understand what your family is going through. Explore tailored support designed around your real-life situation."
         />
-        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {PILLARS.map((p, n) => (
+
+        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {AUDIENCE_CHALLENGES.map((item) => (
             <div
-              key={p.t}
-              className="card-soft p-7 transition-all hover:border-primary/40 hover:shadow-lift"
+              key={item.id}
+              className={`card-soft p-7 flex flex-col justify-between border transition-all hover:border-primary/50 hover:shadow-soft ${
+                item.isFutureInitiative ? "bg-secondary/15" : ""
+              }`}
             >
-              <p className="font-display text-sm font-bold text-terracotta">0{n + 1}</p>
-              <h3 className="mt-3 text-2xl font-semibold">{p.t}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.d}</p>
+              <div>
+                <span className="inline-block rounded-full bg-terracotta/15 px-3 py-1 text-xs font-bold text-terracotta">
+                  {item.badge}
+                </span>
+                <h3 className="mt-4 text-xl font-semibold text-foreground leading-snug">
+                  {item.audience}
+                </h3>
+
+                <div className="mt-5 space-y-3.5 text-sm">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Does this sound familiar?
+                    </p>
+                    <p className="mt-1 text-foreground/90 leading-relaxed bg-background/60 p-3 rounded-xl border border-border/60">
+                      {item.situation}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-terracotta">
+                      Why this becomes difficult
+                    </p>
+                    <p className="mt-1 text-muted-foreground leading-relaxed">
+                      {item.difficulty}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-destructive/80">
+                      What can happen without support?
+                    </p>
+                    <p className="mt-1 text-muted-foreground leading-relaxed">
+                      {item.whyItMatters}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-5 border-t border-border flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <span className="text-xs font-semibold text-primary block">
+                    {item.isFutureInitiative ? "Educational Guidance" : `Service: ${item.serviceName}`}
+                  </span>
+                </div>
+                <Button asChild variant={item.isFutureInitiative ? "outline" : "warm"} size="sm">
+                  <Link to={item.ctaLink as any}>
+                    {item.ctaText} →
+                  </Link>
+                </Button>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* How It Works (Customer Journey) */}
-      <section
-        id="how-it-works"
-        className="border-y border-border bg-secondary/30 py-20 md:py-28 scroll-mt-20"
-      >
+      {/* SECTION C: Real-Life Challenges Section */}
+      <section className="border-y border-border bg-secondary/25 py-20 md:py-28">
         <div className="container-page">
           <SectionHeading
             center
-            eyebrow="How It Works"
-            title="A Seamless, Reassuring Care Journey"
-            sub="From initial service discovery to live shift management and emergency escalation — arranged in minutes."
+            eyebrow="Real-Life Situations"
+            title="Behind Every Care Request, There Is a Story."
+            sub="Real situations we see every day — and how dependable care makes a meaningful difference."
           />
 
-          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {JOURNEY_STEPS.slice(0, 4).map((step) => (
-              <div key={step.num} className="card-soft p-6 relative">
-                <span className="font-display text-2xl font-bold text-primary/70">{step.num}</span>
-                <h4 className="mt-3 text-xl font-semibold">{step.title}</h4>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
+          <div className="mt-4 mx-auto max-w-2xl text-center">
+            <p className="text-xs text-muted-foreground/80 italic">
+              Note: The scenarios below represent illustrative family situations based on everyday care coordination challenges. ApnaCare does not publish fabricated customer testimonials or unverified patient claims.
+            </p>
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            {JOURNEY_STEPS.slice(4).map((step) => (
-              <div key={step.num} className="card-soft p-6 relative">
-                <span className="font-display text-2xl font-bold text-terracotta">{step.num}</span>
-                <h4 className="mt-3 text-xl font-semibold">{step.title}</h4>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+          <div className="mt-12 grid gap-6 lg:grid-cols-2">
+            {REAL_LIFE_STORIES.map((story) => (
+              <div
+                key={story.id}
+                className="card-soft p-8 flex flex-col justify-between border border-border/80 hover:border-primary/40 transition-all hover:shadow-soft"
+              >
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-3">
+                    <span className="text-xs font-bold text-terracotta uppercase tracking-wider">
+                      {story.tag}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {story.persona}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-4 text-2xl font-semibold text-foreground">
+                    {story.title}
+                  </h3>
+
+                  <div className="mt-5 space-y-4 text-sm">
+                    <div className="bg-background/80 p-4 rounded-2xl border border-border/60">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                        Does this sound familiar?
+                      </p>
+                      <p className="text-foreground/90 leading-relaxed">
+                        {story.situation}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-terracotta mb-1">
+                        Why this becomes difficult
+                      </p>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {story.difficulty.replace(/^Why this becomes difficult:\s*/i, "")}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-destructive/80 mb-1">
+                        What can happen without support?
+                      </p>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {story.implication.replace(/^What can happen without support:\s*/i, "")}
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-border/60">
+                      <p className="text-xs font-bold uppercase tracking-wider text-primary mb-1">
+                        How ApnaCare helps
+                      </p>
+                      <p className="text-foreground leading-relaxed">
+                        {story.solution.replace(/^How ApnaCare helps:\s*/i, "")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-7 pt-4 border-t border-border flex items-center justify-between">
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    Relevant service: {story.relatedServiceName}
+                  </span>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to={story.ctaLink as any}>
+                      Explore This Solution →
+                    </Link>
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Expanded Services with Interactive Category Switcher */}
+      {/* SECTION D: How ApnaCare Helps (5-Step Customer Journey) */}
+      <section id="how-it-works" className="container-page py-20 md:py-28 scroll-mt-20">
+        <SectionHeading
+          center
+          eyebrow="Our Care Journey"
+          title="How ApnaCare Helps Your Family"
+          sub="A simple, reassuring care journey from your initial enquiry to verified daily care."
+        />
+
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          {CARE_JOURNEY_STEPS.map((step) => (
+            <div
+              key={step.step}
+              className="card-soft p-6 flex flex-col justify-between border border-border/80 hover:border-primary/40 transition-all hover:shadow-soft relative"
+            >
+              <div>
+                <span className="font-display text-3xl font-bold text-primary/70">
+                  {step.step}
+                </span>
+                <h4 className="mt-4 text-lg font-semibold text-foreground leading-snug">
+                  {step.title}
+                </h4>
+                <p className="mt-2.5 text-xs text-muted-foreground leading-relaxed">
+                  {step.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <BookLink size="lg" variant="warm">
+            Start Your Care Request Now
+          </BookLink>
+        </div>
+      </section>
+
+      {/* SECTION E: Trust and Safety Standards */}
+      <section id="safety" className="border-t border-border bg-ink py-20 text-ink-foreground md:py-28 scroll-mt-20">
+        <div className="container-page">
+          <div className="max-w-3xl">
+            <span className="eyebrow text-terracotta">Safety, Trust & Clear Boundaries</span>
+            <h2 className="mt-3 text-3xl font-semibold md:text-5xl text-ink-foreground">
+              We Believe Families Deserve Complete Transparency
+            </h2>
+            <p className="mt-4 text-base md:text-lg text-ink-foreground/80 leading-relaxed">
+              Caregiving is built on trust. We are explicit about how our caregivers are vetted, the clear scope of attendant practice vs registered nursing, and our daily family communication standards.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {TRUST_VERIFICATION_STANDARDS.map((std, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl border border-white/10 bg-white/5 p-7 backdrop-blur hover:bg-white/10 transition-colors"
+              >
+                <span className="inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
+                  {std.badge}
+                </span>
+                <h3 className="mt-4 text-xl font-semibold text-white">
+                  {std.title}
+                </h3>
+                <p className="mt-3 text-sm text-ink-foreground/80 leading-relaxed">
+                  {std.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex flex-wrap gap-4 pt-4 border-t border-white/10">
+            <Button asChild variant="glass">
+              <Link to="/safety">Read Complete Verification Process</Link>
+            </Button>
+            <Button asChild variant="outline" className="border-white/30 text-white hover:bg-white/15">
+              <Link to="/safety-guidelines">Attendant Scope & Guidelines</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION F: Service Discovery */}
       <section id="services" className="container-page py-20 md:py-28 scroll-mt-20">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
-            eyebrow="Our Care Portfolio"
-            title="Complete Directory of 11 Care Services"
-            sub="Women-led attendant solutions across Home, Healthcare, Travel, Security, and Lifestyle support."
+            eyebrow="Service Directory"
+            title="Available Care Services"
+            sub="Prioritising elderly care, hospital bedside vigils, qualified clinical nursing, and post-natal support."
           />
           <Button asChild variant="outline">
-            <Link to="/services">View Service Directory</Link>
+            <Link to="/services">View All 11 Services</Link>
           </Button>
         </div>
 
@@ -623,12 +820,12 @@ function Home() {
         )}
       </section>
 
-      {/* Personalized Matcher Engine */}
+      {/* Interactive Personalized Matcher */}
       <section className="container-page pb-20 md:pb-28">
         <RecommendationEngine />
       </section>
 
-      {/* Transparent Pricing */}
+      {/* SECTION G: Pricing (Separate and Secondary) */}
       <section
         id="pricing"
         className="border-t border-border bg-secondary/20 py-20 md:py-28 scroll-mt-20"
@@ -637,9 +834,9 @@ function Home() {
         <div className="container-page">
           <SectionHeading
             center
-            eyebrow="Pricing"
-            title="Transparent, Upfront Pricing"
-            sub="Clear, honest rates with zero hidden charges. Transparent base rates plus 18% statutory GST tax invoices, backed by refund protection prior to dispatch."
+            eyebrow="Transparent Pricing"
+            title="Clear, Upfront Pricing With No Surprises"
+            sub="Find starting prices for daytime shifts, overnight bedside care, and 24-hour live-in support. Transparent pricing with 18% statutory GST tax invoices and full refund protection prior to dispatch."
           />
 
           <div className="mt-14 grid gap-6 lg:grid-cols-3">
@@ -650,75 +847,34 @@ function Home() {
 
           <div className="mt-10 flex flex-wrap justify-center gap-6 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="size-4 text-primary" /> Guaranteed No Hidden Charges
+              <ShieldCheck className="size-4 text-primary" /> Transparent Rates Disclosed Upfront
             </span>
             <span className="flex items-center gap-1.5">
               <BadgeCheck className="size-4 text-primary" /> 18% Statutory GST Tax Invoice Provided
             </span>
             <span className="flex items-center gap-1.5">
-              <Zap className="size-4 text-primary" /> Full Refund Protection Prior to Dispatch
+              <CheckCircle2 className="size-4 text-primary" /> Refund Protection Prior to Care Dispatch
             </span>
           </div>
-        </div>
-      </section>
 
-      {/* Safety & Vetting Pillars */}
-      <section
-        id="safety"
-        className="bg-primary py-20 text-primary-foreground md:py-28 scroll-mt-20"
-      >
-        <div className="container-page grid items-center gap-12 lg:grid-cols-2">
-          <div>
-            <p className="eyebrow text-terracotta">Safety & Vetting</p>
-            <h2 className="mt-3 text-4xl font-semibold leading-tight">
-              Our Standard is Uncompromising Trust
-            </h2>
-            <p className="mt-4 text-lg text-primary-foreground/80 leading-relaxed">
-              Every single ApnaCare attendant passes multi-step background checks, biometric
-              authentication, state police clearance, and accredited clinical safety certifications.
+          <div className="mt-8 text-center">
+            <p className="text-xs text-muted-foreground">
+              Need custom multi-week rates or hospital coordination?{" "}
+              <Link to="/contact" className="text-primary font-semibold hover:underline">
+                Speak with our care coordinators
+              </Link>
             </p>
-            <div className="mt-8 flex gap-4">
-              <Button asChild variant="glass">
-                <Link to="/safety">How We Verify Attendants</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/15"
-              >
-                <Link to="/safety-guidelines">Safety Guidelines</Link>
-              </Button>
-            </div>
           </div>
-
-          <ul className="grid gap-3.5 sm:grid-cols-2">
-            {[
-              "Biometric Aadhaar Authentication",
-              "100% Police Record Verification",
-              "Court & Criminal Screening",
-              "Basic Life Support (BLS) & First Aid Certification",
-              "Live GPS Shift Telemetry",
-              "24/7 Command SOS Dispatch",
-            ].map((x) => (
-              <li
-                key={x}
-                className="flex items-center gap-3 rounded-2xl bg-primary-foreground/10 p-4 font-medium backdrop-blur"
-              >
-                <ShieldCheck className="size-5 text-terracotta shrink-0" aria-hidden />
-                <span>{x}</span>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 
-      {/* Meet Our Attendants */}
+      {/* Verified Attendants Section */}
       <section id="attendants" className="container-page py-20 md:py-28 scroll-mt-20">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
-            eyebrow="Our Verified People"
+            eyebrow="Our Verified Caregivers"
             title="Meet Our Attendant Specialists"
-            sub="Real caregivers and chauffeuses with verified police clearance, patient care diplomas, and top client ratings."
+            sub="Caregivers and chauffeuses with verified police clearance, practical patient care diplomas, and verified reviews."
           />
           <Button asChild variant="outline">
             <Link to="/booking">Request an Attendant</Link>
@@ -736,21 +892,19 @@ function Home() {
       <section id="sos" className="container-page pb-20 md:pb-28 scroll-mt-20">
         <div className="grid items-center gap-10 rounded-[2.5rem] border border-sos/25 bg-card p-8 shadow-soft md:p-14 lg:grid-cols-[1.2fr_1fr]">
           <div>
-            <span className="eyebrow text-sos">Rapid Response</span>
+            <span className="eyebrow text-sos">Rapid Response Feature</span>
             <h2 className="mt-3 text-3xl font-semibold md:text-4xl">
-              Integrated 24/7 Emergency SOS
+              24/7 Command SOS & Alert Protocol
             </h2>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-              Every booking is linked to our centralized Command Desk. In any crisis, an instant
-              panic-button triggers real-time GPS telemetry, alerts designated kin, and coordinates
-              emergency response.
+              Every active booking is backed by our centralized coordination desk. In any crisis, an instant alert triggers emergency escalation, notifies designated family contacts, and coordinates appropriate support.
             </p>
             <ul className="mt-6 grid gap-2.5 text-sm sm:grid-cols-2">
               {[
-                "Instant Emergency SOS alert trigger",
-                "Automated SMS/Email to kin contacts",
-                "24/7 dedicated control room monitoring",
-                "Live shift tracking via secure GPS link",
+                "Instant Emergency alert trigger",
+                "Automated notification to family contacts",
+                "24/7 dedicated care desk coordination",
+                "Direct contact with local responders when needed",
               ].map((x) => (
                 <li key={x} className="flex items-center gap-2 font-medium">
                   <ShieldCheck className="size-4 shrink-0 text-primary" />
@@ -771,57 +925,6 @@ function Home() {
             <p className="text-xs text-muted-foreground">
               Simulation only — no real emergency responders will be dispatched.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Promotions & Bundles */}
-      <section className="bg-secondary/40 py-20 md:py-28">
-        <div className="container-page">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <SectionHeading
-              eyebrow="Special Offers"
-              title="Exclusive Care Bundles"
-              sub="Combine complementary care services to maximize family safety while unlocking discounted pricing."
-            />
-            {PROMO_ENDS_AT && <Countdown endsAt={PROMO_ENDS_AT} />}
-          </div>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            {PROMOS.map((p) => (
-              <div
-                key={p.code}
-                className="card-soft flex flex-col justify-between p-8"
-                onMouseEnter={() => track("promo_view", { code: p.code })}
-              >
-                <div>
-                  <span className="w-fit rounded-full bg-terracotta px-3 py-1 text-xs font-bold text-terracotta-foreground">
-                    {p.label}
-                  </span>
-                  <h3 className="mt-4 text-2xl font-semibold">{p.name}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{p.includes}</p>
-                </div>
-
-                <div className="mt-6 flex flex-wrap items-center gap-3 pt-4 border-t border-border">
-                  <code className="rounded-xl border border-dashed border-primary bg-primary-soft/50 px-4 py-2 font-mono text-sm font-bold text-primary">
-                    {p.code}
-                  </code>
-                  <Button
-                    onClick={() => {
-                      navigator.clipboard?.writeText(p.code);
-                      savePromo(p.code);
-                      track("promo_apply", { code: p.code });
-                      toast.success(
-                        `${p.code} applied! Discount will appear on your booking summary.`,
-                      );
-                    }}
-                    className="gap-2"
-                  >
-                    <Copy className="size-4" /> Copy & Apply Promo
-                  </Button>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -864,34 +967,34 @@ function Home() {
         </div>
       </section>
 
-      {/* Knowledge Hub Preview */}
+      {/* Problem-Led Knowledge Hub Preview */}
       <section className="bg-secondary/40 py-20 md:py-28">
         <div className="container-page">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <SectionHeading
-              eyebrow="Knowledge & Resources"
+              eyebrow="Knowledge & Guidance"
               title="Guides for Family Well-Being"
-              sub="Practical handbooks on senior citizen government schemes, women travel safety, and elder home care."
+              sub="Helpful, problem-led guides on eldercare coordination, questions for bedside attendants, and home preparation after hospital discharge."
             />
             <Button asChild variant="outline">
-              <Link to="/knowledge-hub">Browse Knowledge Hub</Link>
+              <Link to="/knowledge-hub">Browse All Guides</Link>
             </Button>
           </div>
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {ARTICLES.slice(0, 4).map((a) => (
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {ARTICLES.slice(0, 6).map((a) => (
               <ArticleCard key={a.slug} a={a} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Cities Coverage */}
+      {/* Active Operating Cities */}
       <section className="container-page py-20 md:py-28">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
             eyebrow="Active Coverage"
-            title="Metro Command Centers"
-            sub="Dedicated physical coordination hubs across South India's major metropolitan centers."
+            title="Operating Cities Across South India"
+            sub="Dedicated care coordination hubs and vetted attendant clusters in Bengaluru, Chennai, Hyderabad, and Coimbatore."
           />
           <Button asChild variant="outline">
             <Link to="/cities">View All Cities</Link>
@@ -904,28 +1007,36 @@ function Home() {
         </div>
       </section>
 
-      {/* Enquiry Form + CTA */}
+      {/* SECTION H: Final CTA */}
       <section id="enquiry" className="container-page pb-20 pt-10 md:pb-28">
         <div className="rounded-[3rem] bg-ink p-10 text-ink-foreground md:p-16">
           <div className="grid gap-12 lg:grid-cols-2 items-center">
             <div>
-              <h2 className="max-w-lg text-balance text-4xl font-semibold md:text-5xl">
-                Dependable, gentle care arranged in minutes.
+              <span className="eyebrow text-terracotta">We Are Here For You</span>
+              <h2 className="mt-3 max-w-lg text-balance text-4xl font-semibold md:text-5xl text-white">
+                You Don't Have to Figure Out Care on Your Own.
               </h2>
               <p className="mt-4 max-w-md text-lg text-ink-foreground/80 leading-relaxed">
-                Tell us what your family needs — we'll match a verified woman attendant ready to
-                step in with warmth and competence.
+                Tell us what your family needs. Our team can help you explore the available care options and find dependable, compassionate support.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <BookLink size="lg" variant="warm">
-                  Book a Service
+                  Find the Right Care
                 </BookLink>
-                <CallLink variant="glass" className="h-13 px-7 text-base" />
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/20 px-6 py-3.5 text-base font-semibold text-white backdrop-blur hover:bg-[#25D366]/30 transition-colors"
+                >
+                  <MessageCircle className="size-5 text-[#25D366]" />
+                  Talk to Us on WhatsApp
+                </a>
               </div>
             </div>
             <EnquiryForm
-              title="Quick Callback Request"
-              subtitle="Share your details and we'll call you within 2 hours."
+              title="Tell Us About Your Care Needs"
+              subtitle="Share your requirements and a dedicated care coordinator will get in touch within 2 hours."
               className="bg-background text-foreground"
             />
           </div>
