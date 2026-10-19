@@ -28,17 +28,50 @@ import {
 } from "@/data/site";
 import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
+import { buildOrganizationSchema, buildFaqPageSchema } from "@/data/enterprise-content";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
 import hero4 from "@/assets/hero-4.jpg";
 import hero5 from "@/assets/hero-5.jpg";
 
+// Scannable, concise FAQs for visible display and schema extraction
+const FAQS = [
+  {
+    q: "How are ApnaCare attendants verified and vetted?",
+    a: "Every attendant undergoes a rigorous 5-step background verification: biometric Aadhaar authentication, court and criminal record checks via authorized law enforcement partners, address verification, credential validation, and hands-on patient handling assessment before any placement.",
+  },
+  {
+    q: "What is the difference between a care attendant and a registered nurse?",
+    a: "A care attendant provides supportive personal care — companionship, mobility assistance, bathing, feeding accompaniment, and prescription reminder logging. A registered nurse (GNM or B.Sc. Nursing) is medically licensed to perform clinical procedures such as sterile wound dressings, IV infusions, injections, and catheter management.",
+  },
+  {
+    q: "How do families receive daily care updates?",
+    a: "Attendants maintain daily digital activity logs recording vital signs, meal intake, and routine comfort. Families receive scheduled daily WhatsApp wellness summaries and have direct contact with their assigned care coordinator at all times.",
+  },
+  {
+    q: "What happens if our assigned attendant falls ill or has an emergency?",
+    a: "We maintain a guaranteed backup dispatch protocol in each active operating cluster (Bengaluru, Chennai, Hyderabad, and Coimbatore). If your primary attendant cannot attend due to an emergency, a verified backup with matched skills is dispatched within 90 minutes with zero transition penalty.",
+  },
+];
+
 export const Route = createFileRoute("/")({
   head: () =>
     seo(
       "ApnaCare — Care for Them. Peace of Mind for You.",
       "Trusted, police-verified care and support for your loved ones across South India. Compassionate elderly care, hospital assistance, certified nursing, and post-natal support.",
+      {
+        canonical: "https://apna-care.vercel.app",
+        keywords: [
+          "home care services India",
+          "elderly care at home Bengaluru",
+          "hospital bedside attendant Chennai",
+          "certified nursing at home Hyderabad",
+          "post natal care Coimbatore",
+          "police verified women attendants",
+        ],
+        schema: [buildOrganizationSchema(), buildFaqPageSchema(FAQS)],
+      }
     ),
   component: HomePage,
 });
@@ -258,26 +291,6 @@ const PRICING_HIGHLIGHTS = [
     description: "Registered GNM/B.Sc nurse visits for sterile surgical wound dressings, injections, catheter care, and doctor prescription compliance.",
     serviceSlug: "nursing-services",
     popular: false,
-  },
-];
-
-// Scannable, concise FAQs
-const FAQS = [
-  {
-    q: "How are ApnaCare attendants verified and vetted?",
-    a: "Every attendant undergoes a rigorous 5-step background verification: biometric Aadhaar authentication, court and criminal record checks via authorized law enforcement partners, address verification, credential validation, and hands-on patient handling assessment before any placement.",
-  },
-  {
-    q: "What is the difference between a care attendant and a registered nurse?",
-    a: "A care attendant provides supportive personal care — companionship, mobility assistance, bathing, feeding accompaniment, and prescription reminder logging. A registered nurse (GNM or B.Sc. Nursing) is medically licensed to perform clinical procedures such as sterile wound dressings, IV infusions, injections, and catheter management.",
-  },
-  {
-    q: "How do families receive daily care updates?",
-    a: "Attendants maintain daily digital activity logs recording vital signs, meal intake, and routine comfort. Families receive scheduled daily WhatsApp wellness summaries and have direct contact with their assigned care coordinator at all times.",
-  },
-  {
-    q: "What happens if our assigned attendant falls ill or has an emergency?",
-    a: "We maintain a guaranteed backup dispatch protocol in each active operating cluster (Bengaluru, Chennai, Hyderabad, and Coimbatore). If your primary attendant cannot attend due to an emergency, a verified backup with matched skills is dispatched within 90 minutes with zero transition penalty.",
   },
 ];
 

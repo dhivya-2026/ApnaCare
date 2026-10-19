@@ -8,24 +8,38 @@ import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import { toast } from "sonner";
 
+import { seo } from "@/lib/seo";
+import { buildArticleSchema, buildBreadcrumbSchema } from "@/data/enterprise-content";
+
 export const Route = createFileRoute("/knowledge-hub/$slug")({
   loader: ({ params }) => {
     const a = getArticle(params.slug);
     if (!a) throw notFound();
     return { a };
   },
-  head: ({ loaderData }) =>
-    loaderData
-      ? {
-          meta: [
-            { title: `${loaderData.a.title} — ApnaCare Knowledge Hub` },
-            { name: "description", content: loaderData.a.excerpt },
-            { property: "og:title", content: loaderData.a.title },
-            { property: "og:description", content: loaderData.a.excerpt },
-            { property: "og:type", content: "article" },
-          ],
-        }
-      : { meta: [{ title: "Article not found" }, { name: "robots", content: "noindex" }] },
+  head: ({ loaderData }) => {
+    if (!loaderData) {
+      return seo("Article not found — ApnaCare", "The requested guide could not be found.", { noindex: true });
+    }
+    const { a } = loaderData;
+    return seo(
+      `${a.title} — ApnaCare Knowledge Hub`,
+      a.excerpt,
+      {
+        canonical: `https://apna-care.vercel.app/knowledge-hub/${a.slug}`,
+        ogType: "article",
+        keywords: [a.category, "caregiver guide", "patient care advice", "elderly health tips"],
+        schema: [
+          buildArticleSchema(a),
+          buildBreadcrumbSchema([
+            { name: "Home", item: "https://apna-care.vercel.app" },
+            { name: "Knowledge Hub", item: "https://apna-care.vercel.app/knowledge-hub" },
+            { name: a.title, item: `https://apna-care.vercel.app/knowledge-hub/${a.slug}` },
+          ]),
+        ],
+      }
+    );
+  },
   component: ArticleDetailPage,
 });
 

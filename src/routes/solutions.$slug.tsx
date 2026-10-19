@@ -18,6 +18,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { EnquiryForm } from "@/components/site/EnquiryForm";
 import { seo } from "@/lib/seo";
+import { buildBreadcrumbSchema } from "@/data/enterprise-content";
 
 export const Route = createFileRoute("/solutions/$slug")({
   loader: ({ params }) => {
@@ -27,12 +28,22 @@ export const Route = createFileRoute("/solutions/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return seo("Solution Not Found — ApnaCare", "The requested solution profile could not be found.");
+      return seo("Solution Not Found — ApnaCare", "The requested solution profile could not be found.", { noindex: true });
     }
     const { icp } = loaderData;
     return seo(
       `${icp.name} Solutions — Verified Care & Transit | ApnaCare`,
-      icp.subtitle
+      icp.subtitle,
+      {
+        canonical: `https://apna-care.vercel.app/solutions/${icp.slug}`,
+        keywords: [icp.name, "family care solutions", "elderly care South India", "verified attendants", "post hospital recovery"],
+        schema: [
+          buildBreadcrumbSchema([
+            { name: "Home", item: "https://apna-care.vercel.app" },
+            { name: icp.name, item: `https://apna-care.vercel.app/solutions/${icp.slug}` },
+          ]),
+        ],
+      }
     );
   },
   component: ICPSolutionPage,
