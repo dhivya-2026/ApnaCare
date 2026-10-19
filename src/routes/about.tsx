@@ -63,14 +63,20 @@ function AboutPage() {
         title="Dignity in Care. Empowerment in Service."
         sub={BRAND_MESSAGING.aboutUs.short}
       >
-        <BookLink size="lg" variant="warm">
-          Explore Care Options
+        <Button asChild size="lg" variant="warm" className="min-h-[44px]">
+          <Link to="/services">
+            Explore Care Options
+            <ArrowRight className="size-4 ml-1.5" />
+          </Link>
+        </Button>
+        <BookLink size="lg" variant="outline" className="min-h-[44px]">
+          Book an Attendant
         </BookLink>
         <a
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground hover:bg-secondary transition-colors min-h-[44px]"
         >
           <MessageCircle className="size-4 text-[#25D366]" />
           Talk to Care Coordinators
@@ -315,14 +321,20 @@ function AboutPage() {
           Our care coordinators are ready to understand your family's situation and match you with a verified attendant.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <BookLink size="lg" variant="warm">
-            Explore Care Services
+          <Button asChild size="lg" variant="warm" className="min-h-[44px]">
+            <Link to="/services">
+              Explore Care Services
+              <ArrowRight className="size-4 ml-1.5" />
+            </Link>
+          </Button>
+          <BookLink size="lg" variant="outline" className="min-h-[44px]">
+            Book an Attendant
           </BookLink>
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/15 px-6 py-3 text-sm font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/25"
+            className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/15 px-6 py-3 text-sm font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/25 min-h-[44px]"
           >
             <MessageCircle className="size-4 text-[#25D366]" />
             Ask a Coordinator
