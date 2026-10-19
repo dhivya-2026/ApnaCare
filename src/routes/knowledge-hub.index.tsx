@@ -111,7 +111,7 @@ function Hub() {
                       track("knowledge_filter", { c });
                     }}
                     className={cn(
-                      "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all",
+                      "inline-flex items-center rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all min-h-[36px]",
                       cat === c
                         ? "border-primary bg-primary text-primary-foreground shadow-2xs"
                         : "border-border bg-card text-muted-foreground hover:text-foreground"

@@ -28,7 +28,7 @@ function ServicesPage() {
         <div role="tablist" aria-label="Service categories" className="mt-6 flex flex-wrap gap-2">
           {CATEGORIES.map((c) => (
             <button key={c.id} role="tab" aria-selected={cat === c.id} onClick={() => { setCat(c.id); track("service_filter", { cat: c.id }); }}
-              className={cn("rounded-full border px-4 py-2 text-sm font-medium", cat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary")}>{c.label}</button>
+              className={cn("inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium min-h-[44px] transition-colors", cat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary")}>{c.label}</button>
           ))}
         </div>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{list.map((s) => <ServiceCard key={s.id} s={s} />)}</div>

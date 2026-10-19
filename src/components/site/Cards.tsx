@@ -65,8 +65,8 @@ export function ServiceCard({ s }: { s: Service }) {
         <span className="rounded-full bg-primary-soft/60 px-2.5 py-1 text-xs font-semibold text-primary capitalize">{s.category}</span>
       </div>
       <div className="mt-4 flex gap-2">
-        <BookLink service={s.slug} className="flex-1">Book Service</BookLink>
-        <Button asChild variant="outline" className="flex-1">
+        <BookLink service={s.slug} className="flex-1 min-h-[44px]">Book Service</BookLink>
+        <Button asChild variant="outline" className="flex-1 min-h-[44px]">
           <Link to="/services/$slug" params={{ slug: s.slug }} onClick={() => track("service_view", { service: s.slug })}>Details</Link>
         </Button>
       </div>
@@ -85,7 +85,7 @@ export function PricingCard({ p }: { p: (typeof PRICING_PLANS)[number] }) {
       <ul className="mt-6 flex-1 space-y-3">
         {p.includes.map((i) => <li key={i} className="flex gap-2 text-sm"><Check className="mt-0.5 size-4 shrink-0" aria-hidden />{i}</li>)}
       </ul>
-      <BookLink service={p.serviceSlug} variant={p.popular ? "warm" : "default"} className="mt-8 w-full">Book This Service</BookLink>
+      <BookLink service={p.serviceSlug} variant={p.popular ? "warm" : "default"} className="mt-8 w-full min-h-[44px]">Book This Service</BookLink>
     </article>
   );
 }
@@ -111,7 +111,7 @@ export function AttendantCard({ a, img }: { a: Attendant; img?: string }) {
         {a.certifications.map((c) => <span key={c} role="listitem" className="rounded-full border border-border bg-secondary/30 px-2.5 py-1 text-xs font-medium">{c}</span>)}
       </div>
       <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground"><Languages className="size-4" aria-hidden />{a.languages.join(", ")}</p>
-      <BookLink service={a.services[0]} variant="outline" className="mt-6">Request {a.name.split(" ")[0]}</BookLink>
+      <BookLink service={a.services[0]} variant="outline" className="mt-6 min-h-[44px]">Request {a.name.split(" ")[0]}</BookLink>
     </article>
   );
 }
