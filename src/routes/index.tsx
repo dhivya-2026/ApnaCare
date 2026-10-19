@@ -12,8 +12,11 @@ import {
   CheckCircle2,
   Star,
   ChevronRight,
+  MapPin,
+  Languages,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Accordion,
   AccordionContent,
@@ -23,6 +26,7 @@ import {
 import { EnquiryForm } from "@/components/site/EnquiryForm";
 import {
   SITE,
+  ATTENDANTS,
   buildWhatsAppUrl,
   formatINR,
 } from "@/data/site";
@@ -296,6 +300,7 @@ const PRICING_HIGHLIGHTS = [
 
 function HomePage() {
   const [activeMoment, setActiveMoment] = useState(0);
+  const [attendantCity, setAttendantCity] = useState("All");
 
   // Auto-cycle hero visual gently every 5 seconds
   useEffect(() => {
@@ -303,6 +308,25 @@ function HomePage() {
       setActiveMoment((prev) => (prev + 1) % HERO_CARE_MOMENTS.length);
     }, 5000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Smooth scroll to hash anchor on load and on hash change
+  useEffect(() => {
+    const handleHashScroll = () => {
+      if (typeof window !== "undefined" && window.location.hash) {
+        const id = window.location.hash.replace("#", "");
+        const target = document.getElementById(id);
+        if (target) {
+          setTimeout(() => {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 100);
+        }
+      }
+    };
+
+    handleHashScroll();
+    window.addEventListener("hashchange", handleHashScroll);
+    return () => window.removeEventListener("hashchange", handleHashScroll);
   }, []);
 
   const currentMoment = HERO_CARE_MOMENTS[activeMoment]!;
@@ -670,9 +694,183 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          5. SIMPLE THREE-STEP BOOKING EXPLANATION
+          VERIFIED ATTENDANTS DIRECTORY (Browse Attendants anchor: #attendants)
       ───────────────────────────────────────────────────────────── */}
-      <section className="bg-secondary/25 py-16 md:py-24 border-y border-border/50">
+      <section id="attendants" className="container-page py-16 md:py-24 scroll-mt-20">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="max-w-2xl">
+            <p className="eyebrow">Verified Care Specialists</p>
+            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
+              Meet Our Verified Women Attendants
+            </h2>
+            <p className="mt-3 text-pretty text-base text-muted-foreground">
+              Every caregiver is police-cleared, Aadhaar-verified, and certified for home and hospital assistance. Filter by city to view verified profiles and ratings.
+            </p>
+          </div>
+
+          {/* Quick city filter */}
+          <div className="flex flex-wrap gap-2 shrink-0" role="tablist" aria-label="Filter attendants by city">
+            {["All", "Bengaluru", "Chennai", "Hyderabad", "Coimbatore"].map((c) => (
+              <button
+                key={c}
+                type="button"
+                role="tab"
+                aria-selected={attendantCity === c}
+                onClick={() => {
+                  setAttendantCity(c);
+                  track("attendant_city_filter", { city: c });
+                }}
+                className={`rounded-full px-4 py-2 text-xs font-semibold transition-all min-h-[36px] ${
+                  attendantCity === c
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "border border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                }`}
+              >
+                {c === "All" ? "All Cities" : c}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Attendant Cards Grid */}
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {ATTENDANTS.filter(
+            (a) => attendantCity === "All" || a.city.toLowerCase() === attendantCity.toLowerCase()
+          ).map((a) => (
+            <article
+              key={a.id}
+              className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
+              onMouseEnter={() => track("attendant_card_hover", { attendant: a.id })}
+            >
+              <div>
+                {/* Header: Avatar, Name, Role, Badge */}
+                <div className="flex items-start gap-3.5">
+                  <Avatar className="size-14 ring-2 ring-primary/20 shrink-0">
+                    <AvatarImage
+                      src={`https://images.unsplash.com/photo-${
+                        a.id === "a1"
+                          ? "1573496359142-b8d87734a5a2"
+                          : a.id === "a2"
+                          ? "1580489944761-15a19d654956"
+                          : a.id === "a3"
+                          ? "1594744803329-e58b31de8bf5"
+                          : a.id === "a4"
+                          ? "1567532939604-b6b5b0db2604"
+                          : a.id === "a5"
+                          ? "1544005313-94ddf0286df2"
+                          : "1573497019940-1c28c88b4f3e"
+                      }?auto=format&fit=crop&w=200&q=80`}
+                      alt={a.name}
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                      {a.name.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <h3 className="font-semibold text-foreground text-base truncate">{a.name}</h3>
+                      <span className="inline-flex items-center gap-0.5 rounded-full bg-terracotta/15 px-2 py-0.5 text-[11px] font-bold text-terracotta shrink-0">
+                        <Star className="size-3 fill-terracotta text-terracotta" />
+                        {a.rating}
+                      </span>
+                    </div>
+                    <p className="text-xs text-primary font-medium truncate mt-0.5">{a.role}</p>
+                    <div className="mt-1 flex items-center gap-3 text-[11px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="size-3" />
+                        {a.experience}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="size-3" />
+                        {a.city}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Verification Pill */}
+                <div className="mt-4 rounded-xl bg-primary-soft/80 px-3 py-2 border border-primary/20 flex items-center gap-2">
+                  <BadgeCheck className="size-4 text-primary shrink-0" />
+                  <span className="text-xs font-semibold text-primary truncate">
+                    {a.verification}
+                  </span>
+                </div>
+
+                {/* Bio */}
+                <p className="mt-3 text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                  {a.bio}
+                </p>
+
+                {/* Certifications tags */}
+                <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Certifications">
+                  {a.certifications.map((c) => (
+                    <span
+                      key={c}
+                      className="rounded-full border border-border bg-secondary/40 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                    >
+                      {c}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Languages */}
+                <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Languages className="size-3.5 shrink-0 text-primary" />
+                  <span className="truncate">{a.languages.join(", ")}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-5 pt-3 border-t border-border flex items-center gap-2">
+                <Button asChild size="sm" className="w-full rounded-xl min-h-[44px]">
+                  <Link
+                    to="/booking"
+                    search={{ service: a.services[0], city: a.city }}
+                    onClick={() => track("attendant_request_click", { attendant: a.id })}
+                  >
+                    Request {a.name.split(" ")[0]}
+                    <ArrowRight className="size-3.5 ml-1.5" />
+                  </Link>
+                </Button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Attendant Network Reassurance & Secondary Links */}
+        <div className="mt-8 rounded-2xl border border-border bg-secondary/30 p-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
+              <ShieldCheck className="size-4 text-primary" />
+              100% Police Verified
+            </span>
+            <span>•</span>
+            <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
+              <Clock className="size-4 text-primary" />
+              90-Minute Guaranteed Backup Dispatch
+            </span>
+            <span>•</span>
+            <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
+              <CheckCircle2 className="size-4 text-primary" />
+              Zero Direct Broker Surcharges
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4 text-xs font-semibold">
+            <Link to="/become-an-attendant" className="text-primary hover:underline">
+              Are you a care specialist? Join our team →
+            </Link>
+            <Link to="/attendant-login" className="text-muted-foreground hover:text-foreground">
+              Attendant Portal Login →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          5. SIMPLE THREE-STEP BOOKING EXPLANATION (anchor: #how-it-works)
+      ───────────────────────────────────────────────────────────── */}
+      <section id="how-it-works" className="bg-secondary/25 py-16 md:py-24 border-y border-border/50 scroll-mt-20">
         <div className="container-page">
           <div className="max-w-2xl">
             <p className="eyebrow">How It Works</p>

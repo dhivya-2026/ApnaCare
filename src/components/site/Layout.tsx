@@ -337,9 +337,9 @@ function DesktopDropdown({ item }: { item: NavItem }) {
     const [path, hash] = href.split("#");
     const targetPath = path || "/";
     if (window.location.pathname === targetPath && hash) {
-      e.preventDefault();
       const el = document.getElementById(hash);
       if (el) {
+        e.preventDefault();
         el.scrollIntoView({ behavior: "smooth", block: "start" });
         window.history.pushState(null, "", href);
       }
@@ -604,9 +604,9 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
                       const [path, hash] = child.to.split("#");
                       const targetPath = path || "/";
                       if (window.location.pathname === targetPath && hash) {
-                        e.preventDefault();
                         const el = document.getElementById(hash);
                         if (el) {
+                          e.preventDefault();
                           el.scrollIntoView({ behavior: "smooth", block: "start" });
                           window.history.pushState(null, "", child.to);
                         }
