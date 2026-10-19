@@ -341,7 +341,7 @@ function HomePage() {
 
               {/* Action Buttons */}
               <div className="mt-8 flex flex-wrap items-center gap-3.5 w-full sm:w-auto animate-fade-up animate-delay-200">
-                <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all">
+                <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all min-h-[48px]">
                   <a href="#services" onClick={() => track("hero_explore_care")}>
                     Explore Care
                     <ArrowRight className="ml-2 size-4" />
@@ -352,7 +352,7 @@ function HomePage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => track("hero_talk_to_us")}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/10 px-7 py-3 text-sm font-semibold text-[#128C7E] dark:text-[#25D366] hover:bg-[#25D366]/20 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/10 px-7 py-3 text-sm font-semibold text-[#128C7E] dark:text-[#25D366] hover:bg-[#25D366]/20 transition-colors min-h-[48px]"
                 >
                   <MessageCircle className="size-4 text-[#25D366]" />
                   Talk to Us
@@ -521,7 +521,7 @@ function HomePage() {
 
                 {/* Actions */}
                 <div className="mt-4 flex items-center gap-2 pt-1">
-                  <Button asChild variant="outline" size="sm" className="w-full justify-between group-hover:border-primary transition-colors">
+                  <Button asChild variant="outline" size="sm" className="w-full justify-between group-hover:border-primary transition-colors min-h-[44px]">
                     <Link
                       to="/services/$slug"
                       params={{ slug: s.slug }}

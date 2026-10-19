@@ -78,7 +78,7 @@
   --terracotta: oklch(0.77 0.072 50);
   --terracotta-foreground: oklch(0.26 0.03 45);
   --muted: oklch(0.945 0.012 80);
-  --muted-foreground: oklch(0.47 0.018 170);
+  --muted-foreground: oklch(0.40 0.02 170);
   --accent: oklch(0.89 0.028 65);
   --accent-foreground: oklch(0.29 0.017 170);
   --destructive: oklch(0.55 0.19 28);
@@ -139,6 +139,16 @@
 @media (min-width: 375px) {
   .xs\:inline { display: inline; }
   .xs\:hidden { display: none; }
+}
+
+/* Touch target minimum 44x44px for WCAG 2.2 AA */
+@utility touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@utility section-spacing {
+  padding-block: clamp(3rem, 6vw, 5rem);
 }
 
 /* ── Typography utilities ─────────────────────────────────────────── */
