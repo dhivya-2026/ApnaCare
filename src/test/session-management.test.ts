@@ -217,4 +217,19 @@ describe("Enterprise Redis Session Management", () => {
       expect(result.error).toContain("insufficient permissions");
     });
   });
+
+  describe("Live Redis Database Connectivity", () => {
+    it("connects successfully and answers PING when REDIS_URL is configured", async () => {
+      const redisUrl = process.env.REDIS_URL;
+      if (!redisUrl) {
+        // Skipped in environments without REDIS_URL
+        return;
+      }
+
+      const { getSessionStore } = await import("../server/session/redis-client");
+      const store = getSessionStore();
+      const healthy = await store.isHealthy();
+      expect(healthy).toBe(true);
+    });
+  });
 });
