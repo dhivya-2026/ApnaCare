@@ -38,6 +38,7 @@ import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
 import hero4 from "@/assets/hero-4.jpg";
 import hero5 from "@/assets/hero-5.jpg";
+import nursingCare from "@/assets/nursing-care.jpg";
 
 // Scannable, concise FAQs for visible display and schema extraction
 const FAQS = [
@@ -97,14 +98,14 @@ const HERO_CARE_MOMENTS = [
     alt: "Attendant assisting a patient in hospital corridor",
   },
   {
-    image: hero4,
+    image: nursingCare,
     title: "Certified Home Nursing",
     caption: "Qualified GNM/B.Sc nurses for wound care & vitals",
     badge: "Clinical Nursing",
-    alt: "Female nurse taking vitals with gentle smile",
+    alt: "Qualified Indian nurse checking blood pressure and vitals for a patient at home",
   },
   {
-    image: hero5,
+    image: hero4,
     title: "Post-Natal Maternal Support",
     caption: "Infant massage, soothing & restorative maternal rest",
     badge: "New Mothers",
@@ -151,8 +152,8 @@ const CORE_SERVICES = [
       "Registered GNM and B.Sc nurses providing sterile wound care, injections, vitals monitoring, and post-surgical recovery at home.",
     price: 1999,
     unit: "day",
-    image: hero4,
-    alt: "Nurse checking patient vitals and health status",
+    image: nursingCare,
+    alt: "Qualified nurse checking patient vitals and health status at home",
     tag: "Clinical Care",
     highlight: "Registered GNM/B.Sc · Doctor prescription compliant",
   },
@@ -165,8 +166,8 @@ const CORE_SERVICES = [
       "Experienced maternal and infant specialists assisting with newborn massage, bath routines, and soothing so mothers get restorative sleep.",
     price: 1999,
     unit: "day",
-    image: hero5,
-    alt: "Caregiver tenderly tending to a newborn baby",
+    image: hero4,
+    alt: "Caregiver tenderly tending to a newborn baby while supporting the mother",
     tag: "Maternal Care",
     highlight: "Japa trained · Newborn massage & mother rest",
   },
@@ -207,8 +208,8 @@ const FAMILY_STORIES = [
       "Our post-natal attendants handle gentle baby baths, feeding accompaniment, and soothing, ensuring the mother gets deep, restorative healing sleep.",
     cta: "Explore Post-Natal Care",
     link: "/services/post-natal-care",
-    image: hero5,
-    alt: "Caregiver gently cradling a sleeping newborn",
+    image: hero4,
+    alt: "Caregiver tenderly tending to a newborn baby while supporting the mother",
   },
 ];
 
