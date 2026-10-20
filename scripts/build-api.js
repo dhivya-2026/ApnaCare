@@ -3,6 +3,7 @@ import { mkdirSync } from "fs";
 
 mkdirSync("api/reports", { recursive: true });
 mkdirSync("api/cron", { recursive: true });
+mkdirSync("api/auth", { recursive: true });
 
 const targets = [
   { in: "src/server/reports/routes/send.ts", out: "api/reports/send.js" },
@@ -10,6 +11,9 @@ const targets = [
   { in: "src/server/reports/routes/daily-report.ts", out: "api/cron/daily-report.js" },
   { in: "src/server/reports/routes/weekly-report.ts", out: "api/cron/weekly-report.js" },
   { in: "src/server/reports/routes/monthly-report.ts", out: "api/cron/monthly-report.js" },
+  { in: "src/server/session/routes/login.ts", out: "api/auth/login.js" },
+  { in: "src/server/session/routes/session.ts", out: "api/auth/session.js" },
+  { in: "src/server/session/routes/logout.ts", out: "api/auth/logout.js" },
 ];
 
 for (const target of targets) {

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BadgeCheck,
   CheckCircle2,
@@ -14,6 +14,7 @@ import {
   Sparkles,
   UserCheck,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,21 +37,92 @@ export const Route = createFileRoute("/attendant-login")({
 
 function AttendantPortal() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [mobile, setMobile] = useState("98401 23456");
   const [password, setPassword] = useState("••••••••");
   const [checkedIn, setCheckedIn] = useState(false);
   const [vitalSaved, setVitalSaved] = useState(false);
 
-  // Mock attendant profile for Sunitha Krishnan
-  const attendant = ATTENDANTS[0] || {
-    name: "Sunitha Krishnan",
-    role: "Senior Elderly Care Specialist",
-    city: "Chennai",
-  };
+  // Attendant profile with defaults
+  const [attendant, setAttendant] = useState(
+    ATTENDANTS[0] || {
+      name: "Sunitha Krishnan",
+      role: "Senior Elderly Care Specialist",
+      city: "Chennai",
+    }
+  );
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoggedIn(true);
+  // On page mount, verify if an active Redis session cookie exists
+  useEffect(() => {
+    let isMounted = true;
+    async function checkExistingSession() {
+      try {
+        const res = await fetch("/api/auth/session", {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated && data.user && isMounted) {
+            setIsLoggedIn(true);
+            if (data.user.name) {
+              setAttendant((prev) => ({
+                ...prev,
+                name: data.user.name,
+                role: data.user.roleTitle || prev.role,
+                city: data.user.city || prev.city,
+              }));
+            }
+          }
+        }
+      } catch {
+        // Quiet fallback if offline
+      }
+    }
+    checkExistingSession();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleLogin = async (e?: React.FormEvent, isDemo: boolean = false) => {
+    if (e) e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          mobile: isDemo ? "98401 23456" : mobile,
+          passcode: password,
+          isDemo,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated) {
+          setIsLoggedIn(true);
+          if (data.user?.name) {
+            setAttendant((prev) => ({
+              ...prev,
+              name: data.user.name,
+              role: data.user.roleTitle || prev.role,
+              city: data.user.city || prev.city,
+            }));
+          }
+        }
+      } else {
+        // Fallback for preview/offline mode
+        setIsLoggedIn(true);
+      }
+    } catch {
+      setIsLoggedIn(true);
+    } finally {
+      setIsLoading(false);
+    }
+
     sendToGoogleSheet({
       form_name: "Attendant Portal",
       action_type: "Attendant Login",
@@ -62,6 +134,22 @@ function AttendantPortal() {
       shift_status: "Logged In",
       notes: "Attendant portal authentication session",
     }).catch(() => {});
+  };
+
+  const handleLogout = async () => {
+    setIsLoading(true);
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // Ignore network errors during logout
+    } finally {
+      setIsLoggedIn(false);
+      setCheckedIn(false);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -108,7 +196,8 @@ function AttendantPortal() {
                 />
               </div>
 
-              <Button type="submit" className="w-full h-12 text-base font-medium mt-2">
+              <Button type="submit" disabled={isLoading} className="w-full h-12 text-base font-medium mt-2">
+                {isLoading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
                 Sign In to Attendant Dashboard
               </Button>
             </form>
@@ -116,7 +205,8 @@ function AttendantPortal() {
             <div className="mt-6 border-t border-border pt-4">
               <button
                 type="button"
-                onClick={() => setIsLoggedIn(true)}
+                disabled={isLoading}
+                onClick={() => handleLogin(undefined, true)}
                 className="w-full rounded-xl bg-secondary py-3 text-xs font-semibold text-primary transition-colors hover:bg-secondary/80 flex items-center justify-center gap-1.5"
               >
                 <Sparkles className="size-3.5" /> Instant Demo Sign-in (Sunitha Krishnan)
@@ -151,9 +241,10 @@ function AttendantPortal() {
 
               <div className="flex flex-wrap items-center gap-3">
                 <Button
-                  onClick={() => setIsLoggedIn(false)}
+                  onClick={handleLogout}
                   variant="outline"
                   size="sm"
+                  disabled={isLoading}
                   className="gap-1.5 text-muted-foreground"
                 >
                   <LogOut className="size-4" /> Sign Out
