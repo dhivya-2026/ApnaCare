@@ -4,8 +4,11 @@
 export const SITE = {
   name: "ApnaCare",
   legalName: "ApnaCare Health & Mobility Support Services Pvt. Ltd.",
-  url: "https://apnacare.lovable.app",
+  url: "https://apnacare.co.in",
+  productionDomain: "apnacare.co.in",
+  secondaryUrl: "https://apna-care.vercel.app",
   tagline: "Trusted Women Attendant Services You Can Rely On",
+  brandPromise: "Where Care Feels Like Family",
   coreMessage: "Trusted Women Attendants for Every Stage of Care",
   SUPPORT_PHONE: "+91 80000 00000",
   SUPPORT_PHONE_TEL: "+918000000000",

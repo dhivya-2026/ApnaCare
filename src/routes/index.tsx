@@ -67,7 +67,7 @@ export const Route = createFileRoute("/")({
       "ApnaCare — Care for Them. Peace of Mind for You.",
       "Trusted, police-verified care and support for your loved ones across South India. Compassionate elderly care, hospital assistance, certified nursing, and post-natal support.",
       {
-        canonical: "https://apna-care.vercel.app",
+        canonical: "https://apnacare.co.in",
         keywords: [
           "home care services India",
           "elderly care at home Bengaluru",
@@ -114,6 +114,58 @@ const HERO_CARE_MOMENTS = [
   },
 ];
 
+// Audience & Care Discovery Pathways (Phase 4, Section 2)
+const AUDIENCE_PATHWAYS = [
+  {
+    id: "senior-citizens",
+    label: "Senior Citizens & Aging Parents",
+    tag: "Senior Care",
+    benefit: "Dignity, Companionship & Mobility at Home",
+    description:
+      "Gentle assistance with daily routines, mobility support, medication reminders, and unhurried companionship so aging parents thrive in their cherished home.",
+    image: hero1,
+    alt: "Caregiver gently assisting an elderly lady at home",
+    link: "/solutions/families-elderly",
+    actionText: "Explore Senior Support",
+  },
+  {
+    id: "mothers-newborns",
+    label: "Mothers & Newborns",
+    tag: "Maternal & Infant",
+    benefit: "Restorative Post-Natal Care & Infant Massage",
+    description:
+      "Experienced fourth-trimester care, gentle newborn baths, soothing, and feeding accompaniment so new mothers receive deep, restorative healing sleep.",
+    image: hero4,
+    alt: "Post-natal attendant gently holding and caring for a newborn baby",
+    link: "/solutions/new-mothers",
+    actionText: "Explore Maternal Care",
+  },
+  {
+    id: "post-hospitalization",
+    label: "Hospital Stay & Post-Discharge",
+    tag: "Bedside & Recovery",
+    benefit: "Continuous Inpatient Vigil & Smooth Discharge",
+    description:
+      "Dedicated bedside assistance in hospitals and attentive post-discharge home transitions to ensure safe transfers and prevent accidental falls.",
+    image: hero2,
+    alt: "Attendant assisting a patient in walking post-surgery",
+    link: "/solutions/post-hospitalization",
+    actionText: "Explore Recovery Care",
+  },
+  {
+    id: "women-mobility",
+    label: "Safe Mobility & Women Drivers",
+    tag: "Transit & Escort",
+    benefit: "Police-Verified Women Chauffeurs",
+    description:
+      "Verified female drivers and travel companions for airport transfers, railway stations, hospital commutes, and safe late-night city travel.",
+    image: hero5,
+    alt: "Professional woman driver providing safe transit assistance",
+    link: "/solutions/women-commuters",
+    actionText: "Explore Transit Care",
+  },
+];
+
 // The 4 prominent service discovery cards
 const CORE_SERVICES = [
   {
@@ -121,6 +173,7 @@ const CORE_SERVICES = [
     slug: "elderly-care",
     title: "Elderly Care",
     benefit: "Support for the people who cared for you.",
+    audience: "For seniors & aging parents living at home",
     description:
       "Compassionate daily companionship, medication reminders, mobility assistance, and dignity for ageing parents at home.",
     price: 1299,
@@ -135,6 +188,7 @@ const CORE_SERVICES = [
     slug: "hospital-attendants",
     title: "Hospital Assistance",
     benefit: "A helping hand when your family needs it.",
+    audience: "For inpatients & recovering individuals",
     description:
       "Dedicated bedside attendants during hospital stays. Coordinates with nurses, assists with hygiene, and provides peaceful updates.",
     price: 1499,
@@ -149,6 +203,7 @@ const CORE_SERVICES = [
     slug: "nursing-services",
     title: "Nursing Services",
     benefit: "Qualified nursing support for eligible care needs.",
+    audience: "For patients requiring clinical procedures",
     description:
       "Registered GNM and B.Sc nurses providing sterile wound care, injections, vitals monitoring, and post-surgical recovery at home.",
     price: 1999,
@@ -163,6 +218,7 @@ const CORE_SERVICES = [
     slug: "post-natal-care",
     title: "Post-Natal Care",
     benefit: "More support for the early days of parenthood.",
+    audience: "For new mothers & infants during the fourth trimester",
     description:
       "Experienced maternal and infant specialists assisting with newborn massage, bath routines, and soothing so mothers get restorative sleep.",
     price: 1999,
@@ -349,7 +405,7 @@ function HomePage() {
               {/* Eyebrow Pill */}
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-3.5 py-1.5 text-xs font-semibold text-primary backdrop-blur animate-fade-in">
                 <Sparkles className="size-3.5 text-terracotta" />
-                <span>Verified Family & Healthcare Support</span>
+                <span>Where Care Feels Like Family</span>
               </div>
 
               {/* Main Headline */}
@@ -490,7 +546,76 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. FOUR PROMINENT VISUAL SERVICE CARDS
+          2. AUDIENCE AND CARE DISCOVERY (Phase 4, Section 2)
+      ───────────────────────────────────────────────────────────── */}
+      <section className="border-b border-border/50 bg-secondary/25 py-16 md:py-24">
+        <div className="container-page">
+          <div className="max-w-2xl">
+            <p className="eyebrow">Who We Support</p>
+            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
+              Care Pathways for Every Stage of Life
+            </h2>
+            <p className="mt-3 text-pretty text-base text-muted-foreground">
+              Whether you are caring for aging parents, welcoming a newborn, or transitioning home after hospital discharge, ApnaCare provides trusted, verified care pathways designed around your family.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {AUDIENCE_PATHWAYS.map((path) => (
+              <article
+                key={path.id}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
+              >
+                <div>
+                  {/* Visual Image */}
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-muted">
+                    <img
+                      src={path.image}
+                      alt={path.alt}
+                      width={500}
+                      height={312}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <span className="absolute bottom-2.5 left-2.5 rounded-full bg-background/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground backdrop-blur">
+                      {path.tag}
+                    </span>
+                  </div>
+
+                  {/* Text Details */}
+                  <div className="mt-4">
+                    <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {path.label}
+                    </h3>
+                    <p className="mt-1 text-xs font-semibold text-primary/90">
+                      {path.benefit}
+                    </p>
+                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                      {path.description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Link Action */}
+                <div className="mt-5 pt-3 border-t border-border">
+                  <Link
+                    to={path.link}
+                    onClick={() => track("audience_pathway_click", { audience: path.id })}
+                    className="inline-flex w-full items-center justify-between text-xs font-semibold text-primary hover:underline group-hover:gap-2 transition-all min-h-[36px]"
+                  >
+                    <span>{path.actionText}</span>
+                    <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          3. FOUR PROMINENT VISUAL SERVICE CARDS
       ───────────────────────────────────────────────────────────── */}
       <section id="services" className="container-page py-16 md:py-24 scroll-mt-20">
         <div className="max-w-2xl">
@@ -532,7 +657,14 @@ function HomePage() {
               <div className="flex flex-1 flex-col p-5">
                 <h3 className="text-xl font-semibold text-foreground">{s.title}</h3>
                 <p className="mt-1.5 text-xs font-semibold text-primary">{s.benefit}</p>
-                <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                
+                {/* Intended Audience Tag */}
+                <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-foreground/80 bg-secondary/60 rounded-lg px-2.5 py-1">
+                  <span className="text-muted-foreground text-[10px] uppercase tracking-wide font-semibold">For:</span>
+                  <span className="truncate">{s.audience}</span>
+                </div>
+
+                <p className="mt-2.5 text-xs text-muted-foreground leading-relaxed line-clamp-2">
                   {s.description}
                 </p>
 
