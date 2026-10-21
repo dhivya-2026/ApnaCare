@@ -685,7 +685,9 @@ function Header() {
               <span>WhatsApp</span>
             </a>
 
-            <BookLink className="hidden sm:inline-flex shrink-0 whitespace-nowrap min-h-[44px]" size="sm" />
+            <BookLink className="hidden sm:inline-flex shrink-0 whitespace-nowrap min-h-[44px] rounded-full font-bold" size="sm" variant="warm">
+              Talk to Our Team
+            </BookLink>
 
             {/* Mobile menu toggle */}
             <Button
@@ -950,7 +952,7 @@ function MobileBar() {
         <span className="xs:hidden">Call</span>
       </CallLink>
       <BookLink className="flex-1 text-sm min-h-[44px]" size="sm" variant="warm">
-        Book Care
+        Talk to Team
       </BookLink>
       <a
         href={waUrl}

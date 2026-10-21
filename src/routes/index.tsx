@@ -14,6 +14,9 @@ import {
   ChevronRight,
   MapPin,
   Languages,
+  HeartHandshake,
+  Users,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,11 +36,15 @@ import {
 import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 import { buildOrganizationSchema, buildFaqPageSchema } from "@/data/enterprise-content";
+import { CareNavigator } from "@/components/site/CareNavigator";
+import { CANONICAL_AUDIENCE_PATHWAYS, CANONICAL_CARE_OUTCOMES } from "@/data/taxonomy";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
+import hero3 from "@/assets/hero-3.jpg";
 import hero4 from "@/assets/hero-4.jpg";
 import hero5 from "@/assets/hero-5.jpg";
+import hero6 from "@/assets/hero-6.jpg";
 import nursingCare from "@/assets/nursing-care.jpg";
 
 // Scannable, concise FAQs for visible display and schema extraction
@@ -241,25 +248,64 @@ const TRUST_PILLARS = [
   },
 ];
 
-// Simple 3-step booking explanation
-const SIMPLE_STEPS = [
+const AUDIENCE_IMAGES: Record<string, { image: string; alt: string }> = {
+  "aud-elderly-parents": {
+    image: hero1,
+    alt: "Caregiver gently assisting an elderly lady at home",
+  },
+  "aud-post-hospital": {
+    image: hero2,
+    alt: "Attendant supporting a patient in recovery after hospital discharge",
+  },
+  "aud-new-mothers": {
+    image: hero4,
+    alt: "Experienced caregiver tenderly caring for newborn while mother rests",
+  },
+  "aud-travel-mobility": {
+    image: hero5,
+    alt: "Professional woman driver providing safe escorted transit",
+  },
+  "aud-everyday-care": {
+    image: hero3,
+    alt: "Caregiver helping senior with dignified everyday living routines",
+  },
+  "aud-family-coordinators": {
+    image: hero6,
+    alt: "Family coordinating care updates with supervisor peace of mind",
+  },
+};
+
+// Section 6.6: Calm 5-step journey
+const CARE_JOURNEY_STEPS = [
   {
     step: "01",
-    title: "Tell Us What Your Family Needs",
+    title: "Tell Us What Is Happening",
     description:
-      "Share who requires care, your city, preferred shift timing (day, night, or 24/7), and language preferences in 60 seconds.",
+      "Share what your family is navigating. You don't need clinical terminology or a pre-selected package ready—just your family's circumstance.",
   },
   {
     step: "02",
-    title: "Review Matched Verified Profiles",
+    title: "Speak With Our Care Team",
     description:
-      "Our care coordinators match qualified attendants and share digital profiles detailing verified credentials, background checks, and care experience.",
+      "A compassionate care coordinator discusses your loved one's specific mobility, routines, language preference, and comfort needs.",
   },
   {
     step: "03",
-    title: "Welcome Dependable Care",
+    title: "Understand Suitable Care Options",
     description:
-      "Your attendant arrives punctually. Stay informed with scheduled daily check-ins, routine wellness notes, and ongoing care desk support.",
+      "We explain appropriate caregiver profiles, the distinction between supportive attendants and clinical nurses, and transparent daily rates.",
+  },
+  {
+    step: "04",
+    title: "Arrange Support If You Decide to Proceed",
+    description:
+      "Review background-checked caregiver profiles and verification dossiers before confirming. There is never high-pressure agency sales.",
+  },
+  {
+    step: "05",
+    title: "Stay Informed Through Daily Updates",
+    description:
+      "Receive scheduled daily WhatsApp updates documenting vitals, meal times, and routine comfort with direct supervisor access at all times.",
   },
 ];
 
@@ -348,55 +394,47 @@ function HomePage() {
               {/* Eyebrow Pill */}
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-3.5 py-1.5 text-xs font-semibold text-primary backdrop-blur animate-fade-in">
                 <Sparkles className="size-3.5 text-terracotta" />
-                <span>Verified Family & Healthcare Support</span>
+                <span>Human-Centered Care & Family Support</span>
               </div>
 
               {/* Main Headline */}
-              <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.12] animate-fade-up">
-                Care for Them.
-                <br />
-                <span className="text-primary">Peace of Mind for You.</span>
+              <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.14] animate-fade-up">
+                Care that understands what your family needs.
               </h1>
 
               {/* Supporting Text */}
-              <p className="mt-4 max-w-xl text-pretty text-lg text-muted-foreground leading-relaxed animate-fade-up animate-delay-100">
-                Trusted care and support for your loved ones, at home and when it matters most.
-                Compassionate, police-verified women attendants for elderly care, hospital recovery, certified nursing, and newborn support.
+              <p className="mt-4 max-w-xl text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-up animate-delay-100">
+                Finding support for someone you love can feel overwhelming. Start with what is happening, and explore the help that may be right for your family.
               </p>
 
               {/* Action Buttons */}
               <div className="mt-8 flex flex-wrap items-center gap-3.5 w-full sm:w-auto animate-fade-up animate-delay-200">
-                <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all min-h-[48px]">
-                  <a href="#services" onClick={() => track("hero_explore_care")}>
-                    Explore Care
+                <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all min-h-[48px] font-bold">
+                  <a href="#care-navigator" onClick={() => track("hero_find_right_support")}>
+                    Find the Right Support
                     <ArrowRight className="ml-2 size-4" />
                   </a>
                 </Button>
-                <a
-                  href={waUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => track("hero_talk_to_us")}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/10 px-7 py-3 text-sm font-semibold text-[#128C7E] dark:text-[#25D366] hover:bg-[#25D366]/20 transition-colors min-h-[48px]"
-                >
-                  <MessageCircle className="size-4 text-[#25D366]" />
-                  Talk to Us
-                </a>
+                <Button asChild variant="outline" size="lg" className="rounded-full px-7 min-h-[48px] font-semibold border-border bg-card/80 hover:bg-secondary">
+                  <a href="#enquiry" onClick={() => track("hero_talk_to_team")}>
+                    Talk to Our Team
+                  </a>
+                </Button>
               </div>
 
               {/* Reassuring Quick Trust Metrics */}
               <div className="mt-8 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-medium text-muted-foreground animate-fade-up animate-delay-300">
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
                   <ShieldCheck className="size-4 text-primary" />
-                  100% Police Verified
+                  100% Police & Biometric Verification
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
-                  <Star className="size-4 fill-terracotta text-terracotta" />
-                  4.9/5 from 1,200+ Families
+                  <BadgeCheck className="size-4 text-terracotta" />
+                  Registered Nurses for Clinical Procedures
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="size-4 text-primary" />
-                  Bengaluru · Chennai · Hyderabad · Coimbatore
+                  <Clock className="size-4 text-primary" />
+                  90-Min Guaranteed Backup Dispatch
                 </span>
               </div>
             </div>
@@ -484,6 +522,128 @@ function HomePage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION 6.2: AUDIENCE-FIRST DISCOVERY ("Who are you looking for support for?")
+      ───────────────────────────────────────────────────────────── */}
+      <section id="audiences" className="border-b border-border/50 bg-secondary/25 py-16 md:py-24 scroll-mt-20">
+        <div className="container-page">
+          <div className="max-w-3xl">
+            <p className="eyebrow">Audience Pathways</p>
+            <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
+              Who are you looking for support for?
+            </h2>
+            <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
+              Start with the person and their life situation. Explore verified care pathways tailored to your family's circumstance.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {CANONICAL_AUDIENCE_PATHWAYS.map((pathway) => {
+              const meta = AUDIENCE_IMAGES[pathway.id] ?? { image: hero1, alt: pathway.title };
+              return (
+                <article
+                  key={pathway.id}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
+                >
+                  <div>
+                    {/* Visual Image */}
+                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-muted">
+                      <img
+                        src={meta.image}
+                        alt={meta.alt}
+                        width={600}
+                        height={375}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-3 py-1 text-[11px] font-semibold text-foreground backdrop-blur">
+                        {pathway.eyebrow}
+                      </span>
+                    </div>
+
+                    {/* Text Details */}
+                    <div className="mt-5 space-y-2">
+                      <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
+                        {pathway.title}
+                      </h3>
+                      <div className="rounded-xl bg-secondary/50 p-2.5 text-xs text-foreground/90 font-medium">
+                        <span className="text-[10px] uppercase font-bold text-terracotta tracking-wider block mb-0.5">Family Situation:</span>
+                        {pathway.situation}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+                        <span className="font-semibold text-foreground/80">Desired Outcome:</span> {pathway.desiredOutcome}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Link Action */}
+                  <div className="mt-6 pt-4 border-t border-border">
+                    <Link
+                      to={pathway.ctaHref}
+                      onClick={() => track("audience_pathway_click", { audience: pathway.id })}
+                      className="inline-flex w-full items-center justify-between text-xs font-bold text-primary hover:underline group-hover:gap-2 transition-all min-h-[36px]"
+                    >
+                      <span>{pathway.ctaLabel}</span>
+                      <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION 6.3: NEED-FIRST DISCOVERY (Care Navigator)
+      ───────────────────────────────────────────────────────────── */}
+      <CareNavigator />
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION 6.4: HUMAN CARE OUTCOMES ("What Care Makes Possible")
+      ───────────────────────────────────────────────────────────── */}
+      <section className="py-16 md:py-24 border-b border-border/50 bg-background">
+        <div className="container-page">
+          <div className="max-w-3xl">
+            <p className="eyebrow">Meaningful Outcomes</p>
+            <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
+              What Care Makes Possible
+            </h2>
+            <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
+              Care isn't just a list of tasks. It's about dignity, physical safety, and giving families back their peace of mind.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {CANONICAL_CARE_OUTCOMES.map((outcome) => (
+              <div
+                key={outcome.id}
+                className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-200 hover:border-primary/40 hover:shadow-lift"
+              >
+                <div>
+                  <div className="grid size-10 place-items-center rounded-2xl bg-primary-soft text-primary">
+                    <HeartHandshake className="size-5" />
+                  </div>
+                  <h3 className="mt-4 text-base font-bold text-foreground leading-snug">
+                    {outcome.title}
+                  </h3>
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                    {outcome.shortDescription}
+                  </p>
+                </div>
+                <div className="mt-5 pt-3 border-t border-border/60">
+                  <p className="text-[11px] font-medium text-foreground/85 bg-secondary/50 rounded-lg p-2">
+                    <span className="font-bold text-terracotta block text-[10px] uppercase">Intended Benefit:</span>
+                    {outcome.intendedBenefit}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -873,36 +1033,38 @@ function HomePage() {
       ───────────────────────────────────────────────────────────── */}
       <section id="how-it-works" className="bg-secondary/25 py-16 md:py-24 border-y border-border/50 scroll-mt-20">
         <div className="container-page">
-          <div className="max-w-2xl">
-            <p className="eyebrow">How It Works</p>
-            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
-              Finding Trusted Care is Simple
+          <div className="max-w-3xl">
+            <p className="eyebrow">Our Approach</p>
+            <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
+              A Calm, Guided Path to the Right Care
             </h2>
-            <p className="mt-3 text-pretty text-base text-muted-foreground">
-              We have eliminated the frustration of unverified agency calls. Connect with the right attendant in three guided steps.
+            <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
+              We believe in listening before recommending. Here is how we support your family through every step—transparently, patiently, and without sales pressure.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {SIMPLE_STEPS.map((step) => (
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {CARE_JOURNEY_STEPS.map((step) => (
               <div
                 key={step.step}
-                className="relative flex flex-col rounded-3xl border border-border bg-card p-7 shadow-soft"
+                className="relative flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
               >
-                <span className="font-display text-3xl font-bold text-primary/30">
-                  {step.step}
-                </span>
-                <h3 className="mt-3 text-lg font-semibold text-foreground">{step.title}</h3>
-                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                  {step.description}
-                </p>
+                <div>
+                  <span className="font-display text-3xl font-bold text-primary/40">
+                    {step.step}
+                  </span>
+                  <h3 className="mt-3 text-base font-bold text-foreground leading-snug">{step.title}</h3>
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift">
-              <Link to="/booking">Start Care Request</Link>
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+            <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift font-bold">
+              <a href="#enquiry">Talk to Our Care Team</a>
             </Button>
             <a
               href={waUrl}
@@ -911,7 +1073,7 @@ function HomePage() {
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
             >
               <MessageCircle className="size-4 text-[#25D366]" />
-              Talk to a Care Coordinator
+              Discuss on WhatsApp
             </a>
           </div>
         </div>
@@ -1061,7 +1223,7 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          8. FINAL CONTACT AND BOOKING CTA (Warm, human-centered)
+          SECTION 6.7: COMPASSIONATE FINAL CTA
       ───────────────────────────────────────────────────────────── */}
       <section id="enquiry" className="container-page py-16 md:py-24 scroll-mt-20">
         <div className="rounded-[2.5rem] bg-ink p-8 text-ink-foreground md:p-14 shadow-lift">
@@ -1069,29 +1231,27 @@ function HomePage() {
             {/* Left Column: Reassurance & Direct Contacts */}
             <div>
               <span className="eyebrow text-terracotta">We Are Here For You</span>
-              <h2 className="mt-3 max-w-lg text-balance text-3xl font-semibold md:text-4xl lg:text-5xl text-white leading-tight">
-                Care for Them.
-                <br />
-                Peace of Mind for You.
+              <h2 className="mt-3 max-w-lg text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-white leading-tight">
+                Not sure where to begin? Tell us what kind of support you are looking for.
               </h2>
-              <p className="mt-4 max-w-md text-base text-ink-foreground/80 leading-relaxed">
-                You don't have to navigate care alone. Tell us what your family is going through, and our dedicated care coordinator will recommend the right support.
+              <p className="mt-4 max-w-md text-base sm:text-lg text-ink-foreground/80 leading-relaxed">
+                Tell us what your family is going through. Our dedicated care team will help you understand the next steps—without pressure, judgment, or obligation.
               </p>
 
               {/* Direct Quick Contact Buttons */}
               <div className="mt-8 flex flex-wrap gap-3.5">
-                <Button asChild size="lg" className="rounded-full bg-white text-ink hover:bg-white/90">
-                  <Link to="/booking">Book Care Now</Link>
-                </Button>
                 <a
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/20 px-6 py-3 text-sm font-semibold text-white backdrop-blur hover:bg-[#25D366]/30 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/20 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur hover:bg-[#25D366]/30 transition-colors shadow-soft"
                 >
                   <MessageCircle className="size-4 text-[#25D366]" />
                   Chat on WhatsApp
                 </a>
+                <Button asChild size="lg" variant="outline" className="rounded-full border-white/20 bg-white/10 text-white hover:bg-white/20">
+                  <Link to="/booking">Direct Booking Available</Link>
+                </Button>
               </div>
 
               {/* Verified Operating Coverage */}
@@ -1108,8 +1268,8 @@ function HomePage() {
             {/* Right Column: Embedded Immediate Callback Form */}
             <div className="rounded-2xl bg-background p-6 text-foreground shadow-lift">
               <EnquiryForm
-                title="Request a Quick Callback"
-                subtitle="Share your requirement and a care coordinator will contact you within 15 minutes."
+                title="Tell Us What Is Happening"
+                subtitle="Share your family circumstance. A care coordinator will reach out gently within 15 minutes."
                 className="bg-transparent"
               />
             </div>

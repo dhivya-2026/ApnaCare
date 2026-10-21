@@ -4,6 +4,10 @@ import {
   getTaxonomyByService,
   getTaxonomyBySegment,
   getAllCapabilities,
+  CANONICAL_AUDIENCE_PATHWAYS,
+  CANONICAL_NEEDS_DISCOVERY,
+  CANONICAL_CARE_OUTCOMES,
+  validateTaxonomy,
 } from "../data/taxonomy";
 import { SERVICES } from "../data/site";
 
@@ -73,5 +77,33 @@ describe("Enterprise Taxonomy & Relationship Engine", () => {
 
     const capabilities = getAllCapabilities();
     expect(capabilities.length).toBe(ENTERPRISE_TAXONOMY_MAP.length);
+  });
+
+  it("validates canonical audience pathways across all 6 human situations", () => {
+    expect(CANONICAL_AUDIENCE_PATHWAYS.length).toBe(6);
+    for (const pathway of CANONICAL_AUDIENCE_PATHWAYS) {
+      expect(pathway.id).toBeDefined();
+      expect(pathway.title).toBeDefined();
+      expect(pathway.situation).toBeDefined();
+      expect(pathway.desiredOutcome).toBeDefined();
+      expect(pathway.recommendedServices.length).toBeGreaterThan(0);
+      expect(pathway.status).toBe("EXISTING_VERIFIED");
+    }
+  });
+
+  it("validates canonical need discovery options with role boundaries", () => {
+    expect(CANONICAL_NEEDS_DISCOVERY.length).toBeGreaterThanOrEqual(6);
+    for (const need of CANONICAL_NEEDS_DISCOVERY) {
+      expect(need.triggerPhrase).toBeDefined();
+      expect(need.providerType).toMatch(/^(General Duty Assistant \(Attendant\)|Registered Nurse \(GNM \/ B\.Sc\)|Licensed Driver \/ Escort)$/);
+      expect(need.clinicalBoundary).toBeDefined();
+      expect(need.estimatedStartingPrice).toBeGreaterThan(0);
+    }
+  });
+
+  it("passes comprehensive taxonomy integrity validation with 0 errors", () => {
+    const result = validateTaxonomy();
+    expect(result.isValid).toBe(true);
+    expect(result.errors).toEqual([]);
   });
 });
