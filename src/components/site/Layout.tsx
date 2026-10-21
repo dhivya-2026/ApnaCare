@@ -685,7 +685,9 @@ function Header() {
               <span>WhatsApp</span>
             </a>
 
-            <BookLink className="hidden sm:inline-flex shrink-0 whitespace-nowrap min-h-[44px]" size="sm" />
+            <Button asChild size="sm" variant="warm" className="hidden sm:inline-flex shrink-0 whitespace-nowrap min-h-[44px] rounded-full font-bold">
+              <Link to="/contact">Talk to Our Care Team</Link>
+            </Button>
 
             {/* Mobile menu toggle */}
             <Button
@@ -969,12 +971,11 @@ function MobileBar() {
         </a>
 
         <Link
-          to="/booking"
-          search={{ situation: "Emergency attendant request" }}
-          onClick={() => track("mobile_bar_emergency_click")}
+          to="/contact"
+          onClick={() => track("mobile_bar_contact_click")}
           className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-soft hover:bg-primary/90 transition-all min-h-[44px]"
         >
-          <span className="font-bold">Book Attendant</span>
+          <span className="font-bold">Talk to Care Team</span>
         </Link>
       </div>
     </div>

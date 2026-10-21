@@ -14,6 +14,7 @@ import {
   ChevronRight,
   MapPin,
   Languages,
+  Quote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -118,55 +119,85 @@ const HERO_CARE_MOMENTS = [
   },
 ];
 
-// Audience & Care Discovery Pathways (Phase 4, Section 2)
+// 6 Human Situation Pathways (Section B: "What's happening in your family right now?")
 const AUDIENCE_PATHWAYS = [
   {
     id: "senior-citizens",
-    label: "Senior Citizens & Aging Parents",
-    tag: "Senior Care",
-    benefit: "Dignity, Companionship & Mobility at Home",
+    label: "Older Adults & Ageing Parents",
+    tag: "Senior Living",
+    situation: "Living away or noticing parents struggle with bathing, daily routines, or walking safely.",
+    benefit: "Gentle daily living assistance, warm companionship & fall prevention at home.",
     description:
-      "Your parents spent a lifetime taking care of you. Let’s make sure their golden years are full of dignity, warmth, and safe independence at home.",
+      "When steps slow down and routine tasks become difficult, your parents deserve patience, gentle hands, and dignified independence in their familiar home.",
     image: hero1,
-    alt: "Caregiver gently assisting an elderly lady at home",
+    alt: "Caregiver gently assisting an elderly lady at home with patience",
     link: "/solutions/families-elderly",
-    actionText: "Explore Senior Support",
+    actionText: "Explore Senior Care",
+  },
+  {
+    id: "hospital-assistance",
+    label: "Patients Requiring Hospital Assistance",
+    tag: "Hospital Vigil",
+    situation: "A loved one is admitted to hospital and needs continuous, attentive bedside vigil and nurse coordination.",
+    benefit: "Dedicated bedside vigil, hygiene assistance & real-time family WhatsApp updates.",
+    description:
+      "Hospital corridors can be exhausting for working families. Our bedside attendant stays through the night, assists with hygiene, and coordinates with ward staff.",
+    image: hero2,
+    alt: "Attendant assisting a recovering patient in a hospital corridor",
+    link: "/services/hospital-attendants",
+    actionText: "Explore Hospital Care",
+  },
+  {
+    id: "post-hospitalization",
+    label: "Post-Hospital & Post-Surgical Recovery",
+    tag: "Convalescent Care",
+    situation: "Discharging home after an operation, hip/knee replacement, or acute hospital admission.",
+    benefit: "Safe bedroom transitions, incision monitoring, spirometry supervision & readmission prevention.",
+    description:
+      "The first 30 days after hospital discharge are the most vulnerable. We ensure safe bed-to-chair transfers, prescribed breathing exercises, and incision comfort.",
+    image: hero2,
+    alt: "Caregiver assisting patient walking after surgery during convalescence",
+    link: "/solutions/post-hospitalization",
+    actionText: "Explore Recovery Care",
   },
   {
     id: "mothers-newborns",
-    label: "Mothers & Newborns",
+    label: "Mothers & Newborns (Fourth Trimester)",
     tag: "Maternal & Infant",
-    benefit: "Restorative Post-Natal Care & Infant Massage",
+    situation: "Healing after delivery while navigating newborn soothing, feeding, and severe exhaustion.",
+    benefit: "Japa-trained newborn massage, bath routines & mother rest for 7+ hours of healing sleep.",
     description:
-      "The fourth trimester is about healing, not exhaustion. Welcome your baby home with expert, caring hands so mom gets 7+ hours of continuous sleep.",
+      "The fourth trimester is about maternal healing, not physical exhaustion. Our experienced attendants take over infant massage and night soothing so mom heals.",
     image: hero4,
     alt: "Post-natal attendant gently holding and caring for a newborn baby",
     link: "/solutions/new-mothers",
     actionText: "Explore Maternal Care",
   },
   {
-    id: "post-hospitalization",
-    label: "Hospital Recovery & Post-Discharge",
-    tag: "Bedside & Recovery",
-    benefit: "Continuous Inpatient Vigil & Smooth Discharge",
+    id: "nursing-clinical",
+    label: "Families Seeking Professional Nursing",
+    tag: "Clinical Nursing",
+    situation: "A loved one requires sterile clinical procedures at home as prescribed by a treating doctor.",
+    benefit: "Registered GNM/B.Sc nurses for surgical wound dressings, injections, and catheter management.",
     description:
-      "Step out of the hospital and back into comfort—without the fear of readmission. Attentive bedside vigilance and gentle recovery transfers.",
-    image: hero2,
-    alt: "Attendant assisting a patient in walking post-surgery",
-    link: "/solutions/post-hospitalization",
-    actionText: "Explore Recovery Care",
+      "Hospital-grade clinical competence in the comfort of home. Licensed nurses handle surgical dressings, IV lines, vitals monitoring, and prescription compliance.",
+    image: nursingCare,
+    alt: "Qualified nurse checking patient vitals and health status at home",
+    link: "/services/nursing-services",
+    actionText: "Explore Clinical Nursing",
   },
   {
     id: "women-mobility",
-    label: "Safe Mobility & Women Drivers",
+    label: "Safe Mobility & Transit Accompaniment",
     tag: "Transit & Escort",
-    benefit: "Police-Verified Women Chauffeurs",
+    situation: "Seniors or women needing dependable, verified escort for clinic visits, airports, or train stations.",
+    benefit: "Licensed women chauffeuses, station platform escorts & doorstep wheelchair transit.",
     description:
-      "Step into late-night travel, airport transfers, or hospital commutes with verified women chauffeurs who ensure your family reaches safely.",
+      "Doorstep-to-destination assisted travel. Our verified women drivers and travel companions ensure seniors navigate crowded stations and clinics with complete peace.",
     image: hero5,
     alt: "Professional woman driver providing safe transit assistance",
-    link: "/solutions/women-commuters",
-    actionText: "Explore Transit Care",
+    link: "/services/women-drivers",
+    actionText: "Explore Transit Escort",
   },
 ];
 
@@ -234,55 +265,96 @@ const CORE_SERVICES = [
   },
 ];
 
-
-
 // Verified Trust Information
 const TRUST_PILLARS = [
   {
     icon: ShieldCheck,
-    title: "100% Police & Identity Verified",
+    title: "Identity & Police Background Verification",
     description:
-      "Every attendant undergoes biometric Aadhaar verification, criminal court screening, and residential address checks before entering any home.",
+      "Every attendant undergoes biometric Aadhaar verification, court legal screenings, and residential address checks before entering any home.",
   },
   {
     icon: BadgeCheck,
-    title: "Clinical & Practical Care Training",
+    title: "Clear Role Boundaries & Practical Training",
     description:
-      "Comprehensive training in patient ergonomics, infection prevention, mobility transfer, and precise daily medication logging.",
+      "Strict scope governance: supportive daily living care by trained GDAs, and sterile clinical procedures strictly by registered GNM/B.Sc nurses.",
   },
   {
     icon: Clock,
-    title: "Guaranteed 90-Min Backup Protocol",
+    title: "Guaranteed 90-Min Emergency Backup",
     description:
-      "Never left without care. If your assigned attendant experiences an unexpected emergency, our local cluster dispatches a qualified backup within 90 minutes.",
+      "Continuity you can count on. If your assigned attendant experiences an unexpected emergency, our local city cluster dispatches a qualified backup within 90 minutes.",
   },
   {
     icon: IndianRupee,
-    title: "Transparent Pricing & GST Invoicing",
+    title: "Transparent Rates & GST Invoicing",
     description:
-      "No hidden agency commissions or surprise dispatch charges. Clear, upfront daily rates accompanied by official 18% GST tax invoices.",
+      "Zero hidden agency commissions or surprise placement fees. Upfront daily and monthly rates with official 18% GST tax invoices.",
   },
 ];
 
-// Simple 3-step booking explanation
-const SIMPLE_STEPS = [
+// Section D: How Care Works (Calm, 5-Step Sequence)
+const CARE_JOURNEY_STEPS = [
   {
     step: "01",
-    title: "Tell Us What Your Family Needs",
+    title: "Tell Us What Is Happening",
     description:
-      "Share who requires care, your city, preferred shift timing (day, night, or 24/7), and language preferences in 60 seconds.",
+      "Share what your family is navigating. You don't need clinical terminology or a pre-selected package ready—just your family's circumstance.",
   },
   {
     step: "02",
-    title: "Review Matched Verified Profiles",
+    title: "Speak With Our Care Team",
     description:
-      "Our care coordinators match qualified attendants and share digital profiles detailing verified credentials, background checks, and care experience.",
+      "A compassionate care coordinator discusses your loved one's specific mobility, routines, language preference, and comfort needs.",
   },
   {
     step: "03",
-    title: "Welcome Dependable Care",
+    title: "Understand Suitable Care Options",
     description:
-      "Your attendant arrives punctually. Stay informed with scheduled daily check-ins, routine wellness notes, and ongoing care desk support.",
+      "We explain appropriate caregiver profiles, the distinction between supportive attendants and clinical nurses, and transparent daily rates.",
+  },
+  {
+    step: "04",
+    title: "Arrange Support If You Decide to Proceed",
+    description:
+      "Review background-checked caregiver profiles and verification dossiers before confirming. There is never high-pressure agency sales.",
+  },
+  {
+    step: "05",
+    title: "Stay Informed Through Daily Updates",
+    description:
+      "Receive scheduled daily WhatsApp updates documenting vitals, meal times, and routine comfort with direct supervisor access at all times.",
+  },
+];
+
+// Section G: Authentic Family Stories & Case Studies
+const AUTHENTIC_STORIES = [
+  {
+    situation: "Balancing Career Demands with an Aging Mother's Recovery",
+    author: "Anand K.",
+    relation: "Son (IT Director, Whitefield)",
+    city: "Bengaluru",
+    story:
+      "Coordinating Amma's post-surgery recovery in Jayanagar while working across town in Whitefield was emotionally exhausting. The ApnaCare attendant didn't just help her walk safely—she sat with her, made warm rasam tea, and sent me WhatsApp vitals logs every morning so I could breathe at work.",
+    careProvided: "12-Hour Daily Convalescent Attendant",
+  },
+  {
+    situation: "Relieving Isolation for a Widowed Mother Living Alone",
+    author: "Sravani M.",
+    relation: "Daughter (Healthcare Professional)",
+    city: "Hyderabad",
+    story:
+      "After my father passed away, my mother felt deeply isolated in our family home. ApnaCare matched a gentle Telugu-speaking companion who reads the morning newspaper with her, walks in the society garden, and helps her with video calls to my brother in Seattle.",
+    careProvided: "Elderly Companionship & Errand Support",
+  },
+  {
+    situation: "Restorative Healing Sleep During the Fourth Trimester",
+    author: "Kavitha & Karthik",
+    relation: "First-time Parents",
+    city: "Chennai",
+    story:
+      "Welcoming our baby after a complicated C-section left both of us completely sleep-deprived. Having a calm, experienced maternal attendant take over night soothing, burping, and morning baby massage let me get 7 hours of restorative healing sleep each night.",
+    careProvided: "Post-Natal Maternal & Infant Care",
   },
 ];
 
@@ -379,36 +451,29 @@ function HomePage() {
                 </div>
               </div>
 
-              {/* Main Empathetic Headline */}
+              {/* Main Empathetic Headline (Section A) */}
               <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.14] animate-fade-up">
-                You can’t always be there—
-                <br />
-                <span className="text-primary">but you can make sure they’re never alone.</span>
+                You don’t have to carry the worry alone.
               </h1>
 
-              {/* Supporting Empathetic Text */}
-              <p className="mt-4 max-w-xl text-pretty text-lg text-muted-foreground leading-relaxed animate-fade-up animate-delay-100">
-                Police-verified, background-checked, and deeply compassionate caregivers for aging parents, newborn moms, and post-surgery recovery across South India.
+              {/* Supporting Empathetic Text (Section A) */}
+              <p className="mt-4 max-w-xl text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-up animate-delay-100">
+                When someone you love needs support, knowing where to begin can be difficult. ApnaCare helps you understand your options and find care suited to your family's needs.
               </p>
 
-              {/* Action Buttons */}
+              {/* Action Buttons (Section A: Primary & Secondary CTAs) */}
               <div className="mt-8 flex flex-wrap items-center gap-3.5 w-full sm:w-auto animate-fade-up animate-delay-200">
-                <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all min-h-[48px]">
-                  <a href="#care-navigator" onClick={() => track("hero_explore_care")}>
-                    Find Care Plan
+                <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all min-h-[48px] font-bold">
+                  <a href="#enquiry" onClick={() => track("hero_talk_care_team")}>
+                    Talk to Our Care Team
                     <ArrowRight className="ml-2 size-4" />
                   </a>
                 </Button>
-                <a
-                  href={waUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => track("hero_talk_to_us")}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/10 px-7 py-3 text-sm font-semibold text-[#128C7E] dark:text-[#25D366] hover:bg-[#25D366]/20 transition-colors min-h-[48px]"
-                >
-                  <MessageCircle className="size-4 text-[#25D366]" />
-                  WhatsApp Care Team
-                </a>
+                <Button asChild variant="outline" size="lg" className="rounded-full px-7 min-h-[48px] font-semibold border-border bg-card/80 hover:bg-secondary">
+                  <a href="#situations" onClick={() => track("hero_explore_care_support")}>
+                    Explore Care Support
+                  </a>
+                </Button>
               </div>
 
               {/* Reassuring Trust Banner */}
@@ -523,25 +588,25 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. AUDIENCE AND CARE DISCOVERY (Phase 4, Section 2)
+          SECTION B: RECOGNISE THE VISITOR'S SITUATION (Section B)
       ───────────────────────────────────────────────────────────── */}
-      <section className="border-b border-border/50 bg-secondary/25 py-16 md:py-24">
+      <section id="situations" className="border-b border-border/50 bg-secondary/25 py-16 md:py-24 scroll-mt-20">
         <div className="container-page">
-          <div className="max-w-2xl">
-            <p className="eyebrow">Who We Support</p>
-            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
-              Care Pathways for Every Stage of Life
+          <div className="max-w-3xl">
+            <p className="eyebrow">Understanding Your Situation</p>
+            <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
+              What’s happening in your family right now?
             </h2>
-            <p className="mt-3 text-pretty text-base text-muted-foreground">
-              Whether you are caring for aging parents, welcoming a newborn, or transitioning home after hospital discharge, ApnaCare provides trusted, verified care pathways designed around your family.
+            <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
+              Care begins with understanding your unique situation. Select the circumstance closest to your family to explore suitable, verified support without sales pressure.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {AUDIENCE_PATHWAYS.map((path) => (
               <article
                 key={path.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
               >
                 <div>
                   {/* Visual Image */}
@@ -561,25 +626,26 @@ function HomePage() {
                   </div>
 
                   {/* Text Details */}
-                  <div className="mt-4">
-                    <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
+                  <div className="mt-5 space-y-2">
+                    <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
                       {path.label}
                     </h3>
-                    <p className="mt-1 text-xs font-semibold text-primary/90">
-                      {path.benefit}
-                    </p>
-                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                    <div className="rounded-xl bg-secondary/50 p-2.5 text-xs text-foreground/90 font-medium">
+                      <span className="text-[10px] uppercase font-bold text-terracotta tracking-wider block mb-0.5">Family Situation:</span>
+                      {path.situation}
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed pt-1">
                       {path.description}
                     </p>
                   </div>
                 </div>
 
                 {/* Link Action */}
-                <div className="mt-5 pt-3 border-t border-border">
+                <div className="mt-6 pt-4 border-t border-border">
                   <Link
                     to={path.link}
                     onClick={() => track("audience_pathway_click", { audience: path.id })}
-                    className="inline-flex w-full items-center justify-between text-xs font-semibold text-primary hover:underline group-hover:gap-2 transition-all min-h-[36px]"
+                    className="inline-flex w-full items-center justify-between text-xs font-bold text-primary hover:underline group-hover:gap-2 transition-all min-h-[36px]"
                   >
                     <span>{path.actionText}</span>
                     <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
@@ -751,40 +817,42 @@ function HomePage() {
       <CaregiverShowcase />
 
       {/* ─────────────────────────────────────────────────────────────
-          5. SIMPLE THREE-STEP BOOKING EXPLANATION (anchor: #how-it-works)
+          SECTION D: HOW CARE WORKS (Calm, 5-Step Sequence)
       ───────────────────────────────────────────────────────────── */}
       <section id="how-it-works" className="bg-secondary/25 py-16 md:py-24 border-y border-border/50 scroll-mt-20">
         <div className="container-page">
-          <div className="max-w-2xl">
-            <p className="eyebrow">How It Works</p>
-            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
-              Finding Trusted Care is Simple
+          <div className="max-w-3xl">
+            <p className="eyebrow">Our Approach</p>
+            <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
+              A Calm, Guided Path to the Right Care
             </h2>
-            <p className="mt-3 text-pretty text-base text-muted-foreground">
-              We have eliminated the frustration of unverified agency calls. Connect with the right attendant in three guided steps.
+            <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
+              We believe in listening before recommending. Here is how we support your family through every step—transparently, patiently, and without sales pressure.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {SIMPLE_STEPS.map((step) => (
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {CARE_JOURNEY_STEPS.map((step) => (
               <div
                 key={step.step}
-                className="relative flex flex-col rounded-3xl border border-border bg-card p-7 shadow-soft"
+                className="relative flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
               >
-                <span className="font-display text-3xl font-bold text-primary/30">
-                  {step.step}
-                </span>
-                <h3 className="mt-3 text-lg font-semibold text-foreground">{step.title}</h3>
-                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                  {step.description}
-                </p>
+                <div>
+                  <span className="font-display text-3xl font-bold text-primary/40">
+                    {step.step}
+                  </span>
+                  <h3 className="mt-3 text-base font-bold text-foreground leading-snug">{step.title}</h3>
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift">
-              <Link to="/booking">Start Care Request</Link>
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+            <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift font-bold">
+              <a href="#enquiry">Talk to Our Care Team</a>
             </Button>
             <a
               href={waUrl}
@@ -793,7 +861,7 @@ function HomePage() {
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
             >
               <MessageCircle className="size-4 text-[#25D366]" />
-              Talk to a Care Coordinator
+              Discuss on WhatsApp
             </a>
           </div>
         </div>
@@ -803,6 +871,60 @@ function HomePage() {
           TRANSPARENT CARE COST & PRICING ESTIMATOR (anchor: #pricing)
       ───────────────────────────────────────────────────────────── */}
       <PricingEstimator />
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION G: AUTHENTIC STORIES AND TESTIMONIALS
+      ───────────────────────────────────────────────────────────── */}
+      <section className="container-page py-16 md:py-24">
+        <div className="max-w-3xl">
+          <p className="eyebrow">Real Experiences</p>
+          <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
+            Stories From Families Who Walked This Path
+          </h2>
+          <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
+            Every family circumstance is unique. Here is how thoughtful care coordination brought relief, dignity, and calm to families across South India.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {AUTHENTIC_STORIES.map((item, idx) => (
+            <article
+              key={idx}
+              className="relative flex flex-col justify-between rounded-3xl border border-border bg-card p-7 shadow-soft transition-all duration-300 hover:shadow-lift hover:border-primary/40"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3 mb-4">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-terracotta uppercase tracking-wider">
+                    <Quote className="size-3.5" />
+                    {item.situation}
+                  </span>
+                </div>
+                <p className="text-sm text-foreground/90 leading-relaxed italic">
+                  "{item.story}"
+                </p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-border/60 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-foreground block">{item.author}</span>
+                    <span className="text-muted-foreground text-[11px]">{item.relation} · {item.city}</span>
+                  </div>
+                </div>
+                <div className="inline-flex items-center gap-1.5 rounded-lg bg-secondary/70 px-2.5 py-1 text-[11px] font-medium text-foreground/80">
+                  <CheckCircle2 className="size-3 text-primary shrink-0" />
+                  <span>Care Arranged: {item.careProvided}</span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Story Privacy Notice */}
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          Client names and sensitive medical details are protected in accordance with healthcare privacy standards. Shared with permission from families.
+        </p>
+      </section>
 
       {/* ─────────────────────────────────────────────────────────────
           7. SHORT FAQS (Clear, scannable accordion)
@@ -855,7 +977,7 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          8. FINAL CONTACT AND BOOKING CTA (Warm, human-centered)
+          SECTION H: GENTLE CONVERSION & HUMAN-CENTRED ENQUIRY
       ───────────────────────────────────────────────────────────── */}
       <section id="enquiry" className="container-page py-16 md:py-24 scroll-mt-20">
         <div className="rounded-[2.5rem] bg-ink p-8 text-ink-foreground md:p-14 shadow-lift">
@@ -863,29 +985,27 @@ function HomePage() {
             {/* Left Column: Reassurance & Direct Contacts */}
             <div>
               <span className="eyebrow text-terracotta">We Are Here For You</span>
-              <h2 className="mt-3 max-w-lg text-balance text-3xl font-semibold md:text-4xl lg:text-5xl text-white leading-tight">
-                Care for Them.
-                <br />
-                Peace of Mind for You.
+              <h2 className="mt-3 max-w-lg text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-white leading-tight">
+                You don’t need to have everything figured out before asking for help.
               </h2>
-              <p className="mt-4 max-w-md text-base text-ink-foreground/80 leading-relaxed">
-                You don't have to navigate care alone. Tell us what your family is going through, and our dedicated care coordinator will recommend the right support.
+              <p className="mt-4 max-w-md text-base sm:text-lg text-ink-foreground/80 leading-relaxed">
+                Tell us what your family is going through. Our care team will help you understand the next steps—without pressure, judgment, or obligation.
               </p>
 
               {/* Direct Quick Contact Buttons */}
               <div className="mt-8 flex flex-wrap gap-3.5">
-                <Button asChild size="lg" className="rounded-full bg-white text-ink hover:bg-white/90">
-                  <Link to="/booking">Book Care Now</Link>
-                </Button>
                 <a
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/20 px-6 py-3 text-sm font-semibold text-white backdrop-blur hover:bg-[#25D366]/30 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/20 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur hover:bg-[#25D366]/30 transition-colors shadow-soft"
                 >
                   <MessageCircle className="size-4 text-[#25D366]" />
                   Chat on WhatsApp
                 </a>
+                <Button asChild size="lg" variant="outline" className="rounded-full border-white/20 bg-white/10 text-white hover:bg-white/20">
+                  <Link to="/booking">Direct Booking Available</Link>
+                </Button>
               </div>
 
               {/* Verified Operating Coverage */}
@@ -902,8 +1022,8 @@ function HomePage() {
             {/* Right Column: Embedded Immediate Callback Form */}
             <div className="rounded-2xl bg-background p-6 text-foreground shadow-lift">
               <EnquiryForm
-                title="Request a Quick Callback"
-                subtitle="Share your requirement and a care coordinator will contact you within 15 minutes."
+                title="Tell Us What Is Happening"
+                subtitle="Share your situation and our care team will contact you within 15 minutes to guide you gently."
                 className="bg-transparent"
               />
             </div>
