@@ -37,6 +37,7 @@ import { GuidedCareDiscovery } from "@/components/site/GuidedCareDiscovery";
 import { CareNavigatorWizard } from "@/components/site/CareNavigatorWizard";
 import { CaregiverShowcase } from "@/components/site/CaregiverShowcase";
 import { PricingEstimator } from "@/components/site/PricingEstimator";
+import { InteractiveLifeMoments } from "@/components/site/InteractiveLifeMoments";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -233,45 +234,7 @@ const CORE_SERVICES = [
   },
 ];
 
-// Visual Storytelling: Because Every Family Has a Story
-const FAMILY_STORIES = [
-  {
-    category: "Working Professionals & Ageing Parents",
-    headline: "Distance Shouldn't Mean Worrying Alone",
-    sentence1:
-      "Balancing demanding work schedules while living away from ageing parents is emotionally heavy when health needs arise.",
-    sentence2:
-      "ApnaCare connects your parents with trustworthy, gentle daily companionship and timely updates so you know they are never alone.",
-    cta: "Explore Elderly Care",
-    link: "/services/elderly-care",
-    image: hero1,
-    alt: "Warm companionship between caregiver and elderly lady",
-  },
-  {
-    category: "Hospitalization & Post-Surgery",
-    headline: "Relief When a Loved One is in Recovery",
-    sentence1:
-      "Hospital corridors and post-operative weeks place immense physical exhaustion on family members balancing office and childcare.",
-    sentence2:
-      "A dedicated ApnaCare bedside attendant stays vigilant around the clock, assisting with hygiene and comforting your loved one so you can recharge.",
-    cta: "Explore Hospital Care",
-    link: "/services/hospital-attendants",
-    image: hero2,
-    alt: "Patient receiving safe walking assistance after surgery",
-  },
-  {
-    category: "Newborn Adjustments & Maternal Healing",
-    headline: "Gentle Hands for the Early Days of Parenthood",
-    sentence1:
-      "Bringing a newborn home brings immense joy, but physical recovery and sleepless nights can leave new mothers overwhelmed without experienced help.",
-    sentence2:
-      "Our post-natal attendants handle gentle baby baths, feeding accompaniment, and soothing, ensuring the mother gets deep, restorative healing sleep.",
-    cta: "Explore Post-Natal Care",
-    link: "/services/post-natal-care",
-    image: hero4,
-    alt: "Caregiver tenderly tending to a newborn baby while supporting the mother",
-  },
-];
+
 
 // Verified Trust Information
 const TRUST_PILLARS = [
@@ -727,73 +690,9 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          3. VISUAL STORYTELLING: “Because Every Family Has a Story”
+          3. INTERACTIVE LIFE MOMENTS: Tabbed Before/After Scenario Overhaul
       ───────────────────────────────────────────────────────────── */}
-      <section className="bg-secondary/35 py-16 md:py-24 border-y border-border/50">
-        <div className="container-page">
-          <div className="max-w-2xl">
-            <p className="eyebrow">Visual Stories</p>
-            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
-              Because Every Family Has a Story.
-            </h2>
-            <p className="mt-3 text-pretty text-base text-muted-foreground">
-              Real family moments that inspire our care mission every single day.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-8 lg:grid-cols-3">
-            {FAMILY_STORIES.map((story, idx) => (
-              <div
-                key={idx}
-                className="group flex flex-col rounded-3xl border border-border bg-card overflow-hidden shadow-soft transition-all duration-300 hover:shadow-lift"
-              >
-                {/* Image */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-                  <img
-                    src={story.image}
-                    alt={story.alt}
-                    width={700}
-                    height={440}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                  <span className="absolute bottom-3 left-3 text-[11px] font-medium text-white/95 bg-black/40 px-2.5 py-0.5 rounded-full backdrop-blur">
-                    Illustrative Scenario
-                  </span>
-                </div>
-
-                {/* Content */}
-                <div className="flex flex-1 flex-col p-6">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-terracotta">
-                    {story.category}
-                  </span>
-                  <h3 className="mt-2 text-lg font-semibold text-foreground leading-snug">
-                    {story.headline}
-                  </h3>
-                  <div className="mt-3 space-y-2 flex-1">
-                    <p className="text-xs text-muted-foreground leading-relaxed">{story.sentence1}</p>
-                    <p className="text-xs text-foreground/90 leading-relaxed font-medium">{story.sentence2}</p>
-                  </div>
-                  <div className="mt-5 pt-4 border-t border-border">
-                    <Link
-                      to={story.link}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline group-hover:gap-2 transition-all"
-                    >
-                      <span>{story.cta}</span>
-                      <ArrowRight className="size-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="mt-8 text-center text-xs text-muted-foreground">
-            Scenarios depict everyday care situations faced by families across South India.
-          </p>
-        </div>
-      </section>
+      <InteractiveLifeMoments />
 
       {/* ─────────────────────────────────────────────────────────────
           4. WHY FAMILIES CAN CONSIDER APNACARE (Verified Trust Information)
