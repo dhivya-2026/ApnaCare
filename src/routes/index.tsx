@@ -34,6 +34,9 @@ import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 import { buildOrganizationSchema, buildFaqPageSchema } from "@/data/enterprise-content";
 import { GuidedCareDiscovery } from "@/components/site/GuidedCareDiscovery";
+import { CareNavigatorWizard } from "@/components/site/CareNavigatorWizard";
+import { CaregiverShowcase } from "@/components/site/CaregiverShowcase";
+import { PricingEstimator } from "@/components/site/PricingEstimator";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -122,7 +125,7 @@ const AUDIENCE_PATHWAYS = [
     tag: "Senior Care",
     benefit: "Dignity, Companionship & Mobility at Home",
     description:
-      "Gentle assistance with daily routines, mobility support, medication reminders, and unhurried companionship so aging parents thrive in their cherished home.",
+      "Your parents spent a lifetime taking care of you. Let’s make sure their golden years are full of dignity, warmth, and safe independence at home.",
     image: hero1,
     alt: "Caregiver gently assisting an elderly lady at home",
     link: "/solutions/families-elderly",
@@ -134,7 +137,7 @@ const AUDIENCE_PATHWAYS = [
     tag: "Maternal & Infant",
     benefit: "Restorative Post-Natal Care & Infant Massage",
     description:
-      "Experienced fourth-trimester care, gentle newborn baths, soothing, and feeding accompaniment so new mothers receive deep, restorative healing sleep.",
+      "The fourth trimester is about healing, not exhaustion. Welcome your baby home with expert, caring hands so mom gets 7+ hours of continuous sleep.",
     image: hero4,
     alt: "Post-natal attendant gently holding and caring for a newborn baby",
     link: "/solutions/new-mothers",
@@ -142,11 +145,11 @@ const AUDIENCE_PATHWAYS = [
   },
   {
     id: "post-hospitalization",
-    label: "Hospital Stay & Post-Discharge",
+    label: "Hospital Recovery & Post-Discharge",
     tag: "Bedside & Recovery",
     benefit: "Continuous Inpatient Vigil & Smooth Discharge",
     description:
-      "Dedicated bedside assistance in hospitals and attentive post-discharge home transitions to ensure safe transfers and prevent accidental falls.",
+      "Step out of the hospital and back into comfort—without the fear of readmission. Attentive bedside vigilance and gentle recovery transfers.",
     image: hero2,
     alt: "Attendant assisting a patient in walking post-surgery",
     link: "/solutions/post-hospitalization",
@@ -158,7 +161,7 @@ const AUDIENCE_PATHWAYS = [
     tag: "Transit & Escort",
     benefit: "Police-Verified Women Chauffeurs",
     description:
-      "Verified female drivers and travel companions for airport transfers, railway stations, hospital commutes, and safe late-night city travel.",
+      "Step into late-night travel, airport transfers, or hospital commutes with verified women chauffeurs who ensure your family reaches safely.",
     image: hero5,
     alt: "Professional woman driver providing safe transit assistance",
     link: "/solutions/women-commuters",
@@ -402,30 +405,34 @@ function HomePage() {
           <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
             {/* Left Column: Short copy, immediate clarity, dual CTAs */}
             <div className="lg:col-span-7 flex flex-col items-start">
-              {/* Eyebrow Pill */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-3.5 py-1.5 text-xs font-semibold text-primary backdrop-blur animate-fade-in">
-                <Sparkles className="size-3.5 text-terracotta" />
-                <span>Where Care Feels Like Family</span>
+              {/* Live Status Pill with Pulsing Indicator */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-3.5 py-1.5 text-xs font-semibold text-primary backdrop-blur animate-fade-in">
+                  <span className="relative flex size-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+                  </span>
+                  <span>Care Coordinator Available (Response time: &lt;15 mins)</span>
+                </div>
               </div>
 
-              {/* Main Headline */}
-              <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.12] animate-fade-up">
-                Care for Them.
+              {/* Main Empathetic Headline */}
+              <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.14] animate-fade-up">
+                You can’t always be there—
                 <br />
-                <span className="text-primary">Peace of Mind for You.</span>
+                <span className="text-primary">but you can make sure they’re never alone.</span>
               </h1>
 
-              {/* Supporting Text */}
+              {/* Supporting Empathetic Text */}
               <p className="mt-4 max-w-xl text-pretty text-lg text-muted-foreground leading-relaxed animate-fade-up animate-delay-100">
-                Trusted care and support for your loved ones, at home and when it matters most.
-                Compassionate, police-verified women attendants for elderly care, hospital recovery, certified nursing, and newborn support.
+                Police-verified, background-checked, and deeply compassionate caregivers for aging parents, newborn moms, and post-surgery recovery across South India.
               </p>
 
               {/* Action Buttons */}
               <div className="mt-8 flex flex-wrap items-center gap-3.5 w-full sm:w-auto animate-fade-up animate-delay-200">
                 <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all min-h-[48px]">
-                  <a href="#services" onClick={() => track("hero_explore_care")}>
-                    Explore Care
+                  <a href="#care-navigator" onClick={() => track("hero_explore_care")}>
+                    Find Care Plan
                     <ArrowRight className="ml-2 size-4" />
                   </a>
                 </Button>
@@ -437,23 +444,23 @@ function HomePage() {
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/10 px-7 py-3 text-sm font-semibold text-[#128C7E] dark:text-[#25D366] hover:bg-[#25D366]/20 transition-colors min-h-[48px]"
                 >
                   <MessageCircle className="size-4 text-[#25D366]" />
-                  Talk to Us
+                  WhatsApp Care Team
                 </a>
               </div>
 
-              {/* Reassuring Quick Trust Metrics */}
+              {/* Reassuring Trust Banner */}
               <div className="mt-8 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-medium text-muted-foreground animate-fade-up animate-delay-300">
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
                   <ShieldCheck className="size-4 text-primary" />
-                  100% Police Verified
+                  100% Police &amp; Identity Verified
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
+                  <Clock className="size-4 text-primary" />
+                  90-Min Emergency Backup Guarantee
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
                   <Star className="size-4 fill-terracotta text-terracotta" />
-                  4.9/5 from 1,200+ Families
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="size-4 text-primary" />
-                  Bengaluru · Chennai · Hyderabad · Coimbatore
+                  4.9★ (1,200+ South Indian Families)
                 </span>
               </div>
             </div>
@@ -528,8 +535,8 @@ function HomePage() {
                       <Clock className="size-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-foreground">Immediate Assistance Available</p>
-                      <p className="text-[11px] text-muted-foreground">Average care coordinator response: 15 mins</p>
+                      <p className="text-xs font-semibold text-foreground">Care Coordinator Online</p>
+                      <p className="text-[11px] text-muted-foreground">Average response: &lt;15 mins</p>
                     </div>
                   </div>
                   <Link
@@ -543,6 +550,13 @@ function HomePage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          INTERACTIVE CARE NAVIGATOR WIZARD (4-Step Guided Finder)
+      ───────────────────────────────────────────────────────────── */}
+      <section id="care-navigator" className="container-page py-12 md:py-16 scroll-mt-20">
+        <CareNavigatorWizard />
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
@@ -833,178 +847,9 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          VERIFIED ATTENDANTS DIRECTORY (Browse Attendants anchor: #attendants)
+          INTERACTIVE CAREGIVER SHOWCASE (Browse Attendants anchor: #attendants)
       ───────────────────────────────────────────────────────────── */}
-      <section id="attendants" className="container-page py-16 md:py-24 scroll-mt-20">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          <div className="max-w-2xl">
-            <p className="eyebrow">Verified Care Specialists</p>
-            <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
-              Meet Our Verified Women Attendants
-            </h2>
-            <p className="mt-3 text-pretty text-base text-muted-foreground">
-              Every caregiver is police-cleared, Aadhaar-verified, and certified for home and hospital assistance. Filter by city to view verified profiles and ratings.
-            </p>
-          </div>
-
-          {/* Quick city filter */}
-          <div className="flex flex-wrap gap-2 shrink-0" role="tablist" aria-label="Filter attendants by city">
-            {["All", "Bengaluru", "Chennai", "Hyderabad", "Coimbatore"].map((c) => (
-              <button
-                key={c}
-                type="button"
-                role="tab"
-                aria-selected={attendantCity === c}
-                onClick={() => {
-                  setAttendantCity(c);
-                  track("attendant_city_filter", { city: c });
-                }}
-                className={`rounded-full px-4 py-2 text-xs font-semibold transition-all min-h-[36px] ${
-                  attendantCity === c
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "border border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground"
-                }`}
-              >
-                {c === "All" ? "All Cities" : c}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Attendant Cards Grid */}
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {ATTENDANTS.filter(
-            (a) => attendantCity === "All" || a.city.toLowerCase() === attendantCity.toLowerCase()
-          ).map((a) => (
-            <article
-              key={a.id}
-              className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
-              onMouseEnter={() => track("attendant_card_hover", { attendant: a.id })}
-            >
-              <div>
-                {/* Header: Avatar, Name, Role, Badge */}
-                <div className="flex items-start gap-3.5">
-                  <Avatar className="size-14 ring-2 ring-primary/20 shrink-0">
-                    <AvatarImage
-                      src={`https://images.unsplash.com/photo-${
-                        a.id === "a1"
-                          ? "1573496359142-b8d87734a5a2"
-                          : a.id === "a2"
-                          ? "1580489944761-15a19d654956"
-                          : a.id === "a3"
-                          ? "1594744803329-e58b31de8bf5"
-                          : a.id === "a4"
-                          ? "1567532939604-b6b5b0db2604"
-                          : a.id === "a5"
-                          ? "1544005313-94ddf0286df2"
-                          : "1573497019940-1c28c88b4f3e"
-                      }?auto=format&fit=crop&w=200&q=80`}
-                      alt={a.name}
-                    />
-                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                      {a.name.slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-1">
-                      <h3 className="font-semibold text-foreground text-base truncate">{a.name}</h3>
-                      <span className="inline-flex items-center gap-0.5 rounded-full bg-terracotta/15 px-2 py-0.5 text-[11px] font-bold text-terracotta shrink-0">
-                        <Star className="size-3 fill-terracotta text-terracotta" />
-                        {a.rating}
-                      </span>
-                    </div>
-                    <p className="text-xs text-primary font-medium truncate mt-0.5">{a.role}</p>
-                    <div className="mt-1 flex items-center gap-3 text-[11px] text-muted-foreground">
-                      <span className="inline-flex items-center gap-1">
-                        <Clock className="size-3" />
-                        {a.experience}
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="size-3" />
-                        {a.city}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Verification Pill */}
-                <div className="mt-4 rounded-xl bg-primary-soft/80 px-3 py-2 border border-primary/20 flex items-center gap-2">
-                  <BadgeCheck className="size-4 text-primary shrink-0" />
-                  <span className="text-xs font-semibold text-primary truncate">
-                    {a.verification}
-                  </span>
-                </div>
-
-                {/* Bio */}
-                <p className="mt-3 text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                  {a.bio}
-                </p>
-
-                {/* Certifications tags */}
-                <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Certifications">
-                  {a.certifications.map((c) => (
-                    <span
-                      key={c}
-                      className="rounded-full border border-border bg-secondary/40 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground"
-                    >
-                      {c}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Languages */}
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Languages className="size-3.5 shrink-0 text-primary" />
-                  <span className="truncate">{a.languages.join(", ")}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="mt-5 pt-3 border-t border-border flex items-center gap-2">
-                <Button asChild size="sm" className="w-full rounded-xl min-h-[44px]">
-                  <Link
-                    to="/booking"
-                    search={{ service: a.services[0], city: a.city }}
-                    onClick={() => track("attendant_request_click", { attendant: a.id })}
-                  >
-                    Request {a.name.split(" ")[0]}
-                    <ArrowRight className="size-3.5 ml-1.5" />
-                  </Link>
-                </Button>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {/* Attendant Network Reassurance & Secondary Links */}
-        <div className="mt-8 rounded-2xl border border-border bg-secondary/30 p-5 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
-              <ShieldCheck className="size-4 text-primary" />
-              100% Police Verified
-            </span>
-            <span>•</span>
-            <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
-              <Clock className="size-4 text-primary" />
-              90-Minute Guaranteed Backup Dispatch
-            </span>
-            <span>•</span>
-            <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
-              <CheckCircle2 className="size-4 text-primary" />
-              Zero Direct Broker Surcharges
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4 text-xs font-semibold">
-            <Link to="/become-an-attendant" className="text-primary hover:underline">
-              Are you a care specialist? Join our team →
-            </Link>
-            <Link to="/attendant-login" className="text-muted-foreground hover:text-foreground">
-              Attendant Portal Login →
-            </Link>
-          </div>
-        </div>
-      </section>
+      <CaregiverShowcase />
 
       {/* ─────────────────────────────────────────────────────────────
           5. SIMPLE THREE-STEP BOOKING EXPLANATION (anchor: #how-it-works)
@@ -1056,97 +901,9 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          6. TRANSPARENT PRICING SECTION (Lower on the page, easy to find)
+          TRANSPARENT CARE COST & PRICING ESTIMATOR (anchor: #pricing)
       ───────────────────────────────────────────────────────────── */}
-      <section id="pricing" className="container-page py-16 md:py-24 scroll-mt-20">
-        <div className="max-w-2xl">
-          <p className="eyebrow">Transparent Pricing</p>
-          <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
-            Honest Rates with Zero Surprises
-          </h2>
-          <p className="mt-3 text-pretty text-base text-muted-foreground">
-            Clear per-day and per-shift pricing. Includes statutory GST invoices and transparent caregiver compensation with no broker surcharges.
-          </p>
-        </div>
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {PRICING_HIGHLIGHTS.map((item, idx) => (
-            <div
-              key={idx}
-              className={`flex flex-col rounded-3xl border p-6 transition-all duration-200 ${
-                item.popular
-                  ? "border-primary bg-primary text-primary-foreground shadow-lift relative"
-                  : "border-border bg-card shadow-soft"
-              }`}
-            >
-              {item.popular && (
-                <span className="absolute -top-3 left-6 rounded-full bg-terracotta px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-terracotta-foreground">
-                  Most Requested
-                </span>
-              )}
-              <h3 className="text-lg font-semibold">{item.title}</h3>
-              <p
-                className={`text-xs mt-0.5 ${
-                  item.popular ? "text-primary-foreground/80" : "text-muted-foreground"
-                }`}
-              >
-                {item.subtitle}
-              </p>
-
-              <div className="mt-4 pt-3 border-t border-current/15">
-                <span className="font-display text-3xl font-semibold">
-                  {formatINR(item.price)}
-                </span>
-                <span
-                  className={`text-xs ml-1 ${
-                    item.popular ? "text-primary-foreground/80" : "text-muted-foreground"
-                  }`}
-                >
-                  /day
-                </span>
-                <p
-                  className={`text-[11px] mt-0.5 ${
-                    item.popular ? "text-primary-foreground/70" : "text-muted-foreground"
-                  }`}
-                >
-                  + 18% statutory GST
-                </p>
-              </div>
-
-              <p
-                className={`mt-3 text-xs leading-relaxed flex-1 ${
-                  item.popular ? "text-primary-foreground/90" : "text-muted-foreground"
-                }`}
-              >
-                {item.description}
-              </p>
-
-              <div className="mt-5 pt-3">
-                <Button
-                  asChild
-                  size="sm"
-                  variant={item.popular ? "secondary" : "outline"}
-                  className="w-full"
-                >
-                  <Link to="/booking">Book Service</Link>
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="size-4 text-primary" /> Upfront rates before booking
-          </span>
-          <span className="flex items-center gap-1.5">
-            <BadgeCheck className="size-4 text-primary" /> Official 18% GST invoice
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="size-4 text-primary" /> Free replacement within 90 mins
-          </span>
-        </div>
-      </section>
+      <PricingEstimator />
 
       {/* ─────────────────────────────────────────────────────────────
           7. SHORT FAQS (Clear, scannable accordion)
