@@ -33,6 +33,7 @@ import {
 import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 import { buildOrganizationSchema, buildFaqPageSchema } from "@/data/enterprise-content";
+import { GuidedCareDiscovery } from "@/components/site/GuidedCareDiscovery";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -571,6 +572,11 @@ function HomePage() {
             <span>Looking for women chauffeurs, travel companions, or specialized therapy? View all 11 services</span>
             <ChevronRight className="size-4" />
           </Link>
+        </div>
+
+        {/* ── Interactive Guided Care Discovery Engine ── */}
+        <div className="mt-16">
+          <GuidedCareDiscovery />
         </div>
       </section>
 
