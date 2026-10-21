@@ -34,7 +34,6 @@ import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 import { buildOrganizationSchema, buildFaqPageSchema } from "@/data/enterprise-content";
 import { GuidedCareDiscovery } from "@/components/site/GuidedCareDiscovery";
-import { ComprehensiveServiceCatalog } from "@/components/site/ComprehensiveServiceCatalog";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -491,16 +490,95 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. COMPREHENSIVE CATEGORIZED INDUSTRY SERVICE PORTFOLIO
+          2. FOUR PROMINENT VISUAL SERVICE CARDS
       ───────────────────────────────────────────────────────────── */}
-      <ComprehensiveServiceCatalog />
+      <section id="services" className="container-page py-16 md:py-24 scroll-mt-20">
+        <div className="max-w-2xl">
+          <p className="eyebrow">Our Core Care Services</p>
+          <h2 className="mt-2 text-balance text-3xl font-semibold md:text-4xl">
+            Thoughtful Care, Tailored to Real Family Needs
+          </h2>
+          <p className="mt-3 text-pretty text-base text-muted-foreground">
+            Explore verified care support delivered with warmth and dignity. Every attendant is background-checked and supported by our clinical coordination team.
+          </p>
+        </div>
 
-      {/* ─────────────────────────────────────────────────────────────
-          INTERACTIVE GUIDED CARE FINDER
-      ───────────────────────────────────────────────────────────── */}
-      <div className="container-page pb-16">
-        <GuidedCareDiscovery />
-      </div>
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {CORE_SERVICES.map((s) => (
+            <article
+              key={s.id}
+              className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lift"
+            >
+              {/* Image with zoom on hover */}
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                <img
+                  src={s.image}
+                  alt={s.alt}
+                  width={600}
+                  height={450}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <span className="absolute top-3 left-3 rounded-full bg-background/90 px-3 py-1 text-[11px] font-semibold text-foreground backdrop-blur">
+                  {s.tag}
+                </span>
+                <span className="absolute bottom-3 left-3 text-xs font-medium text-white/90">
+                  {s.highlight}
+                </span>
+              </div>
+
+              {/* Content */}
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-xl font-semibold text-foreground">{s.title}</h3>
+                <p className="mt-1.5 text-xs font-semibold text-primary">{s.benefit}</p>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                  {s.description}
+                </p>
+
+                {/* Price pill */}
+                <div className="mt-4 pt-3 border-t border-border flex items-baseline justify-between">
+                  <span className="text-[11px] text-muted-foreground">Starting from</span>
+                  <span className="font-display text-lg font-semibold text-foreground">
+                    {formatINR(s.price)}
+                    <span className="text-xs font-normal text-muted-foreground">/{s.unit}</span>
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-4 flex items-center gap-2 pt-1">
+                  <Button asChild variant="outline" size="sm" className="w-full justify-between group-hover:border-primary transition-colors min-h-[44px]">
+                    <Link
+                      to="/services/$slug"
+                      params={{ slug: s.slug }}
+                      onClick={() => track("service_card_click", { service: s.slug })}
+                    >
+                      <span>Explore Service</span>
+                      <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* View All Services Link */}
+        <div className="mt-8 text-center">
+          <Link
+            to="/services"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+          >
+            <span>Looking for women chauffeurs, travel companions, or specialized therapy? View all 11 services</span>
+            <ChevronRight className="size-4" />
+          </Link>
+        </div>
+
+        {/* ── Interactive Guided Care Discovery Engine ── */}
+        <div className="mt-16">
+          <GuidedCareDiscovery />
+        </div>
+      </section>
 
       {/* ─────────────────────────────────────────────────────────────
           3. VISUAL STORYTELLING: “Because Every Family Has a Story”
