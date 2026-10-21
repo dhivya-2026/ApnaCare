@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { CheckCircle2, MapPin, ShieldCheck, ArrowLeft, ArrowRight, Languages, Calendar, Clock, Sparkles } from "lucide-react";
+import { CheckCircle2, MapPin, ShieldCheck, ArrowLeft, ArrowRight, Languages, Calendar, Clock, Sparkles, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CITIES, SERVICES, SITE, formatINR } from "@/data/site";
 import { PageHero } from "@/components/site/Cards";
+import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
 import { fieldErrors, nameSchema, optionalEmail, phoneSchema } from "@/lib/validation";
 import { findPromo, getSavedPromo, savePromo } from "@/lib/promo";
 import { calcBookingTotal } from "@/lib/pricing";
@@ -17,7 +18,11 @@ import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/booking")({
-  validateSearch: z.object({ service: z.string().optional(), city: z.string().optional() }),
+  validateSearch: z.object({
+    service: z.string().optional(),
+    city: z.string().optional(),
+    category: z.string().optional(),
+  }),
   head: () =>
     seo(
       "Book a Women Attendant — ApnaCare",
@@ -91,6 +96,8 @@ function BookingPage() {
   const [promo, setPromo] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<string | null>(null);
+  const [bookingCat, setBookingCat] = useState<string>(search.category || "all");
+  const [bizModalOpen, setBizModalOpen] = useState(false);
 
   // Sync draft to sessionStorage + record cross-session timestamp
   useEffect(() => {
@@ -364,34 +371,103 @@ function BookingPage() {
             {/* Step 1: Service */}
             {step === 1 && (
               <div className="space-y-4 animate-fade-in">
-                <h3 className="text-xl font-semibold">2. Choose Care Service</h3>
-                <p className="text-sm text-muted-foreground">Select from our 11 verified women attendant disciplines:</p>
-                <div className="grid gap-3 sm:grid-cols-2 max-h-[480px] overflow-y-auto pr-1">
-                  {SERVICES.map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => setF({ ...f, serviceId: s.slug })}
-                      aria-pressed={f.serviceId === s.slug}
-                      className={cn(
-                        "rounded-2xl border p-4 text-left transition-all",
-                        f.serviceId === s.slug
-                          ? "border-primary bg-primary-soft/70 shadow-2xs ring-2 ring-primary/20"
-                          : "border-border hover:border-primary/50 bg-card"
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold uppercase text-terracotta">{s.category}</span>
-                        <span className="text-xs font-bold text-muted-foreground">★ {s.rating}</span>
-                      </div>
-                      <p className="mt-1 text-base font-semibold">{s.name}</p>
-                      <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.shortDesc}</p>
-                      <p className="mt-3 font-display text-sm font-bold text-primary">
-                        {formatINR(s.startingPrice)}<span className="font-normal text-xs text-muted-foreground">/{s.pricingUnit}</span>
-                      </p>
-                    </button>
-                  ))}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-xl font-semibold">2. Choose Care Service</h3>
+                    <p className="text-sm text-muted-foreground">Select a category or choose from our verified disciplines:</p>
+                  </div>
                 </div>
+
+                {/* Category Pills */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {[
+                    { id: "all", label: "All Disciplines" },
+                    { id: "care-at-home", label: "Care at Home", slugs: ["elderly-care", "post-natal-care", "home-personal-care", "nursing-services"] },
+                    { id: "hospital-assistance", label: "Hospital Assistance", slugs: ["hospital-attendants", "nursing-services"] },
+                    { id: "travel-assistance", label: "Travel Assistance", slugs: ["travel-assistance", "airport-pickup", "railway-assistance"] },
+                    { id: "womens-mobility", label: "Women's Mobility", slugs: ["women-drivers", "security-support", "travel-assistance"] },
+                    { id: "family-support", label: "Family Support", slugs: ["home-personal-care", "lifestyle-support", "elderly-care"] },
+                    { id: "business-institutional", label: "Business & Institutional (B2B)", slugs: [] },
+                  ].map((c) => {
+                    const isSelected = bookingCat === c.id;
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setBookingCat(c.id);
+                          if (c.id === "business-institutional") {
+                            setBizModalOpen(true);
+                          }
+                        }}
+                        className={cn(
+                          "rounded-full px-3 py-1.5 text-xs font-semibold transition-all min-h-[36px]",
+                          isSelected
+                            ? "bg-primary text-primary-foreground shadow-2xs"
+                            : "bg-secondary hover:bg-secondary/80 text-foreground"
+                        )}
+                      >
+                        {c.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {bookingCat === "business-institutional" ? (
+                  <div className="rounded-2xl border border-primary/30 bg-primary-soft/30 p-6 text-center space-y-3">
+                    <div className="size-12 rounded-full bg-primary/10 text-primary grid place-items-center mx-auto">
+                      <Building2 className="size-6" />
+                    </div>
+                    <h4 className="text-lg font-bold text-foreground">Hospital, Corporate & Institutional Partnerships</h4>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      For hospital ward attendant staffing, corporate employee caregiving benefits, or institutional care agreements with custom SLAs and corporate billing:
+                    </p>
+                    <Button
+                      type="button"
+                      variant="warm"
+                      size="lg"
+                      onClick={() => setBizModalOpen(true)}
+                      className="min-h-[44px]"
+                    >
+                      Submit Institutional Care RFP
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2 max-h-[480px] overflow-y-auto pr-1">
+                    {SERVICES.filter((s) => {
+                      if (bookingCat === "all") return true;
+                      if (bookingCat === "care-at-home") return ["elderly-care", "post-natal-care", "home-personal-care", "nursing-services"].includes(s.slug);
+                      if (bookingCat === "hospital-assistance") return ["hospital-attendants", "nursing-services"].includes(s.slug);
+                      if (bookingCat === "travel-assistance") return ["travel-assistance", "airport-pickup", "railway-assistance"].includes(s.slug);
+                      if (bookingCat === "womens-mobility") return ["women-drivers", "security-support", "travel-assistance"].includes(s.slug);
+                      if (bookingCat === "family-support") return ["home-personal-care", "lifestyle-support", "elderly-care"].includes(s.slug);
+                      return true;
+                    }).map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setF({ ...f, serviceId: s.slug })}
+                        aria-pressed={f.serviceId === s.slug}
+                        className={cn(
+                          "rounded-2xl border p-4 text-left transition-all",
+                          f.serviceId === s.slug
+                            ? "border-primary bg-primary-soft/70 shadow-2xs ring-2 ring-primary/20"
+                            : "border-border hover:border-primary/50 bg-card"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold uppercase text-terracotta">{s.category}</span>
+                          <span className="text-xs font-bold text-muted-foreground">★ {s.rating}</span>
+                        </div>
+                        <p className="mt-1 text-base font-semibold">{s.name}</p>
+                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.shortDesc}</p>
+                        <p className="mt-3 font-display text-sm font-bold text-primary">
+                          {formatINR(s.startingPrice)}<span className="font-normal text-xs text-muted-foreground">/{s.pricingUnit}</span>
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <Err k="serviceId" />
               </div>
             )}
@@ -680,6 +756,11 @@ function BookingPage() {
           </div>
         </aside>
       </section>
+
+      <BusinessEnquiryModal
+        open={bizModalOpen}
+        onOpenChange={setBizModalOpen}
+      />
     </>
   );
 }

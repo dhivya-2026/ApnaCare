@@ -37,6 +37,8 @@ import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 import { buildOrganizationSchema, buildFaqPageSchema } from "@/data/enterprise-content";
 import { CareNavigator } from "@/components/site/CareNavigator";
+import { CustomerHelpSection } from "@/components/site/CustomerHelpSection";
+import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
 import { CANONICAL_AUDIENCE_PATHWAYS, CANONICAL_CARE_OUTCOMES } from "@/data/taxonomy";
 
 import hero1 from "@/assets/hero-1.jpg";
@@ -348,6 +350,7 @@ const PRICING_HIGHLIGHTS = [
 function HomePage() {
   const [activeMoment, setActiveMoment] = useState(0);
   const [attendantCity, setAttendantCity] = useState("All");
+  const [homeBizOpen, setHomeBizOpen] = useState(false);
 
   // Auto-cycle hero visual gently every 5 seconds
   useEffect(() => {
@@ -598,6 +601,14 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION: CUSTOMER-FOCUSED ENTRY POINTS ("How Can We Help You?")
+      ───────────────────────────────────────────────────────────── */}
+      <CustomerHelpSection
+        onOpenBusinessEnquiry={() => setHomeBizOpen(true)}
+        className="border-b border-border/50 bg-background"
+      />
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 6.3: NEED-FIRST DISCOVERY (Care Navigator)
@@ -1276,6 +1287,11 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      <BusinessEnquiryModal
+        open={homeBizOpen}
+        onOpenChange={setHomeBizOpen}
+      />
     </div>
   );
 }
