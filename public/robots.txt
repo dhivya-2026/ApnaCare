@@ -16,5 +16,4 @@ User-agent: *
 Allow: /
 Disallow: /attendant-login
 
-Sitemap: https://apnacare.co.in/sitemap.xml
 Sitemap: https://apna-care.vercel.app/sitemap.xml

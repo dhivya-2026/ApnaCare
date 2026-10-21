@@ -320,27 +320,6 @@ function Detail() {
         </div>
       </section>
 
-      {/* ── Guided Care Discovery Recommendation Callout ── */}
-      <section className="border-t border-border bg-secondary/20 py-8">
-        <div className="container-page flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-foreground">
-              Unsure if {s.name} is the exact support your family needs?
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Describe your loved one's situation and joint/mobility challenges in our 4-step interactive care finder.
-            </p>
-          </div>
-          <Link
-            to="/services"
-            className="inline-flex items-center gap-1.5 rounded-full border border-primary bg-primary-soft px-5 py-2.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground transition-all shrink-0 min-h-[44px]"
-          >
-            <span>Launch Care Finder</span>
-            <ArrowRight className="size-3.5" />
-          </Link>
-        </div>
-      </section>
-
       {/* ── 6. Related Care Services ── */}
       <section className="py-16">
         <div className="container-page">
