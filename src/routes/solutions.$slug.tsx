@@ -1,4 +1,5 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { z } from "zod";
 import {
   BadgeCheck,
   ShieldCheck,
@@ -19,8 +20,14 @@ import { Button } from "@/components/ui/button";
 import { EnquiryForm } from "@/components/site/EnquiryForm";
 import { seo } from "@/lib/seo";
 import { buildBreadcrumbSchema } from "@/data/enterprise-content";
+import { SeniorCareDirectory } from "@/components/site/SeniorCareDirectory";
 
 export const Route = createFileRoute("/solutions/$slug")({
+  validateSearch: z.object({
+    service: z.string().optional(),
+    category: z.string().optional(),
+    q: z.string().optional(),
+  }),
   loader: ({ params }) => {
     const icp = getICP(params.slug);
     if (!icp) throw notFound();
@@ -31,6 +38,32 @@ export const Route = createFileRoute("/solutions/$slug")({
       return seo("Solution Not Found — ApnaCare", "The requested solution profile could not be found.", { noindex: true });
     }
     const { icp } = loaderData;
+
+    if (icp.slug === "families-elderly") {
+      return seo(
+        "Senior Care Service Directory — Comprehensive Care for Ageing Parents | ApnaCare",
+        "Explore ApnaCare's comprehensive Senior Care Service Directory: daily living assistance, hospital visit companions, home nursing, post-surgery recovery, dementia care, and escorted medical transit across South India.",
+        {
+          canonical: `https://apna-care.vercel.app/solutions/families-elderly`,
+          keywords: [
+            "Senior Care Service Directory",
+            "Hospital Visit Companion",
+            "Elderly Care at Home South India",
+            "Home Nursing Bengaluru Chennai Hyderabad",
+            "Dignified Ageing Support",
+            "Dementia Caregiver at Home",
+          ],
+          schema: [
+            buildBreadcrumbSchema([
+              { name: "Home", item: "https://apna-care.vercel.app" },
+              { name: "Services", item: "https://apna-care.vercel.app/services" },
+              { name: "Senior Care Service Directory", item: "https://apna-care.vercel.app/solutions/families-elderly" },
+            ]),
+          ],
+        }
+      );
+    }
+
     return seo(
       `${icp.name} Solutions — Verified Care & Transit | ApnaCare`,
       icp.subtitle,
@@ -51,6 +84,19 @@ export const Route = createFileRoute("/solutions/$slug")({
 
 function ICPSolutionPage() {
   const { icp } = Route.useLoaderData();
+  const search = Route.useSearch();
+
+  // For families-elderly, render the comprehensive Senior Care Service Directory
+  if (icp.slug === "families-elderly") {
+    return (
+      <SeniorCareDirectory
+        initialServiceSlug={search.service}
+        initialCategoryId={search.category as any}
+        initialQuery={search.q || ""}
+      />
+    );
+  }
+
   const matchedServices = icp.featuredServices
     .map((slug) => getService(slug))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
