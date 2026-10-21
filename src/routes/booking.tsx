@@ -17,7 +17,12 @@ import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/booking")({
-  validateSearch: z.object({ service: z.string().optional(), city: z.string().optional() }),
+  validateSearch: z.object({
+    service: z.string().optional(),
+    city: z.string().optional(),
+    needId: z.string().optional(),
+    situation: z.string().optional(),
+  }),
   head: () =>
     seo(
       "Book a Women Attendant — ApnaCare",
@@ -54,6 +59,7 @@ function BookingPage() {
   const [step, setStep] = useState(0);
 
   const [f, setF] = useState(() => {
+    const initialNotes = search.situation ? `Care Requirement: ${search.situation}` : "";
     const initial = {
       name: "",
       mobile: "",
@@ -65,7 +71,7 @@ function BookingPage() {
       time: "",
       duration: "1",
       preferredLanguage: "Tamil",
-      notes: "",
+      notes: initialNotes,
     };
     if (typeof window !== "undefined") {
       try {
@@ -77,6 +83,7 @@ function BookingPage() {
             ...parsed,
             serviceId: search.service || parsed.serviceId || "",
             city: search.city || parsed.city || "",
+            notes: search.situation ? `Care Requirement: ${search.situation}` : (parsed.notes || initialNotes),
           };
         }
       } catch (e) {
