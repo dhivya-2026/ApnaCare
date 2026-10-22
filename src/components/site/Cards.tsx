@@ -17,14 +17,35 @@ export function SectionHeading({ eyebrow, title, sub, center, className }: { eye
   );
 }
 
-export function PageHero({ eyebrow, title, sub, children }: { eyebrow: string; title: string; sub: string; children?: ReactNode }) {
+export function PageHero({
+  eyebrow,
+  title,
+  sub,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  sub: string;
+  children?: ReactNode;
+}) {
   return (
-    <section className="border-b border-border bg-secondary/40">
-      <div className="container-page py-16 md:py-20">
-        <p className="eyebrow">{eyebrow}</p>
-        <h1 className="mt-3 max-w-3xl text-balance text-4xl font-semibold leading-tight md:text-5xl">{title}</h1>
-        <p className="mt-4 max-w-2xl text-pretty text-lg text-muted-foreground">{sub}</p>
-        {children && <div className="mt-8 flex flex-wrap gap-3">{children}</div>}
+    <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/[0.05] via-secondary/25 to-background py-16 md:py-24">
+      {/* Ambient background glows for enterprise depth */}
+      <div className="pointer-events-none absolute -top-28 right-0 -z-10 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-28 left-1/4 -z-10 h-80 w-80 rounded-full bg-terracotta/10 blur-3xl" />
+
+      <div className="container-page relative z-10">
+        <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-primary shadow-2xs">
+          <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+          {eyebrow}
+        </div>
+        <h1 className="mt-4 max-w-4xl font-display text-3xl font-semibold leading-[1.14] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
+          {title}
+        </h1>
+        <p className="mt-5 max-w-2xl text-pretty text-base text-muted-foreground leading-relaxed sm:text-lg md:text-xl">
+          {sub}
+        </p>
+        {children && <div className="mt-8 flex flex-wrap items-center gap-3.5">{children}</div>}
       </div>
     </section>
   );

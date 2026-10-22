@@ -9,6 +9,29 @@ import {
   ChevronDown,
   ChevronRight,
   Linkedin,
+  Heart,
+  Activity,
+  Baby,
+  Briefcase,
+  Car,
+  ShieldCheck,
+  Users,
+  Stethoscope,
+  Home,
+  Plane,
+  Layers,
+  MapPin,
+  Building2,
+  Network,
+  PhoneCall,
+  Sparkles,
+  KeyRound,
+  CheckCircle2,
+  BadgePercent,
+  BookOpen,
+  HelpCircle,
+  FileText,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE, CITIES, buildWhatsAppUrl } from "@/data/site";
@@ -100,6 +123,8 @@ interface DropdownChild {
   label: string;
   to: string;
   description?: string;
+  badge?: string;
+  icon?: any;
 }
 
 interface NavItem {
@@ -119,132 +144,194 @@ const NAV_ITEMS: NavItem[] = [
   {
     label: "About",
     children: [
-      { label: "About ApnaCare", to: "/about", description: "Our story, mission & compassionate care values" },
+      {
+        label: "About ApnaCare",
+        to: "/about",
+        description: "Our story, founding mission & compassionate care values",
+        badge: "Mission",
+        icon: Building2,
+      },
       {
         label: "Ecosystem Partners",
         to: "/ecosystem-partners",
-        description: "Hospitals, NGOs & healthcare skill centers",
+        description: "Hospitals, NGOs & healthcare skill development centers",
+        badge: "Network",
+        icon: Network,
       },
-      { label: "Contact Us", to: "/contact", description: "24/7 command center & regional care desks" },
+      {
+        label: "Contact Us",
+        to: "/contact",
+        description: "24/7 command center & regional care coordination desks",
+        badge: "24/7 Desk",
+        icon: PhoneCall,
+      },
     ],
   },
   {
     label: "Who We Serve",
-    children: [
-      {
-        label: "Urban Professionals",
-        to: "/solutions/urban-professionals",
-        description: "Balancing intense careers with eldercare & hospital vigils",
-      },
-      {
-        label: "Ageing Parents & Families",
-        to: "/solutions/families-elderly",
-        description: "Dignified in-home companionship & daily living support",
-      },
-      {
-        label: "Post-Hospital Recovery",
-        to: "/solutions/post-hospitalization",
-        description: "Bedside assistance, surgical recovery & smooth discharge transition",
-      },
-      {
-        label: "New Mothers & Newborns",
-        to: "/solutions/new-mothers",
-        description: "Fourth-trimester care, infant handling & maternal healing",
-      },
-      {
-        label: "Women Balancing Caregiving",
-        to: "/solutions/women-caregivers",
-        description: "Equitable care support, dignity, and restorative time for women",
-      },
-      {
-        label: "Community & Family Initiatives",
-        to: "/solutions/community-initiatives",
-        description: "Educational child safety guides & forthcoming community partnerships",
-      },
-      {
-        label: "Women Commuters",
-        to: "/solutions/women-commuters",
-        description: "Verified chauffeuses, station/airport assistance & late-night transit",
-      },
-      {
-        label: "Safety-Focused Partners",
-        to: "/solutions/safety-partners",
-        description: "Corporate transport compliance, hospital bedside vigils & escorts",
-      },
-    ],
+    twoColumn: {
+      col1Title: "Family & Clinical Support",
+      col1Items: [
+        {
+          label: "Ageing Parents & Families",
+          to: "/solutions/families-elderly",
+          description: "Dignified in-home companionship & daily living support",
+          badge: "Daily Living",
+          icon: Heart,
+        },
+        {
+          label: "Post-Hospital Recovery",
+          to: "/solutions/post-hospitalization",
+          description: "Bedside assistance, surgical recovery & smooth transition",
+          badge: "Post-Surgical",
+          icon: Activity,
+        },
+        {
+          label: "New Mothers & Newborns",
+          to: "/solutions/new-mothers",
+          description: "Fourth-trimester care, infant handling & maternal healing",
+          badge: "4th Trimester",
+          icon: Baby,
+        },
+        {
+          label: "Women Balancing Caregiving",
+          to: "/solutions/women-caregivers",
+          description: "Equitable care support, dignity, and restorative time for women",
+          badge: "Respite",
+          icon: HeartHandshake,
+        },
+      ],
+      col2Title: "Workplace & Mobility Logistics",
+      col2Items: [
+        {
+          label: "Urban Professionals",
+          to: "/solutions/urban-professionals",
+          description: "Balancing intense careers with eldercare & hospital vigils",
+          badge: "Dual Career",
+          icon: Briefcase,
+        },
+        {
+          label: "Women Commuters",
+          to: "/solutions/women-commuters",
+          description: "Verified chauffeuses, station/airport assistance & late-night transit",
+          badge: "Safe Transit",
+          icon: Car,
+        },
+        {
+          label: "Safety-Focused Partners",
+          to: "/solutions/safety-partners",
+          description: "Corporate transport compliance, hospital bedside vigils & escorts",
+          badge: "B2B Escort",
+          icon: ShieldCheck,
+        },
+        {
+          label: "Community & Family Initiatives",
+          to: "/solutions/community-initiatives",
+          description: "Educational child safety guides & forthcoming community partnerships",
+          badge: "Community",
+          icon: Users,
+        },
+      ],
+    },
   },
   {
     label: "Services",
     twoColumn: {
-      col1Title: "Care Services",
+      col1Title: "Specialized Care Services (11 Portfolios)",
       col1Items: [
         {
           label: "Elderly Care",
           to: "/services/elderly-care",
-          description: "Compassionate companionship & mobility support",
+          description: "Compassionate companionship & mobility assistance",
+          badge: "Senior Living",
+          icon: Heart,
         },
         {
           label: "Hospital Assistance / Bedside",
           to: "/services/hospital-attendants",
           description: "Bedside vigil & hospital ward coordination",
+          badge: "24/7 Ward",
+          icon: Activity,
         },
         {
           label: "Nursing Services",
           to: "/services/nursing-services",
           description: "Registered GNM/B.Sc nurses for clinical home care",
+          badge: "GNM / B.Sc",
+          icon: Stethoscope,
         },
         {
           label: "Post-Natal Care",
           to: "/services/post-natal-care",
           description: "Newborn care assistance & maternal recovery",
+          badge: "Infant Care",
+          icon: Baby,
         },
         {
           label: "Home & Personal Care",
           to: "/services/home-personal-care",
           description: "Empathetic daily living & personal hygiene support",
+          badge: "Daily Living",
+          icon: Home,
         },
         {
           label: "Women Drivers",
           to: "/services/women-drivers",
           description: "Verified women chauffeuses for safe commutes",
+          badge: "Chauffeuses",
+          icon: Car,
         },
         {
           label: "Travel Assistance",
           to: "/services/travel-assistance",
           description: "Airport meet-and-greet & train journey escorts",
+          badge: "Transit Escort",
+          icon: Plane,
         },
         {
           label: "View All 11 Services",
           to: "/services",
           description: "Browse our complete directory of care offerings",
+          badge: "Full Portfolio",
+          icon: Layers,
         },
       ],
-      col2Title: "Cities Served (South India)",
+      col2Title: "Regional Hubs (South India)",
       col2Items: [
         {
           label: "Bengaluru",
           to: "/cities/bengaluru",
           description: "Indiranagar, Koramangala, Whitefield, HSR & more",
+          badge: "Active Hub",
+          icon: MapPin,
         },
         {
           label: "Chennai",
           to: "/cities/chennai",
           description: "Adyar, Anna Nagar, T. Nagar, Mylapore & more",
+          badge: "Active Hub",
+          icon: MapPin,
         },
         {
           label: "Hyderabad",
           to: "/cities/hyderabad",
           description: "Hitec City, Banjara Hills, Gachibowli & more",
+          badge: "Active Hub",
+          icon: MapPin,
         },
         {
           label: "Coimbatore",
           to: "/cities/coimbatore",
           description: "RS Puram, Peelamedu, Race Course & more",
+          badge: "Active Hub",
+          icon: MapPin,
         },
         {
           label: "View All Operating Cities",
           to: "/cities",
           description: "Regional coordination hubs & local coverage",
+          badge: "4 Hubs",
+          icon: Layers,
         },
       ],
     },
@@ -256,48 +343,77 @@ const NAV_ITEMS: NavItem[] = [
         label: "Browse Attendants",
         to: "/#attendants",
         description: "View verified attendant profiles & ratings",
+        badge: "Directory",
+        icon: Users,
       },
       {
         label: "Attendant Login",
         to: "/attendant-login",
         description: "Secure portal for care professionals",
+        badge: "Caregiver Portal",
+        icon: KeyRound,
       },
       {
         label: "Become an Attendant",
         to: "/become-an-attendant",
         description: "Apply to join our vetted women care network",
+        badge: "Careers",
+        icon: Sparkles,
       },
     ],
   },
   {
     label: "More",
-    children: [
-      {
-        label: "How ApnaCare Works",
-        to: "/#how-it-works",
-        description: "5-step transparent journey to dependable care",
-      },
-      {
-        label: "Knowledge Hub",
-        to: "/knowledge-hub",
-        description: "Problem-first care guides & health resources",
-      },
-      {
-        label: "Transparent Pricing",
-        to: "/#pricing",
-        description: "Clear daytime, overnight & live-in rates with GST",
-      },
-      {
-        label: "Trust & Verification Standards",
-        to: "/safety",
-        description: "Police clearance & clinical vs attendant boundaries",
-      },
-      {
-        label: "Frequently Asked Questions",
-        to: "/faq",
-        description: "Answers to common family care questions",
-      },
-    ],
+    twoColumn: {
+      col1Title: "Trust & Transparency",
+      col1Items: [
+        {
+          label: "How ApnaCare Works",
+          to: "/#how-it-works",
+          description: "5-step transparent journey to dependable care",
+          badge: "Process",
+          icon: CheckCircle2,
+        },
+        {
+          label: "Trust & Verification Standards",
+          to: "/safety",
+          description: "Police clearance & clinical vs attendant limits",
+          badge: "100% Vetted",
+          icon: ShieldCheck,
+        },
+        {
+          label: "Transparent Pricing",
+          to: "/#pricing",
+          description: "Clear daytime, overnight & live-in rates with GST",
+          badge: "Zero Hidden Fees",
+          icon: BadgePercent,
+        },
+      ],
+      col2Title: "Resources & Answers",
+      col2Items: [
+        {
+          label: "Knowledge Hub",
+          to: "/knowledge-hub",
+          description: "Problem-first care guides & health resources",
+          badge: "Guides",
+          icon: BookOpen,
+        },
+        {
+          label: "Frequently Asked Questions",
+          to: "/faq",
+          description: "Answers to common family care questions",
+          badge: "Help Desk",
+          icon: HelpCircle,
+        },
+        {
+          label: "Safety Guidelines & Boundaries",
+          to: "/safety-guidelines",
+          description: "Clear clinical protocols and attendant limits",
+          badge: "Protocols",
+          icon: FileText,
+        },
+      ],
+    },
   },
 ];
 
@@ -396,99 +512,184 @@ function DesktopDropdown({ item }: { item: NavItem }) {
               ? "left-1/2 -translate-x-1/2"
               : "left-0"
           } top-full z-[200] mt-1.5 ${
-            item.twoColumn ? "w-[640px] 2xl:w-[700px]" : "w-80"
-          } overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-lift ring-1 ring-black/5 animate-fade-in`}
+            item.twoColumn ? "w-[760px] 2xl:w-[820px]" : "w-96"
+          } overflow-hidden rounded-2xl border border-border/90 bg-card/98 text-card-foreground shadow-2xl ring-1 ring-black/10 animate-fade-in backdrop-blur-2xl`}
         >
           {item.twoColumn ? (
-            <div className="grid grid-cols-2 divide-x divide-border bg-card">
-              <div className="p-3">
-                <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-                  {item.twoColumn.col1Title}
-                </p>
-                <div className="mt-1 grid gap-0.5">
-                  {item.twoColumn.col1Items.map((child) => {
-                    const isHash = child.to.includes("#");
-                    const content = (
-                      <>
-                        <span className="text-sm font-medium group-hover:text-primary transition-colors">
-                          {child.label}
-                        </span>
-                        {child.description && (
-                          <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1">
-                            {child.description}
+            <div>
+              <div className="grid grid-cols-2 divide-x divide-border/80 bg-card/95">
+                {/* Column 1 */}
+                <div className="p-3.5">
+                  <div className="flex items-center justify-between px-3 py-1.5 mb-1">
+                    <p className="text-xs font-bold uppercase tracking-wider text-primary">
+                      {item.twoColumn.col1Title}
+                    </p>
+                  </div>
+                  <div className="grid gap-1">
+                    {item.twoColumn.col1Items.map((child) => {
+                      const isHash = child.to.includes("#");
+                      const Icon = child.icon ?? HeartHandshake;
+                      const content = (
+                        <div className="flex items-start gap-3">
+                          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105 transition-all duration-200">
+                            <Icon className="size-4.5" />
                           </span>
-                        )}
-                      </>
-                    );
-                    if (isHash) {
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1.5">
+                              <span className="text-sm font-semibold group-hover:text-primary transition-colors truncate">
+                                {child.label}
+                              </span>
+                              {child.badge && (
+                                <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-secondary text-secondary-foreground shrink-0 border border-border/60">
+                                  {child.badge}
+                                </span>
+                              )}
+                            </div>
+                            {child.description && (
+                              <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1 block">
+                                {child.description}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                      if (isHash) {
+                        return (
+                          <a
+                            key={child.to}
+                            href={child.to}
+                            role="menuitem"
+                            onClick={(e) => handleHashLinkClick(e, child.to)}
+                            className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
+                          >
+                            {content}
+                          </a>
+                        );
+                      }
                       return (
-                        <a
+                        <Link
                           key={child.to}
-                          href={child.to}
+                          to={child.to as any}
                           role="menuitem"
-                          onClick={(e) => handleHashLinkClick(e, child.to)}
-                          className="group flex flex-col rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
+                          onClick={() => setOpen(false)}
+                          className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
                         >
                           {content}
-                        </a>
+                        </Link>
                       );
-                    }
-                    return (
-                      <Link
-                        key={child.to}
-                        to={child.to as any}
-                        role="menuitem"
-                        onClick={() => setOpen(false)}
-                        className="group flex flex-col rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
-                      >
-                        {content}
-                      </Link>
-                    );
-                  })}
+                    })}
+                  </div>
+                </div>
+
+                {/* Column 2 */}
+                <div className="p-3.5 bg-secondary/15">
+                  <div className="flex items-center justify-between px-3 py-1.5 mb-1">
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      {item.twoColumn.col2Title}
+                    </p>
+                  </div>
+                  <div className="grid gap-1">
+                    {item.twoColumn.col2Items.map((child) => {
+                      const isHash = child.to.includes("#");
+                      const Icon = child.icon ?? MapPin;
+                      const content = (
+                        <div className="flex items-start gap-3">
+                          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105 transition-all duration-200">
+                            <Icon className="size-4.5" />
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1.5">
+                              <span className="text-sm font-semibold group-hover:text-primary transition-colors truncate">
+                                {child.label}
+                              </span>
+                              {child.badge && (
+                                <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-primary-soft text-primary shrink-0">
+                                  {child.badge}
+                                </span>
+                              )}
+                            </div>
+                            {child.description && (
+                              <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1 block">
+                                {child.description}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                      if (isHash) {
+                        return (
+                          <a
+                            key={child.to}
+                            href={child.to}
+                            role="menuitem"
+                            onClick={(e) => handleHashLinkClick(e, child.to)}
+                            className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
+                          >
+                            {content}
+                          </a>
+                        );
+                      }
+                      return (
+                        <Link
+                          key={child.to}
+                          to={child.to as any}
+                          role="menuitem"
+                          onClick={() => setOpen(false)}
+                          className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
+                        >
+                          {content}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-              <div className="p-3 bg-secondary/20">
-                <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  {item.twoColumn.col2Title}
-                </p>
-                <div className="mt-1 grid gap-0.5">
-                  {item.twoColumn.col2Items.map((child) => (
-                    <Link
-                      key={child.to}
-                      to={child.to as any}
-                      role="menuitem"
-                      onClick={() => setOpen(false)}
-                      className="group flex flex-col rounded-xl px-3 py-2 transition-colors hover:bg-secondary"
-                    >
-                      <span className="text-sm font-medium group-hover:text-primary transition-colors flex items-center justify-between">
-                        {child.label}
-                        <span className="text-[11px] font-semibold text-primary/80">Active Hub</span>
-                      </span>
-                      {child.description && (
-                        <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1">
-                          {child.description}
-                        </span>
-                      )}
-                    </Link>
-                  ))}
+
+              {/* Bottom Reassurance & Care Coordination Strip */}
+              <div className="border-t border-border bg-gradient-to-r from-primary-soft/40 via-secondary/30 to-background px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-xs text-foreground font-medium">
+                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>South India Care Command Desks Active · &lt; 90 Min Emergency Dispatch</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs">
+                  <a href={`tel:${SITE.SUPPORT_PHONE_TEL}`} className="font-semibold text-primary hover:underline flex items-center gap-1">
+                    <Phone className="size-3" /> Call {SITE.SUPPORT_PHONE}
+                  </a>
+                  <span className="text-muted-foreground">•</span>
+                  <a href={buildWhatsAppUrl("Hi ApnaCare! I need guidance choosing the right care plan.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#128C7E] hover:underline flex items-center gap-1">
+                    <MessageCircle className="size-3" /> WhatsApp Coordinator
+                  </a>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="grid gap-1 p-2.5 bg-card text-card-foreground">
+            <div className="grid gap-1 p-3 bg-card text-card-foreground">
               {item.children?.map((child) => {
                 const isHash = child.to.includes("#");
+                const Icon = child.icon ?? HeartHandshake;
                 const content = (
-                  <>
-                    <span className="text-sm font-medium group-hover:text-primary transition-colors">
-                      {child.label}
+                  <div className="flex items-start gap-3">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105 transition-all duration-200">
+                      <Icon className="size-4.5" />
                     </span>
-                    {child.description && (
-                      <span className="mt-0.5 text-xs text-muted-foreground leading-snug">
-                        {child.description}
-                      </span>
-                    )}
-                  </>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="text-sm font-semibold group-hover:text-primary transition-colors">
+                          {child.label}
+                        </span>
+                        {child.badge && (
+                          <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-secondary text-secondary-foreground shrink-0 border border-border/60">
+                            {child.badge}
+                          </span>
+                        )}
+                      </div>
+                      {child.description && (
+                        <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1 block">
+                          {child.description}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 );
 
                 if (isHash) {
@@ -498,7 +699,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
                       href={child.to}
                       role="menuitem"
                       onClick={(e) => handleHashLinkClick(e, child.to)}
-                      className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
+                      className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
                     >
                       {content}
                     </a>
@@ -511,7 +712,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
                     to={child.to as any}
                     role="menuitem"
                     onClick={() => setOpen(false)}
-                    className="group flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-secondary"
+                    className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
                   >
                     {content}
                   </Link>
@@ -562,7 +763,7 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
           {item.twoColumn ? (
             <>
               <div>
-                <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
                   {item.twoColumn.col1Title}
                 </p>
                 <div className="grid gap-0.5">
@@ -571,9 +772,14 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
                       key={child.to}
                       to={child.to as any}
                       onClick={onClose}
-                      className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+                      className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
                     >
-                      {child.label}
+                      <span>{child.label}</span>
+                      {child.badge && (
+                        <span className="text-[10px] font-bold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                          {child.badge}
+                        </span>
+                      )}
                     </Link>
                   ))}
                 </div>
@@ -588,9 +794,14 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
                       key={child.to}
                       to={child.to as any}
                       onClick={onClose}
-                      className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+                      className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
                     >
-                      {child.label}
+                      <span>{child.label}</span>
+                      {child.badge && (
+                        <span className="text-[10px] font-bold text-primary bg-primary-soft px-2 py-0.5 rounded-full">
+                          {child.badge}
+                        </span>
+                      )}
                     </Link>
                   ))}
                 </div>
@@ -617,9 +828,14 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
                         }
                       }
                     }}
-                    className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                   >
-                    {child.label}
+                    <span>{child.label}</span>
+                    {child.badge && (
+                      <span className="text-[10px] font-bold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                        {child.badge}
+                      </span>
+                    )}
                   </a>
                 );
               }
@@ -628,9 +844,14 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
                   key={child.to}
                   to={child.to as any}
                   onClick={onClose}
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                 >
-                  {child.label}
+                  <span>{child.label}</span>
+                  {child.badge && (
+                    <span className="text-[10px] font-bold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                      {child.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })
