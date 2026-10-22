@@ -381,7 +381,7 @@ function ServicesPage() {
               <Button variant="outline" onClick={() => { setQ(""); setSelectedCat("all"); }}>
                 Reset Filters
               </Button>
-              <CallLink variant="warm">Speak to Coordinator</CallLink>
+              <CallLink variant="default">Speak to Coordinator</CallLink>
             </div>
           </div>
         )}

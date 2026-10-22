@@ -49,6 +49,7 @@ export function BookLink({
   children,
   size,
   variant,
+  onClick,
 }: {
   service?: string | undefined;
   city?: string | undefined;
@@ -56,6 +57,7 @@ export function BookLink({
   children?: ReactNode;
   size?: "default" | "sm" | "lg";
   variant?: "default" | "warm" | "outline";
+  onClick?: () => void;
 }) {
   const searchParams: { service?: string; city?: string } = {};
   if (service) searchParams.service = service;
@@ -66,7 +68,10 @@ export function BookLink({
       <Link
         to="/booking"
         search={searchParams}
-        onClick={() => track("booking_cta_click", { service, city })}
+        onClick={() => {
+          track("booking_cta_click", { service, city });
+          if (onClick) onClick();
+        }}
       >
         {children ?? "Book a Service"}
       </Link>
