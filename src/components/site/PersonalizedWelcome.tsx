@@ -36,6 +36,7 @@ import {
   getFriendlyPageLabel,
   getLastSessionPage,
 } from "@/lib/sessionEngine";
+import { SITE } from "@/data/site";
 
 // ─── Shortcut definitions ─────────────────────────────────────────────────────
 
@@ -127,7 +128,7 @@ function buildShortcuts(
       id: "call",
       label: "Call Care Coordinator",
       icon: <Phone className="size-3.5" />,
-      href: "tel:+918000000000",
+      href: `tel:${SITE.SUPPORT_PHONE_TEL}`,
     });
   }
 
