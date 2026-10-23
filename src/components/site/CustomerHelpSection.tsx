@@ -88,9 +88,26 @@ export function CustomerHelpSection({
                     )}
                   </div>
 
-                  <h3 className="mt-4 text-lg font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
-                    “{entry.question}”
-                  </h3>
+                  {isInstitutional ? (
+                    <Link
+                      to="/ecosystem-partners"
+                      className="block group/link"
+                    >
+                      <h3 className="mt-4 text-lg font-bold text-foreground leading-snug group-hover/link:text-primary transition-colors">
+                        “{entry.question}”
+                      </h3>
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/services/$slug"
+                      params={{ slug: entry.mappedCoreServiceSlug }}
+                      className="block group/link"
+                    >
+                      <h3 className="mt-4 text-lg font-bold text-foreground leading-snug group-hover/link:text-primary transition-colors">
+                        “{entry.question}”
+                      </h3>
+                    </Link>
+                  )}
                   <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                     {entry.subtitle}
                   </p>
@@ -98,18 +115,28 @@ export function CustomerHelpSection({
 
                 <div className="mt-5 pt-4 border-t border-border flex items-center justify-between">
                   {isInstitutional ? (
-                    <button
-                      type="button"
-                      onClick={() => onOpenBusinessEnquiry && onOpenBusinessEnquiry()}
-                      className="inline-flex items-center text-xs font-bold text-primary hover:underline gap-1 cursor-pointer"
-                    >
-                      <span>Institutional Enquiry</span>
-                      <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        to="/ecosystem-partners"
+                        className="inline-flex items-center text-xs font-bold text-primary hover:underline gap-1"
+                      >
+                        <span>Institutional Details</span>
+                        <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                      </Link>
+                      {onOpenBusinessEnquiry && (
+                        <button
+                          type="button"
+                          onClick={() => onOpenBusinessEnquiry()}
+                          className="text-xs font-semibold text-muted-foreground hover:text-foreground underline cursor-pointer"
+                        >
+                          Enquire
+                        </button>
+                      )}
+                    </div>
                   ) : (
                     <Link
-                      to="/services"
-                      search={{ cat: entry.targetCategoryId }}
+                      to="/services/$slug"
+                      params={{ slug: entry.mappedCoreServiceSlug }}
                       className="inline-flex items-center text-xs font-bold text-primary hover:underline gap-1"
                     >
                       <span>Explore Services</span>

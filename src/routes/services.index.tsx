@@ -68,10 +68,17 @@ function ServicesPage() {
   const [businessModalOpen, setBusinessModalOpen] = useState(false);
   const [businessService, setBusinessService] = useState<CatalogueService | null>(null);
 
-  // Sync if search params change
+  // Sync if search params change & scroll to catalogue grid
   useEffect(() => {
     if (search.cat) {
       setSelectedCat(search.cat);
+      const timer = setTimeout(() => {
+        const el = document.getElementById("catalogue-grid");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [search.cat]);
 
