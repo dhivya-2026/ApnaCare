@@ -1,31 +1,71 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { MessageCircleHeart, X, Send, Phone, RotateCcw, MapPin, Sparkles } from "lucide-react";
+import {
+  MessageCircleHeart,
+  X,
+  Send,
+  Phone,
+  RotateCcw,
+  MapPin,
+  Sparkles,
+  CheckCircle2,
+  Calendar,
+  Clock,
+  ShieldCheck,
+  User,
+  Heart,
+  Activity,
+  Baby,
+  Car,
+  Check,
+  ChevronRight,
+  ArrowRight,
+  AlertCircle,
+  MessageCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SERVICES, CITIES, SITE, formatINR, buildWhatsAppUrl, Service, getICP, getService } from "@/data/site";
 import { track, sendToGoogleSheet } from "@/lib/analytics";
 import { useVisitorPersona } from "@/hooks/useVisitorPersona";
+import { recordBookingDraft, recordServiceInteraction } from "@/lib/sessionEngine";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface QuickReply {
+export interface BookingCardData {
+  ref: string;
+  customerName: string;
+  mobile: string;
+  serviceName: string;
+  patientAge: string;
+  city: string;
+  location: string;
+  shiftSchedule: string;
+  duration: string;
+  urgency: string;
+  conditions: string;
+}
+
+export interface QuickReply {
   label: string;
   action:
     | { type: "message"; text: string; nextReplies?: QuickReply[] }
     | { type: "navigate"; to: string; label: string }
     | { type: "booking"; service: string }
     | { type: "whatsapp"; msg: string }
-    | { type: "call" };
+    | { type: "call" }
+    | { type: "start_booking"; service?: string }
+    | { type: "booking_answer"; field: string; value: string; displayLabel?: string };
 }
 
-interface BotMsg {
+export interface BotMsg {
   from: "bot" | "user";
   text: string;
   replies?: QuickReply[];
   link?: { label: string; href?: string; to?: string };
+  bookingCard?: BookingCardData;
 }
 
-interface PageContextInfo {
+export interface PageContextInfo {
   badge: string;
   greeting: string;
   initialReplies: QuickReply[];
@@ -33,27 +73,67 @@ interface PageContextInfo {
   whatsappMessage: string;
 }
 
+export type BookingStep =
+  | "none"
+  | "ask_service"
+  | "ask_age"
+  | "ask_city"
+  | "ask_location"
+  | "ask_shift"
+  | "ask_duration"
+  | "ask_conditions"
+  | "ask_urgency"
+  | "ask_contact"
+  | "complete";
+
+export interface BookingDraft {
+  serviceId?: string;
+  serviceName?: string;
+  patientAge?: string;
+  city?: string;
+  location?: string;
+  shiftSchedule?: string;
+  duration?: string;
+  conditions?: string;
+  urgency?: string;
+  customerName?: string;
+  mobile?: string;
+  ref?: string;
+}
+
 // ─── Global Fallback Menus ───────────────────────────────────────────────────
 
-const GLOBAL_MENU: QuickReply[] = [
-  { label: "🏠 Elderly Care", action: { type: "booking", service: "elderly-care" } },
-  { label: "🏥 Hospital Bedside", action: { type: "booking", service: "hospital-attendants" } },
-  { label: "💉 Nursing Care", action: { type: "booking", service: "nursing-services" } },
-  { label: "👶 Post-Natal Care", action: { type: "booking", service: "post-natal-care" } },
-  { label: "🚗 Women Drivers", action: { type: "booking", service: "women-drivers" } },
+export const GLOBAL_MENU: QuickReply[] = [
+  { label: "⚡ Book Care Attendant (Chat Booking)", action: { type: "start_booking" } },
+  { label: "🏠 Elderly Care", action: { type: "start_booking", service: "elderly-care" } },
+  { label: "🏥 Hospital Bedside Vigil", action: { type: "start_booking", service: "hospital-attendants" } },
+  { label: "💉 Clinical Nursing (GNM/B.Sc)", action: { type: "start_booking", service: "nursing-services" } },
+  { label: "👶 Post-Natal & Infant Care", action: { type: "start_booking", service: "post-natal-care" } },
+  { label: "🚗 Women Drivers", action: { type: "start_booking", service: "women-drivers" } },
   {
-    label: "💰 Pricing & GST",
-    action: { type: "navigate", to: "/#pricing", label: "View Pricing" },
+    label: "💰 Pricing & GST Rates",
+    action: {
+      type: "message",
+      text: "ApnaCare pricing is transparent with statutory 18% GST invoices and zero agency broker fees:\n• **Elderly Care**: From ₹1,200/day (Day / Night / Live-in)\n• **Hospital Bedside**: From ₹1,400/shift (12h/24h)\n• **Clinical Nursing**: From ₹1,800/shift (GNM/B.Sc)\n• **Post-Natal Care**: From ₹1,500/day\n• **Women Drivers**: From ₹800/trip\n\nWould you like to book one of these services now in this chat?",
+      nextReplies: [
+        { label: "⚡ Book an Attendant Now", action: { type: "start_booking" } },
+        { label: "💬 WhatsApp Inquiries", action: { type: "whatsapp", msg: "Hi ApnaCare! I have questions on pricing and packages." } },
+        { label: "📞 Call Coordinator", action: { type: "call" } },
+      ],
+    },
   },
   {
-    label: "📅 Book an Attendant",
-    action: { type: "navigate", to: "/booking", label: "Go to Booking" },
+    label: "🛡️ Police & Background Checks",
+    action: {
+      type: "message",
+      text: "Every ApnaCare woman attendant undergoes:\n1. Station-level local police verification\n2. Aadhaar biometric authentication\n3. In-person residential address verification\n4. Hospital clinical & eldercare bedside drills\n5. 90-minute regional backup standby\n\nReady to book verified care for your family?",
+      nextReplies: [
+        { label: "⚡ Book an Attendant Now", action: { type: "start_booking" } },
+        { label: "📞 Speak to Coordinator", action: { type: "call" } },
+      ],
+    },
   },
-  {
-    label: "🛡️ Safety Protocols",
-    action: { type: "navigate", to: "/safety", label: "Safety Overview" },
-  },
-  { label: "📞 Call Coordinator", action: { type: "call" } },
+  { label: "📞 Call 24/7 Desk", action: { type: "call" } },
   {
     label: "💬 WhatsApp Care Desk",
     action: {
@@ -63,6 +143,163 @@ const GLOBAL_MENU: QuickReply[] = [
   },
 ];
 
+// ─── Step Metadata & Question Generator ─────────────────────────────────────
+
+const STEP_PROGRESS_MAP: Record<BookingStep, { num: number; title: string }> = {
+  none: { num: 0, title: "" },
+  ask_service: { num: 1, title: "Support Needed" },
+  ask_age: { num: 2, title: "Patient Age & Profile" },
+  ask_city: { num: 3, title: "City" },
+  ask_location: { num: 3, title: "Locality / Ward" },
+  ask_shift: { num: 4, title: "Shift Schedule" },
+  ask_duration: { num: 4, title: "Duration" },
+  ask_conditions: { num: 5, title: "Patient Needs" },
+  ask_urgency: { num: 5, title: "Start Date" },
+  ask_contact: { num: 6, title: "Contact Confirmation" },
+  complete: { num: 6, title: "Booking Confirmed" },
+};
+
+function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string; replies: QuickReply[]; placeholder?: string } {
+  switch (step) {
+    case "ask_service":
+      return {
+        text: "👋 Welcome to **ApnaCare Chat-Based Booking**!\nLet's match the right verified attendant for your family in 2 minutes.\n\nFirst question: **What type of support or service does your family need?**",
+        replies: [
+          { label: "🏠 Elderly Care & Daily Living", action: { type: "booking_answer", field: "service", value: "elderly-care", displayLabel: "Elderly Care" } },
+          { label: "🏥 Hospital Bedside Vigil", action: { type: "booking_answer", field: "service", value: "hospital-attendants", displayLabel: "Hospital Bedside" } },
+          { label: "💉 Clinical Nursing (GNM/B.Sc)", action: { type: "booking_answer", field: "service", value: "nursing-services", displayLabel: "Clinical Nursing" } },
+          { label: "👶 Post-Natal & Infant Care", action: { type: "booking_answer", field: "service", value: "post-natal-care", displayLabel: "Post-Natal Care" } },
+          { label: "🧼 Home & Personal Care", action: { type: "booking_answer", field: "service", value: "home-personal-care", displayLabel: "Home & Personal Care" } },
+          { label: "🚗 Verified Women Driver", action: { type: "booking_answer", field: "service", value: "women-drivers", displayLabel: "Women Driver" } },
+          { label: "✈️ Travel & Station Escort", action: { type: "booking_answer", field: "service", value: "travel-assistance", displayLabel: "Travel Assistance" } },
+          { label: "❌ Cancel Booking", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
+        ],
+        placeholder: "Type your needed service or choose an option above...",
+      };
+
+    case "ask_age":
+      return {
+        text: `Understood: **${draft.serviceName || "Care Service"}**.\n\n**Who needs this care, and what is their approximate age?**`,
+        replies: [
+          { label: "👵 Mother (60-75 yrs)", action: { type: "booking_answer", field: "age", value: "Mother (60-75 yrs)" } },
+          { label: "👴 Father (60-75 yrs)", action: { type: "booking_answer", field: "age", value: "Father (60-75 yrs)" } },
+          { label: "🧓 Elderly Senior (75+ yrs)", action: { type: "booking_answer", field: "age", value: "Elderly Senior (75+ yrs)" } },
+          { label: "🏥 Adult Patient (Post-Op / Hospital)", action: { type: "booking_answer", field: "age", value: "Adult Post-Op Patient" } },
+          { label: "👶 New Mother & Newborn", action: { type: "booking_answer", field: "age", value: "New Mother & Newborn" } },
+          { label: "👤 Self / Working Adult (25-55 yrs)", action: { type: "booking_answer", field: "age", value: "Self / Adult (25-55 yrs)" } },
+          { label: "❌ Cancel", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
+        ],
+        placeholder: "Select an option or type age (e.g. 78 years old)...",
+      };
+
+    case "ask_city":
+      return {
+        text: `Noted: Care for **${draft.patientAge}**.\n\n**Which city will the attendant be assisting in?**`,
+        replies: [
+          { label: "🏙️ Bengaluru", action: { type: "booking_answer", field: "city", value: "Bengaluru" } },
+          { label: "🏛️ Chennai", action: { type: "booking_answer", field: "city", value: "Chennai" } },
+          { label: "🕌 Hyderabad", action: { type: "booking_answer", field: "city", value: "Hyderabad" } },
+          { label: "🌲 Coimbatore", action: { type: "booking_answer", field: "city", value: "Coimbatore" } },
+          { label: "❌ Cancel", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
+        ],
+        placeholder: "Select your city or type location...",
+      };
+
+    case "ask_location": {
+      const city = draft.city || "Bengaluru";
+      let areaSuggestions: string[] = [];
+      if (city === "Bengaluru") {
+        areaSuggestions = ["Indiranagar", "Whitefield", "Koramangala", "HSR Layout", "Jayanagar", "Hospital Ward"];
+      } else if (city === "Chennai") {
+        areaSuggestions = ["Adyar", "Anna Nagar", "T. Nagar", "Mylapore", "Velachery", "Hospital Ward"];
+      } else if (city === "Hyderabad") {
+        areaSuggestions = ["Hitec City", "Banjara Hills", "Gachibowli", "Jubilee Hills", "Madhapur", "Hospital Ward"];
+      } else {
+        areaSuggestions = ["RS Puram", "Peelamedu", "Race Course", "Saibaba Colony", "Gandhipuram", "Hospital Ward"];
+      }
+      return {
+        text: `Operating Hub: **${city}**.\n\n**Which locality, apartment, or hospital ward?** (e.g. Indiranagar, Apollo Hospital, Anna Nagar)`,
+        replies: [
+          ...areaSuggestions.map((area) => ({
+            label: area,
+            action: { type: "booking_answer" as const, field: "location", value: area },
+          })),
+          { label: "❌ Cancel", action: { type: "booking_answer" as const, field: "cancel", value: "cancel" } },
+        ],
+        placeholder: `Enter area or landmark in ${city}...`,
+      };
+    }
+
+    case "ask_shift":
+      return {
+        text: `Area noted: **${draft.location}, ${draft.city}**.\n\n**What shift schedule does your family require?**`,
+        replies: [
+          { label: "☀️ 12-Hour Day Shift (8 AM - 8 PM)", action: { type: "booking_answer", field: "shift", value: "12-Hour Day Shift (8 AM - 8 PM)" } },
+          { label: "🌙 12-Hour Night Shift (8 PM - 8 AM)", action: { type: "booking_answer", field: "shift", value: "12-Hour Night Shift (8 PM - 8 AM)" } },
+          { label: "🏡 24-Hour Live-in Care (Round-the-clock)", action: { type: "booking_answer", field: "shift", value: "24-Hour Live-in Care" } },
+          { label: "⏱️ Part-Time / Per Trip", action: { type: "booking_answer", field: "shift", value: "Part-Time / Per Trip" } },
+          { label: "❌ Cancel", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
+        ],
+        placeholder: "Select preferred shift timing...",
+      };
+
+    case "ask_duration":
+      return {
+        text: `Shift: **${draft.shiftSchedule}**.\n\n**How long do you expect to need this care support?**`,
+        replies: [
+          { label: "🗓️ 1 to 7 Days (Short-term)", action: { type: "booking_answer", field: "duration", value: "1 to 7 Days" } },
+          { label: "🗓️ 15 Days (Convalescence)", action: { type: "booking_answer", field: "duration", value: "15 Days" } },
+          { label: "🗓️ 1 Month (30 Days)", action: { type: "booking_answer", field: "duration", value: "30 Days (1 Month)" } },
+          { label: "🔄 Ongoing Monthly Care", action: { type: "booking_answer", field: "duration", value: "Ongoing Monthly" } },
+          { label: "❌ Cancel", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
+        ],
+        placeholder: "Select duration or type number of days...",
+      };
+
+    case "ask_conditions":
+      return {
+        text: `Duration: **${draft.duration}**.\n\n**Does the patient have any specific medical condition or support requirements?**`,
+        replies: [
+          { label: "🚶 Mobility Assist & Fall Safety", action: { type: "booking_answer", field: "condition", value: "Mobility Assist & Fall Safety" } },
+          { label: "🛏️ Bedridden & Hygiene / Diaper Care", action: { type: "booking_answer", field: "condition", value: "Bedridden & Hygiene Care" } },
+          { label: "💊 Medication & Vital Signs Check", action: { type: "booking_answer", field: "condition", value: "Medication & Vital Signs Check" } },
+          { label: "🧠 Memory Care / Dementia Support", action: { type: "booking_answer", field: "condition", value: "Memory Care / Dementia Support" } },
+          { label: "🩹 Post-Surgical Recovery Care", action: { type: "booking_answer", field: "condition", value: "Post-Surgical Recovery Care" } },
+          { label: "🤝 Companionship & Light Support", action: { type: "booking_answer", field: "condition", value: "Companionship & Light Support" } },
+          { label: "✅ No special condition / Standard care", action: { type: "booking_answer", field: "condition", value: "Standard care" } },
+        ],
+        placeholder: "Select or type any specific patient condition...",
+      };
+
+    case "ask_urgency":
+      return {
+        text: `Special requirements: **${draft.conditions}**.\n\n**When would you like the attendant to start?**`,
+        replies: [
+          { label: "🚨 Immediately (Today / Urgent within 4 hrs)", action: { type: "booking_answer", field: "urgency", value: "Immediately (Today)" } },
+          { label: "🌅 Tomorrow Morning", action: { type: "booking_answer", field: "urgency", value: "Tomorrow Morning" } },
+          { label: "📅 Within 2 to 3 Days", action: { type: "booking_answer", field: "urgency", value: "Within 2-3 Days" } },
+          { label: "🗓️ Next Week or Later", action: { type: "booking_answer", field: "urgency", value: "Next Week or Later" } },
+          { label: "❌ Cancel", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
+        ],
+        placeholder: "Select urgency or type start date...",
+      };
+
+    case "ask_contact":
+      return {
+        text: `All care specs recorded! 🎯\n\nLastly, please provide your **Full Name** and **10-Digit Mobile Number** so our ${draft.city || "regional"} care coordinator can confirm your attendant dispatch and match.`,
+        replies: [
+          { label: "💬 Share Details on WhatsApp", action: { type: "whatsapp", msg: `Hi ApnaCare! I want to complete booking for ${draft.serviceName} in ${draft.city}.` } },
+          { label: "📞 Call Coordinator Line", action: { type: "call" } },
+          { label: "❌ Cancel Booking", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
+        ],
+        placeholder: "Type Name & 10-digit mobile (e.g. Ramesh, 9876543210)...",
+      };
+
+    default:
+      return { text: "", replies: [] };
+  }
+}
+
 // ─── Helper: Derive Context from Pathname ────────────────────────────────────
 
 function getPageContext(pathname: string): PageContextInfo {
@@ -71,15 +308,17 @@ function getPageContext(pathname: string): PageContextInfo {
     const slug = pathname.replace("/solutions/", "").replace(/\/$/, "");
     const icp = getICP(slug);
     if (icp) {
-      const servicesList = icp.featuredServices
-        .map((s) => getService(s)?.name)
-        .filter(Boolean)
-        .join(", ");
+      const topService = icp.featuredServices[0] || "elderly-care";
+      const sObj = getService(topService);
       return {
         badge: icp.name,
-        greeting: `Welcome! Looking for verified care solutions for **${icp.name}**?\n${icp.summary}\n\nI can answer questions on matched services (${servicesList}), pricing, or connect you with our specialized coordinator.`,
+        greeting: `Welcome! Looking for verified care solutions for **${icp.name}**?\n${icp.summary}\n\nI can facilitate an instant attendant booking right here in this chat, answer pricing questions, or connect you with our coordinator.`,
         whatsappMessage: `Hi ApnaCare! I'm viewing care solutions for ${icp.name} (${pathname}) and would like assistance.`,
         initialReplies: [
+          {
+            label: `⚡ Book Care in Chat (${sObj?.name || icp.name})`,
+            action: { type: "start_booking", service: topService },
+          },
           {
             label: `🛡️ Solutions for ${icp.name}`,
             action: {
@@ -88,13 +327,13 @@ function getPageContext(pathname: string): PageContextInfo {
             },
           },
           {
-            label: `⭐ Matched Services (${icp.featuredServices.length})`,
+            label: `💰 Transparent Pricing`,
             action: {
               type: "message",
               text: `Recommended services for ${icp.name}:\n• ${icp.featuredServices
                 .map((s) => {
-                  const sObj = getService(s);
-                  return sObj ? `${sObj.name} (${formatINR(sObj.startingPrice)}/${sObj.pricingUnit})` : s;
+                  const item = getService(s);
+                  return item ? `${item.name} (${formatINR(item.startingPrice)}/${item.pricingUnit})` : s;
                 })
                 .join("\n• ")}`,
             },
@@ -107,16 +346,8 @@ function getPageContext(pathname: string): PageContextInfo {
             },
           },
           {
-            label: `📅 Book an Attendant`,
-            action: { type: "booking", service: icp.featuredServices[0] || "elderly-care" },
-          },
-          {
             label: "📞 Call Coordinator",
             action: { type: "call" },
-          },
-          {
-            label: "🌐 Explore Other Profiles",
-            action: { type: "navigate", to: "/", label: "Home Page" },
           },
         ],
       };
@@ -132,9 +363,13 @@ function getPageContext(pathname: string): PageContextInfo {
       return {
         badge: service.name,
         service,
-        greeting: `Hello! Interested in **${service.name}**?\n${service.shortDesc}\n\nI can answer pricing, responsibilities, or help you book right away.`,
+        greeting: `Hello! Interested in **${service.name}**?\n${service.shortDesc}\n\nI can book this service for you directly in chat, answer inclusion specs, or explain our police verification standards.`,
         whatsappMessage: `Hi ApnaCare! I'm viewing the ${service.name} service (${pathname}) and have a question.`,
         initialReplies: [
+          {
+            label: `⚡ Book ${service.name} in Chat`,
+            action: { type: "start_booking", service: service.slug },
+          },
           {
             label: `💰 Starting Price (${priceStr})`,
             action: {
@@ -157,10 +392,6 @@ function getPageContext(pathname: string): PageContextInfo {
             },
           },
           {
-            label: `📅 Book ${service.name}`,
-            action: { type: "booking", service: service.slug },
-          },
-          {
             label: "💬 WhatsApp Coordinator",
             action: {
               type: "whatsapp",
@@ -168,353 +399,19 @@ function getPageContext(pathname: string): PageContextInfo {
             },
           },
           {
-            label: "🌐 Explore Other Services",
-            action: { type: "navigate", to: "/services", label: "View All 11 Services" },
+            label: "📞 Call Care Desk",
+            action: { type: "call" },
           },
         ],
       };
     }
   }
 
-  // 2. Services index: /services
-  if (pathname === "/services") {
-    return {
-      badge: "11 Care Services",
-      greeting:
-        "Welcome to our Services Directory! ApnaCare offers 11 verified care services across Home Care, Hospital Bedside, Nursing, Maternal, and Travel escorts. Which area can I help with?",
-      whatsappMessage:
-        "Hi ApnaCare! I'm exploring your services directory and would like guidance.",
-      initialReplies: [
-        { label: "👵 Elderly Companionship", action: { type: "booking", service: "elderly-care" } },
-        {
-          label: "🏥 Hospital Attendants",
-          action: { type: "booking", service: "hospital-attendants" },
-        },
-        { label: "💉 Clinical Nursing", action: { type: "booking", service: "nursing-services" } },
-        {
-          label: "👶 Post-Natal Recovery",
-          action: { type: "booking", service: "post-natal-care" },
-        },
-        { label: "🚗 Women Chauffeurs", action: { type: "booking", service: "women-drivers" } },
-        {
-          label: "✈️ Airport & Travel Escorts",
-          action: { type: "booking", service: "airport-pickup" },
-        },
-        {
-          label: "💰 Pricing Guide",
-          action: { type: "navigate", to: "/#pricing", label: "View Pricing" },
-        },
-        {
-          label: "📅 Start a Booking",
-          action: { type: "navigate", to: "/booking", label: "Booking Wizard" },
-        },
-      ],
-    };
-  }
-
-  // 3. Booking flow: /booking
-  if (pathname === "/booking") {
-    return {
-      badge: "Booking Desk",
-      greeting:
-        "Need help completing your booking?\nI can assist with shift selections (Day Shift vs. 24-hr Live-In), city coverage, special dietary/medical notes, or payment questions.",
-      whatsappMessage: "Hi ApnaCare! I'm filling out the booking form and need coordinator help.",
-      initialReplies: [
-        {
-          label: "⏱️ Shift Options Explained",
-          action: {
-            type: "message",
-            text: "We offer flexible schedules:\n• Day Shifts: 8-12 hours daily\n• Night Bedside Vigils: 10-12 hours overnight\n• 24-Hour Live-In: Continuous round-the-clock home support\n• Point-to-point transit/trip options.",
-          },
-        },
-        {
-          label: "🔄 Replacement Guarantee",
-          action: {
-            type: "message",
-            text: "If an assigned attendant falls ill or has an emergency, a police-verified backup with comparable skill qualifications is dispatched within 90 minutes at zero extra fee.",
-          },
-        },
-        {
-          label: "💳 GST & Invoicing",
-          action: {
-            type: "message",
-            text: "Every booking includes complete 18% GST tax invoices with zero hidden dispatcher markups or surge commissions. Standard cancellation policy allows full refunds before dispatch.",
-          },
-        },
-        {
-          label: "💬 WhatsApp Coordinator for Help",
-          action: {
-            type: "whatsapp",
-            msg: "Hi ApnaCare! I'm on the booking page and would like help completing my attendant reservation.",
-          },
-        },
-        {
-          label: "📞 Call Emergency Dispatch Desk",
-          action: { type: "call" },
-        },
-      ],
-    };
-  }
-
-  // 4. Safety & Verification: /safety or /safety-guidelines
-  if (pathname === "/safety" || pathname === "/safety-guidelines") {
-    return {
-      badge: "Safety & Verification",
-      greeting:
-        "Safety is the foundation of ApnaCare. All women attendants undergo 5-step police verification, Aadhaar biometric verification, and are supported by our 24/7 Command Center.",
-      whatsappMessage: "Hi ApnaCare! I have questions regarding attendant verification and safety.",
-      initialReplies: [
-        {
-          label: "👮 5-Step Verification Process",
-          action: {
-            type: "message",
-            text: "Our 5-step screening includes:\n1. Biometric Aadhaar authentication\n2. Criminal record & court registry checks\n3. Physical home address verification\n4. Previous medical employment verification\n5. Clinical handling & patient hygiene evaluation.",
-          },
-        },
-        {
-          label: "🆘 24/7 Command SOS Telemetry",
-          action: {
-            type: "message",
-            text: "Attendants and families have direct access to our 24/7 Indiranagar Command Center. Shift tracking, live check-ins, and rapid escalation protocols are monitored around the clock.",
-          },
-        },
-        {
-          label: "📜 Code of Conduct",
-          action: {
-            type: "message",
-            text: "Attendants follow a strict code: zero medicine administration without prescription, complete client confidentiality, and punctual shift handovers.",
-          },
-        },
-        { label: "📞 Call Emergency Line", action: { type: "call" } },
-        {
-          label: "📅 Book a Verified Attendant",
-          action: { type: "navigate", to: "/booking", label: "Go to Booking" },
-        },
-      ],
-    };
-  }
-
-  // 5. Cities coverage: /cities or /cities/:city
-  if (pathname.startsWith("/cities")) {
-    const slug = pathname.replace("/cities/", "").replace(/\/$/, "");
-    const city = CITIES.find((c) => c.slug === slug);
-    const cityName = city ? city.name : "Metro Cities";
-    return {
-      badge: city ? `${city.name} Care Hub` : "Metro Hubs",
-      greeting: city
-        ? `Welcome to our **${city.name} Command Hub**!\nWe have ${city.attendants} verified women attendants ready across ${city.name} with ${city.dispatch} dispatch and local language fluency.`
-        : "ApnaCare operates active care hubs across Bengaluru, Chennai, Hyderabad, and Coimbatore with dedicated city command desks.",
-      whatsappMessage: `Hi ApnaCare! I'm looking for women attendant services in ${cityName}.`,
-      initialReplies: [
-        {
-          label: `⚡ Rapid Dispatch (${city?.dispatch ?? "< 20m"})`,
-          action: {
-            type: "message",
-            text: `In ${cityName}, our mobile attendant network supports rapid dispatch with local supervisor coverage across key neighborhoods and major hospital corridors.`,
-          },
-        },
-        {
-          label: "🗣️ Language Fluency",
-          action: {
-            type: "message",
-            text: `Our ${cityName} attendants speak fluent local and regional languages (Tamil, Kannada, Telugu, Hindi, English) to ensure comfortable, reassuring communication for your family.`,
-          },
-        },
-        {
-          label: `📅 Book Care in ${cityName}`,
-          action: { type: "booking", service: "elderly-care" },
-        },
-        {
-          label: `💬 WhatsApp ${cityName} Desk`,
-          action: {
-            type: "whatsapp",
-            msg: `Hi ApnaCare! I need attendant support in ${cityName}.`,
-          },
-        },
-      ],
-    };
-  }
-
-  // 6. Contact & Helpline: /contact
-  if (pathname === "/contact") {
-    return {
-      badge: "24/7 Support Desk",
-      greeting:
-        "Speak directly with an ApnaCare care coordinator. We operate 24/7 for urgent hospital bedside assignments, custom schedules, and emergency dispatch.",
-      whatsappMessage:
-        "Hi ApnaCare! I'm on the contact page and would like to speak with a care coordinator.",
-      initialReplies: [
-        {
-          label: `📞 Toll-Free Line (${SITE.SUPPORT_PHONE})`,
-          action: { type: "call" },
-        },
-        {
-          label: `🚨 Emergency Desk (${SITE.EMERGENCY_LINE})`,
-          action: {
-            type: "message",
-            text: `Our emergency desk (${SITE.EMERGENCY_LINE}) is monitored 24/7 for urgent inpatient bedside dispatch, post-op discharges, and critical support.`,
-          },
-        },
-        {
-          label: "🏢 Regional Office Locations",
-          action: {
-            type: "message",
-            text: `Headquarters: ${SITE.headquarters}\nRegional command desks active across Bengaluru, Chennai, Hyderabad, and Coimbatore.`,
-          },
-        },
-        {
-          label: "💬 WhatsApp Coordinator",
-          action: {
-            type: "whatsapp",
-            msg: "Hello ApnaCare! I need immediate care coordinator assistance.",
-          },
-        },
-      ],
-    };
-  }
-
-  // 7. About & Ecosystem: /about or /ecosystem-partners
-  if (pathname === "/about" || pathname === "/ecosystem-partners") {
-    return {
-      badge: "About ApnaCare",
-      greeting:
-        "Discover ApnaCare's journey: empowering skilled women caregivers with fair compensation and dignity, while delivering trusted bedside and home support to families.",
-      whatsappMessage:
-        "Hi ApnaCare! I'm reading about your organization and would like to learn more.",
-      initialReplies: [
-        {
-          label: "🤝 Hospital & Skill Partners",
-          action: {
-            type: "message",
-            text: "We partner with leading healthcare institutions, nursing councils, and women's self-help groups to train, certify, and place compassionate care professionals.",
-          },
-        },
-        {
-          label: "📜 Our 8+ Year Journey",
-          action: {
-            type: "message",
-            text: `ApnaCare has supported over ${SITE.familiesHelped} families with a ${SITE.retentionRate} satisfaction rating and 100% verified attendants.`,
-          },
-        },
-        {
-          label: "📅 Book a Care Attendant",
-          action: { type: "navigate", to: "/booking", label: "Go to Booking" },
-        },
-        {
-          label: "💬 Chat on WhatsApp",
-          action: { type: "whatsapp", msg: "Hi ApnaCare! I'd like to talk to your team." },
-        },
-      ],
-    };
-  }
-
-  // 8. Knowledge Hub: /knowledge-hub
-  if (pathname.startsWith("/knowledge-hub")) {
-    return {
-      badge: "Knowledge Hub",
-      greeting:
-        "Reading our family guides? Ask me about senior citizen government pension schemes, fall-proofing your home, or safe travel rights for women.",
-      whatsappMessage:
-        "Hi ApnaCare! I have a question regarding your family care and safety guides.",
-      initialReplies: [
-        {
-          label: "👵 Senior Welfare & Pensions",
-          action: {
-            type: "message",
-            text: "India offers central and state welfare programs like Indira Gandhi National Old Age Pension Scheme (IGNOAPS) and health cards. Check our full guide in the Knowledge Hub!",
-          },
-        },
-        {
-          label: "🏡 Fall-Proof Home Tips",
-          action: {
-            type: "message",
-            text: "Key safety steps: install grab rails in bathrooms, eliminate throw rugs, maintain non-slip lighting, and arrange attendant mobility support.",
-          },
-        },
-        {
-          label: "✈️ Safe Travel for Seniors",
-          action: {
-            type: "message",
-            text: "Our chauffeuses and transit companions assist elderly relatives at airport gates, railway platforms, and door-to-door journeys.",
-          },
-        },
-        {
-          label: "📅 Book Home Companionship",
-          action: { type: "booking", service: "elderly-care" },
-        },
-      ],
-    };
-  }
-
-  // 9. FAQs: /faq
-  if (pathname === "/faq") {
-    return {
-      badge: "FAQ Assistant",
-      greeting:
-        "Have questions? Here are the most common inquiries from families about shift timings, backup guarantees, GST invoicing, and caregiver screening.",
-      whatsappMessage: "Hi ApnaCare! I have a question about your policies and services.",
-      initialReplies: [
-        {
-          label: "💵 Transparent Rates & GST",
-          action: {
-            type: "message",
-            text: "All bookings include 18% GST tax invoices with zero hidden agency surcharges. What you see on the booking confirmation is your exact final total.",
-          },
-        },
-        {
-          label: "🔄 Backup Attendant Dispatch",
-          action: {
-            type: "message",
-            text: "If an attendant is sick or unavailable, a verified backup is dispatched within 90 minutes so your loved one's care is never interrupted.",
-          },
-        },
-        {
-          label: "🛡️ Can I preview the attendant profile?",
-          action: {
-            type: "message",
-            text: "Yes! Once you submit your requirement, we share a verified digital profile with certifications and language fluencies for family approval.",
-          },
-        },
-        {
-          label: "💬 Chat on WhatsApp",
-          action: { type: "whatsapp", msg: "Hi! I have a question from the FAQ page." },
-        },
-      ],
-    };
-  }
-
-  // 10. Attendant Portal: /attendant-login
-  if (pathname === "/attendant-login") {
-    return {
-      badge: "Attendant Portal",
-      greeting:
-        "Welcome care professional! Need help logging into your duty roster, submitting live attendance, or connecting with supervisor dispatch?",
-      whatsappMessage: "Hi ApnaCare! I am an attendant needing portal or duty support.",
-      initialReplies: [
-        {
-          label: "🔑 Portal Login & OTP Help",
-          action: {
-            type: "message",
-            text: "Enter your registered 10-digit mobile number to receive an instant OTP. If you recently changed your number, contact your regional supervisor.",
-          },
-        },
-        {
-          label: "📞 Call Attendant Helpdesk",
-          action: { type: "call" },
-        },
-        {
-          label: "📋 Attendant Guidelines",
-          action: { type: "navigate", to: "/safety-guidelines", label: "View Safety Guidelines" },
-        },
-      ],
-    };
-  }
-
   // Default / Homepage: /
   return {
     badge: "General Care Desk",
     greeting:
-      "Hello! Welcome to ApnaCare.\nI can help you explore our verified women attendant services for elderly care, hospital bedside assistance, newborn recovery, or safe transit. How can I assist today?",
+      "Hello! Welcome to ApnaCare.\nI can help you book a verified woman attendant, bedside assistant, or registered nurse in 2 minutes directly in this chat. How would you like to proceed?",
     whatsappMessage: "Hi ApnaCare! I would like to enquire about your women attendant services.",
     initialReplies: GLOBAL_MENU,
   };
@@ -530,18 +427,22 @@ export function Assistant() {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Compute context dynamically based on current page
+  // Dynamic context based on current page
   const pageContext = useMemo(() => getPageContext(pathname), [pathname]);
 
-  // Visitor persona — for personalised greeting prefix
+  // Visitor persona
   const persona = useVisitorPersona();
 
-  // Build a persona-prefixed greeting for the initial bot message
+  // Booking conversational state machine
+  const [bookingStep, setBookingStep] = useState<BookingStep>("none");
+  const [bookingDraft, setBookingDraft] = useState<BookingDraft>({});
+
+  // Persona greeting
   const personaGreeting = useMemo(() => {
     let prefix = "";
     if (persona.isReturning) {
       if (persona.hasBookingDraft) {
-        prefix = `${persona.greeting}! Welcome back — you have an unfinished booking saved. I can help you continue it. `;
+        prefix = `${persona.greeting}! Welcome back — you have an unfinished booking saved. I can help you complete it right here. `;
       } else if (persona.lastService) {
         const svcLabel = persona.lastService.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
         prefix = `${persona.greeting}! Good to see you again — you were exploring **${svcLabel}** last time. `;
@@ -556,7 +457,7 @@ export function Assistant() {
     return `${prefix}${pageContext.greeting}`;
   }, [persona.greeting, persona.isReturning, persona.lastService, persona.hasBookingDraft, persona.visitCount, pageContext.greeting]);
 
-  // Messages state — initial message uses persona greeting
+  // Messages state
   const [msgs, setMsgs] = useState<BotMsg[]>(() => [
     {
       from: "bot",
@@ -567,36 +468,35 @@ export function Assistant() {
 
   const lastPathnameRef = useRef(pathname);
 
-  // When user navigates to a different page, adapt chatbot with context change message
+  // Adapt on route change if not in active booking
   useEffect(() => {
     if (lastPathnameRef.current !== pathname) {
       lastPathnameRef.current = pathname;
       const newCtx = getPageContext(pathname);
 
-      setMsgs((prev) => {
-        // If chat only had the initial message, simply replace it with the new context's greeting
-        if (prev.length <= 1) {
+      if (bookingStep === "none" || bookingStep === "complete") {
+        setMsgs((prev) => {
+          if (prev.length <= 1) {
+            return [
+              {
+                from: "bot",
+                text: newCtx.greeting,
+                replies: newCtx.initialReplies,
+              },
+            ];
+          }
           return [
+            ...prev,
             {
               from: "bot",
-              text: newCtx.greeting,
+              text: `📍 *Switched to: ${newCtx.badge}*\n\n${newCtx.greeting}`,
               replies: newCtx.initialReplies,
             },
           ];
-        }
-
-        // If user was actively chatting, append a helpful context-switch notice
-        return [
-          ...prev,
-          {
-            from: "bot",
-            text: `📍 *Switched to: ${newCtx.badge}*\n\n${newCtx.greeting}`,
-            replies: newCtx.initialReplies,
-          },
-        ];
-      });
+        });
+      }
     }
-  }, [pathname]);
+  }, [pathname, bookingStep]);
 
   // Auto-scroll on new messages
   useEffect(() => {
@@ -605,8 +505,10 @@ export function Assistant() {
     }
   }, [msgs, open]);
 
-  // Reset to current page context
+  // Reset to initial
   const handleResetChat = () => {
+    setBookingStep("none");
+    setBookingDraft({});
     setMsgs([
       {
         from: "bot",
@@ -616,251 +518,442 @@ export function Assistant() {
     ]);
   };
 
-  const respondToChoice = (choice: QuickReply): BotMsg => {
-    const { action } = choice;
+  // Start booking flow
+  const initiateBooking = (serviceSlug?: string) => {
+    let nextStep: BookingStep = "ask_service";
+    let draftUpdate: BookingDraft = {};
 
-    if (action.type === "message") {
-      return {
-        from: "bot",
-        text: action.text,
-        replies: action.nextReplies ?? pageContext.initialReplies,
+    if (serviceSlug) {
+      const s = SERVICES.find((item) => item.slug === serviceSlug);
+      draftUpdate = {
+        serviceId: serviceSlug,
+        serviceName: s ? s.name : serviceSlug,
       };
+      nextStep = "ask_age";
     }
 
-    if (action.type === "navigate") {
-      return {
+    setBookingDraft(draftUpdate);
+    setBookingStep(nextStep);
+
+    const question = getStepQuestion(nextStep, draftUpdate);
+    setMsgs((prev) => [
+      ...prev,
+      {
         from: "bot",
-        text: `Opening **${action.label}**. You can also continue chatting with me anytime!`,
-        link: { label: action.label, to: action.to },
+        text: question.text,
+        replies: question.replies,
+      },
+    ]);
+  };
+
+  // Process a booking answer step
+  const processBookingAnswer = (field: string, value: string, displayLabel?: string) => {
+    if (field === "cancel") {
+      setBookingStep("none");
+      setBookingDraft({});
+      setMsgs((prev) => [
+        ...prev,
+        { from: "user", text: "Cancel Booking" },
+        {
+          from: "bot",
+          text: "Booking cancelled. No problem! How else can I help your family?",
+          replies: pageContext.initialReplies,
+        },
+      ]);
+      return;
+    }
+
+    const userText = displayLabel || value;
+    const userMsg: BotMsg = { from: "user", text: userText };
+
+    let updatedDraft = { ...bookingDraft };
+    let nextStep: BookingStep = bookingStep;
+
+    switch (field) {
+      case "service": {
+        const s = SERVICES.find((item) => item.slug === value);
+        updatedDraft = {
+          ...updatedDraft,
+          serviceId: value,
+          serviceName: s ? s.name : value,
+        };
+        nextStep = "ask_age";
+        break;
+      }
+      case "age":
+        updatedDraft = { ...updatedDraft, patientAge: value };
+        nextStep = "ask_city";
+        break;
+      case "city":
+        updatedDraft = { ...updatedDraft, city: value };
+        nextStep = "ask_location";
+        break;
+      case "location":
+        updatedDraft = { ...updatedDraft, location: value };
+        nextStep = "ask_shift";
+        break;
+      case "shift":
+        updatedDraft = { ...updatedDraft, shiftSchedule: value };
+        nextStep = "ask_duration";
+        break;
+      case "duration":
+        updatedDraft = { ...updatedDraft, duration: value };
+        nextStep = "ask_conditions";
+        break;
+      case "condition":
+        updatedDraft = { ...updatedDraft, conditions: value };
+        nextStep = "ask_urgency";
+        break;
+      case "urgency":
+        updatedDraft = { ...updatedDraft, urgency: value };
+        nextStep = "ask_contact";
+        break;
+    }
+
+    setBookingDraft(updatedDraft);
+    setBookingStep(nextStep);
+
+    const nextQ = getStepQuestion(nextStep, updatedDraft);
+    setMsgs((prev) => [
+      ...prev,
+      userMsg,
+      {
+        from: "bot",
+        text: nextQ.text,
+        replies: nextQ.replies,
+      },
+    ]);
+  };
+
+  // Finalize booking submission
+  const completeBooking = async (name: string, phone: string) => {
+    const ref = "AC-CHAT-" + Date.now().toString(36).toUpperCase().slice(-6);
+    const finalDraft: BookingDraft = {
+      ...bookingDraft,
+      customerName: name,
+      mobile: phone,
+      ref,
+    };
+
+    setBookingDraft(finalDraft);
+    setBookingStep("complete");
+
+    // Dispatch lead via sendToGoogleSheet
+    await sendToGoogleSheet({
+      event_type: "booking",
+      event_name: "chat_booking_completed",
+      lead_type: "CHAT_BOOKING",
+      form_name: "Conversational Chat Booking App",
+      booking_ref: ref,
+      customer_name: name,
+      name: name,
+      mobile: phone,
+      phone: phone,
+      service_id: finalDraft.serviceId || "care-service",
+      service_name: finalDraft.serviceName || "Care Service",
+      city: finalDraft.city || "South India",
+      location_address: finalDraft.location || "",
+      patient_age: finalDraft.patientAge || "",
+      shift_type: finalDraft.shiftSchedule || "",
+      duration_days: finalDraft.duration || "1",
+      special_notes: `Patient: ${finalDraft.patientAge} | Needs: ${finalDraft.conditions} | Start: ${finalDraft.urgency} | Shift: ${finalDraft.shiftSchedule}`,
+      booking_status: "Confirmed",
+      follow_up_status: "Pending Coordinator Dispatch",
+      lead_source: "bottom_right_chat_app",
+      page_path: pathname,
+    }).catch(() => {});
+
+    // Session engine record & analytics tracking
+    recordBookingDraft();
+    if (finalDraft.serviceId) {
+      recordServiceInteraction(finalDraft.serviceId, finalDraft.serviceName);
+    }
+    track("booking_submitted", { ref, service: finalDraft.serviceId, city: finalDraft.city });
+    track("chat_booking_completed", { ref, service: finalDraft.serviceId });
+
+    // Bot confirmation message with Interactive Booking Card
+    const confirmationMsg: BotMsg = {
+      from: "bot",
+      text: "🎉 **Care Request Successfully Registered!**\nYour booking details have been dispatched to our regional care command center. Here is your official service requisition summary:",
+      bookingCard: {
+        ref,
+        customerName: name,
+        mobile: phone,
+        serviceName: finalDraft.serviceName || "Care Service",
+        patientAge: finalDraft.patientAge || "Family Member",
+        city: finalDraft.city || "South India",
+        location: finalDraft.location || "City Center",
+        shiftSchedule: finalDraft.shiftSchedule || "Standard Shift",
+        duration: finalDraft.duration || "As requested",
+        urgency: finalDraft.urgency || "Immediately",
+        conditions: finalDraft.conditions || "General care",
+      },
+      replies: [
+        {
+          label: "💬 Confirm on WhatsApp",
+          action: {
+            type: "whatsapp",
+            msg: `Hi ApnaCare! I just registered booking reference ${ref} for ${finalDraft.serviceName} in ${finalDraft.city}. Please confirm attendant dispatch.`,
+          },
+        },
+        {
+          label: "📞 Call Coordinator Line",
+          action: { type: "call" },
+        },
+        {
+          label: "⚡ Book Another Service",
+          action: { type: "start_booking" },
+        },
+        {
+          label: "📋 Main Menu",
+          action: { type: "message", text: "Here is our main menu:", nextReplies: GLOBAL_MENU },
+        },
+      ],
+    };
+
+    setMsgs((prev) => [...prev, confirmationMsg]);
+  };
+
+  // Quick reply handler
+  const handleQuickReply = (choice: QuickReply) => {
+    track("assistant_message", { label: choice.label, context: pageContext.badge });
+
+    if (choice.action.type === "start_booking") {
+      const userMsg: BotMsg = { from: "user", text: choice.label };
+      setMsgs((prev) => [...prev, userMsg]);
+      initiateBooking(choice.action.service);
+      return;
+    }
+
+    if (choice.action.type === "booking_answer") {
+      processBookingAnswer(choice.action.field, choice.action.value, choice.action.displayLabel);
+      return;
+    }
+
+    if (choice.action.type === "booking") {
+      const userMsg: BotMsg = { from: "user", text: choice.label };
+      setMsgs((prev) => [...prev, userMsg]);
+      initiateBooking(choice.action.service);
+      return;
+    }
+
+    if (choice.action.type === "message") {
+      const userMsg: BotMsg = { from: "user", text: choice.label };
+      const botReply: BotMsg = {
+        from: "bot",
+        text: choice.action.text,
+        replies: choice.action.nextReplies ?? pageContext.initialReplies,
+      };
+      setMsgs((prev) => [...prev, userMsg, botReply]);
+      return;
+    }
+
+    if (choice.action.type === "navigate") {
+      const userMsg: BotMsg = { from: "user", text: choice.label };
+      const botReply: BotMsg = {
+        from: "bot",
+        text: `Opening **${choice.action.label}**. You can also continue chatting with me anytime!`,
+        link: { label: choice.action.label, to: choice.action.to },
         replies: pageContext.initialReplies,
       };
+      setMsgs((prev) => [...prev, userMsg, botReply]);
+      return;
     }
 
-    if (action.type === "booking") {
-      const s = SERVICES.find((item) => item.slug === action.service);
-      const name = s ? s.name : "this care service";
-      const price = s ? ` (from ${formatINR(s.startingPrice)}/${s.pricingUnit})` : "";
-      return {
-        from: "bot",
-        text: `Great choice! You can reserve **${name}**${price} directly through our booking engine, or message our coordinator on WhatsApp.`,
-        link: { label: `Book ${name}`, to: `/booking?service=${action.service}` },
-        replies: [
-          {
-            label: "💬 WhatsApp Coordinator",
-            action: {
-              type: "whatsapp",
-              msg: `Hi ApnaCare! I would like to book ${name}.`,
-            },
-          },
-          {
-            label: "📞 Call Support Desk",
-            action: { type: "call" },
-          },
-          {
-            label: "🔄 Back to Menu",
-            action: {
-              type: "message",
-              text: "Here are more options for this page:",
-              nextReplies: pageContext.initialReplies,
-            },
-          },
-        ],
-      };
-    }
-
-    if (action.type === "whatsapp") {
-      const url = buildWhatsAppUrl(action.msg);
-      return {
+    if (choice.action.type === "whatsapp") {
+      const url = buildWhatsAppUrl(choice.action.msg);
+      const userMsg: BotMsg = { from: "user", text: choice.label };
+      const botReply: BotMsg = {
         from: "bot",
         text: "Connecting you directly to our WhatsApp care desk. A care coordinator will respond promptly.",
         link: { label: "Open WhatsApp Chat", href: url },
         replies: pageContext.initialReplies,
       };
+      setMsgs((prev) => [...prev, userMsg, botReply]);
+      return;
     }
 
-    if (action.type === "call") {
-      return {
+    if (choice.action.type === "call") {
+      const userMsg: BotMsg = { from: "user", text: choice.label };
+      const botReply: BotMsg = {
         from: "bot",
-        text: `Our phone coordination line is active 24/7:\n📞 ${SITE.SUPPORT_PHONE}\nEmergency line: ${SITE.EMERGENCY_LINE}`,
+        text: `Our phone coordination line is active 24/7:\n📞 **${SITE.SUPPORT_PHONE}**\nEmergency line: **${SITE.EMERGENCY_LINE}**`,
         link: { label: `Call ${SITE.SUPPORT_PHONE}`, href: `tel:${SITE.SUPPORT_PHONE_TEL}` },
         replies: pageContext.initialReplies,
       };
+      setMsgs((prev) => [...prev, userMsg, botReply]);
+      return;
     }
-
-    return {
-      from: "bot",
-      text: "How else can I help your family?",
-      replies: pageContext.initialReplies,
-    };
   };
 
-  const handleQuickReply = (choice: QuickReply) => {
-    track("assistant_message", { label: choice.label, context: pageContext.badge });
-    sendToGoogleSheet({
-      event_type: "chatbot",
-      event_name: "assistant_quick_reply",
-      lead_type: "CHATBOT",
-      form_name: "AI Care Assistant",
-      lead_id: "chat_" + Date.now().toString(36),
-      user_query: choice.label,
-      requested_service: choice.action.type === "booking" ? choice.action.service : undefined,
-      page_context_badge: pageContext.badge,
-      page_path: pathname,
-    }).catch(() => {});
-
-    const userMsg: BotMsg = { from: "user", text: choice.label };
-    const botReply = respondToChoice(choice);
-    setMsgs((prev) => [...prev, userMsg, botReply]);
-  };
-
+  // Text input handler (processes user typed answers & conversational booking)
   const handleTextInput = () => {
     const text = input.trim();
     if (!text) return;
     setInput("");
 
-    const phoneMatch = text.match(/(\+?91[\s-]?)?[6789]\d{9}/);
-    const emailMatch = text.match(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/);
+    const userMsg: BotMsg = { from: "user", text };
 
-    sendToGoogleSheet({
-      event_type: "chatbot",
-      event_name: "assistant_text_message",
-      lead_type: "CHATBOT",
-      form_name: "AI Care Assistant",
-      lead_id: "chat_" + Date.now().toString(36),
-      user_query: text,
-      phone: phoneMatch ? phoneMatch[0] : undefined,
-      email: emailMatch ? emailMatch[0] : undefined,
-      page_context_badge: pageContext.badge,
-      page_path: pathname,
-    }).catch(() => {});
-
-    const lower = text.toLowerCase();
-
-    // Context-sensitive keyword matching:
-    let matchedChoice: QuickReply;
-
-    if (
-      lower.includes("price") ||
-      lower.includes("cost") ||
-      lower.includes("rate") ||
-      lower.includes("fee")
-    ) {
-      if (pageContext.service) {
-        matchedChoice = {
-          label: text,
-          action: {
-            type: "message",
-            text: `${pageContext.service.name} starts at ${formatINR(pageContext.service.startingPrice)}/${pageContext.service.pricingUnit} + 18% GST with transparent invoices and zero hidden charges.`,
+    // Case 1: In active booking contact step
+    if (bookingStep === "ask_contact") {
+      const phoneMatch = text.match(/(?:\+?91[\s-]?)?([6789]\d{9})/);
+      if (phoneMatch) {
+        const phone = phoneMatch[1];
+        let name = text.replace(phoneMatch[0], "").replace(/[,.-]/g, "").trim();
+        if (!name || name.length < 2) {
+          name = "Valued Family Member";
+        }
+        setMsgs((prev) => [...prev, userMsg]);
+        completeBooking(name, phone);
+        return;
+      } else {
+        setMsgs((prev) => [
+          ...prev,
+          userMsg,
+          {
+            from: "bot",
+            text: "⚠️ Please provide a valid **10-digit Indian mobile number** (e.g., 9876543210) so our regional care coordinator can reach you to confirm attendant dispatch.",
+            replies: [
+              { label: "💬 Share via WhatsApp", action: { type: "whatsapp", msg: `Hi ApnaCare! I want to confirm my booking: ${text}` } },
+              { label: "📞 Call Coordinator Line", action: { type: "call" } },
+              { label: "❌ Cancel Booking", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
+            ],
           },
-        };
-      } else {
-        matchedChoice = {
-          label: text,
-          action: { type: "navigate", to: "/#pricing", label: "View Transparent Pricing" },
-        };
+        ]);
+        return;
       }
-    } else if (lower.includes("book") || lower.includes("reserve")) {
-      if (pageContext.service) {
-        matchedChoice = {
-          label: text,
-          action: { type: "booking", service: pageContext.service.slug },
-        };
-      } else {
-        matchedChoice = {
-          label: text,
-          action: { type: "navigate", to: "/booking", label: "Start Booking Flow" },
-        };
-      }
-    } else if (
-      lower.includes("elder") ||
-      lower.includes("senior") ||
-      lower.includes("old") ||
-      lower.includes("grandparent")
-    ) {
-      matchedChoice = { label: text, action: { type: "booking", service: "elderly-care" } };
-    } else if (
-      lower.includes("hospital") ||
-      lower.includes("bedside") ||
-      lower.includes("surgery") ||
-      lower.includes("admit")
-    ) {
-      matchedChoice = { label: text, action: { type: "booking", service: "hospital-attendants" } };
-    } else if (
-      lower.includes("nurs") ||
-      lower.includes("injection") ||
-      lower.includes("dressing") ||
-      lower.includes("catheter")
-    ) {
-      matchedChoice = { label: text, action: { type: "booking", service: "nursing-services" } };
-    } else if (
-      lower.includes("baby") ||
-      lower.includes("natal") ||
-      lower.includes("mother") ||
-      lower.includes("newborn") ||
-      lower.includes("delivery")
-    ) {
-      matchedChoice = { label: text, action: { type: "booking", service: "post-natal-care" } };
-    } else if (lower.includes("driver") || lower.includes("car") || lower.includes("chauffeur")) {
-      matchedChoice = { label: text, action: { type: "booking", service: "women-drivers" } };
-    } else if (lower.includes("airport") || lower.includes("flight") || lower.includes("pickup")) {
-      matchedChoice = { label: text, action: { type: "booking", service: "airport-pickup" } };
-    } else if (lower.includes("travel") || lower.includes("train") || lower.includes("trip")) {
-      matchedChoice = { label: text, action: { type: "booking", service: "travel-assistance" } };
-    } else if (
-      lower.includes("safe") ||
-      lower.includes("police") ||
-      lower.includes("verify") ||
-      lower.includes("security")
-    ) {
-      matchedChoice = {
-        label: text,
-        action: {
-          type: "message",
-          text: "All ApnaCare attendants undergo a 5-step police verification process, Aadhaar biometric verification, address validation, and are tracked with 24/7 command center telemetry.",
-        },
-      };
-    } else if (lower.includes("whatsapp")) {
-      matchedChoice = {
-        label: text,
-        action: {
-          type: "whatsapp",
-          msg: `Hi ApnaCare! I am on the ${pageContext.badge} page and asked: "${text}"`,
-        },
-      };
-    } else if (
-      lower.includes("call") ||
-      lower.includes("phone") ||
-      lower.includes("contact") ||
-      lower.includes("number")
-    ) {
-      matchedChoice = { label: text, action: { type: "call" } };
-    } else {
-      matchedChoice = {
-        label: text,
-        action: {
-          type: "message",
-          text: `Thank you for asking! For specialized details about "${text}" regarding ${pageContext.badge}, you can connect with our 24/7 care desk via WhatsApp or phone.`,
-        },
-      };
     }
 
-    const userMsg: BotMsg = { from: "user", text };
-    const botReply = respondToChoice(matchedChoice);
-    setMsgs((prev) => [...prev, userMsg, botReply]);
+    // Case 2: In active booking question step (user typed free-form answer)
+    if (bookingStep !== "none" && bookingStep !== "complete") {
+      if (bookingStep === "ask_service") {
+        processBookingAnswer("service", text, text);
+        return;
+      }
+      if (bookingStep === "ask_age") {
+        processBookingAnswer("age", text, text);
+        return;
+      }
+      if (bookingStep === "ask_city") {
+        processBookingAnswer("city", text, text);
+        return;
+      }
+      if (bookingStep === "ask_location") {
+        processBookingAnswer("location", text, text);
+        return;
+      }
+      if (bookingStep === "ask_shift") {
+        processBookingAnswer("shift", text, text);
+        return;
+      }
+      if (bookingStep === "ask_duration") {
+        processBookingAnswer("duration", text, text);
+        return;
+      }
+      if (bookingStep === "ask_conditions") {
+        processBookingAnswer("condition", text, text);
+        return;
+      }
+      if (bookingStep === "ask_urgency") {
+        processBookingAnswer("urgency", text, text);
+        return;
+      }
+    }
+
+    // Case 3: Free-form conversational intent detection from idle state
+    const lower = text.toLowerCase();
+
+    // Booking intent detection
+    if (lower.includes("book") || lower.includes("reserve") || lower.includes("need attendant") || lower.includes("hire") || lower.includes("want attendant")) {
+      setMsgs((prev) => [...prev, userMsg]);
+
+      // Check if service mentioned
+      let matchedService: string | undefined;
+      if (lower.includes("elder") || lower.includes("senior") || lower.includes("old") || lower.includes("grandparent")) matchedService = "elderly-care";
+      else if (lower.includes("hospital") || lower.includes("bedside") || lower.includes("ward")) matchedService = "hospital-attendants";
+      else if (lower.includes("nurse") || lower.includes("nursing") || lower.includes("injection")) matchedService = "nursing-services";
+      else if (lower.includes("baby") || lower.includes("natal") || lower.includes("mother")) matchedService = "post-natal-care";
+      else if (lower.includes("driver") || lower.includes("car")) matchedService = "women-drivers";
+
+      initiateBooking(matchedService);
+      return;
+    }
+
+    // Price query
+    if (lower.includes("price") || lower.includes("cost") || lower.includes("rate") || lower.includes("fee") || lower.includes("how much")) {
+      setMsgs((prev) => [
+        ...prev,
+        userMsg,
+        {
+          from: "bot",
+          text: "ApnaCare transparent pricing starts from:\n• **Elderly Care**: ₹1,200/day (Day / Night / 24h Live-in)\n• **Hospital Bedside**: ₹1,400/shift (12h/24h)\n• **Clinical Nursing**: ₹1,800/shift (GNM/B.Sc)\n• **Post-Natal Care**: ₹1,500/day\n• **Women Drivers**: ₹800/trip\n\nAll rates include statutory 18% GST invoices and zero agency broker fees. Would you like to book now?",
+          replies: [
+            { label: "⚡ Book in Chat Now", action: { type: "start_booking" } },
+            { label: "💬 Inquire on WhatsApp", action: { type: "whatsapp", msg: `Hi ApnaCare! I'm inquiring about pricing: "${text}"` } },
+            { label: "📞 Call Coordinator", action: { type: "call" } },
+          ],
+        },
+      ]);
+      return;
+    }
+
+    // Safety / police verification query
+    if (lower.includes("safe") || lower.includes("police") || lower.includes("verify") || lower.includes("security") || lower.includes("background")) {
+      setMsgs((prev) => [
+        ...prev,
+        userMsg,
+        {
+          from: "bot",
+          text: "Safety & verification are fundamental to ApnaCare:\n• 100% Station-level police background certificates\n• Aadhaar biometric authentication\n• Residential address verification\n• 90-minute emergency regional backup standby\n\nWould you like to reserve a verified attendant?",
+          replies: [
+            { label: "⚡ Book an Attendant Now", action: { type: "start_booking" } },
+            { label: "📞 Speak to Coordinator", action: { type: "call" } },
+          ],
+        },
+      ]);
+      return;
+    }
+
+    // Default conversational reply with booking CTA
+    setMsgs((prev) => [
+      ...prev,
+      userMsg,
+      {
+        from: "bot",
+        text: `Thank you for reaching out! Regarding "${text}", our care coordinators can assist you immediately. You can book an attendant directly in this chat or connect with us on WhatsApp.`,
+        replies: [
+          { label: "⚡ Book Care Attendant Now", action: { type: "start_booking" } },
+          { label: "💬 WhatsApp Coordinator", action: { type: "whatsapp", msg: `Hi ApnaCare! Regarding: "${text}"` } },
+          { label: "📞 Call 24/7 Desk", action: { type: "call" } },
+        ],
+      },
+    ]);
   };
 
   const lastMsg = msgs[msgs.length - 1];
   const quickReplies = lastMsg?.replies ?? pageContext.initialReplies;
   const currentWhatsAppUrl = buildWhatsAppUrl(pageContext.whatsappMessage);
 
+  // Dynamic input placeholder
+  const inputPlaceholder = useMemo(() => {
+    if (bookingStep === "ask_contact") return "Type Name and 10-digit mobile (e.g. Ramesh, 9876543210)...";
+    if (bookingStep === "ask_age") return "Type patient age or relation (e.g. 78 years old)...";
+    if (bookingStep === "ask_location") return `Type area or landmark in ${bookingDraft.city || "city"}...`;
+    if (bookingStep !== "none" && bookingStep !== "complete") return "Type your answer or click an option above...";
+    return `Ask about ${pageContext.badge} or type 'Book Care'...`;
+  }, [bookingStep, bookingDraft.city, pageContext.badge]);
+
+  // Current progress
+  const stepInfo = STEP_PROGRESS_MAP[bookingStep];
+
   return (
     <>
-      {/* Launcher Button (bottom-right) with dynamic contextual tooltip on hover */}
+      {/* Launcher Button (bottom-right) */}
       <div className="fixed bottom-24 right-4 z-50 flex items-center gap-2 md:bottom-6">
-        {!open && pageContext.badge !== "General Care Desk" && (
-          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-background/95 px-3 py-1.5 text-xs font-semibold text-primary shadow-lift backdrop-blur animate-fade-in">
-            <span className="size-2 rounded-full bg-primary animate-pulse" />
-            {pageContext.badge} Help
+        {!open && (
+          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-background/95 px-3.5 py-1.5 text-xs font-semibold text-primary shadow-lift backdrop-blur animate-fade-in">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            Book Care / Help Desk
           </span>
         )}
 
@@ -873,9 +966,9 @@ export function Assistant() {
             open ? "Close ApnaCare Assistant" : `Open ApnaCare Assistant for ${pageContext.badge}`
           }
           aria-expanded={open}
-          className="grid size-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-lift transition-transform hover:scale-105"
+          className="grid size-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-lift transition-transform hover:scale-105 active:scale-95"
         >
-          {open ? <X className="size-5" /> : <MessageCircleHeart className="size-5" />}
+          {open ? <X className="size-5" /> : <MessageCircleHeart className="size-6" />}
         </button>
       </div>
 
@@ -883,27 +976,30 @@ export function Assistant() {
       {open && (
         <div
           role="dialog"
-          aria-label={`ApnaCare Assistant — ${pageContext.badge}`}
+          aria-label="ApnaCare Conversational Booking Assistant"
           aria-modal="true"
           style={{ backgroundColor: "#ffffff" }}
-          className="fixed bottom-40 right-4 z-50 flex max-h-[78vh] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border/80 shadow-2xl md:bottom-24 animate-fade-in"
+          className="fixed bottom-40 right-4 z-50 flex h-[620px] max-h-[85vh] w-[min(440px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-3xl border border-border/90 shadow-2xl md:bottom-24 animate-fade-in text-card-foreground"
         >
-          {/* Header with Live Context Badge */}
-          <div className="bg-primary px-4 py-3 text-primary-foreground">
+          {/* Header with Live Coordinator Badge */}
+          <div className="bg-primary px-4 py-3 text-primary-foreground shrink-0">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-display text-base font-semibold flex items-center gap-1.5">
-                  ApnaCare Assistant
-                  <Sparkles className="size-3.5 opacity-80" />
+                  ApnaCare Care Desk
+                  <Sparkles className="size-3.5 text-terracotta" />
                 </p>
-                <p className="text-xs opacity-80">Context-Aware Care Coordination</p>
+                <p className="text-xs text-primary-foreground/80 flex items-center gap-1.5">
+                  <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Chat-Based Booking & Assistance
+                </p>
               </div>
 
               <div className="flex items-center gap-1">
                 <button
                   onClick={handleResetChat}
-                  title="Reset to current page context"
-                  aria-label="Reset chat to current page"
+                  title="Reset conversation"
+                  aria-label="Reset chat"
                   className="grid size-7 place-items-center rounded-full hover:bg-primary-foreground/15 transition-colors text-primary-foreground"
                 >
                   <RotateCcw className="size-3.5" />
@@ -924,16 +1020,47 @@ export function Assistant() {
                 <MapPin className="size-3 shrink-0 text-terracotta" />
                 <span>Page: {pageContext.badge}</span>
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider opacity-75">
-                Live Context
+              <span className="text-[10px] uppercase font-bold tracking-wider text-primary-foreground/90">
+                24/7 Dispatch Desk
               </span>
             </div>
           </div>
 
+          {/* Booking Progress Bar when in active questionnaire */}
+          {bookingStep !== "none" && bookingStep !== "complete" && (
+            <div className="border-b border-border/80 bg-primary-soft/40 px-4 py-2 shrink-0">
+              <div className="flex items-center justify-between text-xs font-bold text-primary mb-1">
+                <span className="flex items-center gap-1">
+                  <Calendar className="size-3.5" />
+                  Step {stepInfo.num} of 6: {stepInfo.title}
+                </span>
+                <button
+                  onClick={() => {
+                    setBookingStep("none");
+                    setBookingDraft({});
+                    setMsgs((prev) => [
+                      ...prev,
+                      { from: "bot", text: "Booking reset. Here are our main options:", replies: GLOBAL_MENU },
+                    ]);
+                  }}
+                  className="text-[10px] text-muted-foreground hover:text-destructive underline"
+                >
+                  Cancel
+                </button>
+              </div>
+              <div className="h-1.5 w-full bg-border/60 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300 rounded-full"
+                  style={{ width: `${(stepInfo.num / 6) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Messages Area */}
           <div
             ref={scrollRef}
-            className="flex-1 space-y-3 overflow-y-auto p-4 bg-[#FAF8F5] dark:bg-muted/10"
+            className="flex-1 space-y-3.5 overflow-y-auto p-4 bg-[#FAF8F5] dark:bg-muted/10"
             aria-live="polite"
             aria-relevant="additions"
           >
@@ -943,10 +1070,10 @@ export function Assistant() {
                 className={
                   m.from === "user"
                     ? "ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3.5 py-2.5 text-sm text-primary-foreground shadow-2xs"
-                    : "max-w-[90%] rounded-2xl rounded-bl-sm bg-white border border-border/60 p-3.5 text-sm text-foreground shadow-2xs"
+                    : "max-w-[92%] rounded-2xl rounded-bl-sm bg-white border border-border/70 p-3.5 text-sm text-foreground shadow-2xs"
                 }
               >
-                {/* Text formatting with bold support */}
+                {/* Text formatting with markdown bold & italics */}
                 <div className="space-y-1">
                   {m.text.split("\n").map((line, j) => {
                     if (!line.trim()) return <div key={j} className="h-1" />;
@@ -973,6 +1100,77 @@ export function Assistant() {
                     );
                   })}
                 </div>
+
+                {/* Interactive Booking Confirmation Card */}
+                {m.bookingCard && (
+                  <div className="mt-3.5 overflow-hidden rounded-2xl border-2 border-primary/25 bg-card p-4 shadow-lift text-card-foreground">
+                    <div className="flex items-center justify-between border-b border-border/80 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="grid size-8 place-items-center rounded-xl bg-emerald-500/15 text-emerald-700">
+                          <CheckCircle2 className="size-5" />
+                        </span>
+                        <div>
+                          <p className="text-xs font-bold text-foreground">Booking Confirmed & Dispatched</p>
+                          <p className="text-[10px] text-muted-foreground">Coordinator Assigned</p>
+                        </div>
+                      </div>
+                      <span className="font-mono text-xs font-bold bg-primary/10 text-primary px-2.5 py-1 rounded-md border border-primary/20">
+                        {m.bookingCard.ref}
+                      </span>
+                    </div>
+
+                    <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                      <div className="rounded-xl bg-secondary/35 p-2">
+                        <dt className="text-[10px] uppercase font-bold text-muted-foreground">Service</dt>
+                        <dd className="font-semibold text-foreground mt-0.5 truncate">{m.bookingCard.serviceName}</dd>
+                      </div>
+                      <div className="rounded-xl bg-secondary/35 p-2">
+                        <dt className="text-[10px] uppercase font-bold text-muted-foreground">Patient / Age</dt>
+                        <dd className="font-semibold text-foreground mt-0.5 truncate">{m.bookingCard.patientAge}</dd>
+                      </div>
+                      <div className="rounded-xl bg-secondary/35 p-2">
+                        <dt className="text-[10px] uppercase font-bold text-muted-foreground">Location</dt>
+                        <dd className="font-semibold text-foreground mt-0.5 truncate">{m.bookingCard.location}, {m.bookingCard.city}</dd>
+                      </div>
+                      <div className="rounded-xl bg-secondary/35 p-2">
+                        <dt className="text-[10px] uppercase font-bold text-muted-foreground">Shift & Duration</dt>
+                        <dd className="font-semibold text-foreground mt-0.5 truncate">{m.bookingCard.shiftSchedule}</dd>
+                      </div>
+                      <div className="rounded-xl bg-secondary/35 p-2">
+                        <dt className="text-[10px] uppercase font-bold text-muted-foreground">Start Date</dt>
+                        <dd className="font-semibold text-foreground mt-0.5 truncate">{m.bookingCard.urgency}</dd>
+                      </div>
+                      <div className="rounded-xl bg-secondary/35 p-2">
+                        <dt className="text-[10px] uppercase font-bold text-muted-foreground">Contact</dt>
+                        <dd className="font-semibold text-foreground mt-0.5 truncate">{m.bookingCard.customerName} ({m.bookingCard.mobile})</dd>
+                      </div>
+                    </dl>
+
+                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-primary-soft/50 p-2.5 text-[11px] text-muted-foreground border border-primary/20">
+                      <ShieldCheck className="size-4 shrink-0 text-primary" />
+                      <span>100% Police Verified & Biometric Attendants. A regional coordinator will call your mobile within 30 minutes.</span>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2 pt-2 border-t border-border/70">
+                      <a
+                        href={buildWhatsAppUrl(`Hi ApnaCare! I just registered booking reference ${m.bookingCard.ref} for ${m.bookingCard.serviceName} in ${m.bookingCard.city}. Please confirm attendant dispatch.`)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#25D366] bg-[#25D366]/15 py-2 text-xs font-semibold text-[#128C7E] hover:bg-[#25D366]/25 transition-colors"
+                      >
+                        <MessageCircle className="size-3.5" />
+                        Confirm on WhatsApp
+                      </a>
+                      <a
+                        href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+                      >
+                        <Phone className="size-3.5" />
+                        Call Desk ({SITE.SUPPORT_PHONE})
+                      </a>
+                    </div>
+                  </div>
+                )}
 
                 {/* Direct action link */}
                 {m.link && (
@@ -1010,19 +1208,23 @@ export function Assistant() {
 
           {/* Contextual Quick Replies Chips */}
           {quickReplies.length > 0 && (
-            <div className="border-t border-border/80 bg-white p-3">
+            <div className="border-t border-border/80 bg-white p-3 shrink-0">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                <span>Suggested for {pageContext.badge}:</span>
+                <span>
+                  {bookingStep !== "none" && bookingStep !== "complete"
+                    ? `Options for ${stepInfo.title}:`
+                    : `Suggested for ${pageContext.badge}:`}
+                </span>
                 <span className="text-[10px] text-muted-foreground/70">
                   {quickReplies.length} options
                 </span>
               </p>
-              <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
+              <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1">
                 {quickReplies.map((choice, i) => (
                   <button
                     key={i}
                     onClick={() => handleQuickReply(choice)}
-                    className="rounded-full border border-primary/25 bg-primary/5 px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/15 transition-colors whitespace-nowrap"
+                    className="rounded-full border border-primary/25 bg-primary/5 px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/15 transition-colors whitespace-nowrap active:scale-95"
                   >
                     {choice.label}
                   </button>
@@ -1032,8 +1234,8 @@ export function Assistant() {
           )}
 
           {/* Bottom Contextual WhatsApp Handoff Bar */}
-          <div className="flex items-center justify-between border-t border-border/70 bg-[#FAF8F5] px-3.5 py-2 text-xs">
-            <span className="text-muted-foreground truncate max-w-[200px]">
+          <div className="flex items-center justify-between border-t border-border/70 bg-[#FAF8F5] px-3.5 py-2 text-xs shrink-0">
+            <span className="text-muted-foreground truncate max-w-[220px]">
               Need direct coordinator chat?
             </span>
             <a
@@ -1053,13 +1255,13 @@ export function Assistant() {
               e.preventDefault();
               handleTextInput();
             }}
-            className="flex items-center gap-2 border-t border-border bg-white p-3"
+            className="flex items-center gap-2 border-t border-border bg-white p-3 shrink-0"
           >
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={`Ask about ${pageContext.badge}...`}
+              placeholder={inputPlaceholder}
               className="flex-1 rounded-full border border-border bg-muted/40 px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
             <Button
@@ -1073,9 +1275,9 @@ export function Assistant() {
             </Button>
           </form>
 
-          {/* Disclaimer */}
-          <div className="bg-muted/40 px-3 py-1.5 text-center text-[10px] text-muted-foreground">
-            For emergencies, call our 24/7 helpline{" "}
+          {/* Emergency Disclaimer */}
+          <div className="bg-muted/40 px-3 py-1.5 text-center text-[10px] text-muted-foreground shrink-0">
+            24/7 South India Command Line:{" "}
             <a href={`tel:${SITE.SUPPORT_PHONE_TEL}`} className="font-bold underline">
               {SITE.SUPPORT_PHONE}
             </a>
