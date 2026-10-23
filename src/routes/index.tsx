@@ -406,12 +406,12 @@ function HomePage() {
 
               {/* Main Headline */}
               <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.14] animate-fade-up">
-                Care that understands what your family needs.
+                A little help. A lot of peace of mind.
               </h1>
 
               {/* Supporting Text */}
               <p className="mt-4 max-w-xl text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-up animate-delay-100">
-                Finding support for someone you love can feel overwhelming. Start with what is happening, and explore the help that may be right for your family.
+                Find assistance for everyday needs, hospital visits and travel, with support tailored to your family's situation.
               </p>
 
               {/* Compassionate Core Thesis Box (TrustGrid-Inspired Enterprise Quality) */}
@@ -429,14 +429,14 @@ function HomePage() {
               {/* Action Buttons */}
               <div className="mt-8 flex flex-wrap items-center gap-3.5 w-full sm:w-auto animate-fade-up animate-delay-200">
                 <Button asChild size="lg" className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all min-h-[48px] font-bold">
-                  <a href="#care-navigator" onClick={() => track("hero_find_right_support")}>
-                    Find the Right Support
+                  <a href="#life-events" onClick={() => track("hero_explore_services")}>
+                    Explore Services
                     <ArrowRight className="ml-2 size-4" />
                   </a>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="rounded-full px-7 min-h-[48px] font-semibold border-border bg-card/80 hover:bg-secondary">
-                  <a href="#enquiry" onClick={() => track("hero_talk_to_team")}>
-                    Talk to Our Team
+                  <a href="#enquiry" onClick={() => track("hero_talk_to_coordinator")}>
+                    Talk to Our Coordinator
                   </a>
                 </Button>
               </div>
@@ -695,11 +695,6 @@ function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ─────────────────────────────────────────────────────────────
-          2. ENTERPRISE OFFERINGS SHOWCASE (TrustGrid-Inspired Architecture)
-      ───────────────────────────────────────────────────────────── */}
-      <EnterpriseOfferingsShowcase />
 
       {/* ─────────────────────────────────────────────────────────────
           3. VISUAL STORYTELLING: “Because Every Family Has a Story”

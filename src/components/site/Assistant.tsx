@@ -104,12 +104,25 @@ export interface BookingDraft {
 // ─── Global Fallback Menus ───────────────────────────────────────────────────
 
 export const GLOBAL_MENU: QuickReply[] = [
+  { label: "🏠 Elder Care", action: { type: "start_booking", service: "elderly-care" } },
+  { label: "🏥 Hospital Assistance", action: { type: "start_booking", service: "hospital-attendants" } },
+  { label: "✈️ Travel Support", action: { type: "start_booking", service: "travel-assistance" } },
   { label: "⚡ Book Care Attendant (Chat Booking)", action: { type: "start_booking" } },
-  { label: "🏠 Elderly Care", action: { type: "start_booking", service: "elderly-care" } },
-  { label: "🏥 Hospital Bedside Vigil", action: { type: "start_booking", service: "hospital-attendants" } },
   { label: "💉 Clinical Nursing (GNM/B.Sc)", action: { type: "start_booking", service: "nursing-services" } },
-  { label: "👶 Post-Natal & Infant Care", action: { type: "start_booking", service: "post-natal-care" } },
+  { label: "👶 Post-Natal Care", action: { type: "start_booking", service: "post-natal-care" } },
   { label: "🚗 Women Drivers", action: { type: "start_booking", service: "women-drivers" } },
+  {
+    label: "🧭 Explore All Services",
+    action: {
+      type: "message",
+      text: "ApnaCare offers comprehensive specialized care services across South India:\n• **Elderly Care**: Companionship & daily living\n• **Hospital Bedside**: 12h/24h ward vigil\n• **Clinical Nursing**: Registered GNM/B.Sc nurses\n• **Post-Natal**: Fourth trimester infant & maternal healing\n• **Mobility & Travel**: Station escorts & women chauffeuses\n\nWhich care pathway would you like to explore?",
+      nextReplies: [
+        { label: "🏠 Elder Care", action: { type: "start_booking", service: "elderly-care" } },
+        { label: "🏥 Hospital Assistance", action: { type: "start_booking", service: "hospital-attendants" } },
+        { label: "📞 Talk to a Coordinator", action: { type: "call" } },
+      ],
+    },
+  },
   {
     label: "💰 Pricing & GST Rates",
     action: {
@@ -133,7 +146,7 @@ export const GLOBAL_MENU: QuickReply[] = [
       ],
     },
   },
-  { label: "📞 Call 24/7 Desk", action: { type: "call" } },
+  { label: "📞 Talk to a Coordinator", action: { type: "call" } },
   {
     label: "💬 WhatsApp Care Desk",
     action: {
@@ -411,8 +424,8 @@ function getPageContext(pathname: string): PageContextInfo {
   return {
     badge: "General Care Desk",
     greeting:
-      "Hello! Welcome to ApnaCare.\nI can help you book a verified woman attendant, bedside assistant, or registered nurse in 2 minutes directly in this chat. How would you like to proceed?",
-    whatsappMessage: "Hi ApnaCare! I would like to enquire about your women attendant services.",
+      "Hello! Welcome to ApnaCare. I am your automated care assistant.\nWhat kind of assistance are you looking for today? I can help you explore verified care, check pricing, or initiate an enquiry directly in this chat.",
+    whatsappMessage: "Hi ApnaCare! I would like to enquire about your care services.",
     initialReplies: GLOBAL_MENU,
   };
 }

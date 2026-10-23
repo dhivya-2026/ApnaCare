@@ -97,7 +97,7 @@ export function BookLink({
           if (onClick) onClick();
         }}
       >
-        {children ?? "Book a Service"}
+        {children ?? "Request Assistance"}
       </Link>
     </Button>
   );
@@ -906,7 +906,7 @@ function Header() {
             </a>
 
             <BookLink className="hidden sm:inline-flex shrink-0 whitespace-nowrap min-h-[44px] rounded-full font-bold" size="sm" variant="warm">
-              Talk to Our Team
+              Request Assistance
             </BookLink>
 
             {/* Mobile menu toggle */}
@@ -934,7 +934,14 @@ function Header() {
             {NAV_ITEMS.map((item) => (
               <MobileNavItem key={item.label} item={item} onClose={() => setMobileOpen(false)} />
             ))}
-            <div className="mt-2 pt-2 border-t border-border grid gap-2">
+            <div className="mt-3 pt-3 border-t border-border grid gap-2.5">
+              <BookLink
+                onClick={() => setMobileOpen(false)}
+                className="w-full justify-center min-h-[48px] rounded-xl font-bold shadow-soft"
+                variant="warm"
+              >
+                Request Assistance
+              </BookLink>
               <a
                 href={waUrl}
                 target="_blank"
@@ -943,7 +950,7 @@ function Header() {
                   track("whatsapp_mobile_click");
                   setMobileOpen(false);
                 }}
-                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-base font-medium text-[#128C7E] hover:bg-[#25D366]/10"
+                className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-base font-semibold text-[#128C7E] bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30"
               >
                 <MessageCircle className="size-4" />
                 Chat on WhatsApp
@@ -951,9 +958,9 @@ function Header() {
               <Link
                 to="/attendant-login"
                 onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-3 py-2.5 text-base font-medium hover:bg-secondary text-primary"
+                className="rounded-xl px-3 py-2 text-sm text-center font-medium hover:bg-secondary text-muted-foreground hover:text-foreground"
               >
-                Attendant Login
+                Attendant Portal Login
               </Link>
             </div>
           </div>

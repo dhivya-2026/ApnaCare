@@ -7,12 +7,12 @@
  */
 
 import { useState } from "react";
-import { Calendar, CheckCircle2, Phone } from "lucide-react";
+import { Calendar, CheckCircle2, Phone, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { SERVICES } from "@/data/site";
+import { SERVICES, CITIES, SITE } from "@/data/site";
 import { track, sendToGoogleSheet } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +33,8 @@ interface FormState {
   name: string;
   phone: string;
   service: string;
+  city: string;
+  timeframe: string;
   message: string;
 }
 
@@ -49,6 +51,8 @@ export function EnquiryForm({
     name: "",
     phone: "",
     service: preselectedService,
+    city: "Bengaluru",
+    timeframe: "Within 24-48 hrs",
     message: "",
   });
   const [errors, setErrors] = useState<Partial<FormState>>({});
@@ -76,7 +80,7 @@ export function EnquiryForm({
     if (submitting) return;
 
     setSubmitting(true);
-    track("enquiry_form_submit", { service: f.service });
+    track("enquiry_form_submit", { service: f.service, city: f.city });
 
     await sendToGoogleSheet({
       event_type: "callback",
@@ -90,7 +94,9 @@ export function EnquiryForm({
       mobile: f.phone,
       service: f.service,
       service_name: f.service,
-      message: f.message,
+      city: f.city,
+      timeframe: f.timeframe,
+      message: f.message ? `[${f.timeframe}] ${f.message}` : `[${f.timeframe}]`,
       lead_status: "New",
       follow_up_status: "Pending Callback",
       page_path: typeof window !== "undefined" ? window.location.pathname : "/",
@@ -98,7 +104,7 @@ export function EnquiryForm({
 
     setSubmitting(false);
     setDone(true);
-    track("enquiry_form_success", { service: f.service });
+    track("enquiry_form_success", { service: f.service, city: f.city });
   };
 
   if (done) {
@@ -207,6 +213,42 @@ export function EnquiryForm({
           {errors.service && <p className="mt-1 text-xs text-destructive">{errors.service}</p>}
         </div>
 
+        {/* City and Timeframe Selection */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <Label htmlFor="enq-city">City Cluster *</Label>
+            <select
+              id="enq-city"
+              value={f.city}
+              onChange={(e) => update("city", e.target.value)}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              {CITIES.map((c) => (
+                <option key={c.slug} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+              <option value="Other">Other City / Transit</option>
+            </select>
+          </div>
+
+          <div>
+            <Label htmlFor="enq-timeframe">Preferred Start Timeframe</Label>
+            <select
+              id="enq-timeframe"
+              value={f.timeframe}
+              onChange={(e) => update("timeframe", e.target.value)}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="Immediately (within 2-4 hrs)">Immediately (within 2-4 hrs)</option>
+              <option value="Tomorrow">Tomorrow</option>
+              <option value="Within 24-48 hrs">Within 24-48 hrs</option>
+              <option value="This week">This week</option>
+              <option value="Planning ahead">Planning ahead / Inpatient discharge</option>
+            </select>
+          </div>
+        </div>
+
         {/* Optional message */}
         <div>
           <Label htmlFor="enq-message">
@@ -216,7 +258,7 @@ export function EnquiryForm({
             id="enq-message"
             value={f.message}
             onChange={(e) => update("message", e.target.value)}
-            placeholder="E.g. city, timing, special requirements…"
+            placeholder="E.g. patient mobility level, shift hours, language preference…"
             rows={3}
             className="mt-1 resize-none"
           />
@@ -252,16 +294,22 @@ export function EnquiryForm({
           </Button>
         </div>
 
-        <p className="text-center text-xs text-muted-foreground">
-          We typically respond within 2 hours during operating hours. For urgent enquiries, call{" "}
-          <a
-            href={`tel:${SERVICES[0]?.id ? "+918000000000" : ""}`}
-            className="font-medium text-primary"
-          >
-            {"+91 80000 00000"}
-          </a>
-          .
-        </p>
+        <div className="space-y-1 text-center text-xs text-muted-foreground">
+          <p>
+            We typically respond within 15–30 minutes during operating hours. For urgent needs, call{" "}
+            <a
+              href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
+              className="font-semibold text-primary hover:underline"
+            >
+              {SITE.SUPPORT_PHONE}
+            </a>
+            .
+          </p>
+          <p className="text-[11px] text-muted-foreground/80 flex items-center justify-center gap-1.5 pt-1">
+            <ShieldCheck className="size-3.5 text-primary shrink-0" />
+            Zero spam guarantee. Your details are strictly used to coordinate care.
+          </p>
+        </div>
       </form>
     </div>
   );

@@ -62,9 +62,24 @@ export const Route = createFileRoute("/services/$slug")({
   component: Detail,
 });
 
+const SERVICE_CTA_LABELS: Record<string, string> = {
+  "elderly-care": "Enquire About Elder Care",
+  "hospital-attendants": "Ask About Hospital Assistance",
+  "nursing-services": "Enquire About Home Nursing",
+  "post-natal-care": "Plan Postnatal Support",
+  "travel-assistance": "Check Travel Support Availability",
+  "women-drivers": "Enquire About Women Chauffeuses",
+  "airport-pickup": "Book Airport Meet & Greet",
+  "railway-assistance": "Arrange Station Assistance",
+  "home-personal-care": "Enquire About Personal Care",
+  "lifestyle-support": "Arrange Lifestyle Support",
+  "security-support": "Request Security Escort",
+};
+
 function Detail() {
   const { s, enterprise } = Route.useLoaderData();
   const waUrl = buildWhatsAppUrl(`Hello ApnaCare! I would like to inquire about ${s.name} for my family.`);
+  const ctaLabel = SERVICE_CTA_LABELS[s.slug] ?? `Enquire About ${s.name}`;
 
   return (
     <>
@@ -97,7 +112,7 @@ function Detail() {
 
             <div className="mt-8 flex flex-wrap gap-3.5">
               <BookLink service={s.slug} size="lg" variant="warm">
-                Book {s.name}
+                {ctaLabel}
               </BookLink>
               <a
                 href={waUrl}
@@ -146,7 +161,7 @@ function Detail() {
             </div>
 
             <BookLink service={s.slug} variant="warm" className="mt-6 w-full">
-              Reserve {s.name}
+              {ctaLabel}
             </BookLink>
             <p className="mt-2 text-center text-[11px] text-muted-foreground">
               Guaranteed 90-minute backup · Full refund prior to dispatch
@@ -309,7 +324,7 @@ function Detail() {
           </div>
           <div className="flex shrink-0 flex-wrap justify-center gap-3">
             <BookLink service={s.slug} size="lg" variant="warm">
-              Book {s.name}
+              {ctaLabel}
             </BookLink>
             <a
               href={waUrl}
