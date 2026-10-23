@@ -106,13 +106,13 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-// Section 2: Four distinct, realistic family situations supported by existing ApnaCare services
+// Section 2: Six distinct, realistic family situations supported by existing ApnaCare services
 const FAMILY_SITUATIONS = [
   {
     id: "aging-parent",
     title: "Helping an Ageing Parent",
     tagline: "Dignified everyday living at home",
-    trigger: "When daily living becomes difficult or parents live independently.",
+    trigger: "When everyday living becomes difficult or parents live independently.",
     description:
       "Gentle personal hygiene assistance, mobility support, medication routines, and warm companionship so seniors live safely and comfortably in familiar surroundings.",
     serviceName: "Elderly Care at Home",
@@ -127,7 +127,7 @@ const FAMILY_SITUATIONS = [
     id: "post-hospital",
     title: "Supporting Hospital Recovery",
     tagline: "Bedside vigil & steady recovery",
-    trigger: "When discharge arrives and round-the-clock bedside healing begins.",
+    trigger: "When ward fatigue sets in or hospital discharge begins.",
     description:
       "Dedicated bedside attendants during hospital stays and post-discharge recovery at home, coordinating with doctors and nursing staff for seamless recuperation.",
     serviceName: "Hospital & Bedside Support",
@@ -139,10 +139,25 @@ const FAMILY_SITUATIONS = [
     startingPrice: 1499,
   },
   {
+    id: "clinical-nursing",
+    title: "Prescribed Home Clinical Nursing",
+    tagline: "Licensed procedures under doctor orders",
+    trigger: "When sterile surgical dressings, IVs, or clinical monitoring are required.",
+    description:
+      "Registered GNM/B.Sc nurses who execute medical procedures, sterile wound dressings, and vital sign monitoring strictly per written physician prescription.",
+    serviceName: "Certified Clinical Nursing",
+    serviceSlug: "nursing-services",
+    image: nursingCare,
+    alt: "Registered nurse administering sterile clinical care under doctor prescription",
+    badge: "Clinical Nursing",
+    highlights: ["Sterile surgical dressings & bedsores", "IV infusions & prescribed injections", "Catheter & clinical charting"],
+    startingPrice: 1999,
+  },
+  {
     id: "postnatal-newborn",
-    title: "Postnatal & Infant Support",
-    tagline: "Gentle recovery for mother and baby",
-    trigger: "When new mothers need restorative sleep and infant guidance.",
+    title: "Postnatal Rest & Infant Support",
+    tagline: "Restorative sleep for mother & baby",
+    trigger: "When nighttime feedings and healing require trusted practical hands.",
     description:
       "Trained maternal and infant caregivers who assist with gentle newborn massage, soothing routines, and night vigil so new mothers get restorative rest.",
     serviceName: "Post-Natal Maternal Support",
@@ -155,8 +170,8 @@ const FAMILY_SITUATIONS = [
   },
   {
     id: "travel-mobility",
-    title: "Assisted Travel & Mobility",
-    tagline: "Safe transit & travel accompaniment",
+    title: "Assisted Travel & Clinic Accompaniment",
+    tagline: "Safe transit & appointment escort",
     trigger: "When medical checkups, outstation transit, or rail journeys need support.",
     description:
       "Vetted women chauffeuses and mobility companions for medical visits, airport arrivals, railway journeys, and safe local city transit.",
@@ -168,16 +183,31 @@ const FAMILY_SITUATIONS = [
     highlights: ["Door-to-door medical escort", "Airport & railway platform assistance", "Licensed women drivers"],
     startingPrice: 999,
   },
+  {
+    id: "caregiver-respite",
+    title: "Caregiver Respite & Distant Coordination",
+    tagline: "Burnout relief & remote oversight",
+    trigger: "When primary family caregivers need time off or live in another city.",
+    description:
+      "Temporary relief coverage for tired family caregivers and structured daily WhatsApp care logs for children coordinating their parents' care from another city.",
+    serviceName: "Family Respite & Lifestyle Support",
+    serviceSlug: "lifestyle-support",
+    image: hero3,
+    alt: "Caregiver taking notes and coordinating health schedule with elderly family",
+    badge: "Respite & Coordination",
+    highlights: ["Scheduled WhatsApp updates for remote family", "Flexible half-day or weekend relief shifts", "Care continuity during helper leaves"],
+    startingPrice: 899,
+  },
 ];
 
-// Section 3 Concept: Side-by-Side Coordination Comparison
+// Section 3: Six Concrete Dimensions of Side-by-Side Coordination Comparison
 const COORDINATION_COMPARISONS = [
   {
-    category: "Finding & Vetting Caregivers",
+    category: "Finding & Assessing Suitable Support",
     independent: {
-      headline: "Scattered Search & Uncertain Background",
+      headline: "Scattered Search & Uncertain Availability",
       points: [
-        "Calling multiple informal brokers or asking friends with uncertain availability",
+        "Calling multiple informal domestic brokers or online classifieds with uncertain availability",
         "Relying on self-reported claims without verified criminal or court background checks",
         "Uncertainty about identity or residential history before inviting someone into home",
       ],
@@ -185,19 +215,38 @@ const COORDINATION_COMPARISONS = [
     apnaCare: {
       headline: "Pre-Verified Staff & Clear Credentials",
       points: [
-        "Every attendant pre-screened with biometric Aadhaar and police verification",
-        "Practical training in patient mobility transfer and hygiene ergonomics",
-        "Verified digital profile previewed and confirmed before work begins",
+        "Direct matching from verified caregiver clusters based on assessed mobility needs and hours",
+        "Standardized review: Biometric Aadhaar authentication, court clearance, and reference checks",
+        "Verified digital profile previewed and confirmed with family before work begins",
       ],
     },
   },
   {
-    category: "Clinical vs. Supportive Boundaries",
+    category: "Reviewing Identity & Credential Evidence",
     independent: {
-      headline: "Unclear Roles & Safety Risks",
+      headline: "Unverified Photocopies & Informal Claims",
       points: [
-        "Confusion between general helpers and trained medical personnel",
-        "Risk of uncertified attendants attempting sterile or invasive procedures",
+        "Accepting unauthenticated identity photocopies without biometric validation",
+        "No structured mechanism to verify prior patient handling records or clinical credentials",
+        "Lack of standardized onboarding protocols or background screening dossiers",
+      ],
+    },
+    apnaCare: {
+      headline: "Biometric Aadhaar & Police Verification",
+      points: [
+        "Every attendant pre-screened with biometric Aadhaar and police verification records",
+        "State Nursing Council credentials verified for all licensed GNM/B.Sc clinical nurses",
+        "Practical training in patient mobility transfer, ergonomics, and oral medication logging",
+      ],
+    },
+  },
+  {
+    category: "Clarifying Attendant vs. Nurse Responsibilities",
+    independent: {
+      headline: "Unclear Roles & Medical Safety Risks",
+      points: [
+        "Confusion between domestic helpers, attendants, and trained clinical nurses",
+        "Risk of uncertified staff attempting sterile dressings, injections, or catheter procedures",
         "No structured checklist of daily tasks and hygiene responsibilities",
       ],
     },
@@ -205,19 +254,19 @@ const COORDINATION_COMPARISONS = [
       headline: "Documented Scope & Role Distinction",
       points: [
         "Clear boundary: Attendants support daily living; GNM/B.Sc nurses perform clinical tasks",
-        "Injections and catheter management strictly reserved for licensed nurses under doctor prescription",
-        "Explicit daily task plan agreed between family and care coordinator",
+        "Injections and sterile wound dressings strictly reserved for licensed nurses under doctor orders",
+        "Explicit daily task plan agreed between family and local care coordinator",
       ],
     },
   },
   {
-    category: "Caregiver Absence & Unexpected Illness",
+    category: "Coordinating Schedules, Backup & Continuity",
     independent: {
       headline: "Scrambling with Zero Backup",
       points: [
         "If caregiver is ill or leaves unexpectedly, the family is left alone without notice",
-        "Forced emergency leaves from work or frantic search for last-minute replacements",
-        "Repeating training and explaining routines to untested temporary substitutes",
+        "Forced emergency leaves from work or frantic search for untested temporary substitutes",
+        "Repeating training and explaining routines from scratch every time someone changes",
       ],
     },
     apnaCare: {
@@ -230,9 +279,9 @@ const COORDINATION_COMPARISONS = [
     },
   },
   {
-    category: "Daily Visibility & Family Communication",
+    category: "Providing Agreed Family Updates",
     independent: {
-      headline: "Constant Worry & Phone Calls",
+      headline: "Constant Worry & Anxious Phone Calls",
       points: [
         "Repeated check-in calls to check if medicines were given on schedule",
         "No objective record of meal intake, vitals, or daily comfort",
@@ -249,7 +298,7 @@ const COORDINATION_COMPARISONS = [
     },
   },
   {
-    category: "Pricing & Billing Transparency",
+    category: "Explaining Pricing & Next Steps",
     independent: {
       headline: "Hidden Surcharges & Cash Uncertainty",
       points: [
@@ -262,19 +311,19 @@ const COORDINATION_COMPARISONS = [
       headline: "Fixed Rates & Official GST Invoicing",
       points: [
         "Upfront published per-day and per-shift pricing with zero broker markups",
-        "Official 18% statutory GST tax invoices provided for every booking",
+        "Official 18% statutory GST tax invoices (SAC 9993) provided for every booking",
         "Clear refund and replacement terms documented prior to confirmation",
       ],
     },
   },
 ];
 
-// Section 3 Concept: Four-Stage Relief Progression
+// Section 3: Four-Stage Relief Progression (Concern -> Discussion -> Support Arranged -> Ongoing Coordination)
 const CARE_DIFFERENCE_STEPS = [
   {
     step: "01",
     phase: "Family Concern",
-    title: "Uncertainty & Strain",
+    title: "Uncertainty & Care Strain",
     description:
       "An aging parent lives alone, a hospital discharge is scheduled, or a family struggles to balance caregiving with work commitments.",
     icon: AlertCircle,
@@ -282,8 +331,8 @@ const CARE_DIFFERENCE_STEPS = [
   },
   {
     step: "02",
-    phase: "Thoughtful Discussion",
-    title: "Care Needs Clarified",
+    phase: "Care Discussion",
+    title: "Needs, Timing & Hours Clarified",
     description:
       "A compassionate care coordinator listens without pressure. We assess mobility requirements, daily routines, shift duration, and language preferences.",
     icon: PhoneCall,
@@ -300,8 +349,8 @@ const CARE_DIFFERENCE_STEPS = [
   },
   {
     step: "04",
-    phase: "Peace of Mind",
-    title: "Daily Updates & Oversight",
+    phase: "Ongoing Coordination",
+    title: "Daily WhatsApp Logs & Oversight",
     description:
       "Families receive daily WhatsApp wellness summaries tracking vitals and routine comfort, backed by direct coordinator access and 90-minute backup peace of mind.",
     icon: MessageCircle,
@@ -309,38 +358,38 @@ const CARE_DIFFERENCE_STEPS = [
   },
 ];
 
-// Section 4: Four-step onboarding layout
+// Section 4: Four-Step Tangible Onboarding Layout
 const ONBOARDING_STEPS = [
   {
     step: "01",
     icon: Clock,
     title: "Tell Us What Is Happening",
     description:
-      "Share your family's situation, city, required shift hours, and urgency. No clinical terminology or advance deposit is needed to get guidance.",
+      "Share your family's situation, preferred city, required shift hours, and language preference. No advance deposit or clinical jargon needed.",
     meta: "Zero financial commitment",
   },
   {
     step: "02",
     icon: PhoneCall,
-    title: "Coordinator Review & Match",
+    title: "Discuss Needs, Timing & Budget",
     description:
-      "Our local care coordinator reviews clinical vs supportive care boundaries, confirms language fluencies, and identifies an appropriately trained specialist.",
+      "Our local care coordinator reviews personal living vs clinical nursing boundaries, confirms schedule timing, and outlines transparent pricing options.",
     meta: "15–30 min consultation",
   },
   {
     step: "03",
     icon: UserCheck,
-    title: "Preview Profile & Background",
+    title: "Review Suitable Services & Availability",
     description:
-      "Receive the caregiver's digital profile with Aadhaar authentication badge, police clearance status, past patient handling records, and transparent rates.",
+      "Inspect matched caregiver profiles with biometric Aadhaar authentication status, police verification records, experience history, and cluster readiness.",
     meta: "Full transparency before placement",
   },
   {
     step: "04",
     icon: CalendarCheck,
-    title: "Care Commences with Backup SLA",
+    title: "Confirm Agreed Care & Responsibilities",
     description:
-      "Your attendant arrives on time. Families receive daily digital wellness logs via WhatsApp, backed by our 90-minute guaranteed regional backup protocol.",
+      "Your attendant arrives punctually. Families receive daily digital wellness logs via WhatsApp, backed by our guaranteed 90-minute regional backup protocol.",
     meta: "Continuous coordinator oversight",
   },
 ];
@@ -606,8 +655,8 @@ function HomePage() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {FAMILY_SITUATIONS.map((situation) => (
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {FAMILY_SITUATIONS.map((situation, sIdx) => (
               <article
                 key={situation.id}
                 className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
@@ -663,6 +712,7 @@ function HomePage() {
                     <span className="text-sm font-bold text-foreground font-display">
                       {formatINR(situation.startingPrice)}/day
                     </span>
+                    <span className="text-[10px] text-muted-foreground">+ 18% statutory GST</span>
                   </div>
                   <Link
                     to={`/services/${situation.serviceSlug}`}
@@ -683,7 +733,7 @@ function HomePage() {
           3. MAKING TIME, COORDINATION & VALUE VISIBLE
           - Interactive view toggle:
             A. Side-by-Side Coordination Comparison (Arranging Independently vs ApnaCare)
-            B. Four-Stage Relief Progression (Concern -> Consultation -> Matched Care -> Peace of Mind)
+            B. Four-Stage Relief Progression (Concern -> Consultation -> Matched Care -> Ongoing Coordination)
       ───────────────────────────────────────────────────────────── */}
       <section id="coordination-value" className="py-16 md:py-24 border-b border-border/50 bg-secondary/25 scroll-mt-20">
         <div className="container-page">
@@ -699,11 +749,13 @@ function HomePage() {
             </div>
 
             {/* View Mode Switcher */}
-            <div className="inline-flex items-center rounded-2xl border border-border bg-card p-1 shadow-xs shrink-0">
+            <div className="inline-flex items-center rounded-2xl border border-border bg-card p-1 shadow-xs shrink-0" role="tablist" aria-label="Coordination view mode">
               <button
                 type="button"
+                role="tab"
+                aria-selected={coordinationView === "comparison"}
                 onClick={() => setCoordinationView("comparison")}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all min-h-[38px] ${
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all min-h-[38px] cursor-pointer ${
                   coordinationView === "comparison"
                     ? "bg-primary text-primary-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -714,8 +766,10 @@ function HomePage() {
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={coordinationView === "journey"}
                 onClick={() => setCoordinationView("journey")}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all min-h-[38px] ${
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all min-h-[38px] cursor-pointer ${
                   coordinationView === "journey"
                     ? "bg-primary text-primary-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -729,7 +783,7 @@ function HomePage() {
 
           {/* VIEW A: Side-by-Side Comparison Table / Cards */}
           {coordinationView === "comparison" && (
-            <div className="mt-10 space-y-4">
+            <div className="mt-10 space-y-4 animate-fade-in">
               <div className="hidden md:grid md:grid-cols-12 gap-4 pb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground px-4">
                 <div className="col-span-3">Care Coordination Area</div>
                 <div className="col-span-4 text-amber-800 dark:text-amber-400">Arranging Care Independently</div>
@@ -806,7 +860,7 @@ function HomePage() {
 
           {/* VIEW B: Four-Stage Relief Progression */}
           {coordinationView === "journey" && (
-            <div className="mt-10">
+            <div className="mt-10 animate-fade-in">
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {CARE_DIFFERENCE_STEPS.map((step) => {
                   const Icon = step.icon;
@@ -840,9 +894,9 @@ function HomePage() {
                       <div className="mt-5 pt-3 border-t border-border/60">
                         <span className="text-[11px] font-medium text-primary">
                           {step.phase === "Family Concern" && "Immediate consultation available"}
-                          {step.phase === "Thoughtful Discussion" && "Direct coordinator conversation"}
+                          {step.phase === "Care Discussion" && "Direct coordinator conversation"}
                           {step.phase === "Support Arranged" && "Verified dossier preview"}
-                          {step.phase === "Peace of Mind" && "Daily WhatsApp logs & oversight"}
+                          {step.phase === "Ongoing Coordination" && "Daily WhatsApp logs & oversight"}
                         </span>
                       </div>
                     </div>

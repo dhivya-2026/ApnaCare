@@ -384,17 +384,20 @@ export function CareNeedsCalculator() {
               <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-primary">
                 <span className="flex items-center gap-1.5">
                   <Clock className="size-4" />
-                  Family Time Restored:
+                  Estimated Time Relieved:
                 </span>
                 <span className="rounded-full bg-primary text-primary-foreground px-2 py-0.5 text-[10px]">
-                  ~{reductionPercentage}% Reduction
+                  ~{reductionPercentage}% of Routine Care
                 </span>
               </div>
               <div className="mt-1 font-display text-3xl font-bold text-primary">
                 ~{totalHoursRelieved} Hours
               </div>
               <p className="mt-1 text-xs text-foreground/80 leading-relaxed font-medium">
-                Restoring ~{weeklyHoursRelieved} hours/week to family members so you can maintain work performance, sleep without wakeful anxiety, and prevent caregiver burnout.
+                Estimated support across your {durationDays}-day care plan based on your self-reported {currentTotalWeeklyStrain} hrs/week of personal chores, transit, and coordination.
+              </p>
+              <p className="mt-1.5 text-[10px] text-muted-foreground italic border-t border-primary/15 pt-1">
+                *Illustrative estimate based on your inputs. Actual time relieved varies by patient needs, mobility level, and family involvement.
               </p>
             </div>
 
@@ -402,13 +405,13 @@ export function CareNeedsCalculator() {
             {assignTimeValue && (
               <div className="mt-4 rounded-xl bg-secondary/50 p-3 border border-border/80 text-xs">
                 <span className="text-[10px] uppercase font-bold text-muted-foreground block tracking-wider">
-                  Indicative Value of Restored Time:
+                  Indicative Productivity Benchmark:
                 </span>
                 <span className="font-display text-lg font-bold text-foreground">
                   ~{formatINR(indicativeTimeValue)}
                 </span>
                 <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                  *Illustrative benchmark based on {formatINR(hourlyTimeValue)}/hr personal productivity value. This reflects personal time reclaimed, <em>not direct cash savings</em>.
+                  *Illustrative benchmark based on your custom {formatINR(hourlyTimeValue)}/hr personal valuation. This reflects personal time reclaimed, <em>not guaranteed cash savings or healthcare expense reductions</em>.
                 </p>
               </div>
             )}
