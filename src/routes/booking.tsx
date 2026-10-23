@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CITIES, SERVICES, SITE, formatINR } from "@/data/site";
 import { PageHero } from "@/components/site/Cards";
 import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
+import { PredictableNextSteps } from "@/components/site/PredictableNextSteps";
 import { fieldErrors, nameSchema, optionalEmail, phoneSchema } from "@/lib/validation";
 import { findPromo, getSavedPromo, savePromo } from "@/lib/promo";
 import { calcBookingTotal } from "@/lib/pricing";
@@ -749,6 +750,8 @@ function BookingPage() {
               <p>Please select a service in Step 2 to generate an itemized price quotation.</p>
             </div>
           )}
+
+          <PredictableNextSteps variant="compact" />
 
           <div className="rounded-xl bg-card border border-border p-4 text-xs text-muted-foreground leading-relaxed">
             Need urgent hospital or elder dispatch today? Call our 24/7 command hotline directly at{" "}

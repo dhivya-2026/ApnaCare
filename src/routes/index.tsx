@@ -40,6 +40,9 @@ import { CareNavigator } from "@/components/site/CareNavigator";
 import { CustomerHelpSection } from "@/components/site/CustomerHelpSection";
 import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
 import { EnterpriseOfferingsShowcase } from "@/components/site/EnterpriseOfferingsShowcase";
+import { LifeEventsJourneySection } from "@/components/site/LifeEventsJourneySection";
+import { CareNeedsCalculator } from "@/components/site/CareNeedsCalculator";
+import { PredictableNextSteps } from "@/components/site/PredictableNextSteps";
 import { CANONICAL_AUDIENCE_PATHWAYS, CANONICAL_CARE_OUTCOMES } from "@/data/taxonomy";
 
 import hero1 from "@/assets/hero-1.jpg";
@@ -549,6 +552,16 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
+          SECTION: EVENT-DRIVEN LIFE JOURNEYS ("Start with What Is Happening")
+      ───────────────────────────────────────────────────────────── */}
+      <LifeEventsJourneySection />
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION: ENTERPRISE OFFERINGS SHOWCASE (Problem-to-Solution Architecture)
+      ───────────────────────────────────────────────────────────── */}
+      <EnterpriseOfferingsShowcase />
+
+      {/* ─────────────────────────────────────────────────────────────
           SECTION 6.2: AUDIENCE-FIRST DISCOVERY ("Who are you looking for support for?")
       ───────────────────────────────────────────────────────────── */}
       <section id="audiences" className="border-b border-border/50 bg-secondary/25 py-16 md:py-24 scroll-mt-20">
@@ -628,6 +641,11 @@ function HomePage() {
         onOpenBusinessEnquiry={() => setHomeBizOpen(true)}
         className="border-b border-border/50 bg-background"
       />
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION: TRANSPARENT CARE-NEEDS & TIME-RELIEF ESTIMATOR
+      ───────────────────────────────────────────────────────────── */}
+      <CareNeedsCalculator />
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 6.3: NEED-FIRST DISCOVERY (Care Navigator)
@@ -1170,6 +1188,11 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION: PREDICTABLE ONBOARDING PROCESS (4 Clear Steps)
+      ───────────────────────────────────────────────────────────── */}
+      <PredictableNextSteps />
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 6.7: COMPASSIONATE FINAL CTA

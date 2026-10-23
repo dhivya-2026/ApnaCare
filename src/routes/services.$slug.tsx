@@ -20,6 +20,7 @@ import {
 } from "@/data/enterprise-content";
 import { SectionHeading, ServiceCard } from "@/components/site/Cards";
 import { BookLink, CallLink } from "@/components/site/Layout";
+import { PredictableNextSteps } from "@/components/site/PredictableNextSteps";
 import { Button } from "@/components/ui/button";
 import { seo } from "@/lib/seo";
 
@@ -291,6 +292,9 @@ function Detail() {
           </Accordion>
         </div>
       </section>
+
+      {/* ── Predictable Next Steps ── */}
+      <PredictableNextSteps serviceName={s.name} />
 
       {/* ── 5. Contextual Final CTA Strip ── */}
       <section className="bg-primary py-12 text-primary-foreground">

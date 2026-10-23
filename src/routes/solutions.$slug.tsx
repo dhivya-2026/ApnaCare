@@ -19,6 +19,7 @@ import { BookLink, CallLink } from "@/components/site/Layout";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { EnquiryForm } from "@/components/site/EnquiryForm";
+import { PredictableNextSteps } from "@/components/site/PredictableNextSteps";
 import { seo } from "@/lib/seo";
 import { buildBreadcrumbSchema } from "@/data/enterprise-content";
 
@@ -445,6 +446,9 @@ function ICPSolutionPage() {
           </Accordion>
         </div>
       </section>
+
+      {/* Predictable Next Steps */}
+      <PredictableNextSteps />
 
       {/* Callback Enquiry Form */}
       <section className="border-t border-border bg-secondary/20 py-16 md:py-20">
