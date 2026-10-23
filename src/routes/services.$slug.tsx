@@ -10,6 +10,7 @@ import {
   MessageCircle,
   FileText,
   HeartHandshake,
+  MapPin,
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SERVICES, formatINR, getService, buildWhatsAppUrl, SITE } from "@/data/site";
@@ -18,6 +19,8 @@ import {
   buildServiceSchema,
   buildBreadcrumbSchema,
 } from "@/data/enterprise-content";
+import { getCanonicalPricing } from "@/data/canonicalPricing";
+import { getCanonicalServiceBySlug } from "@/data/canonicalEcosystem";
 import { SectionHeading, ServiceCard } from "@/components/site/Cards";
 import { BookLink, CallLink } from "@/components/site/Layout";
 import { PredictableNextSteps } from "@/components/site/PredictableNextSteps";
@@ -29,7 +32,9 @@ export const Route = createFileRoute("/services/$slug")({
     const s = getService(params.slug);
     if (!s) throw notFound();
     const enterprise = ENTERPRISE_SERVICES[params.slug];
-    return { s, enterprise };
+    const canonicalPricing = getCanonicalPricing(params.slug);
+    const canonicalService = getCanonicalServiceBySlug(params.slug);
+    return { s, enterprise, canonicalPricing, canonicalService };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -77,7 +82,7 @@ const SERVICE_CTA_LABELS: Record<string, string> = {
 };
 
 function Detail() {
-  const { s, enterprise } = Route.useLoaderData();
+  const { s, enterprise, canonicalPricing, canonicalService } = Route.useLoaderData();
   const waUrl = buildWhatsAppUrl(`Hello ApnaCare! I would like to inquire about ${s.name} for my family.`);
   const ctaLabel = SERVICE_CTA_LABELS[s.slug] ?? `Enquire About ${s.name}`;
 
@@ -91,6 +96,15 @@ function Detail() {
               <span className="eyebrow">{s.category}</span>
               <span className="text-muted-foreground">•</span>
               <span className="text-xs font-semibold text-primary">{enterprise?.eyebrow ?? s.badge ?? "Verified Service"}</span>
+              {canonicalService && (
+                <>
+                  <span className="text-muted-foreground">•</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                    <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+                    {canonicalService.readiness}
+                  </span>
+                </>
+              )}
             </div>
 
             <h1 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-foreground">
@@ -110,6 +124,25 @@ function Detail() {
               ))}
             </ul>
 
+            {/* Active City Coverage Quick Links */}
+            <div className="mt-6 rounded-xl border border-border/70 bg-card/60 p-3.5 max-w-xl">
+              <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                <MapPin className="size-3.5 text-primary" /> Active Operating Clusters with 90-Min Regional Backup:
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                {["bengaluru", "chennai", "hyderabad", "coimbatore"].map((cSlug) => (
+                  <Link
+                    key={cSlug}
+                    to="/cities/$city"
+                    params={{ city: cSlug }}
+                    className="rounded-md border border-border bg-background px-2.5 py-1 font-medium capitalize text-foreground hover:border-primary/60 hover:text-primary transition-colors"
+                  >
+                    {cSlug} · Operational
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-8 flex flex-wrap gap-3.5">
               <BookLink service={s.slug} size="lg" variant="warm">
                 {ctaLabel}
@@ -128,14 +161,61 @@ function Detail() {
 
           {/* Pricing & Transparency Card */}
           <aside className="card-soft h-fit p-7 md:p-8 shadow-soft">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Transparent Pricing</span>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                {canonicalPricing?.pricingType ?? "Transparent"} Pricing
+              </span>
+              <span className="rounded-full bg-primary-soft px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                Zero Broker Fees
+              </span>
+            </div>
+
             <div className="mt-2 flex items-baseline gap-1">
               <span className="font-display text-4xl font-semibold text-foreground">
-                {formatINR(s.startingPrice)}
+                {formatINR(canonicalPricing?.startingPrice ?? s.startingPrice)}
               </span>
               <span className="text-sm font-normal text-muted-foreground">/{s.pricingUnit}</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">+ 18% statutory GST · Zero hidden broker fees</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {canonicalPricing?.taxTreatment.label ?? "+ 18% statutory GST (SAC 9993)"}
+            </p>
+
+            {/* Shift durations & Tier breakdown */}
+            {canonicalPricing?.pricingTiers && (
+              <div className="mt-4 rounded-xl border border-border/80 bg-secondary/30 p-3 text-xs space-y-1.5">
+                <span className="font-semibold text-foreground block">Verified Shift Rates:</span>
+                {canonicalPricing.pricingTiers.shift8Hr && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>8-Hour Day Shift:</span>
+                    <span className="font-medium text-foreground">{formatINR(canonicalPricing.pricingTiers.shift8Hr)}</span>
+                  </div>
+                )}
+                {canonicalPricing.pricingTiers.shift12Hr && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>12-Hour Day/Night Shift:</span>
+                    <span className="font-medium text-foreground">{formatINR(canonicalPricing.pricingTiers.shift12Hr)}</span>
+                  </div>
+                )}
+                {canonicalPricing.pricingTiers.shift24HrLiveIn && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>24-Hour Residential Live-in:</span>
+                    <span className="font-medium text-foreground">{formatINR(canonicalPricing.pricingTiers.shift24HrLiveIn)}/day</span>
+                  </div>
+                )}
+                {canonicalPricing.pricingTiers.perVisit && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Per Clinical Procedure Visit:</span>
+                    <span className="font-medium text-foreground">{formatINR(canonicalPricing.pricingTiers.perVisit)}</span>
+                  </div>
+                )}
+                {canonicalPricing.pricingTiers.perTrip && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Single Journey Transit Escort:</span>
+                    <span className="font-medium text-foreground">{formatINR(canonicalPricing.pricingTiers.perTrip)}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-4 flex items-center gap-2">
               <span className="inline-flex items-center gap-1 text-sm font-semibold text-foreground">
@@ -164,7 +244,7 @@ function Detail() {
               {ctaLabel}
             </BookLink>
             <p className="mt-2 text-center text-[11px] text-muted-foreground">
-              Guaranteed 90-minute backup · Full refund prior to dispatch
+              Guaranteed 90-minute regional backup · Full refund prior to dispatch
             </p>
           </aside>
         </div>

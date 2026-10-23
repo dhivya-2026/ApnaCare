@@ -17,7 +17,7 @@ export const Route = createFileRoute("/cities/$city")({
     const name = city?.name || "City Coverage";
     return seo(
       `Women Attendants in ${name} — ApnaCare`,
-      `Verified women attendants for elderly care, hospital assistance and women drivers across ${name}. Emergency dispatch in ${city?.dispatch || "under 20 minutes"}.`
+      `Verified women attendants for elderly care, hospital assistance and recovery support across ${name}. Verified 90-minute regional backup coverage protocol.`
     );
   },
   component: CityDetailPage,
@@ -52,8 +52,8 @@ function CityDetailPage() {
             <p className="mt-2 font-display text-2xl font-bold">{city.families}</p>
           </div>
           <div className="rounded-2xl bg-secondary/50 p-4">
-            <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Zap className="size-4 text-sos" /> Emergency SLA</p>
-            <p className="mt-2 font-display text-2xl font-bold text-sos">{city.dispatch}</p>
+            <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Clock className="size-4 text-primary" /> Cluster Backup SLA</p>
+            <p className="mt-2 font-display text-2xl font-bold text-primary">90 Min</p>
           </div>
           <div className="rounded-2xl bg-secondary/50 p-4">
             <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><ShieldCheck className="size-4 text-primary" /> Police Verification</p>
@@ -117,9 +117,10 @@ function CityDetailPage() {
 
             <section>
               <h2 className="text-2xl font-semibold">Featured Attendants in {city.name}</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Profiles of verified women specialists actively accepting shifts in this metropolitan zone.
-              </p>
+              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/50 px-3 py-1 text-xs text-muted-foreground">
+                <ShieldCheck className="size-3.5 text-primary" />
+                <span>Illustrative caregiver profiles in this active cluster. Assignment is finalized following personalized care needs matching.</span>
+              </div>
               <div className="mt-6 grid gap-6 sm:grid-cols-2">
                 {localAttendants.length > 0 ? (
                   localAttendants.map((a) => <AttendantCard key={a.id} a={a} />)
@@ -159,8 +160,8 @@ function CityDetailPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-semibold uppercase text-muted-foreground">Emergency Dispatch SLA</dt>
-                  <dd className="mt-1 font-semibold text-sos">{city.dispatch} average arrival time</dd>
+                  <dt className="text-xs font-semibold uppercase text-muted-foreground">Regional Replacement SLA</dt>
+                  <dd className="mt-1 font-semibold text-primary">90-minute cluster backup protocol in active zones</dd>
                 </div>
               </dl>
 
