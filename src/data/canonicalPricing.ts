@@ -69,7 +69,7 @@ export const CANONICAL_SERVICE_PRICING: Record<string, ServicePricingModel> = {
         Hyderabad: "₹1,200 – ₹1,600 / day",
         Coimbatore: "₹1,000 – ₹1,400 / day",
       },
-      marketReferenceNote: "Competitive with verified agency averages; ApnaCare includes 90-min backup guarantee and zero broker commissions.",
+      marketReferenceNote: "Competitive with verified agency averages; ApnaCare includes priority cluster backup protocol and zero broker commissions.",
     },
   },
   "hospital-attendants": {

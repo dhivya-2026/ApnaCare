@@ -90,7 +90,7 @@ function ICPSolutionPage() {
                 <span className="grid size-5 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
                   <Check className="size-3" />
                 </span>
-                <span>100% Police & Biometric Clearance Verified Women Attendants & GNM Staff</span>
+                <span>Government ID Verified & Police Screened Attendants & Licensed Nursing Staff</span>
               </div>
               <div className="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-foreground">
                 <span className="grid size-5 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
@@ -102,7 +102,7 @@ function ICPSolutionPage() {
                 <span className="grid size-5 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
                   <Check className="size-3" />
                 </span>
-                <span>Guaranteed 90-Minute Regional Backup Replacement Dispatch</span>
+                <span>Priority Cluster Standby Backup Protocol with Coordinator Oversight</span>
               </div>
             </div>
 
@@ -153,13 +153,13 @@ function ICPSolutionPage() {
               </div>
               <div className="rounded-xl border border-border/70 bg-secondary/30 p-3.5">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">Emergency Backup</span>
-                <span className="mt-1 font-display text-2xl font-bold text-foreground block">&lt; 90 min</span>
-                <span className="mt-0.5 text-[11px] text-primary font-medium">Guaranteed Dispatch</span>
+                <span className="mt-1 font-display text-2xl font-bold text-foreground block">Standby</span>
+                <span className="mt-0.5 text-[11px] text-primary font-medium">Priority Dispatch</span>
               </div>
               <div className="rounded-xl border border-border/70 bg-secondary/30 p-3.5">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">Caregiver Vetting</span>
-                <span className="mt-1 font-display text-2xl font-bold text-foreground block">100%</span>
-                <span className="mt-0.5 text-[11px] text-terracotta font-medium">Biometric & Police</span>
+                <span className="mt-1 font-display text-2xl font-bold text-foreground block">Screened</span>
+                <span className="mt-0.5 text-[11px] text-terracotta font-medium">ID & Police Records</span>
               </div>
               <div className="rounded-xl border border-border/70 bg-secondary/30 p-3.5">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">Support Line</span>
@@ -204,8 +204,8 @@ function ICPSolutionPage() {
               <ShieldCheck className="size-5.5" />
             </span>
             <div>
-              <p className="text-base font-bold text-foreground">100% Verified</p>
-              <p className="text-[11px] text-muted-foreground font-semibold uppercase">Biometric & Police Check</p>
+              <p className="text-base font-bold text-foreground">Verified Staff</p>
+              <p className="text-[11px] text-muted-foreground font-semibold uppercase">ID & Police Screened</p>
             </div>
           </div>
 
@@ -214,8 +214,8 @@ function ICPSolutionPage() {
               <CheckCircle2 className="size-5.5" />
             </span>
             <div>
-              <p className="text-base font-bold text-foreground">&lt; 90 Min SLA</p>
-              <p className="text-[11px] text-muted-foreground font-semibold uppercase">Replacement Protocol</p>
+              <p className="text-base font-bold text-foreground">Priority SLA</p>
+              <p className="text-[11px] text-muted-foreground font-semibold uppercase">Cluster Backup Protocol</p>
             </div>
           </div>
 

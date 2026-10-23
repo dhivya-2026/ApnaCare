@@ -236,7 +236,7 @@ function Detail() {
               </p>
               <p className="flex items-center gap-2">
                 <ShieldCheck className="size-4 shrink-0 text-primary" aria-hidden />
-                <span>100% Police Verified Attendants</span>
+                <span>Government ID & Police Background Screened</span>
               </p>
             </div>
 
@@ -244,7 +244,10 @@ function Detail() {
               {ctaLabel}
             </BookLink>
             <p className="mt-2 text-center text-[11px] text-muted-foreground">
-              Guaranteed 90-minute regional backup · Full refund prior to dispatch
+              Priority cluster standby backup · Full refund prior to dispatch
+            </p>
+            <p className="mt-2 border-t border-border/60 pt-2 text-center text-[10px] text-muted-foreground leading-snug">
+              Official GST invoice provided. Medical insurance reimbursement eligibility depends on individual policy terms and insurer approval.
             </p>
           </aside>
         </div>

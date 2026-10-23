@@ -34,15 +34,15 @@ export function PredictableNextSteps({
       icon: UserCheck,
       title: "Preview Verified Profile & Background",
       detail:
-        "You receive a verified attendant profile with Aadhaar authentication badge, police clearance status, past handling experience, and certifications.",
+        "You receive a verified attendant profile with government photo ID authentication status, police verification filing, past caregiving experience, and certifications.",
       meta: "Full transparency before placement",
     },
     {
       step: "04",
       icon: CalendarCheck,
-      title: "Care Commences with 90-Min Backup SLA",
+      title: "Care Commences with Cluster Backup Protocol",
       detail:
-        "The attendant arrives on time. Families receive daily digital wellness logs via WhatsApp, backed by our guaranteed 90-minute replacement protocol.",
+        "The attendant arrives on schedule. Families receive daily routine updates via WhatsApp, backed by our priority cluster standby backup protocol.",
       meta: "Continuous oversight",
     },
   ];

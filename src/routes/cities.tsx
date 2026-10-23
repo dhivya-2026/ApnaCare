@@ -11,7 +11,7 @@ export const Route = createFileRoute("/cities")({
   head: () =>
     seo(
       "Cities We Serve Across South India — ApnaCare",
-      "ApnaCare verified women attendants across Bengaluru, Chennai, Hyderabad and Coimbatore, with regional expansion underway for Kochi, Mysuru, and Pune. Guaranteed police verification and 90-minute backup protocol."
+      "ApnaCare verified women attendants across Bengaluru, Chennai, Hyderabad and Coimbatore, with regional expansion underway for Kochi, Mysuru, and Pune. Background screening and priority cluster backup protocol."
     ),
   component: CitiesPage,
 });
@@ -24,7 +24,7 @@ function CitiesPage() {
       <PageHero
         eyebrow="Regional Delivery Network"
         title="Cities We Serve Across South India"
-        sub="Every active operating city features localized women attendant clusters, police verification archives, and a guaranteed 90-minute regional backup protocol."
+        sub="Every active operating city features localized women attendant clusters, police background screening records, and a priority cluster backup protocol."
       >
         <BookLink size="lg" variant="warm">
           Book an Attendant
@@ -53,14 +53,14 @@ function CitiesPage() {
             <span className="grid size-10 place-items-center rounded-xl bg-primary-soft text-primary"><Clock className="size-5" /></span>
             <div>
               <p className="text-xs font-semibold text-muted-foreground uppercase">Cluster Backup SLA</p>
-              <p className="text-sm font-semibold">90-Minute Guaranteed</p>
+              <p className="text-sm font-semibold">Priority Cluster Standby</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-xl bg-primary-soft text-primary"><ShieldCheck className="size-5" /></span>
             <div>
               <p className="text-xs font-semibold text-muted-foreground uppercase">Police Verification</p>
-              <p className="text-sm font-semibold">100% Cleared Prior to Entry</p>
+              <p className="text-sm font-semibold">ID & Police Screened</p>
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@ function CitiesPage() {
             Directly Serviced Metropolitan Hubs
           </h2>
           <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-            Bookings in these four metropolitan centers include verified attendants, supervisor oversight, and our guaranteed 90-minute regional backup commitment.
+            Bookings in these four metropolitan centers include verified attendants, supervisor oversight, and our priority cluster standby backup protocol.
           </p>
         </div>
 
@@ -92,7 +92,7 @@ function CitiesPage() {
                   </div>
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">
                     <span className="size-2 rounded-full bg-emerald-500" />
-                    Operational · 90-Min Backup
+                    Operational · Priority Backup
                   </span>
                 </div>
 
@@ -101,11 +101,11 @@ function CitiesPage() {
                 <div className="mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-secondary/50 p-4 text-sm">
                   <div>
                     <p className="text-xs text-muted-foreground">Cluster SLA</p>
-                    <p className="mt-1 font-display text-base font-bold text-primary">90-Min Backup</p>
+                    <p className="mt-1 font-display text-base font-bold text-primary">Priority Backup</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Verification</p>
-                    <p className="mt-1 font-display text-base font-bold text-foreground">100% Police & Biometric</p>
+                    <p className="mt-1 font-display text-base font-bold text-foreground">ID & Police Screened</p>
                   </div>
                 </div>
 
@@ -155,7 +155,7 @@ function CitiesPage() {
               Planned Expansion Hubs Under Evaluation
             </h2>
             <p className="mt-2 text-sm sm:text-base text-muted-foreground leading-relaxed">
-              To uphold our safety standards and 90-minute backup commitment, we do not launch direct booking until local caregiver clusters are fully vetted and trained. Express interest below to help prioritize your city.
+              To uphold our safety standards and standby backup protocols, we do not launch direct booking until local caregiver clusters are fully vetted and trained. Express interest below to help prioritize your city.
             </p>
           </div>
 

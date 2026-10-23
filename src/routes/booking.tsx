@@ -238,7 +238,7 @@ function BookingPage() {
           <div className="mt-6 rounded-2xl border border-primary/20 bg-primary-soft/50 p-4 text-xs text-muted-foreground leading-relaxed flex items-center gap-3">
             <ShieldCheck className="size-5 shrink-0 text-primary" />
             <span>
-              All assigned attendants carry biometric photo badges and state police verification certificates. If you need immediate assistance, our 24/7 desk is at{" "}
+              All assigned attendants carry verified photo identification badges and documented police verification filings. If you need immediate assistance, our 24/7 desk is at{" "}
               <a href={`tel:${SITE.SUPPORT_PHONE_TEL}`} className="font-bold text-primary hover:underline">{SITE.SUPPORT_PHONE}</a>.
             </span>
           </div>
@@ -576,7 +576,7 @@ function BookingPage() {
                   </div>
                 </div>
                 <p className="rounded-xl bg-primary-soft/50 p-3 text-xs text-primary font-medium">
-                  Guaranteed Backup Dispatch: If your assigned attendant is unwell, a matched replacement is dispatched within 90 minutes.
+                  Priority Standby Backup: If your assigned attendant is unavailable due to an unexpected emergency, our regional coordinator prioritizes standby replacement dispatch to minimize care disruption.
                 </p>
               </div>
             )}

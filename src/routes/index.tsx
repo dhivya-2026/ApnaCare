@@ -61,7 +61,7 @@ import nursingCare from "@/assets/nursing-care.jpg";
 const FAQS = [
   {
     q: "How are ApnaCare attendants verified and vetted?",
-    a: "Every attendant undergoes a rigorous 5-step background verification: biometric Aadhaar authentication, court and criminal record checks via authorized law enforcement partners, address verification, credential validation, and practical patient-handling assessment before placement.",
+    a: "Every attendant undergoes a structured 5-stage background verification: government photo ID authentication, police verification documentation filing, residential address checks, reference reviews, and practical caregiving skills assessment before home assignment.",
   },
   {
     q: "What is the difference between a care attendant and a registered nurse?",
@@ -69,11 +69,11 @@ const FAQS = [
   },
   {
     q: "How do families receive daily care updates?",
-    a: "Attendants maintain daily digital activity logs recording vital signs, meal intake, and routine comfort. Families receive scheduled daily WhatsApp wellness summaries and have direct contact with their designated regional care coordinator at all times.",
+    a: "Attendants maintain daily routine activity logs recording meal accompaniment, mobility exercises, and personal comfort. Families receive scheduled daily WhatsApp updates, while clinical vital sign charting is strictly conducted during registered nursing visits.",
   },
   {
     q: "What happens if our assigned attendant falls ill or has an emergency?",
-    a: "We maintain a guaranteed backup dispatch protocol in each active operating cluster (Bengaluru, Chennai, Hyderabad, and Coimbatore). If your primary attendant cannot attend due to an emergency, a verified backup with matched skills is dispatched within 90 minutes with zero transition penalty.",
+    a: "We maintain a priority cluster backup protocol across our active operating hubs (Bengaluru, Chennai, Hyderabad, and Coimbatore). If your primary attendant cannot attend due to an illness or emergency, our regional coordinator prioritizes standby attendant reassignment to minimize disruption to your care schedule.",
   },
   {
     q: "Can we preview the attendant profile before confirming?",
@@ -81,7 +81,7 @@ const FAQS = [
   },
   {
     q: "Are there any hidden agency commissions or surprise fees?",
-    a: "None. All rates are published transparently on a per-day or per-shift basis with official 18% statutory GST tax invoices. There are zero broker commissions, advance lock-in deposits, or dispatch surge charges.",
+    a: "None. All rates are published transparently on a per-day, per-shift, or monthly basis with official 18% statutory GST tax invoices (SAC 9993). There are zero broker commissions, advance lock-in deposits, or unexpected booking markups.",
   },
 ];
 
@@ -216,7 +216,7 @@ const COORDINATION_COMPARISONS = [
       headline: "Pre-Verified Staff & Clear Credentials",
       points: [
         "Direct matching from verified caregiver clusters based on assessed mobility needs and hours",
-        "Standardized review: Biometric Aadhaar authentication, court clearance, and reference checks",
+        "Standardized review: Government photo ID authentication, police verification filings, and reference checks",
         "Verified digital profile previewed and confirmed with family before work begins",
       ],
     },
@@ -226,15 +226,15 @@ const COORDINATION_COMPARISONS = [
     independent: {
       headline: "Unverified Photocopies & Informal Claims",
       points: [
-        "Accepting unauthenticated identity photocopies without biometric validation",
+        "Accepting unauthenticated identity photocopies without formal address or background validation",
         "No structured mechanism to verify prior patient handling records or clinical credentials",
         "Lack of standardized onboarding protocols or background screening dossiers",
       ],
     },
     apnaCare: {
-      headline: "Biometric Aadhaar & Police Verification",
+      headline: "Government ID Authentication & Police Screening",
       points: [
-        "Every attendant pre-screened with biometric Aadhaar and police verification records",
+        "Every attendant pre-screened with government photo ID authentication and police verification filings",
         "State Nursing Council credentials verified for all licensed GNM/B.Sc clinical nurses",
         "Practical training in patient mobility transfer, ergonomics, and oral medication logging",
       ],
@@ -270,10 +270,10 @@ const COORDINATION_COMPARISONS = [
       ],
     },
     apnaCare: {
-      headline: "Guaranteed 90-Min Regional Backup",
+      headline: "Priority Cluster Backup Protocol",
       points: [
-        "Cluster-based backup protocol across Bengaluru, Chennai, Hyderabad, and Coimbatore",
-        "Replacement attendant dispatched within 90 minutes with zero transition penalty",
+        "Cluster-based standby protocol across Bengaluru, Chennai, Hyderabad, and Coimbatore",
+        "Priority replacement attendant reassignment with zero transition penalty",
         "Continuous supervisor oversight ensures care continuity without family disruption",
       ],
     },
@@ -291,7 +291,7 @@ const COORDINATION_COMPARISONS = [
     apnaCare: {
       headline: "Scheduled WhatsApp Summaries",
       points: [
-        "Daily digital wellness logs recording vitals, meals, and mobility routines",
+        "Daily digital wellness logs recording meals, mobility routines, and comfort observations",
         "Direct contact with a dedicated regional care coordinator at all times",
         "Peace of mind knowing your loved one is supported even when living at a distance",
       ],
@@ -303,7 +303,7 @@ const COORDINATION_COMPARISONS = [
       headline: "Hidden Surcharges & Cash Uncertainty",
       points: [
         "Unexpected agency commissions, surge charges, or cash-only demands",
-        "No formal tax invoices available for medical insurance reimbursement",
+        "No formal tax invoices available for healthcare accounting or employer reimbursement",
         "Vague refund or cancellation policies if expectations are not met",
       ],
     },
@@ -352,7 +352,7 @@ const CARE_DIFFERENCE_STEPS = [
     phase: "Ongoing Coordination",
     title: "Daily WhatsApp Logs & Oversight",
     description:
-      "Families receive daily WhatsApp wellness summaries tracking vitals and routine comfort, backed by direct coordinator access and 90-minute backup peace of mind.",
+      "Families receive daily WhatsApp summaries tracking routine living comfort, backed by direct coordinator access and priority cluster standby backup.",
     icon: MessageCircle,
     colorClass: "text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/25",
   },
@@ -381,7 +381,7 @@ const ONBOARDING_STEPS = [
     icon: UserCheck,
     title: "Review Suitable Services & Availability",
     description:
-      "Inspect matched caregiver profiles with biometric Aadhaar authentication status, police verification records, experience history, and cluster readiness.",
+      "Inspect matched caregiver profiles with government photo ID authentication status, police verification records, experience history, and cluster readiness.",
     meta: "Full transparency before placement",
   },
   {
@@ -389,7 +389,7 @@ const ONBOARDING_STEPS = [
     icon: CalendarCheck,
     title: "Confirm Agreed Care & Responsibilities",
     description:
-      "Your attendant arrives punctually. Families receive daily digital wellness logs via WhatsApp, backed by our guaranteed 90-minute regional backup protocol.",
+      "Your attendant arrives punctually. Families receive daily digital wellness logs via WhatsApp, backed by our priority cluster standby backup protocol.",
     meta: "Continuous coordinator oversight",
   },
 ];
@@ -398,9 +398,9 @@ const ONBOARDING_STEPS = [
 const TRUST_PILLARS = [
   {
     icon: ShieldCheck,
-    title: "100% Police & Biometric Verification",
+    title: "Government ID Authentication & Police Screening",
     description:
-      "Every attendant undergoes biometric Aadhaar verification, criminal court screening, and residential address checks before entering any home.",
+      "Every attendant undergoes government photo ID authentication, police background screening filings, and residential address checks before entering any home.",
   },
   {
     icon: BadgeCheck,
@@ -410,15 +410,15 @@ const TRUST_PILLARS = [
   },
   {
     icon: Clock,
-    title: "Guaranteed 90-Min Backup Protocol",
+    title: "Priority Cluster Backup Protocol",
     description:
-      "Never left without care. If your assigned attendant experiences an unexpected emergency, our local cluster dispatches a qualified backup within 90 minutes.",
+      "Reliable care continuity. If your primary attendant is unavailable due to an unexpected emergency, our local cluster prioritizes standby replacement dispatch.",
   },
   {
     icon: IndianRupee,
     title: "Transparent Pricing & GST Invoicing",
     description:
-      "No hidden agency commissions or surprise dispatch charges. Clear, upfront daily rates accompanied by official 18% GST tax invoices.",
+      "No hidden agency commissions or surprise dispatch charges. Clear, upfront daily rates accompanied by official 18% statutory GST tax invoices (SAC 9993).",
   },
 ];
 
@@ -554,7 +554,7 @@ function HomePage() {
               <div className="mt-8 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-medium text-muted-foreground pt-4 border-t border-border/60">
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
                   <ShieldCheck className="size-4 text-primary" />
-                  100% Police & Biometric ID Check
+                  Government ID & Police Screened
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
                   <BadgeCheck className="size-4 text-terracotta" />
@@ -562,7 +562,7 @@ function HomePage() {
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Clock className="size-4 text-primary" />
-                  90-Min Regional Backup Protocol
+                  Priority Cluster Standby Backup
                 </span>
               </div>
             </div>

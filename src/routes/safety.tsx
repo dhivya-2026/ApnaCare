@@ -26,7 +26,7 @@ export const Route = createFileRoute("/safety")({
   head: () =>
     seo(
       "Safety & Attendant Verification Architecture — ApnaCare",
-      "Our 5-stage vetting protocol: Biometric Aadhaar verification, state police clearance, clinical skill evaluations, GPS tracking and 24/7 command center SOS dispatch.",
+      "Our 5-stage vetting protocol: Government photo ID authentication, state police background screening, practical care evaluations, check-in tracking, and regional supervisor backup coordination."
     ),
   component: Safety,
 });
@@ -34,28 +34,28 @@ export const Route = createFileRoute("/safety")({
 const VETTING_STAGES = [
   {
     step: "01",
-    title: "Biometric Identity Authentication",
-    desc: "Aadhaar and PAN biometric authentication validates legal identity and prevents proxy or unauthorized workers.",
+    title: "Government Photo ID Authentication",
+    desc: "Government-issued photo identification (Aadhaar / Voter ID / PAN) verified prior to placement to authenticate legal identity and prevent unauthorized worker substitutions.",
   },
   {
     step: "02",
-    title: "State Police Verification & Court Clearance",
-    desc: "Comprehensive criminal history and judicial record checks conducted through state police departments.",
+    title: "Police Background Screening & Verification",
+    desc: "Background screening documentation and police verification filings initiated with local jurisdictional stations prior to independent home assignment.",
   },
   {
     step: "03",
-    title: "Clinical & Practical Skill Assessment",
-    desc: "Hands-on examination in patient mobility, geriatric assistance, infant hygiene, and sterile nursing protocols.",
+    title: "Practical Care & Mobility Skill Assessment",
+    desc: "Hands-on evaluation in patient ergonomics, elderly assistance, infant hygiene routines, and sterile protocol distinctions.",
   },
   {
     step: "04",
     title: "Emergency BLS & Compassionate Conduct",
-    desc: "Basic Life Support (BLS) training, CPR certification, de-escalation skills, and non-disclosure ethics.",
+    desc: "Basic Life Support (BLS) training, emergency escalation protocols, de-escalation skills, and strict family privacy ethics.",
   },
   {
     step: "05",
-    title: "Command Center GPS Onboarding",
-    desc: "Integration with ApnaCare's 24/7 telemetry grid with instant panic-button response protocols.",
+    title: "Cluster Coordination & Check-In Onboarding",
+    desc: "Onboarding into ApnaCare's regional coordination roster with scheduled shift check-ins and standby replacement protocols.",
   },
 ];
 
@@ -67,12 +67,12 @@ const SAFETY_FEATURES = [
   ],
   [
     ShieldCheck,
-    "100% Police Record Cleared",
-    "Mandatory law enforcement vetting before any shift assignment is permitted.",
+    "Mandatory Police Screening Process",
+    "Mandatory law enforcement verification filing and background checks completed before home placement.",
   ],
   [
     GraduationCap,
-    "Role-Specific Clinical Certification",
+    "Role-Specific Care Certification",
     "Accredited diplomas in geriatric care, newborn handling, or defensive commercial driving.",
   ],
   [
@@ -82,23 +82,23 @@ const SAFETY_FEATURES = [
   ],
   [
     MapPin,
-    "Live GPS Shift Telemetry",
-    "Real-time location sharing during all transits and shift check-ins for complete visibility.",
+    "Scheduled Shift Check-In Telemetry",
+    "Supervised check-ins during shift starts and transits for complete family visibility.",
   ],
   [
     Siren,
-    "Instant Emergency SOS Beacon",
-    "Every active booking includes a panic button directly routed to our central control room.",
+    "Emergency Escalation Protocol",
+    "Direct supervisor escalation channel and emergency contact coordination for urgent situations.",
   ],
   [
     Bell,
     "Automated Family Alerts",
-    "Real-time SMS and WhatsApp check-in and check-out logs delivered to primary kin contacts.",
+    "Real-time WhatsApp shift logs and routine living summaries delivered to designated family contacts.",
   ],
   [
     Radio,
-    "24/7 Command Center Monitoring",
-    "Continuous supervision with guaranteed 90-minute backup replacement dispatch.",
+    "Regional Cluster Coordination & Backup",
+    "Continuous coordinator oversight with priority standby backup protocol across active operational clusters.",
   ],
   [
     Headphones,
@@ -197,9 +197,9 @@ function Safety() {
         <div className="container-page">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <SectionHeading
-              eyebrow="Our Verified Team"
-              title="Meet Our Certified Attendant Specialists"
-              sub="Carefully selected women caregivers with police clearance, certifications, and fluent local language abilities."
+              eyebrow="Representative Profiles"
+              title="Illustrative Care Specialist Profiles"
+              sub="Representative profiles illustrating background screening standards, language fluencies, and practical care certifications across regional caregiver clusters."
             />
             <Button asChild variant="outline">
               <Link to="/safety-guidelines">

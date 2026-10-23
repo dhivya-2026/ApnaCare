@@ -455,11 +455,11 @@ export function CareNeedsCalculator() {
                 </li>
                 <li className="flex items-center gap-1.5">
                   <Check className="size-3 text-primary shrink-0" />
-                  <span>100% police & biometric Aadhaar verification on every caregiver</span>
+                  <span>Government photo ID verification & police background screening</span>
                 </li>
                 <li className="flex items-center gap-1.5">
                   <Check className="size-3 text-primary shrink-0" />
-                  <span>Guaranteed 90-minute backup replacement SLA in active clusters</span>
+                  <span>Priority standby backup protocol across active operational clusters</span>
                 </li>
               </ul>
             </div>

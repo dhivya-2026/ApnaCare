@@ -92,7 +92,7 @@ const COMMON_LANGS = ["English", "Hindi", "Tamil", "Kannada", "Telugu"];
 const commonFaq = [
   {
     q: "How are ApnaCare attendants verified?",
-    a: "Every attendant undergoes a rigorous 5-step background verification: biometric Aadhaar authentication, court and criminal record checks via authorized law enforcement partners, address verification, credential validation, and hands-on patient handling assessment.",
+    a: "Every attendant undergoes a structured 5-stage background verification: government photo ID authentication, police verification documentation filing, residential address checks, reference reviews, and practical caregiving skills assessment.",
   },
   {
     q: "Are there any surprise fees or dispatcher commissions?",
@@ -100,7 +100,7 @@ const commonFaq = [
   },
   {
     q: "What happens if our assigned attendant falls ill or has an emergency?",
-    a: "We maintain a guaranteed backup dispatch protocol in each active operating cluster. If your primary attendant cannot attend due to an emergency, a verified backup with matched skills is dispatched within 90 minutes with zero transition penalty.",
+    a: "We maintain a priority cluster backup protocol across our active operating hubs. If your primary attendant cannot attend due to an unexpected illness or emergency, our regional care coordinator prioritizes standby attendant reassignment to minimize disruption to your care schedule.",
   },
   {
     q: "Can I interview or review the attendant profile before confirmation?",
