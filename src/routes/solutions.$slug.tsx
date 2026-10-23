@@ -391,7 +391,7 @@ function ICPSolutionPage() {
           <div className="mt-12 text-center">
             <Button asChild variant="outline" size="lg">
               <Link to="/services">
-                View Complete Directory of 11 Services <ArrowRight className="size-4 ml-1.5" />
+                View All Services <ArrowRight className="size-4 ml-1.5" />
               </Link>
             </Button>
           </div>

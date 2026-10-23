@@ -321,10 +321,10 @@ const NAV_ITEMS: NavItem[] = [
           icon: ShieldCheck,
         },
         {
-          label: "View All 11 Care Portfolios",
+          label: "View All Services",
           to: "/services",
           description: "Complete catalogue with transparent pricing & SLAs",
-          badge: "Full Portfolio",
+          badge: "Full Catalogue",
           icon: Layers,
         },
       ],
@@ -1003,7 +1003,7 @@ function Footer() {
             </li>
             <li>
               <Link to="/services" className="hover:text-white transition-colors">
-                All 11 Services
+                View All Services
               </Link>
             </li>
             <li>

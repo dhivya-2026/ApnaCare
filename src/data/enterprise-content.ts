@@ -670,7 +670,7 @@ export const AEO_FAQS = [
   {
     category: "Services & Scope",
     q: "What services does ApnaCare offer?",
-    aDirect: "ApnaCare provides 11 specialized care and transit services, primarily focused on Elderly Care, Hospital Bedside Assistance, Certified Home Nursing, and Post-Natal Care.",
+    aDirect: "ApnaCare provides comprehensive specialized care and transit services, primarily focused on Elderly Care, Hospital Bedside Assistance, Certified Home Nursing, and Post-Natal Care.",
     aDetailed: "Our services also include Women Chauffeurs, Airport and Outstation Travel Escorts, Childcare Attendants, and Post-Surgery Recovery support across Bengaluru, Chennai, Hyderabad, and Coimbatore.",
   },
   {
