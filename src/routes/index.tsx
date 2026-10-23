@@ -22,7 +22,10 @@ import {
   Heart,
   Stethoscope,
   Info,
-  XCircle,
+  Check,
+  X,
+  Layers,
+  ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -54,23 +57,27 @@ import hero4 from "@/assets/hero-4.jpg";
 import hero5 from "@/assets/hero-5.jpg";
 import nursingCare from "@/assets/nursing-care.jpg";
 
-// Scannable, customer-focused FAQs
+// Scannable, customer-focused FAQs answering genuine family questions
 const FAQS = [
   {
     q: "How are ApnaCare attendants verified and vetted?",
-    a: "Every attendant undergoes a rigorous 5-step background verification: biometric Aadhaar authentication, court and criminal record checks via authorized law enforcement partners, address verification, credential validation, and hands-on patient handling assessment before any placement.",
+    a: "Every attendant undergoes a rigorous 5-step background verification: biometric Aadhaar authentication, court and criminal record checks via authorized law enforcement partners, address verification, credential validation, and practical patient-handling assessment before placement.",
   },
   {
     q: "What is the difference between a care attendant and a registered nurse?",
-    a: "A care attendant provides supportive personal care — companionship, mobility assistance, bathing, feeding accompaniment, and prescription reminder logging. A registered nurse (GNM or B.Sc. Nursing) is medically licensed to perform clinical procedures such as sterile wound dressings, IV infusions, injections, and catheter management under physician prescription.",
+    a: "A care attendant provides supportive personal care — companionship, mobility assistance, bathing, feeding accompaniment, and oral prescription reminder logging. A registered nurse (GNM or B.Sc. Nursing) is medically licensed to perform clinical procedures such as sterile wound dressings, IV infusions, injections, and catheter management under physician prescription.",
   },
   {
     q: "How do families receive daily care updates?",
-    a: "Attendants maintain daily digital activity logs recording vital signs, meal intake, and routine comfort. Families receive scheduled daily WhatsApp wellness summaries and have direct contact with their assigned care coordinator at all times.",
+    a: "Attendants maintain daily digital activity logs recording vital signs, meal intake, and routine comfort. Families receive scheduled daily WhatsApp wellness summaries and have direct contact with their designated regional care coordinator at all times.",
   },
   {
     q: "What happens if our assigned attendant falls ill or has an emergency?",
     a: "We maintain a guaranteed backup dispatch protocol in each active operating cluster (Bengaluru, Chennai, Hyderabad, and Coimbatore). If your primary attendant cannot attend due to an emergency, a verified backup with matched skills is dispatched within 90 minutes with zero transition penalty.",
+  },
+  {
+    q: "Can we preview the attendant profile before confirming?",
+    a: "Yes. Once you share your requirements, your care coordinator shares the verified digital profile with background clearance, experience records, and language fluencies so your family can review and approve before work begins.",
   },
   {
     q: "Are there any hidden agency commissions or surprise fees?",
@@ -105,6 +112,7 @@ const FAMILY_SITUATIONS = [
     id: "aging-parent",
     title: "Helping an Ageing Parent",
     tagline: "Dignified everyday living at home",
+    trigger: "When daily living becomes difficult or parents live independently.",
     description:
       "Gentle personal hygiene assistance, mobility support, medication routines, and warm companionship so seniors live safely and comfortably in familiar surroundings.",
     serviceName: "Elderly Care at Home",
@@ -117,8 +125,9 @@ const FAMILY_SITUATIONS = [
   },
   {
     id: "post-hospital",
-    title: "Supporting Someone After Hospitalisation",
+    title: "Supporting Hospital Recovery",
     tagline: "Bedside vigil & steady recovery",
+    trigger: "When discharge arrives and round-the-clock bedside healing begins.",
     description:
       "Dedicated bedside attendants during hospital stays and post-discharge recovery at home, coordinating with doctors and nursing staff for seamless recuperation.",
     serviceName: "Hospital & Bedside Support",
@@ -131,8 +140,9 @@ const FAMILY_SITUATIONS = [
   },
   {
     id: "postnatal-newborn",
-    title: "Arranging Postnatal or Newborn Support",
+    title: "Postnatal & Infant Support",
     tagline: "Gentle recovery for mother and baby",
+    trigger: "When new mothers need restorative sleep and infant guidance.",
     description:
       "Trained maternal and infant caregivers who assist with gentle newborn massage, soothing routines, and night vigil so new mothers get restorative rest.",
     serviceName: "Post-Natal Maternal Support",
@@ -145,10 +155,11 @@ const FAMILY_SITUATIONS = [
   },
   {
     id: "travel-mobility",
-    title: "Assistance During Travel & Mobility",
+    title: "Assisted Travel & Mobility",
     tagline: "Safe transit & travel accompaniment",
+    trigger: "When medical checkups, outstation transit, or rail journeys need support.",
     description:
-      "Vetted women chauffeuses and mobility companions for medical checkups, airport arrivals, railway journeys, and safe local city transit.",
+      "Vetted women chauffeuses and mobility companions for medical visits, airport arrivals, railway journeys, and safe local city transit.",
     serviceName: "Travel & Mobility Support",
     serviceSlug: "travel-assistance",
     image: hero5,
@@ -159,36 +170,106 @@ const FAMILY_SITUATIONS = [
   },
 ];
 
-// Section 3: Making Coordination Visible — Independent arrangements vs ApnaCare Facilitation
-const INDEPENDENT_VS_APNACARE = [
+// Section 3 Concept: Side-by-Side Coordination Comparison
+const COORDINATION_COMPARISONS = [
   {
-    dimension: "Caregiver Vetting",
-    independent: "Searching informal classifieds or unverified contacts with unknown background history.",
-    apnaCare: "Biometric Aadhaar check, criminal screening, and address verification on file before assignment.",
+    category: "Finding & Vetting Caregivers",
+    independent: {
+      headline: "Scattered Search & Uncertain Background",
+      points: [
+        "Calling multiple informal brokers or asking friends with uncertain availability",
+        "Relying on self-reported claims without verified criminal or court background checks",
+        "Uncertainty about identity or residential history before inviting someone into home",
+      ],
+    },
+    apnaCare: {
+      headline: "Pre-Verified Staff & Clear Credentials",
+      points: [
+        "Every attendant pre-screened with biometric Aadhaar and police verification",
+        "Practical training in patient mobility transfer and hygiene ergonomics",
+        "Verified digital profile previewed and confirmed before work begins",
+      ],
+    },
   },
   {
-    dimension: "Role & Task Clarity",
-    independent: "Ambiguity over whether the helper can safely handle patient transfers or medication schedules.",
-    apnaCare: "Explicit service boundaries separating supportive daily living attendants from registered clinical nurses.",
+    category: "Clinical vs. Supportive Boundaries",
+    independent: {
+      headline: "Unclear Roles & Safety Risks",
+      points: [
+        "Confusion between general helpers and trained medical personnel",
+        "Risk of uncertified attendants attempting sterile or invasive procedures",
+        "No structured checklist of daily tasks and hygiene responsibilities",
+      ],
+    },
+    apnaCare: {
+      headline: "Documented Scope & Role Distinction",
+      points: [
+        "Clear boundary: Attendants support daily living; GNM/B.Sc nurses perform clinical tasks",
+        "Injections and catheter management strictly reserved for licensed nurses under doctor prescription",
+        "Explicit daily task plan agreed between family and care coordinator",
+      ],
+    },
   },
   {
-    dimension: "Shift Continuity & Backups",
-    independent: "Caregiver calls in sick; family members must suddenly cancel work or rush to fill in.",
-    apnaCare: "Guaranteed 90-minute regional backup dispatch protocol in active clusters with zero transition penalty.",
+    category: "Caregiver Absence & Unexpected Illness",
+    independent: {
+      headline: "Scrambling with Zero Backup",
+      points: [
+        "If caregiver is ill or leaves unexpectedly, the family is left alone without notice",
+        "Forced emergency leaves from work or frantic search for last-minute replacements",
+        "Repeating training and explaining routines to untested temporary substitutes",
+      ],
+    },
+    apnaCare: {
+      headline: "Guaranteed 90-Min Regional Backup",
+      points: [
+        "Cluster-based backup protocol across Bengaluru, Chennai, Hyderabad, and Coimbatore",
+        "Replacement attendant dispatched within 90 minutes with zero transition penalty",
+        "Continuous supervisor oversight ensures care continuity without family disruption",
+      ],
+    },
   },
   {
-    dimension: "Daytime Transparency",
-    independent: "Constant anxiety during work; calling repeatedly to verify if medicines and meals were given.",
-    apnaCare: "Scheduled daily WhatsApp wellness summaries logging vitals, meals, and comfort with direct supervisor access.",
+    category: "Daily Visibility & Family Communication",
+    independent: {
+      headline: "Constant Worry & Phone Calls",
+      points: [
+        "Repeated check-in calls to check if medicines were given on schedule",
+        "No objective record of meal intake, vitals, or daily comfort",
+        "High anxiety for family members working away from home or in other cities",
+      ],
+    },
+    apnaCare: {
+      headline: "Scheduled WhatsApp Summaries",
+      points: [
+        "Daily digital wellness logs recording vitals, meals, and mobility routines",
+        "Direct contact with a dedicated regional care coordinator at all times",
+        "Peace of mind knowing your loved one is supported even when living at a distance",
+      ],
+    },
   },
   {
-    dimension: "Pricing & Invoicing",
-    independent: "Cash negotiations, unexpected broker markups, and no official tax invoice for reimbursement.",
-    apnaCare: "Published per-day rates with transparent 18% statutory GST tax invoices and zero broker surcharges.",
+    category: "Pricing & Billing Transparency",
+    independent: {
+      headline: "Hidden Surcharges & Cash Uncertainty",
+      points: [
+        "Unexpected agency commissions, surge charges, or cash-only demands",
+        "No formal tax invoices available for medical insurance reimbursement",
+        "Vague refund or cancellation policies if expectations are not met",
+      ],
+    },
+    apnaCare: {
+      headline: "Fixed Rates & Official GST Invoicing",
+      points: [
+        "Upfront published per-day and per-shift pricing with zero broker markups",
+        "Official 18% statutory GST tax invoices provided for every booking",
+        "Clear refund and replacement terms documented prior to confirmation",
+      ],
+    },
   },
 ];
 
-// Section 3: Visual sequence showing the difference care makes
+// Section 3 Concept: Four-Stage Relief Progression
 const CARE_DIFFERENCE_STEPS = [
   {
     step: "01",
@@ -332,6 +413,7 @@ function HomePage() {
   const [attendantCity, setAttendantCity] = useState("All");
   const [homeBizOpen, setHomeBizOpen] = useState(false);
   const [showNavigator, setShowNavigator] = useState(false);
+  const [coordinationView, setCoordinationView] = useState<"comparison" | "journey">("comparison");
 
   // Smooth scroll to hash anchor on load and on hash change
   useEffect(() => {
@@ -361,7 +443,7 @@ function HomePage() {
       {/* ─────────────────────────────────────────────────────────────
           1. HUMAN-CENTRED HERO
           - Single memorable headline
-          - Concise supporting sentence
+          - Concise supporting sentence answering what, who, and where
           - Prominent primary CTA to booking/enquiry
           - Secondary action to existing contact channel (call/WhatsApp)
           - Warm, authentic visual (no carousel or long intro paragraph)
@@ -374,7 +456,7 @@ function HomePage() {
               {/* Eyebrow Pill */}
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3.5 py-1.5 text-xs font-semibold text-primary backdrop-blur">
                 <Sparkles className="size-3.5 text-terracotta" />
-                <span>Verified Family Care & Assistance</span>
+                <span>Verified Home & Hospital Care Across South India</span>
               </div>
 
               {/* One Memorable Headline */}
@@ -384,7 +466,7 @@ function HomePage() {
 
               {/* One Concise Supporting Sentence */}
               <p className="mt-4 max-w-xl text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-                We take the coordination burden off your family by arranging vetted, police-cleared women attendants and licensed nurses for elderly parents, hospital stays, and post-surgery recovery across South India.
+                We help families arrange dependable, police-verified care attendants and licensed nurses for elderly parents, hospital recovery, and post-natal care — handling verification, coordination, and daily updates.
               </p>
 
               {/* Primary and Secondary Action Buttons */}
@@ -398,7 +480,7 @@ function HomePage() {
                     to="/booking"
                     onClick={() => track("hero_request_assistance")}
                   >
-                    Request Assistance
+                    Request Care Consultation
                     <ArrowRight className="ml-2 size-4" />
                   </Link>
                 </Button>
@@ -414,7 +496,7 @@ function HomePage() {
                     className="inline-flex items-center gap-2"
                   >
                     <Phone className="size-4 text-primary" />
-                    <span>Call Coordinator ({SITE.SUPPORT_PHONE})</span>
+                    <span>Speak with Coordinator ({SITE.SUPPORT_PHONE})</span>
                   </a>
                 </Button>
               </div>
@@ -423,11 +505,11 @@ function HomePage() {
               <div className="mt-8 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-medium text-muted-foreground pt-4 border-t border-border/60">
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
                   <ShieldCheck className="size-4 text-primary" />
-                  100% Police & ID Verified
+                  100% Police & Biometric ID Check
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
                   <BadgeCheck className="size-4 text-terracotta" />
-                  Clear Attendant vs Nurse Scope
+                  Attendant vs. Licensed Nurse Clarity
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Clock className="size-4 text-primary" />
@@ -509,12 +591,8 @@ function HomePage() {
 
       {/* ─────────────────────────────────────────────────────────────
           2. FAMILY SITUATIONS
-          - 3 or 4 visual cards showing common care situations
-          - Helping an ageing parent
-          - Supporting someone after hospitalisation
-          - Arranging postnatal or newborn support
-          - Getting assistance during travel or mobility needs
-          - Only options matching services actually offered
+          - 4 visual cards showing common care situations
+          - Clear trigger situation, practical solution, and service link
       ───────────────────────────────────────────────────────────── */}
       <section id="family-situations" className="py-16 md:py-24 border-b border-border/50 bg-background scroll-mt-20">
         <div className="container-page">
@@ -559,6 +637,9 @@ function HomePage() {
                     <h3 className="mt-2 font-display text-lg font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
                       {situation.title}
                     </h3>
+                    <p className="mt-1.5 text-[11px] font-medium text-foreground/85 italic">
+                      "{situation.trigger}"
+                    </p>
                     <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                       {situation.description}
                     </p>
@@ -599,192 +680,189 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          3. SHOW THE DIFFERENCE CARE MAKES & MAKE COORDINATION VISIBLE
-          - Side-by-side comparison: Arranging care independently vs ApnaCare Facilitation
-          - Clear, honest task distinction and coordination burden relief
-          - Followed by the 4-phase care reassurance journey
-          - Fair responsibility disclosure on clinical oversight
+          3. MAKING TIME, COORDINATION & VALUE VISIBLE
+          - Interactive view toggle:
+            A. Side-by-Side Coordination Comparison (Arranging Independently vs ApnaCare)
+            B. Four-Stage Relief Progression (Concern -> Consultation -> Matched Care -> Peace of Mind)
       ───────────────────────────────────────────────────────────── */}
-      <section className="py-16 md:py-24 border-b border-border/50 bg-secondary/25">
+      <section id="coordination-value" className="py-16 md:py-24 border-b border-border/50 bg-secondary/25 scroll-mt-20">
         <div className="container-page">
-          {/* Header */}
-          <div className="max-w-3xl">
-            <p className="eyebrow">Making Care Coordination Visible</p>
-            <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
-              Why Arranging Care Feels Heavy — And How ApnaCare Helps
-            </h2>
-            <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Finding dependable care on your own often involves hours of phone calls, screening uncertainty, and sudden shift cancellations. Here is how ApnaCare takes the operational scramble off your shoulders while keeping you in complete control.
-            </p>
-          </div>
-
-          {/* Side-by-Side Coordination Comparison Matrix */}
-          <div className="mt-12 grid gap-8 lg:grid-cols-2">
-            {/* Column A: Arranging Care Independently */}
-            <div className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-soft flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
-                  <div className="grid size-10 place-items-center rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-400">
-                    <AlertCircle className="size-5" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">The Usual Route</span>
-                    <h3 className="font-display text-lg font-bold text-foreground">
-                      Arranging Care Independently
-                    </h3>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-                  When families try to piece together care via unvetted classifieds, informal word-of-mouth, or temporary agencies:
-                </p>
-
-                <div className="space-y-4">
-                  {INDEPENDENT_VS_APNACARE.map((item, idx) => (
-                    <div key={idx} className="flex items-start gap-3 text-xs">
-                      <XCircle className="size-4 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
-                      <div>
-                        <strong className="font-semibold text-foreground block text-[11px] mb-0.5">
-                          {item.dimension}:
-                        </strong>
-                        <span className="text-muted-foreground leading-relaxed">
-                          {item.independent}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-border/60">
-                <p className="text-[11px] text-muted-foreground italic">
-                  Family outcome: Lingering anxiety, repeated phone calls during the workday, and time taken away from personal rest.
-                </p>
-              </div>
-            </div>
-
-            {/* Column B: Facilitated with ApnaCare */}
-            <div className="rounded-3xl border-2 border-primary/30 bg-card p-6 md:p-8 shadow-lift relative flex flex-col justify-between">
-              <span className="absolute -top-3 right-6 rounded-full bg-primary px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow-xs">
-                With ApnaCare Facilitation
-              </span>
-
-              <div>
-                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
-                  <div className="grid size-10 place-items-center rounded-2xl bg-primary-soft text-primary">
-                    <ShieldCheck className="size-5" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-primary font-semibold">Structured Care Partner</span>
-                    <h3 className="font-display text-lg font-bold text-foreground">
-                      Facilitated by ApnaCare
-                    </h3>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-                  A dedicated care coordinator organizes vetted staff, transparent pricing, and daily communication:
-                </p>
-
-                <div className="space-y-4">
-                  {INDEPENDENT_VS_APNACARE.map((item, idx) => (
-                    <div key={idx} className="flex items-start gap-3 text-xs">
-                      <CheckCircle2 className="size-4 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <strong className="font-semibold text-foreground block text-[11px] mb-0.5">
-                          {item.dimension}:
-                        </strong>
-                        <span className="text-foreground/90 leading-relaxed font-medium">
-                          {item.apnaCare}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-border/60">
-                <p className="text-[11px] text-primary font-semibold">
-                  Family outcome: Predictable daily routines, scheduled WhatsApp updates, and dependable regional backup peace of mind.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Honest Responsibility Boundary Disclosure */}
-          <div className="mt-8 rounded-2xl border border-primary/20 bg-background/80 p-4 md:p-5 flex items-start gap-3 text-xs text-muted-foreground">
-            <Info className="size-4 text-primary shrink-0 mt-0.5" />
-            <p className="leading-relaxed">
-              <strong className="text-foreground font-semibold">Fair Responsibility Notice:</strong> ApnaCare coordinates caregiver vetting, matching, schedule backup, and daily activity logs. Medical diagnoses, prescription modifications, and treating physician consultations remain under the family's clinical direction.
-            </p>
-          </div>
-
-          {/* 4-Phase Progression: From Anxiety to Daily Peace of Mind */}
-          <div className="mt-16">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div className="max-w-2xl">
-              <span className="eyebrow">The Care Journey</span>
-              <h3 className="mt-1 text-2xl font-bold font-display text-foreground">
-                From Anxiety to Daily Peace of Mind
-              </h3>
-              <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-                How our four-stage facilitation moves your family from initial concern to daily reassurance.
+              <p className="eyebrow">The Real Value of Care Coordination</p>
+              <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
+                How ApnaCare Lightens the Burden on Families
+              </h2>
+              <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
+                Arranging care is rarely just about finding a person. It is about background checks, emergency replacements, medical boundaries, and daily peace of mind.
               </p>
             </div>
 
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {CARE_DIFFERENCE_STEPS.map((step) => {
-                const Icon = step.icon;
-                return (
-                  <div
-                    key={step.step}
-                    className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:shadow-lift"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="font-display text-2xl font-bold text-primary/40">
-                          {step.step}
-                        </span>
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${step.colorClass}`}>
-                          {step.phase}
-                        </span>
-                      </div>
+            {/* View Mode Switcher */}
+            <div className="inline-flex items-center rounded-2xl border border-border bg-card p-1 shadow-xs shrink-0">
+              <button
+                type="button"
+                onClick={() => setCoordinationView("comparison")}
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all min-h-[38px] ${
+                  coordinationView === "comparison"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <ArrowLeftRight className="size-3.5" />
+                <span>Side-by-Side Comparison</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCoordinationView("journey")}
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all min-h-[38px] ${
+                  coordinationView === "journey"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Layers className="size-3.5" />
+                <span>4-Stage Relief Journey</span>
+              </button>
+            </div>
+          </div>
 
-                      <div className="grid size-11 place-items-center rounded-2xl bg-primary-soft text-primary mb-4">
-                        <Icon className="size-5.5" />
-                      </div>
+          {/* VIEW A: Side-by-Side Comparison Table / Cards */}
+          {coordinationView === "comparison" && (
+            <div className="mt-10 space-y-4">
+              <div className="hidden md:grid md:grid-cols-12 gap-4 pb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground px-4">
+                <div className="col-span-3">Care Coordination Area</div>
+                <div className="col-span-4 text-amber-800 dark:text-amber-400">Arranging Care Independently</div>
+                <div className="col-span-5 text-primary">Coordinated Through ApnaCare</div>
+              </div>
 
-                      <h4 className="text-base font-bold text-foreground leading-snug">
-                        {step.title}
-                      </h4>
-                      <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                        {step.description}
-                      </p>
+              {COORDINATION_COMPARISONS.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-200 hover:shadow-lift"
+                >
+                  <div className="grid gap-6 md:grid-cols-12 md:items-start">
+                    {/* Category Label */}
+                    <div className="md:col-span-3">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-terracotta block">
+                        Area {idx + 1}
+                      </span>
+                      <h3 className="font-display text-base font-bold text-foreground mt-0.5">
+                        {item.category}
+                      </h3>
                     </div>
 
-                    <div className="mt-5 pt-3 border-t border-border/60">
-                      <span className="text-[11px] font-medium text-primary">
-                        {step.phase === "Family Concern" && "Immediate consultation available"}
-                        {step.phase === "Thoughtful Discussion" && "Direct coordinator conversation"}
-                        {step.phase === "Support Arranged" && "Verified dossier preview"}
-                        {step.phase === "Peace of Mind" && "Daily WhatsApp logs & oversight"}
-                      </span>
+                    {/* Independent Setup (Factual burden) */}
+                    <div className="md:col-span-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-400 mb-2">
+                        <AlertCircle className="size-3.5 shrink-0" />
+                        <span>Independent Arrangement</span>
+                      </div>
+                      <p className="text-xs font-semibold text-foreground mb-2">
+                        {item.independent.headline}
+                      </p>
+                      <ul className="space-y-1.5 text-xs text-muted-foreground">
+                        {item.independent.points.map((p, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-amber-700 dark:text-amber-400 font-bold mt-0.5">•</span>
+                            <span>{p}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* ApnaCare Solution (Facilitated relief) */}
+                    <div className="md:col-span-5 rounded-2xl border border-primary/25 bg-primary-soft/40 p-4">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-primary mb-2">
+                        <CheckCircle2 className="size-3.5 shrink-0 text-primary" />
+                        <span>With ApnaCare Coordination</span>
+                      </div>
+                      <p className="text-xs font-semibold text-foreground mb-2">
+                        {item.apnaCare.headline}
+                      </p>
+                      <ul className="space-y-1.5 text-xs text-foreground/90">
+                        {item.apnaCare.points.map((p, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <Check className="size-3.5 text-primary shrink-0 mt-0.5" />
+                            <span>{p}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                </div>
+              ))}
 
-          {/* Bottom Reassurance Banner */}
-          <div className="mt-10 rounded-2xl border border-primary/20 bg-primary-soft/40 p-5 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="size-5 text-primary shrink-0" />
-              <p className="text-xs sm:text-sm text-foreground font-medium">
-                Every placement includes transparent pricing, 18% GST tax invoicing, and our 90-minute regional backup commitment.
-              </p>
+              <div className="rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 text-xs text-muted-foreground flex flex-wrap items-center justify-between gap-3">
+                <p>
+                  <strong className="text-foreground">Clear Division of Responsibilities:</strong> ApnaCare facilitates candidate screening, credential dossiers, emergency replacements, and daily updates. Families retain clinical authority under treating doctor guidance.
+                </p>
+                <Link to="/safety" className="font-semibold text-primary hover:underline shrink-0">
+                  Read our full safety protocols →
+                </Link>
+              </div>
             </div>
-            <Button asChild size="sm" className="rounded-full font-bold">
-              <a href="#how-it-works">See How We Onboard →</a>
-            </Button>
-          </div>
+          )}
+
+          {/* VIEW B: Four-Stage Relief Progression */}
+          {coordinationView === "journey" && (
+            <div className="mt-10">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {CARE_DIFFERENCE_STEPS.map((step) => {
+                  const Icon = step.icon;
+                  return (
+                    <div
+                      key={step.step}
+                      className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:shadow-lift"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="font-display text-2xl font-bold text-primary/40">
+                            {step.step}
+                          </span>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${step.colorClass}`}>
+                            {step.phase}
+                          </span>
+                        </div>
+
+                        <div className="grid size-11 place-items-center rounded-2xl bg-primary-soft text-primary mb-4">
+                          <Icon className="size-5.5" />
+                        </div>
+
+                        <h3 className="text-base font-bold text-foreground leading-snug">
+                          {step.title}
+                        </h3>
+                        <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                          {step.description}
+                        </p>
+                      </div>
+
+                      <div className="mt-5 pt-3 border-t border-border/60">
+                        <span className="text-[11px] font-medium text-primary">
+                          {step.phase === "Family Concern" && "Immediate consultation available"}
+                          {step.phase === "Thoughtful Discussion" && "Direct coordinator conversation"}
+                          {step.phase === "Support Arranged" && "Verified dossier preview"}
+                          {step.phase === "Peace of Mind" && "Daily WhatsApp logs & oversight"}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-8 rounded-2xl border border-primary/20 bg-primary-soft/40 p-5 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="size-5 text-primary shrink-0" />
+                  <p className="text-xs sm:text-sm text-foreground font-medium">
+                    Every placement includes transparent pricing, 18% GST tax invoicing, and our 90-minute regional backup commitment.
+                  </p>
+                </div>
+                <Button asChild size="sm" className="rounded-full font-bold">
+                  <a href="#how-it-works">See How We Onboard →</a>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
