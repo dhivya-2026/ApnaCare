@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { CheckCircle2, MapPin, ShieldCheck, ArrowLeft, ArrowRight, Languages, Calendar, Clock, Sparkles, Building2 } from "lucide-react";
+import { CheckCircle2, MapPin, ShieldCheck, ArrowLeft, ArrowRight, Languages, Calendar, Clock, Sparkles, Building2, AlertCircle, RefreshCw, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,7 @@ import { PredictableNextSteps } from "@/components/site/PredictableNextSteps";
 import { fieldErrors, nameSchema, optionalEmail, phoneSchema } from "@/lib/validation";
 import { findPromo, getSavedPromo, savePromo } from "@/lib/promo";
 import { calcBookingTotal } from "@/lib/pricing";
-import { track, sendToGoogleSheet } from "@/lib/analytics";
+import { track, submitLeadWithReliability } from "@/lib/analytics";
 import { recordBookingDraft, recordServiceInteraction } from "@/lib/sessionEngine";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
@@ -96,16 +96,17 @@ function BookingPage() {
   const [promoInput, setPromoInput] = useState("");
   const [promo, setPromo] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const [bookingCat, setBookingCat] = useState<string>(search.category || "all");
   const [bizModalOpen, setBizModalOpen] = useState(false);
+  const [idempotencyToken] = useState(() => "IDEMP-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7));
 
   // Sync draft to sessionStorage + record cross-session timestamp
   useEffect(() => {
     if (typeof window !== "undefined") {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(f));
       // Record draft timestamp in journey memory for cross-session resumption
-      // Only record when visitor has entered meaningful data (not just landing)
       const hasContent = !!(f.serviceId || f.city || f.date);
       if (hasContent) {
         recordBookingDraft();
@@ -114,9 +115,16 @@ function BookingPage() {
   }, [f]);
 
   useEffect(() => {
+    track("booking_started", {
+      service_id: f.serviceId,
+      city: f.city,
+      referral_source: "website_booking_flow",
+      idempotency_token: idempotencyToken,
+    });
+    // Backward compatibility
     track("booking_flow_started", { page_path: "/booking" });
-    // Record that the visitor reached the booking page
     recordBookingDraft();
+
     const p = getSavedPromo();
     if (p) {
       setPromoInput(p);
@@ -139,31 +147,56 @@ function BookingPage() {
     [svc, f.duration, promo]
   );
 
-  const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
+  const set = (k: keyof typeof f) => (e: { target: { value: string } }) => {
+    setF({ ...f, [k]: e.target.value });
+    if (submitError) setSubmitError(null);
+  };
 
   const next = () => {
     const r = stepSchemas[step]!.safeParse(f);
     if (!r.success) {
-      setErrors(fieldErrors(r.error));
+      const errs = fieldErrors(r.error);
+      setErrors(errs);
+      track("booking_validation_failed", {
+        step_index: step,
+        step_name: STEPS[step],
+        failed_fields: Object.keys(errs).join(", "),
+        error_count: Object.keys(errs).length,
+      });
       return;
     }
     setErrors({});
-    track("booking_step_completed", { step: STEPS[step] });
+    track("booking_step_completed", {
+      step_index: step,
+      step_name: STEPS[step],
+      service_id: f.serviceId,
+      city: f.city,
+      duration_days: f.duration,
+    });
     setStep(step + 1);
   };
 
   const submit = async () => {
     if (submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
     const ref = "AC-" + Date.now().toString(36).toUpperCase().slice(-6);
 
-    // Forward booking directly to Google Sheet
-    await sendToGoogleSheet({
+    track("booking_submission_attempted", {
+      booking_ref: ref,
+      service_id: f.serviceId,
+      city: f.city,
+      duration_days: f.duration,
+      idempotency_token: idempotencyToken,
+    });
+
+    const result = await submitLeadWithReliability({
       event_type: "booking",
       event_name: "booking_completed",
       lead_type: "BOOKING",
       form_name: "6-Step Booking Form",
       booking_ref: ref,
+      idempotency_token: idempotencyToken,
       customer_name: f.name,
       name: f.name,
       mobile: f.mobile,
@@ -189,13 +222,29 @@ function BookingPage() {
       page_path: "/booking",
     });
 
-    track("booking_submitted", { service: f.serviceId, city: f.city, ref });
-    track("booking_success", { ref });
-    savePromo(null);
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem(STORAGE_KEY);
+    if (result.success) {
+      track("booking_submission_succeeded", {
+        booking_ref: ref,
+        service_id: f.serviceId,
+        city: f.city,
+        status: result.status,
+      });
+      track("booking_submitted", { service: f.serviceId, city: f.city, ref });
+      track("booking_success", { ref });
+      savePromo(null);
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+      setDone(ref);
+    } else {
+      track("booking_submission_failed", {
+        booking_ref: ref,
+        error_code: result.status,
+      });
+      setSubmitError(
+        "Transmission issue: We could not reach the care desk webhook. Your entered details have been preserved. You can click 'Retry Submission' below or reach our coordinator directly on WhatsApp."
+      );
     }
-    setDone(ref);
     setSubmitting(false);
   };
 
@@ -207,13 +256,33 @@ function BookingPage() {
             <CheckCircle2 className="size-10" />
           </div>
           <span className="mt-4 inline-block text-xs font-bold uppercase tracking-wider text-terracotta">
-            Booking Confirmed & Dispatched
+            Care Request Accepted & Logged
           </span>
           <h1 className="mt-2 text-3xl font-semibold">Care Request Successfully Registered</h1>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             Your unique booking reference is <strong className="text-foreground font-mono text-base">{done}</strong>.
             A regional care coordinator has received this request and will reach out on your mobile number to confirm the assigned attendant profile.
           </p>
+
+          {/* Lead Pipeline Processing Transparency */}
+          <div className="mt-6 rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 text-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Submission Received:</span>
+              <span className="font-semibold text-foreground font-mono">{done}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Webhook Status:</span>
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400">Accepted by Command Desk</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Downstream Processing:</span>
+              <span className="font-semibold text-primary">Pending Coordinator Dispatch (Within 2 Hours)</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Verification Check:</span>
+              <span className="font-semibold text-foreground">Govt ID & Police Screening Verified</span>
+            </div>
+          </div>
 
           <dl className="mt-8 grid grid-cols-2 gap-4 rounded-2xl bg-secondary/50 p-6 text-sm">
             {[
@@ -469,6 +538,34 @@ function BookingPage() {
                     ))}
                   </div>
                 )}
+                {/* Clinical & Service Boundaries Callout */}
+                {f.serviceId === "nursing-services" && (
+                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
+                    <AlertCircle className="size-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                    <div>
+                      <strong className="block font-semibold">Clinical Nursing Prerequisite:</strong>
+                      Home nursing requires an active physician prescription and an initial clinical intake review. Attendants are strictly non-clinical; qualified GNM/B.Sc nurses perform clinical procedures.
+                    </div>
+                  </div>
+                )}
+                {f.serviceId === "hospital-attendants" && (
+                  <div className="rounded-xl border border-primary/30 bg-primary-soft/40 p-3.5 text-xs text-foreground/90 flex items-start gap-2">
+                    <ShieldCheck className="size-4 shrink-0 text-primary mt-0.5" />
+                    <div>
+                      <strong className="block font-semibold text-primary">Hospital Attendant Scope of Care:</strong>
+                      Attendants provide continuous non-clinical bedside comfort (repositioning, hygiene, feeding support, and ambulation). Ward nursing and medication administration remain hospital staff responsibilities.
+                    </div>
+                  </div>
+                )}
+                {f.serviceId === "travel-assistance" && (
+                  <div className="rounded-xl border border-primary/30 bg-primary-soft/40 p-3.5 text-xs text-foreground/90 flex items-start gap-2">
+                    <MapPin className="size-4 shrink-0 text-primary mt-0.5" />
+                    <div>
+                      <strong className="block font-semibold text-primary">Travel Escort Boundary:</strong>
+                      ApnaCare provides physical accompaniment and safety supervision during transit. Flight tickets, rail fares, and passenger transit tickets are booked and paid directly by the client.
+                    </div>
+                  </div>
+                )}
                 <Err k="serviceId" />
               </div>
             )}
@@ -480,6 +577,18 @@ function BookingPage() {
                 <p className="text-sm text-muted-foreground">
                   Where should the attendant report? We maintain local attendant clusters in all active metro zones.
                 </p>
+
+                {/* Planned City Expression of Interest Notice */}
+                <div className="rounded-xl border border-border bg-secondary/40 p-3.5 text-xs text-muted-foreground flex items-start gap-2.5">
+                  <MapPin className="size-4 text-primary shrink-0 mt-0.5" />
+                  <p>
+                    Looking for services in <strong>Kochi, Mysuru, or Pune</strong>? Direct instant bookings are limited to our 4 active metros.{" "}
+                    <Link to="/contact" search={{ intent: "city_interest" }} className="text-primary font-semibold underline underline-offset-2">
+                      Submit an Expression of Interest →
+                    </Link>
+                  </p>
+                </div>
+
                 <div>
                   <Label htmlFor="city">Metropolitan City *</Label>
                   <select
@@ -666,8 +775,38 @@ function BookingPage() {
             )}
           </div>
 
+          {/* Actionable Error & Retry Banner */}
+          {submitError && (
+            <div className="mt-6 rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive flex items-start gap-3 animate-fade-in">
+              <AlertCircle className="size-5 shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-2">
+                <p className="font-semibold">Submission Not Completed</p>
+                <p className="text-xs text-foreground/90">{submitError}</p>
+                <div className="pt-1 flex flex-wrap items-center gap-3">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="default"
+                    onClick={submit}
+                    disabled={submitting}
+                    className="gap-1.5 min-h-[36px]"
+                  >
+                    <RefreshCw className={cn("size-3.5", submitting && "animate-spin")} />
+                    Retry Submission
+                  </Button>
+                  <a
+                    href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary underline min-h-[36px]"
+                  >
+                    <Phone className="size-3" /> Call Helpline {SITE.SUPPORT_PHONE}
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Stepper Controls */}
-          <div className="mt-10 flex items-center justify-between gap-4 border-t border-border pt-6">
+          <div className="mt-8 flex items-center justify-between gap-4 border-t border-border pt-6">
             <Button
               variant="outline"
               disabled={step === 0}

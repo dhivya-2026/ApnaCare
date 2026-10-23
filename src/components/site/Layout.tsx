@@ -57,7 +57,14 @@ export function CallLink({
     <Button asChild variant={variant} size={size} className={className}>
       <a
         href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
-        onClick={() => track("support_call_click")}
+        onClick={() => {
+          track("phone_contact_clicked", {
+            channel_type: "support_phone",
+            destination_number: SITE.SUPPORT_PHONE_TEL,
+            source_page: typeof window !== "undefined" ? window.location.pathname : "",
+          });
+          track("support_call_click");
+        }}
         aria-label={`Call support at ${SITE.SUPPORT_PHONE}`}
       >
         <Phone /> {children ?? "Call Support"}
@@ -93,6 +100,12 @@ export function BookLink({
         to="/booking"
         search={searchParams}
         onClick={() => {
+          track("consultation_cta_clicked", {
+            service,
+            city,
+            target_url: "/booking",
+            cta_text: typeof children === "string" ? children : "Request Assistance",
+          });
           track("booking_cta_click", { service, city });
           if (onClick) onClick();
         }}
@@ -896,7 +909,10 @@ function Header() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Chat on WhatsApp"
-              onClick={() => track("whatsapp_header_click")}
+              onClick={() => {
+                track("whatsapp_contact_clicked", { source_location: "header_desktop" });
+                track("whatsapp_header_click");
+              }}
               className="hidden sm:inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/10 px-3.5 py-2 text-xs font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/20 shrink-0 whitespace-nowrap min-h-[44px]"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-4 text-[#25D366]" aria-hidden="true">
@@ -947,6 +963,7 @@ function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => {
+                  track("whatsapp_contact_clicked", { source_location: "mobile_menu" });
                   track("whatsapp_mobile_click");
                   setMobileOpen(false);
                 }}
@@ -1210,7 +1227,10 @@ function FloatingWhatsApp() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with ApnaCare on WhatsApp"
-      onClick={() => track("whatsapp_floating_click")}
+      onClick={() => {
+        track("whatsapp_contact_clicked", { source_location: "floating_fab" });
+        track("whatsapp_floating_click");
+      }}
       className="fixed bottom-6 left-4 z-40 hidden items-center justify-center rounded-full bg-[#25D366] text-white shadow-lift transition-transform hover:scale-105 md:flex size-14 focus-ring"
     >
       <svg viewBox="0 0 24 24" fill="currentColor" className="size-7" aria-hidden="true">

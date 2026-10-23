@@ -759,17 +759,280 @@ export function trackClickInteraction(details: Props) {
   });
 }
 
+// ─── Phase 5: Standard Event Taxonomy & Privacy Guardrails ──────────────────
+
+export type ApnaCareEventName =
+  | "care_situation_selected"
+  | "service_detail_viewed"
+  | "city_availability_checked"
+  | "pricing_details_viewed"
+  | "consultation_cta_clicked"
+  | "booking_started"
+  | "booking_step_completed"
+  | "booking_validation_failed"
+  | "booking_submission_attempted"
+  | "booking_submission_succeeded"
+  | "booking_submission_failed"
+  | "whatsapp_contact_clicked"
+  | "phone_contact_clicked"
+  | "city_interest_submitted"
+  | (string & {});
+
+export const SENSITIVE_PII_KEYS = new Set([
+  "name",
+  "customer_name",
+  "caller_name",
+  "contact_person",
+  "attendant_name",
+  "phone",
+  "mobile",
+  "caller_phone",
+  "email",
+  "address",
+  "location",
+  "location_address",
+  "notes",
+  "special_notes",
+  "message",
+  "details",
+  "free_text",
+  "clinical_notes",
+  "patient_diagnosis",
+  "medical_history",
+  "prescription",
+]);
+
+/**
+ * Strictly strips personal identifiable information (PII) before any data is sent
+ * to analytics streams, dataLayer, or session replay trackers like Clarity.
+ */
+export function sanitizeAnalyticsPayload(props: Props = {}): Props {
+  const sanitized: Props = {};
+  for (const [key, value] of Object.entries(props)) {
+    const lowerKey = key.toLowerCase();
+    // Drop known sensitive keys
+    if (SENSITIVE_PII_KEYS.has(lowerKey)) continue;
+
+    // Drop keys matching common PII naming patterns
+    if (
+      lowerKey.includes("phone") ||
+      lowerKey.includes("mobile") ||
+      lowerKey.includes("email") ||
+      lowerKey.includes("patient_name") ||
+      lowerKey.includes("address")
+    ) {
+      continue;
+    }
+
+    // Mask strings that look like emails or Indian phone numbers
+    if (typeof value === "string") {
+      if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(value)) continue;
+      if (/(?:\+91|91)?[6-9]\d{9}/.test(value.replace(/[\s-]/g, ""))) continue;
+    }
+
+    sanitized[key] = value;
+  }
+  return sanitized;
+}
+
+export interface EventTaxonomyDefinition {
+  name: ApnaCareEventName;
+  trigger: string;
+  permittedProperties: string[];
+  businessPurpose: string;
+}
+
+export const APNACARE_EVENT_TAXONOMY: Record<string, EventTaxonomyDefinition> = {
+  care_situation_selected: {
+    name: "care_situation_selected",
+    trigger: "Visitor selects or clicks a care situation card in the Care Navigator or situation grid",
+    permittedProperties: ["situation_id", "situation_title", "suggested_service", "city", "source"],
+    businessPurpose: "Measures care need discovery and initial intent categorization without capturing patient clinical details",
+  },
+  service_detail_viewed: {
+    name: "service_detail_viewed",
+    trigger: "Visitor lands on and views a canonical service detail page (/services/$slug)",
+    permittedProperties: ["service_id", "service_name", "category", "readiness", "starting_price"],
+    businessPurpose: "Measures service-level interest and catalog navigation",
+  },
+  city_availability_checked: {
+    name: "city_availability_checked",
+    trigger: "Visitor evaluates service readiness or cluster coverage for a specific city",
+    permittedProperties: ["city", "service_id", "readiness_status", "can_book_directly", "backup_sla"],
+    businessPurpose: "Tracks demand distribution across active metros and planned expansion hubs",
+  },
+  pricing_details_viewed: {
+    name: "pricing_details_viewed",
+    trigger: "Visitor views pricing breakdown, shift rates, or calculates care duration costs",
+    permittedProperties: ["service_id", "pricing_unit", "starting_price", "shift_types", "duration_days", "has_gst_disclosure"],
+    businessPurpose: "Monitors price transparency engagement and budget qualification",
+  },
+  consultation_cta_clicked: {
+    name: "consultation_cta_clicked",
+    trigger: "Visitor clicks a primary booking, callback, or care consultation action button",
+    permittedProperties: ["service", "city", "source_section", "target_url", "cta_text"],
+    businessPurpose: "Tracks conversion intent before form initiation",
+  },
+  booking_started: {
+    name: "booking_started",
+    trigger: "Visitor initiates the multi-step booking engine or lands on step 0",
+    permittedProperties: ["service_id", "city", "referral_source", "idempotency_token"],
+    businessPurpose: "Establishes conversion funnel entry baseline for drop-off analysis",
+  },
+  booking_step_completed: {
+    name: "booking_step_completed",
+    trigger: "Visitor successfully validates and advances past a booking funnel step",
+    permittedProperties: ["step_index", "step_name", "service_id", "city", "duration_days"],
+    businessPurpose: "Pinpoints exact form friction and abandonment milestones",
+  },
+  booking_validation_failed: {
+    name: "booking_validation_failed",
+    trigger: "Visitor encounters client-side validation errors when attempting to advance",
+    permittedProperties: ["step_index", "step_name", "failed_fields", "error_count"],
+    businessPurpose: "Identifies confusing form inputs and validation blockers",
+  },
+  booking_submission_attempted: {
+    name: "booking_submission_attempted",
+    trigger: "Visitor clicks final confirm button and request is dispatched to endpoint",
+    permittedProperties: ["booking_ref", "service_id", "city", "duration_days", "payment_mode"],
+    businessPurpose: "Tracks submission initiation to verify server-side reception rate",
+  },
+  booking_submission_succeeded: {
+    name: "booking_submission_succeeded",
+    trigger: "Server webhook acknowledges receipt of care booking request",
+    permittedProperties: ["booking_ref", "service_id", "city", "status", "delivery_channel"],
+    businessPurpose: "Confirmed conversion milestone for marketing efficiency and attribution",
+  },
+  booking_submission_failed: {
+    name: "booking_submission_failed",
+    trigger: "Network error or webhook rejection occurs during booking submission",
+    permittedProperties: ["booking_ref", "error_code", "error_category", "retry_attempt"],
+    businessPurpose: "Real-time alerting on lead leakage or integration outages",
+  },
+  whatsapp_contact_clicked: {
+    name: "whatsapp_contact_clicked",
+    trigger: "Visitor initiates contact via official WhatsApp coordinator links or FAB",
+    permittedProperties: ["source_location", "service_context", "city_context"],
+    businessPurpose: "Measures direct conversational inquiry conversion channel",
+  },
+  phone_contact_clicked: {
+    name: "phone_contact_clicked",
+    trigger: "Visitor clicks a phone number or emergency helpline dialer link",
+    permittedProperties: ["channel_type", "destination_number", "source_page"],
+    businessPurpose: "Measures immediate voice helpline conversions and emergency requests",
+  },
+  city_interest_submitted: {
+    name: "city_interest_submitted",
+    trigger: "Visitor from a planned expansion city registers an expression of interest",
+    permittedProperties: ["city", "requested_service", "interest_id"],
+    businessPurpose: "Validates geographic expansion demand and informs cluster deployment roadmap",
+  },
+};
+
+// ─── Deduplication Protection ───────────────────────────────────────────────
+
+const recentEventCache = new Map<string, number>();
+
+/**
+ * Suppresses rapid duplicate event triggers within a short time window (default 2000ms).
+ */
+export function trackDeduplicated(
+  event: ApnaCareEventName | string,
+  key: string,
+  props: Props = {},
+  windowMs: number = 2000
+): boolean {
+  const now = Date.now();
+  const dedupKey = `${event}:${key}`;
+  const lastTime = recentEventCache.get(dedupKey) || 0;
+  if (now - lastTime < windowMs) {
+    return false;
+  }
+  recentEventCache.set(dedupKey, now);
+  track(event, props);
+  return true;
+}
+
+// ─── Lead Pipeline Reliability Contract ─────────────────────────────────────
+
+export type LeadProcessingStatus =
+  | "SUBMISSION_RECEIVED"
+  | "WEBHOOK_ACCEPTED"
+  | "DOWNSTREAM_QUEUED"
+  | "DOWNSTREAM_PROCESSED"
+  | "DOWNSTREAM_FAILED"
+  | "STATUS_UNKNOWN";
+
+export interface ReliableLeadResponse {
+  success: boolean;
+  referenceId: string;
+  status: LeadProcessingStatus;
+  message: string;
+  timestamp: string;
+  retryAvailable: boolean;
+}
+
+export async function submitLeadWithReliability(
+  payload: Props,
+  referenceIdPrefix: string = "AC"
+): Promise<ReliableLeadResponse> {
+  const timestamp = new Date().toISOString();
+  const ref =
+    (payload.booking_ref as string) ||
+    (payload.enquiry_id as string) ||
+    (payload.contact_id as string) ||
+    `${referenceIdPrefix}-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+
+  try {
+    const ok = await sendToGoogleSheet({
+      ...payload,
+      submission_status: "WEBHOOK_ACCEPTED",
+      client_timestamp: timestamp,
+    });
+
+    if (ok) {
+      return {
+        success: true,
+        referenceId: ref,
+        status: "WEBHOOK_ACCEPTED",
+        message: "Your care request has been accepted by our regional command desk.",
+        timestamp,
+        retryAvailable: false,
+      };
+    } else {
+      return {
+        success: false,
+        referenceId: ref,
+        status: "STATUS_UNKNOWN",
+        message: "Unable to reach the coordination server. Please retry or contact our care desk.",
+        timestamp,
+        retryAvailable: true,
+      };
+    }
+  } catch (err) {
+    return {
+      success: false,
+      referenceId: ref,
+      status: "DOWNSTREAM_FAILED",
+      message: err instanceof Error ? err.message : "Network error during transmission.",
+      timestamp,
+      retryAvailable: true,
+    };
+  }
+}
+
 // ─── Adapter & Standard Track Function ────────────────────────────────────────
 
 const adapters: Adapter[] = [
-  (event, props) => {
+  (event, rawProps) => {
     if (!isBrowser()) return;
+    const sanitizedProps = sanitizeAnalyticsPayload(rawProps);
     const w = window as unknown as { dataLayer?: unknown[] };
-    (w.dataLayer ||= []).push({ event, ...props });
+    (w.dataLayer ||= []).push({ event, ...sanitizedProps });
 
     // Infer appropriate event_type for Google Apps Script routing if not explicitly provided
-    let inferredType = (props.event_type as string) || "telemetry";
-    if (!props.event_type) {
+    let inferredType = (rawProps.event_type as string) || "telemetry";
+    if (!rawProps.event_type) {
       if (event.includes("submit") || event.includes("lead") || event.includes("booking")) {
         inferredType = "lead";
       } else if (event.includes("session")) {
@@ -778,7 +1041,7 @@ const adapters: Adapter[] = [
         inferredType = "page_view";
       } else if (event.includes("scroll")) {
         inferredType = "scroll";
-      } else if (event.includes("click") || props.event_category === "CTA") {
+      } else if (event.includes("click") || rawProps.event_category === "CTA") {
         inferredType = "click";
       }
     }
@@ -786,24 +1049,25 @@ const adapters: Adapter[] = [
     sendToGoogleSheet({
       event_type: inferredType,
       event_name: event,
-      ...props,
+      ...sanitizedProps,
     }).catch(() => {});
   },
-  // Microsoft Clarity custom events & dimension tag sync
-  (event, props) => {
+  // Microsoft Clarity custom events & dimension tag sync (strictly sanitized)
+  (event, rawProps) => {
     if (typeof window === "undefined") return;
     const clarity = (window as unknown as { clarity?: (...args: unknown[]) => void }).clarity;
     if (typeof clarity === "function") {
       try {
+        const sanitized = sanitizeAnalyticsPayload(rawProps);
         clarity("event", event);
-        if (props.service_name || props.service) {
-          clarity("set", "service", String(props.service_name || props.service));
+        if (sanitized.service_name || sanitized.service) {
+          clarity("set", "service", String(sanitized.service_name || sanitized.service));
         }
-        if (props.city) {
-          clarity("set", "city", String(props.city));
+        if (sanitized.city) {
+          clarity("set", "city", String(sanitized.city));
         }
-        if (props.lead_type) {
-          clarity("set", "lead_type", String(props.lead_type));
+        if (sanitized.lead_type) {
+          clarity("set", "lead_type", String(sanitized.lead_type));
         }
       } catch {
         /* ignore */
@@ -816,7 +1080,7 @@ export function registerAnalyticsAdapter(a: Adapter) {
   adapters.push(a);
 }
 
-export function track(event: string, props: Props = {}) {
+export function track(event: ApnaCareEventName | string, props: Props = {}) {
   for (const a of adapters) {
     try {
       a(event, props);

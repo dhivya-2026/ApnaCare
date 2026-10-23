@@ -1,4 +1,5 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import {
   BadgeCheck,
   Check,
@@ -25,6 +26,7 @@ import { SectionHeading, ServiceCard } from "@/components/site/Cards";
 import { BookLink, CallLink } from "@/components/site/Layout";
 import { PredictableNextSteps } from "@/components/site/PredictableNextSteps";
 import { Button } from "@/components/ui/button";
+import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/services/$slug")({
@@ -85,6 +87,23 @@ function Detail() {
   const { s, enterprise, canonicalPricing, canonicalService } = Route.useLoaderData();
   const waUrl = buildWhatsAppUrl(`Hello ApnaCare! I would like to inquire about ${s.name} for my family.`);
   const ctaLabel = SERVICE_CTA_LABELS[s.slug] ?? `Enquire About ${s.name}`;
+
+  useEffect(() => {
+    track("service_detail_viewed", {
+      service_id: s.slug,
+      service_name: s.name,
+      category: s.category,
+      readiness: canonicalService?.readiness || "Operational",
+      starting_price: canonicalPricing?.startingPrice ?? s.startingPrice,
+    });
+    track("pricing_details_viewed", {
+      service_id: s.slug,
+      pricing_unit: s.pricingUnit,
+      starting_price: canonicalPricing?.startingPrice ?? s.startingPrice,
+      shift_types: canonicalPricing ? Object.keys(canonicalPricing.pricingTiers).join(", ") : "standard",
+      has_gst_disclosure: true,
+    });
+  }, [s.slug]);
 
   return (
     <>

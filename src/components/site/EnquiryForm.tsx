@@ -7,13 +7,13 @@
  */
 
 import { useState } from "react";
-import { Calendar, CheckCircle2, Phone, ShieldCheck } from "lucide-react";
+import { Calendar, CheckCircle2, Phone, ShieldCheck, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SERVICES, CITIES, SITE } from "@/data/site";
-import { track, sendToGoogleSheet } from "@/lib/analytics";
+import { track, submitLeadWithReliability } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 interface EnquiryFormProps {
@@ -57,11 +57,13 @@ export function EnquiryForm({
   });
   const [errors, setErrors] = useState<Partial<FormState>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
   const update = (field: keyof FormState, value: string) => {
     setF((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (submitError) setSubmitError(null);
   };
 
   const validate = (): boolean => {
@@ -80,9 +82,11 @@ export function EnquiryForm({
     if (submitting) return;
 
     setSubmitting(true);
+    setSubmitError(null);
+    track("consultation_cta_clicked", { service: f.service, city: f.city, source_section: "enquiry_form" });
     track("enquiry_form_submit", { service: f.service, city: f.city });
 
-    await sendToGoogleSheet({
+    const result = await submitLeadWithReliability({
       event_type: "callback",
       event_name: "callback_requested",
       lead_type: "CALLBACK",
@@ -103,8 +107,12 @@ export function EnquiryForm({
     });
 
     setSubmitting(false);
-    setDone(true);
-    track("enquiry_form_success", { service: f.service, city: f.city });
+    if (result.success) {
+      setDone(true);
+      track("enquiry_form_success", { service: f.service, city: f.city });
+    } else {
+      setSubmitError("We were unable to connect to the intake desk. Your details are preserved. Please click retry or call directly.");
+    }
   };
 
   if (done) {
@@ -263,6 +271,22 @@ export function EnquiryForm({
             className="mt-1 resize-none"
           />
         </div>
+
+        {submitError && (
+          <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive flex items-start gap-2">
+            <AlertCircle className="size-4 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-semibold">{submitError}</p>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="underline font-bold text-destructive hover:text-destructive/80"
+              >
+                Retry Callback Request
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons: Request a Callback + Book a Time Slot */}
         <div className="flex flex-col sm:flex-row gap-3 pt-1">

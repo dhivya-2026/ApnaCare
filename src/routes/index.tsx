@@ -716,7 +716,15 @@ function HomePage() {
                   </div>
                   <Link
                     to={`/services/${situation.serviceSlug}`}
-                    onClick={() => track("family_situation_click", { situation: situation.id })}
+                    onClick={() => {
+                      track("care_situation_selected", {
+                        situation_id: situation.id,
+                        situation_title: situation.title,
+                        suggested_service: situation.serviceSlug,
+                        source: "homepage_family_situations",
+                      });
+                      track("family_situation_click", { situation: situation.id });
+                    }}
                     className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline min-h-[36px]"
                   >
                     <span>View Care Details</span>

@@ -76,6 +76,13 @@ export function CareNavigator() {
                 type="button"
                 onClick={() => {
                   setSelectedCity(c.slug);
+                  track("city_availability_checked", {
+                    city: c.slug,
+                    service_id: currentNeed.suggestedServiceSlug,
+                    readiness_status: c.tier === "ACTIVE_METRO" ? "Operational" : "Planned",
+                    can_book_directly: c.tier === "ACTIVE_METRO",
+                    backup_sla: c.operationalClusterSLA,
+                  });
                   track("care_navigator_city_change", { city: c.slug });
                 }}
                 className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all min-h-[34px] ${
@@ -111,6 +118,13 @@ export function CareNavigator() {
                   aria-selected={isSelected}
                   onClick={() => {
                     setSelectedNeedId(item.id);
+                    track("care_situation_selected", {
+                      situation_id: item.id,
+                      situation_title: item.triggerPhrase,
+                      suggested_service: item.suggestedServiceSlug,
+                      city: selectedCity,
+                      source: "care_navigator",
+                    });
                     track("care_navigator_select", { needId: item.id, city: selectedCity });
                   }}
                   className={`group relative flex items-center justify-between rounded-2xl p-4 text-left transition-all min-h-[56px] ${
@@ -217,7 +231,16 @@ export function CareNavigator() {
                   <Button asChild size="default" className="rounded-full font-semibold shadow-soft hover:shadow-lift min-h-[44px]">
                     <Link
                       to={availability.nextStepHref}
-                      onClick={() => track("care_navigator_explore_click", { needId: currentNeed.id, city: selectedCity })}
+                      onClick={() => {
+                        track("consultation_cta_clicked", {
+                          service: currentNeed.suggestedServiceSlug,
+                          city: availability.cityName,
+                          source_section: "care_navigator",
+                          target_url: availability.nextStepHref,
+                          cta_text: availability.nextStepLabel,
+                        });
+                        track("care_navigator_explore_click", { needId: currentNeed.id, city: selectedCity });
+                      }}
                     >
                       <span>{availability.nextStepLabel}</span>
                       <ArrowRight className="ml-1.5 size-4" />
@@ -227,7 +250,14 @@ export function CareNavigator() {
                     href={waUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => track("care_navigator_whatsapp_click", { needId: currentNeed.id, city: selectedCity })}
+                    onClick={() => {
+                      track("whatsapp_contact_clicked", {
+                        source_location: "care_navigator",
+                        service_context: currentNeed.suggestedServiceSlug,
+                        city_context: availability.cityName,
+                      });
+                      track("care_navigator_whatsapp_click", { needId: currentNeed.id, city: selectedCity });
+                    }}
                     className="inline-flex items-center gap-2 rounded-full border border-[#25D366] bg-[#25D366]/10 px-5 py-2.5 text-xs font-semibold text-[#128C7E] hover:bg-[#25D366]/20 transition-colors min-h-[44px]"
                   >
                     <MessageCircle className="size-4 text-[#25D366]" />
