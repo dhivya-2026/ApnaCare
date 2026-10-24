@@ -78,7 +78,8 @@
   --terracotta: oklch(0.77 0.072 50);
   --terracotta-foreground: oklch(0.26 0.03 45);
   --muted: oklch(0.945 0.012 80);
-  --muted-foreground: oklch(0.40 0.02 170);
+  /* WCAG 2.2 AA compliant high-contrast muted text (>= 4.5:1 on background and card) */
+  --muted-foreground: oklch(0.36 0.02 170);
   --accent: oklch(0.89 0.028 65);
   --accent-foreground: oklch(0.29 0.017 170);
   --destructive: oklch(0.55 0.19 28);
@@ -118,11 +119,35 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    line-height: 1.6;
+    line-height: 1.65;
+    font-size: 1rem;
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.015em; line-height: 1.18; }
-  :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.015em; line-height: 1.2; }
+  :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 3px; }
   ::selection { background: var(--color-primary-soft); color: var(--color-primary); }
+}
+
+/* ── Fluid Responsive Typography Utilities ────────────────────────── */
+.text-fluid-hero {
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.text-fluid-section {
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+}
+.text-fluid-card {
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  line-height: 1.3;
+}
+.text-fluid-body {
+  font-size: clamp(1rem, 1.15vw, 1.125rem);
+  line-height: 1.68;
+}
+.text-readable-muted {
+  color: oklch(0.36 0.02 170);
 }
 
 /* ── Layout utilities ─────────────────────────────────────────────── */
@@ -284,10 +309,18 @@
 .animate-delay-600 { animation-delay: 600ms; }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
   .animate-fade-up, .animate-fade-in, .animate-slide-in-left,
   .animate-slide-in-right, .animate-scale-in, .animate-sos,
   .animate-spin-slow, .animate-heartbeat, .animate-bounce-in {
-    animation: none;
+    animation: none !important;
   }
 }
 

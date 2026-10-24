@@ -15,6 +15,8 @@ import {
   TrendingDown,
   Heart,
   AlertCircle,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BookLink } from "./Layout";
@@ -274,16 +276,34 @@ export function CareNeedsCalculator() {
                   <span>Hands-on care & physical chores covered by family:</span>
                   <span className="font-bold font-mono text-primary">{personalCareHoursPerWeek} hrs/wk</span>
                 </div>
-                <input
-                  type="range"
-                  min={5}
-                  max={40}
-                  step={1}
-                  value={personalCareHoursPerWeek}
-                  onChange={(e) => setPersonalCareHoursPerWeek(Number(e.target.value))}
-                  className="w-full accent-primary h-2 bg-secondary rounded-lg cursor-pointer"
-                  aria-label="Hands-on personal care hours per week"
-                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPersonalCareHoursPerWeek((prev) => Math.max(5, prev - 1))}
+                    className="size-7 rounded-lg border border-border bg-card flex items-center justify-center text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer min-h-[32px] min-w-[32px] shrink-0"
+                    aria-label="Decrease hands-on personal care hours"
+                  >
+                    <Minus className="size-3.5" />
+                  </button>
+                  <input
+                    type="range"
+                    min={5}
+                    max={40}
+                    step={1}
+                    value={personalCareHoursPerWeek}
+                    onChange={(e) => setPersonalCareHoursPerWeek(Number(e.target.value))}
+                    className="w-full accent-primary h-2 bg-secondary rounded-lg cursor-pointer"
+                    aria-label="Hands-on personal care hours per week"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPersonalCareHoursPerWeek((prev) => Math.min(40, prev + 1))}
+                    className="size-7 rounded-lg border border-border bg-card flex items-center justify-center text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer min-h-[32px] min-w-[32px] shrink-0"
+                    aria-label="Increase hands-on personal care hours"
+                  >
+                    <Plus className="size-3.5" />
+                  </button>
+                </div>
               </div>
 
               {/* Slider 2: Care Travel & Transit */}
@@ -292,16 +312,34 @@ export function CareNeedsCalculator() {
                   <span>Care-related travel, pharmacy & clinic trips:</span>
                   <span className="font-bold font-mono text-primary">{transitHoursPerWeek} hrs/wk</span>
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={15}
-                  step={1}
-                  value={transitHoursPerWeek}
-                  onChange={(e) => setTransitHoursPerWeek(Number(e.target.value))}
-                  className="w-full accent-primary h-2 bg-secondary rounded-lg cursor-pointer"
-                  aria-label="Care travel hours per week"
-                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTransitHoursPerWeek((prev) => Math.max(0, prev - 1))}
+                    className="size-7 rounded-lg border border-border bg-card flex items-center justify-center text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer min-h-[32px] min-w-[32px] shrink-0"
+                    aria-label="Decrease care travel hours"
+                  >
+                    <Minus className="size-3.5" />
+                  </button>
+                  <input
+                    type="range"
+                    min={0}
+                    max={15}
+                    step={1}
+                    value={transitHoursPerWeek}
+                    onChange={(e) => setTransitHoursPerWeek(Number(e.target.value))}
+                    className="w-full accent-primary h-2 bg-secondary rounded-lg cursor-pointer"
+                    aria-label="Care travel hours per week"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setTransitHoursPerWeek((prev) => Math.min(15, prev + 1))}
+                    className="size-7 rounded-lg border border-border bg-card flex items-center justify-center text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer min-h-[32px] min-w-[32px] shrink-0"
+                    aria-label="Increase care travel hours"
+                  >
+                    <Plus className="size-3.5" />
+                  </button>
+                </div>
               </div>
 
               {/* Slider 3: Coordination Stress */}
@@ -310,16 +348,34 @@ export function CareNeedsCalculator() {
                   <span>Coordination hours (calling doctors, scheduling, monitoring):</span>
                   <span className="font-bold font-mono text-primary">{coordinationHoursPerWeek} hrs/wk</span>
                 </div>
-                <input
-                  type="range"
-                  min={2}
-                  max={20}
-                  step={1}
-                  value={coordinationHoursPerWeek}
-                  onChange={(e) => setCoordinationHoursPerWeek(Number(e.target.value))}
-                  className="w-full accent-primary h-2 bg-secondary rounded-lg cursor-pointer"
-                  aria-label="Coordination hours per week"
-                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCoordinationHoursPerWeek((prev) => Math.max(2, prev - 1))}
+                    className="size-7 rounded-lg border border-border bg-card flex items-center justify-center text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer min-h-[32px] min-w-[32px] shrink-0"
+                    aria-label="Decrease coordination hours"
+                  >
+                    <Minus className="size-3.5" />
+                  </button>
+                  <input
+                    type="range"
+                    min={2}
+                    max={20}
+                    step={1}
+                    value={coordinationHoursPerWeek}
+                    onChange={(e) => setCoordinationHoursPerWeek(Number(e.target.value))}
+                    className="w-full accent-primary h-2 bg-secondary rounded-lg cursor-pointer"
+                    aria-label="Coordination hours per week"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setCoordinationHoursPerWeek((prev) => Math.min(20, prev + 1))}
+                    className="size-7 rounded-lg border border-border bg-card flex items-center justify-center text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer min-h-[32px] min-w-[32px] shrink-0"
+                    aria-label="Increase coordination hours"
+                  >
+                    <Plus className="size-3.5" />
+                  </button>
+                </div>
               </div>
 
               {/* Optional Illustrative Time Value Assignment */}

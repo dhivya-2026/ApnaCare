@@ -28,6 +28,41 @@ import { PredictableNextSteps } from "@/components/site/PredictableNextSteps";
 import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
+import { CareRecoveryStory } from "@/components/site/CareRecoveryStory";
+
+import hero1 from "@/assets/hero-1.jpg";
+import hero2 from "@/assets/hero-2.jpg";
+import hero3 from "@/assets/hero-3.jpg";
+import hero4 from "@/assets/hero-4.jpg";
+import hero5 from "@/assets/hero-5.jpg";
+import nursingCare from "@/assets/nursing-care.jpg";
+
+const SERVICE_STORY_IMAGES: Record<string, { img: string; alt: string }> = {
+  "elderly-care": {
+    img: hero1,
+    alt: "Caregiver gently assisting an elderly lady at home with everyday living routines",
+  },
+  "hospital-attendants": {
+    img: hero2,
+    alt: "Attendant providing bedside support to a recovering patient in a hospital room",
+  },
+  "nursing-services": {
+    img: nursingCare,
+    alt: "Licensed registered nurse administering clinical care under physician prescription",
+  },
+  "post-natal-care": {
+    img: hero4,
+    alt: "Caregiver supporting a mother and newborn infant with comforting routines",
+  },
+  "travel-assistance": {
+    img: hero5,
+    alt: "Chauffeuse providing escorted travel mobility assistance to a passenger",
+  },
+  "lifestyle-support": {
+    img: hero3,
+    alt: "Caregiver and coordinator reviewing family care schedule and logistics",
+  },
+};
 
 export const Route = createFileRoute("/services/$slug")({
   loader: ({ params }) => {
@@ -272,39 +307,95 @@ function Detail() {
         </div>
       </section>
 
-      {/* ── 2. SPIN Framework: Situation & Problem Context ── */}
-      {enterprise && (
-        <section className="bg-secondary/25 py-14 border-b border-border/50">
-          <div className="container-page max-w-4xl">
-            <span className="eyebrow">Understanding Your Situation</span>
-            <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-foreground">
-              Why Families Need This Care
-            </h2>
+      {/* ── 2. Visual Care Story & Situation Context (Priority Section B) ── */}
+      {s.slug === "hospital-attendants" ? (
+        <CareRecoveryStory sourceContext="service_hospital_attendants" />
+      ) : enterprise ? (
+        <section className="bg-secondary/25 py-16 border-b border-border/50">
+          <div className="container-page max-w-5xl">
+            <div className="rounded-3xl border border-border bg-card p-6 sm:p-10 shadow-soft">
+              <div className="grid gap-8 lg:grid-cols-12 items-center">
+                {/* Visual Image Column (5 cols) */}
+                <div className="lg:col-span-5">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted border border-border shadow-lift">
+                    <img
+                      src={SERVICE_STORY_IMAGES[s.slug]?.img ?? hero1}
+                      alt={SERVICE_STORY_IMAGES[s.slug]?.alt ?? `${s.name} provided by ApnaCare`}
+                      width={800}
+                      height={600}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold text-foreground backdrop-blur shadow-xs">
+                      {s.name}
+                    </span>
+                  </div>
+                </div>
 
-            <div className="mt-6 grid gap-6 sm:grid-cols-2">
-              <div className="card-soft p-6">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">The Common Challenge</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {enterprise.spin.situation}
-                </p>
-                <p className="mt-3 text-xs leading-relaxed text-foreground font-medium">
-                  {enterprise.spin.problem}
-                </p>
-              </div>
+                {/* Narrative & Story Column (7 cols) */}
+                <div className="lg:col-span-7 flex flex-col justify-between">
+                  <div>
+                    <span className="eyebrow">Understanding Your Situation</span>
+                    <h2 className="mt-2 text-2xl sm:text-3xl font-display font-semibold text-foreground">
+                      {s.slug === "nursing-services"
+                        ? "Recovery is hard enough. You shouldn't have to coordinate clinical care alone."
+                        : `Why Families Need ${s.name}`}
+                    </h2>
 
-              <div className="card-soft p-6 border-primary/20 bg-primary-soft/30">
-                <p className="text-xs font-bold uppercase tracking-wider text-primary">How ApnaCare Solves It</p>
-                <p className="mt-2 text-sm leading-relaxed text-foreground font-medium">
-                  {enterprise.spin.solution}
-                </p>
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  {enterprise.spin.benefit}
-                </p>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <div className="rounded-2xl border border-amber-600/20 bg-amber-500/5 p-4">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">
+                          The Everyday Strain
+                        </p>
+                        <p className="mt-1 text-xs text-readable-muted leading-relaxed">
+                          {enterprise.spin.situation}
+                        </p>
+                        <p className="mt-2 text-xs font-semibold text-foreground leading-snug">
+                          {enterprise.spin.problem}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-primary/25 bg-primary-soft/40 p-4">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                          How ApnaCare Solves It
+                        </p>
+                        <p className="mt-1 text-xs font-semibold text-foreground leading-snug">
+                          {enterprise.spin.solution}
+                        </p>
+                        <p className="mt-2 text-xs text-readable-muted leading-relaxed">
+                          {enterprise.spin.benefit}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Three Simple Coordination Steps */}
+                    <div className="mt-6 border-t border-border/70 pt-4">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-foreground block mb-2">
+                        How We Coordinate Care:
+                      </span>
+                      <div className="grid sm:grid-cols-3 gap-2 text-xs">
+                        <div className="rounded-xl bg-secondary/35 p-2.5 border border-border/70">
+                          <span className="font-bold text-primary block mb-0.5">1. Triage</span>
+                          <span className="text-readable-muted text-[11px]">Match care level to daily living vs clinical needs</span>
+                        </div>
+                        <div className="rounded-xl bg-secondary/35 p-2.5 border border-border/70">
+                          <span className="font-bold text-primary block mb-0.5">2. Verified ID</span>
+                          <span className="text-readable-muted text-[11px]">Photo ID authenticated & police screened</span>
+                        </div>
+                        <div className="rounded-xl bg-secondary/35 p-2.5 border border-border/70">
+                          <span className="font-bold text-primary block mb-0.5">3. Updates & Backup</span>
+                          <span className="text-readable-muted text-[11px]">Daily WhatsApp logs & 90-min standby protocol</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
-      )}
+      ) : null}
 
       {/* ── 3. What's Included vs Excluded ── */}
       <section className="container-page py-16">

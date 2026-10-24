@@ -49,6 +49,9 @@ import { buildOrganizationSchema, buildFaqPageSchema } from "@/data/enterprise-c
 import { CareNeedsCalculator } from "@/components/site/CareNeedsCalculator";
 import { CareNavigator } from "@/components/site/CareNavigator";
 import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
+import { CareSituationSlider } from "@/components/site/CareSituationSlider";
+import { CareCoordinationExplorer } from "@/components/site/CareCoordinationExplorer";
+import { CareRecoveryStory } from "@/components/site/CareRecoveryStory";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -639,294 +642,22 @@ function HomePage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. FAMILY SITUATIONS
-          - 4 visual cards showing common care situations
-          - Clear trigger situation, practical solution, and service link
+          2. FAMILY SITUATIONS (CAROUSEL & SLIDER)
+          - Interactive 6-scenario slider with touch swipe, keyboard, & grid toggle
       ───────────────────────────────────────────────────────────── */}
-      <section id="family-situations" className="py-16 md:py-24 border-b border-border/50 bg-background scroll-mt-20">
-        <div className="container-page">
-          <div className="max-w-3xl">
-            <p className="eyebrow">Care For What Your Family Is Navigating</p>
-            <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
-              Support Designed for Real Family Moments
-            </h2>
-            <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Every family circumstance is unique. Choose the situation that relates to what you are experiencing right now to view suitable, verified support options.
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {FAMILY_SITUATIONS.map((situation, sIdx) => (
-              <article
-                key={situation.id}
-                className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lift"
-              >
-                <div>
-                  {/* Visual Image */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-                    <img
-                      src={situation.image}
-                      alt={situation.alt}
-                      width={600}
-                      height={375}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-2.5 py-0.5 text-[11px] font-semibold text-foreground backdrop-blur">
-                      {situation.badge}
-                    </span>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-terracotta">
-                      {situation.tagline}
-                    </span>
-                    <h3 className="mt-2 font-display text-lg font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
-                      {situation.title}
-                    </h3>
-                    <p className="mt-1.5 text-[11px] font-medium text-foreground/85 italic">
-                      "{situation.trigger}"
-                    </p>
-                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                      {situation.description}
-                    </p>
-
-                    {/* Key Highlights */}
-                    <ul className="mt-4 space-y-1.5 border-t border-border/60 pt-3">
-                      {situation.highlights.map((h, i) => (
-                        <li key={i} className="flex items-center gap-2 text-[11px] text-foreground/85">
-                          <CheckCircle2 className="size-3 text-primary shrink-0" />
-                          <span>{h}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Footer with Service Link and Booking Link */}
-                <div className="p-6 pt-0 border-t border-border/50 mt-4 flex items-center justify-between gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-muted-foreground uppercase font-medium">Starting from</span>
-                    <span className="text-sm font-bold text-foreground font-display">
-                      {formatINR(situation.startingPrice)}/day
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">+ 18% statutory GST</span>
-                  </div>
-                  <Link
-                    to={`/services/${situation.serviceSlug}`}
-                    onClick={() => {
-                      track("care_situation_selected", {
-                        situation_id: situation.id,
-                        situation_title: situation.title,
-                        suggested_service: situation.serviceSlug,
-                        source: "homepage_family_situations",
-                      });
-                      track("family_situation_click", { situation: situation.id });
-                    }}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline min-h-[36px]"
-                  >
-                    <span>View Care Details</span>
-                    <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CareSituationSlider />
 
       {/* ─────────────────────────────────────────────────────────────
-          3. MAKING TIME, COORDINATION & VALUE VISIBLE
-          - Interactive view toggle:
-            A. Side-by-Side Coordination Comparison (Arranging Independently vs ApnaCare)
-            B. Four-Stage Relief Progression (Concern -> Consultation -> Matched Care -> Ongoing Coordination)
+          3. CARE COORDINATION VALUE EXPLORER (PRIORITY SECTION A)
+          - 6-area segmented control & interactive comparison
       ───────────────────────────────────────────────────────────── */}
-      <section id="coordination-value" className="py-16 md:py-24 border-b border-border/50 bg-secondary/25 scroll-mt-20">
-        <div className="container-page">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div className="max-w-2xl">
-              <p className="eyebrow">The Real Value of Care Coordination</p>
-              <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
-                How ApnaCare Lightens the Burden on Families
-              </h2>
-              <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-                Arranging care is rarely just about finding a person. It is about background checks, emergency replacements, medical boundaries, and daily peace of mind.
-              </p>
-            </div>
+      <CareCoordinationExplorer />
 
-            {/* View Mode Switcher */}
-            <div className="inline-flex items-center rounded-2xl border border-border bg-card p-1 shadow-xs shrink-0" role="tablist" aria-label="Coordination view mode">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={coordinationView === "comparison"}
-                onClick={() => setCoordinationView("comparison")}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all min-h-[38px] cursor-pointer ${
-                  coordinationView === "comparison"
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <ArrowLeftRight className="size-3.5" />
-                <span>Side-by-Side Comparison</span>
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={coordinationView === "journey"}
-                onClick={() => setCoordinationView("journey")}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all min-h-[38px] cursor-pointer ${
-                  coordinationView === "journey"
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Layers className="size-3.5" />
-                <span>4-Stage Relief Journey</span>
-              </button>
-            </div>
-          </div>
-
-          {/* VIEW A: Side-by-Side Comparison Table / Cards */}
-          {coordinationView === "comparison" && (
-            <div className="mt-10 space-y-4 animate-fade-in">
-              <div className="hidden md:grid md:grid-cols-12 gap-4 pb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground px-4">
-                <div className="col-span-3">Care Coordination Area</div>
-                <div className="col-span-4 text-amber-800 dark:text-amber-400">Arranging Care Independently</div>
-                <div className="col-span-5 text-primary">Coordinated Through ApnaCare</div>
-              </div>
-
-              {COORDINATION_COMPARISONS.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-200 hover:shadow-lift"
-                >
-                  <div className="grid gap-6 md:grid-cols-12 md:items-start">
-                    {/* Category Label */}
-                    <div className="md:col-span-3">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-terracotta block">
-                        Area {idx + 1}
-                      </span>
-                      <h3 className="font-display text-base font-bold text-foreground mt-0.5">
-                        {item.category}
-                      </h3>
-                    </div>
-
-                    {/* Independent Setup (Factual burden) */}
-                    <div className="md:col-span-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-400 mb-2">
-                        <AlertCircle className="size-3.5 shrink-0" />
-                        <span>Independent Arrangement</span>
-                      </div>
-                      <p className="text-xs font-semibold text-foreground mb-2">
-                        {item.independent.headline}
-                      </p>
-                      <ul className="space-y-1.5 text-xs text-muted-foreground">
-                        {item.independent.points.map((p, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-amber-700 dark:text-amber-400 font-bold mt-0.5">•</span>
-                            <span>{p}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* ApnaCare Solution (Facilitated relief) */}
-                    <div className="md:col-span-5 rounded-2xl border border-primary/25 bg-primary-soft/40 p-4">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-primary mb-2">
-                        <CheckCircle2 className="size-3.5 shrink-0 text-primary" />
-                        <span>With ApnaCare Coordination</span>
-                      </div>
-                      <p className="text-xs font-semibold text-foreground mb-2">
-                        {item.apnaCare.headline}
-                      </p>
-                      <ul className="space-y-1.5 text-xs text-foreground/90">
-                        {item.apnaCare.points.map((p, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <Check className="size-3.5 text-primary shrink-0 mt-0.5" />
-                            <span>{p}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              <div className="rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 text-xs text-muted-foreground flex flex-wrap items-center justify-between gap-3">
-                <p>
-                  <strong className="text-foreground">Clear Division of Responsibilities:</strong> ApnaCare facilitates candidate screening, credential dossiers, emergency replacements, and daily updates. Families retain clinical authority under treating doctor guidance.
-                </p>
-                <Link to="/safety" className="font-semibold text-primary hover:underline shrink-0">
-                  Read our full safety protocols →
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* VIEW B: Four-Stage Relief Progression */}
-          {coordinationView === "journey" && (
-            <div className="mt-10 animate-fade-in">
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {CARE_DIFFERENCE_STEPS.map((step) => {
-                  const Icon = step.icon;
-                  return (
-                    <div
-                      key={step.step}
-                      className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:shadow-lift"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="font-display text-2xl font-bold text-primary/40">
-                            {step.step}
-                          </span>
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${step.colorClass}`}>
-                            {step.phase}
-                          </span>
-                        </div>
-
-                        <div className="grid size-11 place-items-center rounded-2xl bg-primary-soft text-primary mb-4">
-                          <Icon className="size-5.5" />
-                        </div>
-
-                        <h3 className="text-base font-bold text-foreground leading-snug">
-                          {step.title}
-                        </h3>
-                        <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                          {step.description}
-                        </p>
-                      </div>
-
-                      <div className="mt-5 pt-3 border-t border-border/60">
-                        <span className="text-[11px] font-medium text-primary">
-                          {step.phase === "Family Concern" && "Immediate consultation available"}
-                          {step.phase === "Care Discussion" && "Direct coordinator conversation"}
-                          {step.phase === "Support Arranged" && "Verified dossier preview"}
-                          {step.phase === "Ongoing Coordination" && "Daily WhatsApp logs & oversight"}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-8 rounded-2xl border border-primary/20 bg-primary-soft/40 p-5 flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="size-5 text-primary shrink-0" />
-                  <p className="text-xs sm:text-sm text-foreground font-medium">
-                    Every placement includes transparent pricing, 18% GST tax invoicing, and our 90-minute regional backup commitment.
-                  </p>
-                </div>
-                <Button asChild size="sm" className="rounded-full font-bold">
-                  <a href="#how-it-works">See How We Onboard →</a>
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+      {/* ─────────────────────────────────────────────────────────────
+          PRIORITY SECTION B: POST-HOSPITAL CARE RECOVERY STORY
+          - Image-led empathetic story with 3 simple steps & boundary notice
+      ───────────────────────────────────────────────────────────── */}
+      <CareRecoveryStory sourceContext="homepage" />
 
       {/* ─────────────────────────────────────────────────────────────
           4. HOW APNACARE WORKS
