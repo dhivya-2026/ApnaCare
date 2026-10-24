@@ -45,13 +45,13 @@ export function CustomerHelpSection({
         <div className="text-center max-w-2xl mx-auto">
           <p className="eyebrow flex items-center justify-center gap-1.5">
             <Sparkles className="size-3.5 text-primary" />
-            Support For Your Family Situation
+            Customer Situations & Pathways
           </p>
           <h2 className="mt-3 text-3xl sm:text-4xl font-display font-semibold text-foreground">
-            What situation does your family need help with?
+            How Can We Help You?
           </h2>
           <p className="mt-3 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Finding the right care starts with what you are facing right now. Choose your situation to explore relevant support options.
+            Finding the right care starts with what is happening in your life right now. Select your situation to explore tailored support options.
           </p>
         </div>
 

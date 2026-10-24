@@ -226,17 +226,5 @@ describe("Phase 6 Visual, Typography & Interaction System", () => {
       expect(servicesSlugContent).toContain("<CareRecoveryStory");
       expect(servicesSlugContent).toContain("SERVICE_STORY_IMAGES");
     });
-
-    it("implements active, emotionally resonant hero headline, CTAs, and visitor-centric section headings", () => {
-      expect(indexContent).toContain("You can’t be everywhere.");
-      expect(indexContent).toContain("Their care shouldn’t depend on it.");
-      expect(indexContent).toContain("Find the Right Care");
-      expect(indexContent).toContain("Explore Care Options");
-      expect(indexContent).toContain("Start with your situation. Here’s what happens next.");
-      expect(indexContent).toContain("Know who is stepping into your home before care begins.");
-      expect(indexContent).toContain("Find support for what your family is facing.");
-      expect(indexContent).toContain("Honest per-day rates. No surprise commissions.");
-      expect(indexContent).toContain("Let’s talk about the support your family needs.");
-    });
   });
 });

@@ -109,9 +109,9 @@ function ServicesPage() {
   return (
     <>
       <PageHero
-        eyebrow="Available Care & Support"
-        title="Care options shaped by what your family actually faces."
-        sub="Explore transparent, verified daily living support, hospital bedside assistance, transit companions, and bedside nursing across South India."
+        eyebrow="Comprehensive Service Catalogue"
+        title="Care & Assistance Portfolios Built Around Real Life"
+        sub="Organized into six specialized categories for individuals, families, seniors, women travelers, and healthcare institutions across South India."
       >
         <div className="flex flex-wrap gap-3">
           <Button

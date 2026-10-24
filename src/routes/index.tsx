@@ -512,15 +512,14 @@ function HomePage() {
                 <span>Verified Home & Hospital Care Across South India</span>
               </div>
 
-              {/* One Memorable Headline (Active & Emotionally Resonant) */}
-              <h1 className="mt-4 text-balance font-display text-fluid-hero font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.14]">
-                You can’t be everywhere. <br className="hidden sm:inline" />
-                Their care shouldn’t depend on it.
+              {/* One Memorable Headline */}
+              <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.12]">
+                A little help. A lot of peace of mind.
               </h1>
 
-              {/* Concise Supporting Explanation */}
-              <p className="mt-4 max-w-xl text-pretty text-fluid-body text-readable-muted">
-                Help your loved ones get the care they need, while you manage the rest of life with greater peace of mind. We connect families with police-verified care attendants and licensed nurses for elderly living, bedside recovery, and post-natal support.
+              {/* One Concise Supporting Sentence */}
+              <p className="mt-4 max-w-xl text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
+                We help families arrange dependable, police-verified care attendants and licensed nurses for elderly parents, hospital recovery, and post-natal care — handling verification, coordination, and daily updates.
               </p>
 
               {/* Primary and Secondary Action Buttons */}
@@ -532,9 +531,9 @@ function HomePage() {
                 >
                   <Link
                     to="/booking"
-                    onClick={() => track("hero_find_right_care")}
+                    onClick={() => track("hero_request_assistance")}
                   >
-                    Find the Right Care
+                    Request Care Consultation
                     <ArrowRight className="ml-2 size-4" />
                   </Link>
                 </Button>
@@ -545,11 +544,12 @@ function HomePage() {
                   className="rounded-full px-6 min-h-[48px] font-semibold border-border bg-card hover:bg-secondary text-sm sm:text-base"
                 >
                   <a
-                    href="#family-situations"
-                    onClick={() => track("hero_explore_options")}
+                    href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
+                    onClick={() => track("hero_call_coordinator")}
                     className="inline-flex items-center gap-2"
                   >
-                    <span>Explore Care Options ↓</span>
+                    <Phone className="size-4 text-primary" />
+                    <span>Speak with Coordinator ({SITE.SUPPORT_PHONE})</span>
                   </a>
                 </Button>
               </div>
@@ -605,9 +605,9 @@ function HomePage() {
       <section id="how-it-works" className="py-16 md:py-24 border-b border-border/50 bg-background scroll-mt-20">
         <div className="container-page">
           <div className="max-w-3xl">
-            <p className="eyebrow">Step-by-step coordination</p>
+            <p className="eyebrow">Predictable Onboarding</p>
             <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
-              Start with your situation. Here’s what happens next.
+              What Happens After You Inquire
             </h2>
             <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
               No high-pressure sales calls, hidden brokerage fees, or unexpected strangers. Here is our exact 4-step onboarding protocol for every family.
@@ -657,7 +657,7 @@ function HomePage() {
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Button asChild size="lg" className="rounded-full px-8 shadow-soft font-bold min-h-[48px]">
-              <a href="#enquiry">Talk to a Care Coordinator</a>
+              <a href="#enquiry">Talk to Our Care Coordinator</a>
             </Button>
             <a
               href={waUrl}
@@ -666,7 +666,7 @@ function HomePage() {
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground hover:bg-secondary transition-colors min-h-[48px]"
             >
               <MessageCircle className="size-4 text-[#25D366]" />
-              Ask a Quick Question on WhatsApp
+              Discuss on WhatsApp
             </a>
           </div>
         </div>
@@ -685,10 +685,10 @@ function HomePage() {
           <div className="max-w-3xl">
             <p className="eyebrow">Trust & Safety Standards</p>
             <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
-              Know who is stepping into your home before care begins.
+              Why Families Can Depend on ApnaCare
             </h2>
             <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Inviting someone into your home or bedside takes trust. We verify identities, clarify medical boundaries, and keep standby backup ready across active clusters.
+              Inviting someone into your home or hospital room requires absolute confidence. We maintain verified safety protocols, clear medical boundaries, and backup guarantees.
             </p>
           </div>
 
@@ -972,12 +972,12 @@ function HomePage() {
         <div className="container-page">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div className="max-w-2xl">
-              <p className="eyebrow">Available Support</p>
+              <p className="eyebrow">Care Categories</p>
               <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
-                Find support for what your family is facing.
+                Explore Care by Category
               </h2>
               <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-                Whether you need everyday living assistance for an elderly parent, bedside recovery in the ward, or registered clinical nursing, find the right care option.
+                Whether you need everyday living assistance, post-operative care, or clinical visits, we offer transparent options tailored to your family's needs.
               </p>
             </div>
 
@@ -1068,7 +1068,7 @@ function HomePage() {
           <div className="max-w-3xl">
             <p className="eyebrow">Transparent Pricing & Care Value</p>
             <h2 className="mt-2 text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-foreground">
-              Honest per-day rates. No surprise commissions.
+              Honest Rates with Zero Surprises
             </h2>
             <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
               Clear per-day and per-shift pricing. Includes statutory GST invoices and transparent caregiver compensation with no broker surcharges.
@@ -1224,10 +1224,10 @@ function HomePage() {
             <div>
               <span className="eyebrow text-terracotta">We Are Here For You</span>
               <h2 className="mt-3 max-w-lg text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-white leading-tight">
-                Let’s talk about the support your family needs.
+                Not sure where to begin? Tell us what kind of support you are looking for.
               </h2>
               <p className="mt-4 max-w-md text-base sm:text-lg text-ink-foreground/80 leading-relaxed">
-                Tell us what your family is going through. Our care team will help you explore the available options—without pressure, judgment, or rush.
+                Tell us what your family is going through. Our dedicated care team will help you understand the next steps—without pressure, judgment, or obligation.
               </p>
 
               {/* Direct Quick Contact Buttons */}
@@ -1247,7 +1247,7 @@ function HomePage() {
                   variant="outline"
                   className="rounded-full border-white/20 bg-white/10 text-white hover:bg-white/20 min-h-[48px]"
                 >
-                  <Link to="/booking">Book Care Consultation</Link>
+                  <Link to="/booking">Direct Booking Available</Link>
                 </Button>
               </div>
 

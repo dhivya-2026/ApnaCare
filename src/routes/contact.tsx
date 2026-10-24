@@ -103,14 +103,14 @@ function Contact() {
   return (
     <>
       <PageHero
-        eyebrow="Care Coordination Desk"
-        title="Let’s talk about the support your family needs."
-        sub="Speak directly with an experienced care coordinator about attendant assignments, hospital bedside assistance, custom schedules, or travel support."
+        eyebrow="24/7 Care Coordination"
+        title="We're Here for Your Family, Day and Night"
+        sub="Speak directly with an experienced care coordinator about attendant assignments, hospital bedside assistance, custom schedules, or outstation mobility."
       >
         <BookLink size="lg" variant="warm">
-          Book Care Consultation
+          Book an Attendant
         </BookLink>
-        <CallLink variant="outline">Call Care Desk</CallLink>
+        <CallLink variant="outline">Call 24/7 Desk</CallLink>
       </PageHero>
 
       {/* Emergency & Direct Channels */}

@@ -22,12 +22,12 @@ function CitiesPage() {
   return (
     <>
       <PageHero
-        eyebrow="Regional Operating Network"
-        title="Care support where your family lives."
+        eyebrow="Regional Delivery Network"
+        title="Cities We Serve Across South India"
         sub="Every active operating city features localized women attendant clusters, police background screening records, and a priority cluster backup protocol."
       >
         <BookLink size="lg" variant="warm">
-          Book Care in Your City
+          Book an Attendant
         </BookLink>
         <CallLink variant="outline">Speak to Regional Coordinator</CallLink>
       </PageHero>
