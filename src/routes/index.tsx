@@ -52,6 +52,7 @@ import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
 import { CareSituationSlider } from "@/components/site/CareSituationSlider";
 import { CareCoordinationExplorer } from "@/components/site/CareCoordinationExplorer";
 import { CareRecoveryStory } from "@/components/site/CareRecoveryStory";
+import { HeroCareShowcase } from "@/components/site/HeroCareShowcase";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -570,72 +571,9 @@ function HomePage() {
               </div>
             </div>
 
-            {/* Right Column: Warm, authentic family care visual (Static, high impact) */}
+            {/* Right Column: Interactive Care Showcase with smooth loop switching & category tabs */}
             <div className="lg:col-span-5">
-              <div className="relative mx-auto max-w-md lg:max-w-none">
-                {/* Decorative warm glow */}
-                <div
-                  className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-primary/15 via-terracotta/15 to-secondary/30 blur-xl opacity-75 -z-10"
-                  aria-hidden
-                />
-
-                {/* Hero Card Visual */}
-                <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-lift">
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                    <img
-                      src={hero1}
-                      alt="Caregiver gently holding hands with an elderly woman at home, providing warm companionship"
-                      width={800}
-                      height={600}
-                      loading="eager"
-                      fetchPriority="high"
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-
-                    {/* Tag badge top-left */}
-                    <div className="absolute top-4 left-4">
-                      <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold text-foreground shadow-xs backdrop-blur">
-                        Compassionate Home Care
-                      </span>
-                    </div>
-
-                    {/* Verified badge top-right */}
-                    <div className="absolute top-4 right-4">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/95 px-2.5 py-1 text-[11px] font-semibold text-primary-foreground shadow-xs backdrop-blur">
-                        <BadgeCheck className="size-3.5" />
-                        Verified Staff
-                      </span>
-                    </div>
-
-                    {/* Caption at bottom */}
-                    <div className="absolute bottom-4 left-4 right-4 text-white">
-                      <p className="font-semibold text-base sm:text-lg leading-snug">
-                        Elderly Care at Home
-                      </p>
-                      <p className="text-xs text-white/85 mt-0.5">
-                        Gentle daily companionship, medication routines, and dignity for your loved ones.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Operational Cluster Footer */}
-                  <div className="flex items-center justify-between p-3.5 bg-secondary/30 text-xs text-muted-foreground border-t border-border">
-                    <div className="flex items-center gap-2">
-                      <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="font-medium text-foreground text-[11px]">
-                        Active in Bengaluru · Chennai · Hyderabad · Coimbatore
-                      </span>
-                    </div>
-                    <a
-                      href="#family-situations"
-                      className="font-semibold text-primary hover:underline text-[11px]"
-                    >
-                      Explore Situations ↓
-                    </a>
-                  </div>
-                </div>
-              </div>
+              <HeroCareShowcase />
             </div>
           </div>
         </div>

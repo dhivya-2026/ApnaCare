@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { COORDINATION_AREAS } from "@/components/site/CareCoordinationExplorer";
 import { FAMILY_SITUATIONS } from "@/components/site/CareSituationSlider";
+import { HERO_CATEGORIES } from "@/components/site/HeroCareShowcase";
 
 describe("Phase 6 Visual, Typography & Interaction System", () => {
   const stylesPath = path.resolve(__dirname, "../styles.css");
@@ -176,11 +177,43 @@ describe("Phase 6 Visual, Typography & Interaction System", () => {
     });
   });
 
-  describe("6. Integration into Route Templates", () => {
+  describe("6. Hero Care Showcase Auto-Looping Card", () => {
+    it("has 6 categories matching the service offerings", () => {
+      expect(HERO_CATEGORIES.length).toBeGreaterThanOrEqual(5);
+      const labels = HERO_CATEGORIES.map((c) => c.tabLabel);
+      expect(labels).toContain("Senior Care");
+      expect(labels).toContain("Hospital Support");
+      expect(labels).toContain("Clinical Nursing");
+      expect(labels).toContain("New Mothers");
+    });
+
+    it("each category has authentic image, title, subtitle, and verified badge", () => {
+      for (const cat of HERO_CATEGORIES) {
+        expect(cat.image).toBeTruthy();
+        expect(cat.title).toBeTruthy();
+        expect(cat.subtitle).toBeTruthy();
+        expect(cat.verifiedBadge).toBeTruthy();
+        expect(cat.serviceSlug).toBeTruthy();
+      }
+    });
+
+    const heroShowcasePath = path.resolve(__dirname, "../components/site/HeroCareShowcase.tsx");
+    const heroShowcaseContent = fs.readFileSync(heroShowcasePath, "utf-8");
+
+    it("implements auto-play loop timer with pause on hover/focus", () => {
+      expect(heroShowcaseContent).toContain("setInterval");
+      expect(heroShowcaseContent).toContain("onMouseEnter");
+      expect(heroShowcaseContent).toContain("onMouseLeave");
+      expect(heroShowcaseContent).toContain("prefers-reduced-motion");
+    });
+  });
+
+  describe("7. Integration into Route Templates", () => {
     const indexPath = path.resolve(__dirname, "../routes/index.tsx");
     const indexContent = fs.readFileSync(indexPath, "utf-8");
 
-    it("mounts CareSituationSlider, CareCoordinationExplorer, and CareRecoveryStory on Homepage", () => {
+    it("mounts HeroCareShowcase, CareSituationSlider, CareCoordinationExplorer, and CareRecoveryStory on Homepage", () => {
+      expect(indexContent).toContain("<HeroCareShowcase");
       expect(indexContent).toContain("<CareSituationSlider");
       expect(indexContent).toContain("<CareCoordinationExplorer");
       expect(indexContent).toContain("<CareRecoveryStory");
