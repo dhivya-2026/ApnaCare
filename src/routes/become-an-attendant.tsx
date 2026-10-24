@@ -138,11 +138,11 @@ function BecomeAnAttendant() {
             </p>
 
             <h1 className="mt-6 text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl text-balance">
-              Build a Rewarding Career with Apna Care
+              Do care work that matters, with fair pay and respect.
             </h1>
 
             <p className="mt-5 max-w-xl text-lg text-primary-foreground/85 leading-relaxed">
-              Make a meaningful difference in people's lives. Join Apna Care as a caregiver or healthcare professional and help families access compassionate, reliable care.
+              Support seniors and recovering families across South India with transparent shift compensation, safety protocols, and dependable coordinator support.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -154,7 +154,7 @@ function BecomeAnAttendant() {
                   track("career_apply_now_click");
                 }}
               >
-                Apply Now
+                Apply to Join Our Caregiver Team
                 <ChevronRight className="size-4" />
               </Button>
               <Button
@@ -164,7 +164,7 @@ function BecomeAnAttendant() {
                   document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
               >
-                Learn About the Application Process
+                See How Onboarding Works
               </Button>
             </div>
 

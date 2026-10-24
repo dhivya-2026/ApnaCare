@@ -111,12 +111,12 @@ function Safety() {
   return (
     <>
       <PageHero
-        eyebrow="Our Safety Covenant"
-        title="Our Standard is Uncompromising Trust"
-        sub="We treat your family's safety as a personal sacred duty. Every ApnaCare attendant passes our multi-tier background screening, clinical evaluations, and 24/7 command center monitoring."
+        eyebrow="Trust & Safety Protocols"
+        title="Know Who Steps Into Your Home"
+        sub="Inviting a care attendant into your home or bedside takes trust. We verify identities, check background records, evaluate practical care skills, and coordinate daily schedules so your family doesn't have to carry the worry alone."
       >
         <BookLink size="lg" variant="warm">
-          Book a Verified Attendant
+          Find the Right Attendant
         </BookLink>
         <Button asChild variant="outline">
           <Link to="/safety-guidelines">Read Safety Guidelines & Code of Conduct</Link>

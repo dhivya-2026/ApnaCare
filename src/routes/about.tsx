@@ -89,7 +89,7 @@ function AboutPage() {
           <div>
             <span className="eyebrow">Why ApnaCare Exists</span>
             <h2 className="mt-3 text-3xl font-semibold leading-tight md:text-4xl">
-              Bridging the Trust Deficit in Domestic & In-Hospital Care
+              Because inviting someone into your home takes real trust.
             </h2>
             <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>

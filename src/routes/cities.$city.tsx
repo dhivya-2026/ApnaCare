@@ -31,14 +31,14 @@ function CityDetailPage() {
   return (
     <>
       <PageHero
-        eyebrow={`Local Coverage · ${city.state}`}
-        title={`ApnaCare Women Attendants in ${city.name}`}
+        eyebrow={`Verified Care · ${city.state}`}
+        title={`Verified Home & Bedside Care in ${city.name}`}
         sub={city.description}
       >
         <BookLink size="lg" variant="warm" city={city.name}>
-          Book Attendant in {city.name}
+          Book Care in {city.name}
         </BookLink>
-        <CallLink variant="outline">Call {city.name} Command Desk</CallLink>
+        <CallLink variant="outline">Call {city.name} Care Desk</CallLink>
       </PageHero>
 
       <section className="border-b border-border bg-card py-6">
