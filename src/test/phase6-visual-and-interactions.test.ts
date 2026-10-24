@@ -178,8 +178,8 @@ describe("Phase 6 Visual, Typography & Interaction System", () => {
   });
 
   describe("6. Hero Care Showcase Auto-Looping Card", () => {
-    it("has 6 categories matching the service offerings", () => {
-      expect(HERO_CATEGORIES.length).toBeGreaterThanOrEqual(5);
+    it("has 4 core categories matching the user mockup", () => {
+      expect(HERO_CATEGORIES).toHaveLength(4);
       const labels = HERO_CATEGORIES.map((c) => c.tabLabel);
       expect(labels).toContain("Senior Care");
       expect(labels).toContain("Hospital Support");

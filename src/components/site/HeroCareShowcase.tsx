@@ -68,28 +68,6 @@ export const HERO_CATEGORIES: HeroCategory[] = [
     alt: "Experienced caregiver tenderly caring for newborn baby while mother rests",
     serviceSlug: "post-natal-care",
   },
-  {
-    id: "travel-transit",
-    tabLabel: "Travel & Transit",
-    tag: "Mobility & Transit",
-    verifiedBadge: "Chauffeur & Escort",
-    title: "Assisted Transit & Clinic Escort",
-    subtitle: "Door-to-door clinic accompaniment, railway & airport transit",
-    image: hero5,
-    alt: "Professional woman driver providing safe escorted transit for family member",
-    serviceSlug: "travel-assistance",
-  },
-  {
-    id: "family-respite",
-    tabLabel: "Family Respite",
-    tag: "Respite & Logs",
-    verifiedBadge: "Daily WhatsApp Logs",
-    title: "Caregiver Respite & Distant Coordination",
-    subtitle: "Relief shifts for family caregivers & scheduled daily WhatsApp logs",
-    image: hero3,
-    alt: "Caregiver and coordinator reviewing family care schedule and logistics",
-    serviceSlug: "lifestyle-support",
-  },
 ];
 
 interface HeroCareShowcaseProps {
@@ -227,12 +205,12 @@ export function HeroCareShowcase({
           })}
         </div>
 
-        {/* ── Category Switcher Footer (Matches user mockup with loop switching) ── */}
+        {/* ── Category Switcher Footer (Matches user mockup: 4 clean equal tabs, zero scroll) ── */}
         <div className="p-2 sm:p-2.5 bg-secondary/35 border-t border-border">
           <div
             role="tablist"
             aria-label="Care Categories Showcase"
-            className="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth p-0.5"
+            className="grid grid-cols-4 gap-1 p-0.5 w-full overflow-hidden"
           >
             {HERO_CATEGORIES.map((cat, idx) => {
               const isSelected = idx === activeIndex;
@@ -246,13 +224,13 @@ export function HeroCareShowcase({
                   tabIndex={isSelected ? 0 : -1}
                   onClick={() => handleSelectCategory(idx)}
                   className={cn(
-                    "whitespace-nowrap px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer shrink-0 min-h-[38px] flex items-center justify-center relative",
+                    "w-full px-1.5 sm:px-2 py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all duration-200 cursor-pointer min-h-[38px] flex items-center justify-center text-center relative",
                     isSelected
                       ? "bg-card text-foreground font-bold shadow-soft border border-primary/20 ring-1 ring-primary/30"
                       : "text-muted-foreground hover:text-foreground hover:bg-card/50"
                   )}
                 >
-                  <span>{cat.tabLabel}</span>
+                  <span className="truncate">{cat.tabLabel}</span>
 
                   {/* Tiny animated progress indicator line underneath active tab */}
                   {isSelected && (
