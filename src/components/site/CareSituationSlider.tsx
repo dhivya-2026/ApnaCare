@@ -183,7 +183,7 @@ export function CareSituationSlider() {
               id="situations-heading"
               className="mt-3 text-fluid-section font-display font-semibold text-foreground tracking-tight"
             >
-              Support Designed for Your Family Needs
+              Care, Curated for Every Need
             </h2>
             <p className="mt-3 text-fluid-body text-readable-muted">
               Every family circumstance is unique. Select your situation to explore verified, compassionate care options designed for your exact scenario.
