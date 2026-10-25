@@ -177,13 +177,13 @@ export function CareSituationSlider() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-3.5 py-1 text-xs font-semibold text-primary">
               <Sparkles className="size-3.5" />
-              <span>Real Family Moments</span>
+              <span>Your Family Needs</span>
             </div>
             <h2
               id="situations-heading"
               className="mt-3 text-fluid-section font-display font-semibold text-foreground tracking-tight"
             >
-              Support Designed for Real Family Moments
+              Support Designed for Your Family Needs
             </h2>
             <p className="mt-3 text-fluid-body text-readable-muted">
               Every family circumstance is unique. Select your situation to explore verified, compassionate care options designed for your exact scenario.
