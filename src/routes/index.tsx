@@ -53,6 +53,7 @@ import { CareSituationSlider } from "@/components/site/CareSituationSlider";
 import { CareCoordinationExplorer } from "@/components/site/CareCoordinationExplorer";
 import { CareRecoveryStory } from "@/components/site/CareRecoveryStory";
 import { HeroCareShowcase } from "@/components/site/HeroCareShowcase";
+import { UniversalCareConfigurator } from "@/components/site/UniversalCareConfigurator";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -584,6 +585,12 @@ function HomePage() {
           - Interactive 6-scenario slider with touch swipe, keyboard, & grid toggle
       ───────────────────────────────────────────────────────────── */}
       <CareSituationSlider />
+
+      {/* ─────────────────────────────────────────────────────────────
+          UNIVERSAL CARE CONFIGURATOR & INTELLIGENT ATTENDANT MATCHER
+          - Situation-led discovery, multi-module plan builder & matching
+      ───────────────────────────────────────────────────────────── */}
+      <UniversalCareConfigurator />
 
       {/* ─────────────────────────────────────────────────────────────
           3. CARE COORDINATION VALUE EXPLORER (PRIORITY SECTION A)
