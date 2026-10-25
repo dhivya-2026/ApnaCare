@@ -35,12 +35,13 @@ import hero2 from "@/assets/hero-2.jpg";
 import hero3 from "@/assets/hero-3.jpg";
 import hero4 from "@/assets/hero-4.jpg";
 import hero5 from "@/assets/hero-5.jpg";
+import hero6 from "@/assets/hero-6.jpg";
 import nursingCare from "@/assets/nursing-care.jpg";
 
 const SERVICE_STORY_IMAGES: Record<string, { img: string; alt: string }> = {
   "elderly-care": {
     img: hero1,
-    alt: "Caregiver gently assisting an elderly lady at home with everyday living routines",
+    alt: "Caregiver gently assisting an elderly South Indian lady at home with everyday living routines",
   },
   "hospital-attendants": {
     img: hero2,
@@ -52,15 +53,35 @@ const SERVICE_STORY_IMAGES: Record<string, { img: string; alt: string }> = {
   },
   "post-natal-care": {
     img: hero4,
-    alt: "Caregiver supporting a mother and newborn infant with comforting routines",
+    alt: "Caregiver supporting a mother and newborn infant with comforting routines at home",
   },
   "travel-assistance": {
     img: hero5,
-    alt: "Chauffeuse providing escorted travel mobility assistance to a passenger",
+    alt: "Transit attendant providing escorted mobility assistance at railway terminal",
   },
   "lifestyle-support": {
     img: hero3,
-    alt: "Caregiver and coordinator reviewing family care schedule and logistics",
+    alt: "Professional companion coordinating family appointment and vehicle transit",
+  },
+  "home-personal-care": {
+    img: hero6,
+    alt: "Compassionate attendant assisting a senior gentleman in a sunny South Indian home garden",
+  },
+  "women-drivers": {
+    img: hero3,
+    alt: "Professional verified woman driver escorting senior passenger safely",
+  },
+  "airport-pickup": {
+    img: hero3,
+    alt: "Verified airport travel companion assisting elder passenger at terminal gate",
+  },
+  "railway-assistance": {
+    img: hero5,
+    alt: "Platform escort attendant guiding senior passenger safely through railway station",
+  },
+  "security-support": {
+    img: hero5,
+    alt: "Vetted security escort ensuring safe transit and residential accompaniment",
   },
 };
 
