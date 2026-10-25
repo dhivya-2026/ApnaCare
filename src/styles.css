@@ -26,6 +26,8 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-terracotta: var(--terracotta);
   --color-terracotta-foreground: var(--terracotta-foreground);
+  --color-turmeric: var(--turmeric);
+  --color-turmeric-foreground: var(--turmeric-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -77,6 +79,9 @@
   /* #D9A78B soft terracotta */
   --terracotta: oklch(0.77 0.072 50);
   --terracotta-foreground: oklch(0.26 0.03 45);
+  /* #E5C477 muted turmeric */
+  --turmeric: oklch(0.82 0.11 85);
+  --turmeric-foreground: oklch(0.28 0.04 75);
   --muted: oklch(0.945 0.012 80);
   /* WCAG 2.2 AA compliant high-contrast muted text (>= 4.5:1 on background and card) */
   --muted-foreground: oklch(0.36 0.02 170);

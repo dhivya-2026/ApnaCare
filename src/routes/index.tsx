@@ -514,12 +514,12 @@ function HomePage() {
 
               {/* One Memorable Headline */}
               <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.12]">
-                A little help. A lot of peace of mind.
+                Care that feels closer to home.
               </h1>
 
               {/* One Concise Supporting Sentence */}
               <p className="mt-4 max-w-xl text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-                We help families arrange dependable, police-verified care attendants and licensed nurses for elderly parents, hospital recovery, and post-natal care — handling verification, coordination, and daily updates.
+                Support for your parents, children, and recovering loved ones — arranged with police-verified women attendants and licensed nurses across South India, with transparent pricing and daily WhatsApp care updates.
               </p>
 
               {/* Primary and Secondary Action Buttons */}

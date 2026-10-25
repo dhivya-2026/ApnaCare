@@ -996,8 +996,7 @@ function Footer() {
         <div className="sm:col-span-2 max-w-sm">
           <Logo />
           <p className="mt-4 text-sm leading-relaxed text-ink-foreground/85">
-            Trusted women attendant services you can rely on. Safe, police-verified and
-            compassionate support for every stage of care across South India.
+            Care that feels closer to home. Safe, police-verified women attendants and licensed nurses for every stage of family care across South India.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <BookLink variant="warm" size="sm" className="min-h-[44px]" />
