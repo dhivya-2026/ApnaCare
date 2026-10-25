@@ -156,32 +156,6 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", to: "/" },
   {
-    label: "About",
-    children: [
-      {
-        label: "About ApnaCare",
-        to: "/about",
-        description: "Our story, founding mission & compassionate care values",
-        badge: "Mission",
-        icon: Building2,
-      },
-      {
-        label: "Ecosystem Partners",
-        to: "/ecosystem-partners",
-        description: "Hospitals, NGOs & healthcare skill development centers",
-        badge: "Network",
-        icon: Network,
-      },
-      {
-        label: "Contact Us",
-        to: "/contact",
-        description: "24/7 command center & regional care coordination desks",
-        badge: "24/7 Desk",
-        icon: PhoneCall,
-      },
-    ],
-  },
-  {
     label: "Who We Serve",
     twoColumn: {
       col1Title: "Family & Clinical Support",
@@ -366,6 +340,32 @@ const NAV_ITEMS: NavItem[] = [
         description: "Apply to join our vetted women care network",
         badge: "Careers",
         icon: Sparkles,
+      },
+    ],
+  },
+  {
+    label: "About",
+    children: [
+      {
+        label: "About ApnaCare",
+        to: "/about",
+        description: "Our story, founding mission & compassionate care values",
+        badge: "Mission",
+        icon: Building2,
+      },
+      {
+        label: "Ecosystem Partners",
+        to: "/ecosystem-partners",
+        description: "Hospitals, NGOs & healthcare skill development centers",
+        badge: "Network",
+        icon: Network,
+      },
+      {
+        label: "Contact Us",
+        to: "/contact",
+        description: "24/7 command center & regional care coordination desks",
+        badge: "24/7 Desk",
+        icon: PhoneCall,
       },
     ],
   },
