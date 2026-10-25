@@ -919,10 +919,6 @@ function Header() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2 shrink-0">
-            <div className="hidden xl:block">
-              <LanguageSelector variant="compact" />
-            </div>
-
             <Button asChild variant="ghost" size="icon" className="hidden lg:inline-flex shrink-0 size-11 text-muted-foreground hover:text-foreground touch-target">
               <a
                 href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
