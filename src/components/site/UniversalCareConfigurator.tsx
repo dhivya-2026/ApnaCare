@@ -867,9 +867,6 @@ export function UniversalCareConfigurator() {
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.badge}`}>
-                        {r.icpNumber}
-                      </span>
                       {isSelected ? (
                         <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${c.badge}`}>
                           <Check className="size-2.5 stroke-[3]" /> Selected
@@ -912,7 +909,7 @@ export function UniversalCareConfigurator() {
                   Step 2 — Select their specific profile or age group
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Selected: <span className="font-semibold text-foreground">{activeRecipient.label} ({activeRecipient.icpNumber})</span>. Choosing a sub-group automatically pre-loads recommended care modules, shifts & duration.
+                  Selected: <span className="font-semibold text-foreground">{activeRecipient.label}</span>. Choosing a sub-group automatically pre-loads recommended care modules, shifts & duration.
                 </p>
               </div>
             </div>
@@ -1366,9 +1363,6 @@ export function UniversalCareConfigurator() {
                   <div className="flex items-center justify-between pb-4 border-b border-border">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary-soft text-primary">
-                          {activeRecipient?.icpNumber}
-                        </span>
                         <span className="text-xs font-semibold text-primary">Care Recipient Profile</span>
                       </div>
                       <h3 className="text-lg font-display font-semibold text-foreground mt-1">
