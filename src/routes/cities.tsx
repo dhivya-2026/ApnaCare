@@ -133,7 +133,7 @@ function CitiesPage() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="default">
-                  <Link to={`/cities/${c.slug}`}>
+                  <Link to="/cities/$city" params={{ city: c.slug }}>
                     Explore {c.name} Coverage
                   </Link>
                 </Button>

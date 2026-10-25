@@ -199,7 +199,8 @@ export function HeroCareShowcase({
                 {/* Bottom Caption & Link */}
                 <div className="absolute bottom-4 left-4 right-4 text-white">
                   <Link
-                    to={`/services/${cat.serviceSlug}`}
+                    to="/services/$slug"
+                    params={{ slug: cat.serviceSlug }}
                     className="group/caption block text-left"
                     onClick={() => {
                       track("hero_showcase_caption_click", {

@@ -54,6 +54,7 @@ import { CareCoordinationExplorer } from "@/components/site/CareCoordinationExpl
 import { CareRecoveryStory } from "@/components/site/CareRecoveryStory";
 import { HeroCareShowcase } from "@/components/site/HeroCareShowcase";
 import { UniversalCareConfigurator } from "@/components/site/UniversalCareConfigurator";
+import { useLanguage } from "@/lib/i18n";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -464,6 +465,7 @@ const PRICING_HIGHLIGHTS = [
 ];
 
 function HomePage() {
+  const { strings, language } = useLanguage();
   const [attendantCity, setAttendantCity] = useState("All");
   const [homeBizOpen, setHomeBizOpen] = useState(false);
   const [showNavigator, setShowNavigator] = useState(false);
@@ -510,17 +512,17 @@ function HomePage() {
               {/* Eyebrow Pill */}
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3.5 py-1.5 text-xs font-semibold text-primary backdrop-blur">
                 <Sparkles className="size-3.5 text-terracotta" />
-                <span>Verified Home & Hospital Care Across South India</span>
+                <span>{strings.activeCitiesTitle}: {strings.activeCities}</span>
               </div>
 
               {/* One Memorable Headline */}
               <h1 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.12]">
-                Care that feels closer to home.
+                {strings.careCloserToHome}
               </h1>
 
               {/* One Concise Supporting Sentence */}
               <p className="mt-4 max-w-xl text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-                Support for your parents, children, and recovering loved ones — arranged with police-verified women attendants and licensed nurses across South India, with transparent pricing and daily WhatsApp care updates.
+                {strings.heroSupporting}
               </p>
 
               {/* Primary and Secondary Action Buttons */}
@@ -534,7 +536,7 @@ function HomePage() {
                     to="/booking"
                     onClick={() => track("hero_request_assistance")}
                   >
-                    Request Care Consultation
+                    {strings.requestConsultation}
                     <ArrowRight className="ml-2 size-4" />
                   </Link>
                 </Button>
@@ -550,7 +552,7 @@ function HomePage() {
                     className="inline-flex items-center gap-2"
                   >
                     <Phone className="size-4 text-primary" />
-                    <span>Speak with Coordinator ({SITE.SUPPORT_PHONE})</span>
+                    <span>{strings.callCoordinator} ({SITE.SUPPORT_PHONE})</span>
                   </a>
                 </Button>
               </div>
@@ -559,15 +561,15 @@ function HomePage() {
               <div className="mt-8 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-medium text-muted-foreground pt-4 border-t border-border/60">
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
                   <ShieldCheck className="size-4 text-primary" />
-                  Government ID & Police Screened
+                  {strings.policeVerified}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-foreground font-semibold">
                   <BadgeCheck className="size-4 text-terracotta" />
-                  Attendant vs. Licensed Nurse Clarity
+                  {strings.nurseClarity}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Clock className="size-4 text-primary" />
-                  Priority Cluster Standby Backup
+                  {strings.clusterBackup}
                 </span>
               </div>
             </div>
@@ -1046,7 +1048,8 @@ function HomePage() {
 
                 <div className="mt-6 pt-3 border-t border-border flex items-center justify-between">
                   <Link
-                    to={`/services/${srv.slug}`}
+                    to="/services/$slug"
+                    params={{ slug: srv.slug }}
                     className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1 min-h-[36px]"
                   >
                     <span>Service Details</span>

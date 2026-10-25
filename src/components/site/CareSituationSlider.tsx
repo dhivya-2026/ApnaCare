@@ -313,7 +313,8 @@ export function CareSituationSlider() {
 
                   <div className="flex items-center gap-3">
                     <Link
-                      to={`/services/${currentSituation.serviceSlug}`}
+                      to="/services/$slug"
+                      params={{ slug: currentSituation.serviceSlug }}
                       onClick={() => {
                         track("care_situation_selected", {
                           situation_id: currentSituation.id,
@@ -416,7 +417,8 @@ export function CareSituationSlider() {
                     <span className="text-[10px] text-readable-muted">+ 18% statutory GST</span>
                   </div>
                   <Link
-                    to={`/services/${situation.serviceSlug}`}
+                    to="/services/$slug"
+                    params={{ slug: situation.serviceSlug }}
                     onClick={() => {
                       track("care_situation_selected", {
                         situation_id: situation.id,

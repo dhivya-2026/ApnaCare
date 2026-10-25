@@ -33,12 +33,15 @@ import {
   HelpCircle,
   FileText,
   Check,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE, CITIES, buildWhatsAppUrl } from "@/data/site";
 import { track, useAutoTelemetry } from "@/lib/analytics";
 import { Assistant } from "./Assistant";
 import { PersonalizedWelcome } from "./PersonalizedWelcome";
+import { LanguageSelector } from "./LanguageSelector";
+import { useLanguage } from "@/lib/i18n";
 
 // ─── Shared Link Components ──────────────────────────────────────────────────
 
@@ -877,6 +880,30 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur w-full">
+      {/* Top Regional Reassurance & Language Strip */}
+      <div className="border-b border-border/60 bg-secondary/35 text-[11px] py-1.5 px-4 hidden md:block">
+        <div className="container-page flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-muted-foreground font-medium truncate">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="font-semibold text-foreground">Active South Indian Desks:</span>
+            <span>Bengaluru • Chennai • Hyderabad • Coimbatore</span>
+            <span className="text-border">|</span>
+            <span className="text-primary font-semibold">&lt; 90 Min Emergency Cluster Backup</span>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <a
+              href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
+              className="text-muted-foreground hover:text-foreground font-medium flex items-center gap-1"
+            >
+              <Phone className="size-3 text-primary" />
+              <span>24/7 Desk: {SITE.SUPPORT_PHONE}</span>
+            </a>
+            <span className="text-border">|</span>
+            <LanguageSelector variant="compact" />
+          </div>
+        </div>
+      </div>
+
       <div className="container-page flex h-18 items-center justify-between gap-2 sm:gap-4">
         <div className="shrink-0">
           <Logo />
@@ -892,6 +919,10 @@ function Header() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2 shrink-0">
+            <div className="hidden xl:block">
+              <LanguageSelector variant="compact" />
+            </div>
+
             <Button asChild variant="ghost" size="icon" className="hidden lg:inline-flex shrink-0 size-11 text-muted-foreground hover:text-foreground touch-target">
               <a
                 href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
@@ -947,6 +978,14 @@ function Header() {
           className="border-t border-border bg-background xl:hidden animate-fade-in"
         >
           <div className="container-page grid gap-1 py-4 max-h-[80vh] overflow-y-auto">
+            {/* Mobile Regional Language Selector */}
+            <div className="p-3 my-1.5 rounded-2xl bg-secondary/35 border border-border">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+                <Globe className="size-3.5 text-primary" /> Regional Language / மொழி / భాష / ಭಾಷೆ
+              </div>
+              <LanguageSelector variant="pills" />
+            </div>
+
             {NAV_ITEMS.map((item) => (
               <MobileNavItem key={item.label} item={item} onClose={() => setMobileOpen(false)} />
             ))}

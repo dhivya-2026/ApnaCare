@@ -473,7 +473,8 @@ export function CareCoordinationExplorer() {
                       Standardized regional protocol
                     </span>
                     <Link
-                      to={`/services/${activeArea.serviceTarget}`}
+                      to="/services/$slug"
+                      params={{ slug: activeArea.serviceTarget }}
                       onClick={() =>
                         track("coordination_action_click", {
                           area_id: activeArea.id,

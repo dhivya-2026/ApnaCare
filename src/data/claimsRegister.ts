@@ -185,7 +185,7 @@ export const CENTRAL_CLAIMS_REGISTER: TrustClaimRecord[] = [
   {
     id: "CLM-005",
     category: "Insurance Reimbursement Eligibility",
-    claimCategory: "Pricing, Brokerage & Taxes",
+    claimCategory: "Insurance Reimbursement Eligibility",
     publicWording: "Official tax invoices for medical insurance reimbursement",
     currentWording: "Official tax invoices for medical insurance reimbursement",
     locationsFound: [
@@ -215,7 +215,7 @@ export const CENTRAL_CLAIMS_REGISTER: TrustClaimRecord[] = [
   {
     id: "CLM-006",
     category: "Pricing, Brokerage & GST Treatment",
-    claimCategory: "Pricing, Brokerage & Taxes",
+    claimCategory: "Pricing, Brokerage & GST Treatment",
     publicWording: "18% statutory GST (SAC 9993) on all care offerings with zero broker fees",
     currentWording: "+ 18% statutory GST · Zero broker fees · Upfront daily rates",
     locationsFound: [

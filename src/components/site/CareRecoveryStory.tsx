@@ -153,7 +153,8 @@ export function CareRecoveryStory({
               {/* Action Buttons */}
               <div className="mt-8 pt-6 border-t border-border/70 flex flex-col sm:flex-row items-center gap-3">
                 <Link
-                  to="/services/hospital-attendants"
+                  to="/services/$slug"
+                  params={{ slug: "hospital-attendants" }}
                   onClick={() => {
                     track("recovery_story_cta_click", {
                       action: "view_service",

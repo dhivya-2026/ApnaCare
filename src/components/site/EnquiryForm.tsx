@@ -147,7 +147,14 @@ export function EnquiryForm({
           <button
             onClick={() => {
               setDone(false);
-              setF({ name: "", phone: "", service: "", message: "" });
+              setF({
+                name: "",
+                phone: "",
+                service: preselectedService || "",
+                city: "Bengaluru",
+                timeframe: "Within 24-48 hrs",
+                message: "",
+              });
             }}
             className="text-xs font-medium text-primary underline hover:text-primary/80"
           >
