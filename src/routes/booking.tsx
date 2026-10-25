@@ -23,6 +23,11 @@ export const Route = createFileRoute("/booking")({
     service: z.string().optional(),
     city: z.string().optional(),
     category: z.string().optional(),
+    duration: z.string().optional(),
+    time: z.string().optional(),
+    hours: z.string().optional(),
+    shift: z.string().optional(),
+    schedule: z.string().optional(),
   }),
   head: () =>
     seo(
@@ -44,7 +49,7 @@ const stepSchemas = [
   z.object({
     date: z.string().min(1, "Pick a start date").refine((d) => d >= new Date().toISOString().slice(0, 10), "Date cannot be in the past"),
     time: z.string().min(1, "Pick a start time"),
-    duration: z.coerce.number().int().min(1).max(60),
+    duration: z.coerce.number().int().min(1).max(90),
   }),
   z.object({
     preferredLanguage: z.string().optional(),
@@ -60,6 +65,9 @@ function BookingPage() {
   const [step, setStep] = useState(0);
 
   const [f, setF] = useState(() => {
+    const timingNote = search.shift
+      ? `Requested Timing: ${search.shift} (${search.hours ? `${search.hours} hrs/shift` : "flexible"}, Reporting: ${search.time || "08:00"}${search.schedule ? `, Schedule: ${search.schedule}` : ""})`
+      : "";
     const initial = {
       name: "",
       mobile: "",
@@ -68,10 +76,10 @@ function BookingPage() {
       city: search.city ?? "",
       location: "",
       date: "",
-      time: "",
-      duration: "1",
+      time: search.time || "08:00",
+      duration: search.duration || "1",
       preferredLanguage: "Tamil",
-      notes: "",
+      notes: timingNote,
     };
     if (typeof window !== "undefined") {
       try {
@@ -83,6 +91,9 @@ function BookingPage() {
             ...parsed,
             serviceId: search.service || parsed.serviceId || "",
             city: search.city || parsed.city || "",
+            duration: search.duration || parsed.duration || "1",
+            time: search.time || parsed.time || "08:00",
+            notes: timingNote ? `${timingNote}${parsed.notes ? `\n\n${parsed.notes}` : ""}` : (parsed.notes || ""),
           };
         }
       } catch (e) {
@@ -666,6 +677,28 @@ function BookingPage() {
                       aria-invalid={Boolean(errors.time)}
                       aria-describedby={errors.time ? "time-err" : undefined}
                     />
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {[
+                        { t: "08:00", label: "8 AM Day" },
+                        { t: "13:00", label: "1 PM Aft" },
+                        { t: "17:00", label: "5 PM Eve" },
+                        { t: "20:00", label: "8 PM Night" },
+                      ].map((slot) => (
+                        <button
+                          key={slot.t}
+                          type="button"
+                          onClick={() => setF({ ...f, time: slot.t })}
+                          className={cn(
+                            "px-2 py-0.5 rounded text-[10px] font-semibold border transition-all",
+                            f.time === slot.t
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-secondary/40 text-muted-foreground border-border hover:text-foreground"
+                          )}
+                        >
+                          {slot.label}
+                        </button>
+                      ))}
+                    </div>
                     <Err k="time" />
                   </div>
                   <div>
@@ -674,7 +707,7 @@ function BookingPage() {
                       id="dur"
                       type="number"
                       min={1}
-                      max={60}
+                      max={90}
                       value={f.duration}
                       onChange={set("duration")}
                       className="mt-1.5 h-12 rounded-xl"

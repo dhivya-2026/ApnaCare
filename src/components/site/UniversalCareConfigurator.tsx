@@ -23,6 +23,11 @@ import {
   RotateCcw,
   ChevronRight,
   Filter,
+  Clock,
+  Sun,
+  Moon,
+  CalendarDays,
+  Sliders,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CARE_MODULES } from "@/data/careModules";
@@ -40,11 +45,13 @@ interface AgeGroup {
 }
 
 type CategoryType = "all" | "elderly-home" | "hospital-recovery" | "maternal-infant" | "travel-transit" | "safety-corporate";
+type ShiftType = "4hr" | "8hr" | "12hr-day" | "12hr-night" | "24hr" | "custom";
+type SchedulePattern = "daily" | "weekdays" | "weekends" | "alternate";
 
 interface RecipientType {
   id: string;
   icpNumber: string;
-  category: "elderly-home" | "hospital-recovery" | "maternal-infant" | "travel-transit" | "safety-corporate";
+  category: CategoryType;
   label: string;
   sublabel: string;
   badge: string;
@@ -461,13 +468,129 @@ const COLOR_MAP: Record<string, { ring: string; bg: string; text: string; badge:
   },
 };
 
+const SHIFT_PRESETS = [
+  {
+    id: "4hr" as ShiftType,
+    label: "4-Hour Visit",
+    hours: 4,
+    defaultStart: "09:00",
+    desc: "Short Respite & Clinic Visits",
+    badge: "Short Visit",
+    icon: Clock,
+  },
+  {
+    id: "8hr" as ShiftType,
+    label: "8-Hour Day",
+    hours: 8,
+    defaultStart: "08:00",
+    desc: "Daytime Care & Routine",
+    badge: "Standard",
+    icon: Sun,
+  },
+  {
+    id: "12hr-day" as ShiftType,
+    label: "12-Hour Day",
+    hours: 12,
+    defaultStart: "08:00",
+    desc: "Full Day Support (8 AM – 8 PM)",
+    badge: "Full Day",
+    icon: Sun,
+  },
+  {
+    id: "12hr-night" as ShiftType,
+    label: "12-Hour Night",
+    hours: 12,
+    defaultStart: "20:00",
+    desc: "Overnight Bedside Vigil (8 PM – 8 AM)",
+    badge: "Night Vigil",
+    icon: Moon,
+  },
+  {
+    id: "24hr" as ShiftType,
+    label: "24-Hour Live-in",
+    hours: 24,
+    defaultStart: "08:00",
+    desc: "Round-the-clock Resident Care",
+    badge: "24x7 Stay",
+    icon: Home,
+  },
+  {
+    id: "custom" as ShiftType,
+    label: "Custom Hours",
+    hours: 6,
+    defaultStart: "09:00",
+    desc: "Tailor exact daily hours (2 to 24 hrs)",
+    badge: "Flexible",
+    icon: Sliders,
+  },
+];
+
+const QUICK_START_TIMES = [
+  { time: "06:00", label: "6:00 AM", tag: "Early Morning" },
+  { time: "08:00", label: "8:00 AM", tag: "Standard Day" },
+  { time: "09:30", label: "9:30 AM", tag: "Mid-Morning" },
+  { time: "13:00", label: "1:00 PM", tag: "Afternoon" },
+  { time: "17:00", label: "5:00 PM", tag: "Evening" },
+  { time: "20:00", label: "8:00 PM", tag: "Night Vigil" },
+  { time: "22:00", label: "10:00 PM", tag: "Late Night" },
+];
+
+const SCHEDULE_PATTERNS: { id: SchedulePattern; label: string; desc: string }[] = [
+  { id: "daily", label: "Daily (All 7 Days)", desc: "Continuous daily coverage" },
+  { id: "weekdays", label: "Weekdays (Mon–Fri)", desc: "Office hours & working days only" },
+  { id: "weekends", label: "Weekends Only (Sat–Sun)", desc: "Family caregiver respite & relief" },
+  { id: "alternate", label: "Alternate Days (~3 d/wk)", desc: "Dialysis, therapy or scheduled visits" },
+];
+
+function formatTime12h(time24: string): string {
+  if (!time24) return "8:00 AM";
+  const [hStr, mStr] = time24.split(":");
+  let h = parseInt(hStr, 10) || 8;
+  const m = parseInt(mStr || "0", 10) || 0;
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  const mFormatted = m < 10 ? `0${m}` : m;
+  return `${h}:${mFormatted} ${ampm}`;
+}
+
+function calculateShiftWindow(startTime24: string, hours: number): { windowText: string; isNextDay: boolean } {
+  if (hours >= 24) {
+    return {
+      windowText: `${formatTime12h(startTime24)} (24-Hour Continuous Live-in)`,
+      isNextDay: true,
+    };
+  }
+  const [hStr, mStr] = startTime24.split(":");
+  const startHour = parseInt(hStr, 10) || 8;
+  const startMin = parseInt(mStr || "0", 10) || 0;
+  const totalHours = startHour + hours;
+  const endHour = totalHours % 24;
+  const isNextDay = totalHours >= 24;
+  const endHour12 = endHour % 12 === 0 ? 12 : endHour % 12;
+  const ampm = endHour >= 12 ? "PM" : "AM";
+  const mFormatted = startMin < 10 ? `0${startMin}` : startMin;
+  const endFormatted = `${endHour12}:${mFormatted} ${ampm}${isNextDay ? " (Next Day)" : ""}`;
+
+  return {
+    windowText: `${formatTime12h(startTime24)} – ${endFormatted}`,
+    isNextDay,
+  };
+}
+
 export function UniversalCareConfigurator() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>("all");
   const [selectedRecipientId, setSelectedRecipientId] = useState<string | null>(null);
   const [selectedAgeGroupId, setSelectedAgeGroupId] = useState<string | null>(null);
   const [selectedModuleIds, setSelectedModuleIds] = useState<string[]>([]);
-  const [shiftTiming, setShiftTiming] = useState<"8hr" | "12hr" | "24hr">("12hr");
+
+  // Flexible Timing & Schedule States
+  const [shiftType, setShiftType] = useState<ShiftType>("8hr");
+  const [hoursPerDay, setHoursPerDay] = useState<number>(8);
+  const [startTime, setStartTime] = useState<string>("08:00");
+  const [schedulePattern, setSchedulePattern] = useState<SchedulePattern>("daily");
   const [durationDays, setDurationDays] = useState<number>(14);
+
   const [selectedCity, setSelectedCity] = useState<string>("Bengaluru");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("Tamil");
 
@@ -502,9 +625,38 @@ export function UniversalCareConfigurator() {
   const handleSelectAgeGroup = (ag: AgeGroup) => {
     setSelectedAgeGroupId(ag.id);
     setSelectedModuleIds([...ag.recommendedModuleIds]);
-    setShiftTiming(ag.defaultShift);
     setDurationDays(ag.presetDays);
+
+    // Initialize sensible timing based on age group
+    if (ag.defaultShift === "24hr") {
+      setShiftType("24hr");
+      setHoursPerDay(24);
+      setStartTime("08:00");
+    } else if (ag.defaultShift === "12hr") {
+      if (ag.recommendedModuleIds.includes("mod-respite-overnight")) {
+        setShiftType("12hr-night");
+        setHoursPerDay(12);
+        setStartTime("20:00");
+      } else {
+        setShiftType("12hr-day");
+        setHoursPerDay(12);
+        setStartTime("08:00");
+      }
+    } else {
+      setShiftType("8hr");
+      setHoursPerDay(8);
+      setStartTime("08:00");
+    }
+
     track("configurator_age_group_selected", { age_group_id: ag.id });
+  };
+
+  const handleSelectShiftPreset = (preset: (typeof SHIFT_PRESETS)[number]) => {
+    setShiftType(preset.id);
+    if (preset.id !== "custom") {
+      setHoursPerDay(preset.hours);
+      setStartTime(preset.defaultStart);
+    }
   };
 
   const handleToggleModule = (moduleId: string) => {
@@ -518,7 +670,10 @@ export function UniversalCareConfigurator() {
     setSelectedRecipientId(null);
     setSelectedAgeGroupId(null);
     setSelectedModuleIds([]);
-    setShiftTiming("12hr");
+    setShiftType("8hr");
+    setHoursPerDay(8);
+    setStartTime("08:00");
+    setSchedulePattern("daily");
     setDurationDays(14);
   };
 
@@ -527,18 +682,60 @@ export function UniversalCareConfigurator() {
     [selectedModuleIds]
   );
 
+  const shiftWindow = useMemo(
+    () => calculateShiftWindow(startTime, hoursPerDay),
+    [startTime, hoursPerDay]
+  );
+
+  const billableShifts = useMemo(() => {
+    if (schedulePattern === "weekdays") return Math.max(1, Math.round(durationDays * (5 / 7)));
+    if (schedulePattern === "weekends") return Math.max(1, Math.round(durationDays * (2 / 7)));
+    if (schedulePattern === "alternate") return Math.max(1, Math.round(durationDays * (3.5 / 7)));
+    return durationDays;
+  }, [durationDays, schedulePattern]);
+
   const pricing = useMemo(() => {
     let baseDaily = 0;
     CARE_MODULES.filter((m) => selectedModuleIds.includes(m.id)).forEach((m) => {
       baseDaily += m.baseDailyRate;
     });
     if (baseDaily < 799) baseDaily = 799;
-    const mult = shiftTiming === "8hr" ? 0.85 : shiftTiming === "24hr" ? 1.45 : 1.0;
-    const dailyRate = Math.round(baseDaily * mult);
-    const subtotal = dailyRate * durationDays;
+
+    // Flexible hourly & shift multiplier
+    let hourMult = 1.0;
+    if (hoursPerDay <= 4) {
+      hourMult = 0.65;
+    } else if (hoursPerDay <= 8) {
+      hourMult = 0.65 + ((hoursPerDay - 4) / 4) * 0.35; // 4h = 0.65x, 8h = 1.0x
+    } else if (hoursPerDay <= 12) {
+      const isNight =
+        shiftType === "12hr-night" ||
+        parseInt(startTime.split(":")[0], 10) >= 19 ||
+        parseInt(startTime.split(":")[0], 10) <= 4;
+      const topMult = isNight ? 1.35 : 1.25;
+      hourMult = 1.0 + ((hoursPerDay - 8) / 4) * (topMult - 1.0);
+    } else if (hoursPerDay < 24) {
+      hourMult = 1.25 + ((hoursPerDay - 12) / 12) * 0.25;
+    } else {
+      hourMult = 1.55; // 24hr Live-in
+    }
+
+    const shiftRate = Math.round(baseDaily * hourMult);
+    const subtotal = shiftRate * billableShifts;
     const gst = Math.round(subtotal * 0.18);
-    return { dailyRate, subtotal, gst, total: subtotal + gst };
-  }, [selectedModuleIds, shiftTiming, durationDays]);
+    return {
+      baseDaily,
+      hourMult,
+      shiftRate,
+      billableShifts,
+      subtotal,
+      gst,
+      total: subtotal + gst,
+    };
+  }, [selectedModuleIds, hoursPerDay, shiftType, startTime, billableShifts]);
+
+  const mappedShiftTiming: "8hr" | "12hr" | "24hr" =
+    hoursPerDay >= 20 ? "24hr" : hoursPerDay > 8 ? "12hr" : "8hr";
 
   const topMatches = useMemo<MatchEvaluation[]>(() => {
     if (!activeRecipient) return [];
@@ -547,16 +744,25 @@ export function UniversalCareConfigurator() {
       isClinicalRequired: hasClinicalModule,
       city: selectedCity,
       preferredLanguage: selectedLanguage,
-      shiftTiming,
+      shiftTiming: mappedShiftTiming,
     })
       .filter((m) => m.isEligible)
       .slice(0, 3);
-  }, [activeRecipient, hasClinicalModule, selectedCity, selectedLanguage, shiftTiming]);
+  }, [activeRecipient, hasClinicalModule, selectedCity, selectedLanguage, mappedShiftTiming]);
+
+  const activeScheduleLabel =
+    SCHEDULE_PATTERNS.find((p) => p.id === schedulePattern)?.label ?? "Daily (All 7 Days)";
 
   const waUrl = buildWhatsAppUrl(
     activeRecipient && activeAgeGroup
-      ? `Hello ApnaCare! Looking for verified care for ${activeRecipient.label} (${activeAgeGroup.label}, ${activeRecipient.icpNumber}) in ${selectedCity}. Shift: ${shiftTiming}, Duration: ${durationDays} days, Language: ${selectedLanguage}. Estimated Total: ${formatINR(pricing.total)}. Please help me proceed.`
-      : "Hello ApnaCare! I'd like to enquire about your care services."
+      ? `Hello ApnaCare! Looking for verified care for ${activeRecipient.label} (${activeAgeGroup.label}, ${activeRecipient.icpNumber}) in ${selectedCity}.\n\n` +
+          `• Timing Window: ${shiftWindow.windowText} (${hoursPerDay} hrs/shift)\n` +
+          `• Schedule: ${activeScheduleLabel}\n` +
+          `• Duration: ${durationDays} Days (${billableShifts} shifts)\n` +
+          `• Preferred Language: ${selectedLanguage}\n` +
+          `• Estimated Quote: ${formatINR(pricing.total)} (incl. GST)\n\n` +
+          `Please share matching attendant profiles.`
+      : "Hello ApnaCare! I'd like to enquire about your flexible care services."
   );
 
   return (
@@ -575,7 +781,7 @@ export function UniversalCareConfigurator() {
             Who are you looking to care for?
           </h2>
           <p className="mt-3 text-pretty text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Choose from 10 specialized care profiles across South India. We'll automatically load the right age group, verified modules, and matching attendants.
+            Choose from 10 specialized care profiles across South India with complete flexibility on hours, shift timings, schedule frequency, and duration.
           </p>
         </div>
 
@@ -736,7 +942,7 @@ export function UniversalCareConfigurator() {
 
                     <div className="mt-2 pt-2 border-t border-border/40 flex flex-wrap gap-1.5">
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${isSelected ? c.badge : "bg-secondary text-muted-foreground"}`}>
-                        {ag.defaultShift} shift
+                        {ag.defaultShift} preset
                       </span>
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${isSelected ? c.badge : "bg-secondary text-muted-foreground"}`}>
                         {ag.presetDays} days preset
@@ -752,7 +958,7 @@ export function UniversalCareConfigurator() {
           </div>
         )}
 
-        {/* Step 3 — Customise Modules + Preferences + Plan Summary */}
+        {/* Step 3 — Customise Modules + Flexible Timing + Plan Summary */}
         {activeAgeGroup && (
           <div className="mt-12">
             {/* Modules Grid */}
@@ -832,49 +1038,213 @@ export function UniversalCareConfigurator() {
               )}
             </div>
 
-            {/* Shift, Duration, Location & Summary */}
+            {/* Flexible Timing, Shift, Schedule, Duration & Summary */}
             <div className="mt-10 grid gap-8 lg:grid-cols-12 items-start">
               {/* Controls Column */}
               <div className="lg:col-span-6 space-y-5">
-                <p className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
-                  <span className="grid size-5 place-items-center rounded-full bg-primary text-primary-foreground text-[10px]">
-                    4
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                    <span className="grid size-5 place-items-center rounded-full bg-primary text-primary-foreground text-[10px]">
+                      4
+                    </span>
+                    Flexible Shift Timing & Schedule
+                  </p>
+                  <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    Customizable Hours
                   </span>
-                  Shift, Duration & Location
-                </p>
+                </div>
 
-                {/* Shift selector */}
-                <div className="p-5 rounded-2xl border border-border bg-card">
-                  <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-2">
-                    Shift Timing
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: "8hr", label: "8-Hour Day", desc: "Daytime Support" },
-                      { id: "12hr", label: "12-Hour Shift", desc: "Day or Night" },
-                      { id: "24hr", label: "24-Hour Live-in", desc: "Round-the-clock" },
-                    ].map((s) => (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => setShiftTiming(s.id as "8hr" | "12hr" | "24hr")}
-                        className={`p-3 rounded-xl border text-center transition-all ${
-                          shiftTiming === s.id
-                            ? "border-primary bg-primary text-primary-foreground font-semibold"
-                            : "border-border bg-secondary/30 text-foreground hover:bg-secondary"
-                        }`}
-                      >
-                        <div className="text-xs font-bold">{s.label}</div>
-                        <div
-                          className={`text-[10px] mt-0.5 ${
-                            shiftTiming === s.id ? "text-primary-foreground/80" : "text-muted-foreground"
+                {/* Shift Type Presets */}
+                <div className="p-5 rounded-2xl border border-border bg-card space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                      Shift Format
+                    </label>
+                    <span className="text-[11px] text-muted-foreground">Select a standard shift or customize</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {SHIFT_PRESETS.map((s) => {
+                      const isSelected = shiftType === s.id;
+                      const IconComp = s.icon;
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => handleSelectShiftPreset(s)}
+                          className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
+                            isSelected
+                              ? "border-primary bg-primary text-primary-foreground shadow-soft ring-1 ring-primary/40"
+                              : "border-border bg-secondary/30 text-foreground hover:bg-secondary/60 hover:border-primary/40"
                           }`}
                         >
-                          {s.desc}
+                          <div className="flex items-center justify-between">
+                            <IconComp className={`size-4 ${isSelected ? "text-primary-foreground" : "text-primary"}`} />
+                            <span
+                              className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                                isSelected ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
+                              }`}
+                            >
+                              {s.badge}
+                            </span>
+                          </div>
+                          <div className="mt-2">
+                            <div className="text-xs font-bold leading-tight">{s.label}</div>
+                            <div
+                              className={`text-[10px] mt-0.5 line-clamp-1 ${
+                                isSelected ? "text-primary-foreground/80" : "text-muted-foreground"
+                              }`}
+                            >
+                              {s.desc}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Custom Daily Hours Stepper & Slider */}
+                  {shiftType === "custom" && (
+                    <div className="mt-3 pt-3 border-t border-border/60 animate-fade-in space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                          <Sliders className="size-3.5 text-primary" /> Daily Service Hours
+                        </label>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setHoursPerDay((h) => Math.max(2, h - 1))}
+                            className="size-6 rounded-md border border-border bg-secondary/40 text-sm font-bold text-foreground hover:bg-secondary flex items-center justify-center leading-none"
+                          >
+                            −
+                          </button>
+                          <span className="w-14 text-center text-xs font-bold text-primary px-2 py-1 rounded-md bg-primary-soft border border-primary/30">
+                            {hoursPerDay} hrs
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setHoursPerDay((h) => Math.min(24, h + 1))}
+                            className="size-6 rounded-md border border-border bg-secondary/40 text-sm font-bold text-foreground hover:bg-secondary flex items-center justify-center leading-none"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      <input
+                        type="range"
+                        min={2}
+                        max={24}
+                        step={1}
+                        value={hoursPerDay}
+                        onChange={(e) => setHoursPerDay(Number(e.target.value))}
+                        className="w-full accent-primary h-1.5 rounded-full cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[10px] text-muted-foreground">
+                        <span>2 hrs (Quick visit)</span>
+                        <span>8 hrs (Day)</span>
+                        <span>12 hrs (Extended)</span>
+                        <span>24 hrs (Live-in)</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Shift Start Time & Shift Window */}
+                <div className="p-5 rounded-2xl border border-border bg-card space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                        Preferred Shift Start Time
+                      </label>
+                      <span className="text-[11px] text-muted-foreground">
+                        Attendant reporting time at your location
+                      </span>
+                    </div>
+                    <input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="text-xs font-bold rounded-lg border border-primary/40 bg-primary-soft text-primary px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  {/* Quick Start Time Chips */}
+                  <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                    <span className="text-[10px] text-muted-foreground mr-1">Quick Slots:</span>
+                    {QUICK_START_TIMES.map((slot) => (
+                      <button
+                        key={slot.time}
+                        type="button"
+                        onClick={() => setStartTime(slot.time)}
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all ${
+                          startTime === slot.time
+                            ? "border-primary bg-primary text-primary-foreground shadow-2xs"
+                            : "border-border/70 bg-secondary/30 text-muted-foreground hover:text-foreground hover:border-border"
+                        }`}
+                      >
+                        {slot.label} <span className="opacity-70 text-[9px]">({slot.tag})</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Live Calculated Shift Window Display */}
+                  <div className="mt-2 rounded-xl border border-primary/30 bg-primary-soft/50 p-3.5 flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <Clock className="size-4 text-primary shrink-0" />
+                      <div>
+                        <div className="font-bold text-primary">Shift Window:</div>
+                        <div className="font-semibold text-foreground text-xs sm:text-sm mt-0.5">
+                          {shiftWindow.windowText}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-bold text-primary bg-background px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
+                      {hoursPerDay} hrs / shift
+                    </span>
+                  </div>
+                </div>
+
+                {/* Schedule Days Pattern */}
+                <div className="p-5 rounded-2xl border border-border bg-card space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                      Schedule Frequency
+                    </label>
+                    <span className="text-[11px] text-muted-foreground">Select active days per week</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {SCHEDULE_PATTERNS.map((pat) => (
+                      <button
+                        key={pat.id}
+                        type="button"
+                        onClick={() => setSchedulePattern(pat.id)}
+                        className={`p-3 rounded-xl border text-left transition-all ${
+                          schedulePattern === pat.id
+                            ? "border-primary bg-primary text-primary-foreground font-semibold shadow-soft"
+                            : "border-border bg-secondary/30 text-foreground hover:bg-secondary/60 hover:border-primary/40"
+                        }`}
+                      >
+                        <div className="text-xs font-bold">{pat.label}</div>
+                        <div
+                          className={`text-[10px] mt-0.5 ${
+                            schedulePattern === pat.id ? "text-primary-foreground/80" : "text-muted-foreground"
+                          }`}
+                        >
+                          {pat.desc}
                         </div>
                       </button>
                     ))}
                   </div>
+
+                  {schedulePattern !== "daily" && (
+                    <div className="text-[11px] text-muted-foreground bg-secondary/40 p-2.5 rounded-lg border border-border/60 flex items-center gap-2">
+                      <CalendarDays className="size-3.5 text-primary shrink-0" />
+                      <span>
+                        Cost calculated only for actual working shifts ({billableShifts} shifts across {durationDays} calendar days). Off-days are not billed.
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Free-form Duration Slider */}
@@ -882,10 +1252,10 @@ export function UniversalCareConfigurator() {
                   <div className="flex items-center justify-between">
                     <div>
                       <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                        Duration (Days)
+                        Calendar Duration
                       </label>
                       <p className="text-[11px] text-muted-foreground mt-0.5">
-                        Free-form duration: from single-day journeys to 90-day ongoing care
+                        Free-form duration: from single-day journey to 90-day ongoing care
                       </p>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -1029,15 +1399,18 @@ export function UniversalCareConfigurator() {
 
                   <div className="py-4 border-b border-border space-y-2 text-xs">
                     {[
-                      ["Shift", `${shiftTiming} presence`],
-                      ["Duration", `${durationDays} Days`],
+                      ["Shift Window", shiftWindow.windowText],
+                      ["Daily Hours", `${hoursPerDay} hours/shift`],
+                      ["Schedule", activeScheduleLabel],
+                      ["Calendar Span", `${durationDays} Days`],
+                      ["Billable Shifts", `${billableShifts} ${billableShifts === 1 ? "shift" : "shifts"}`],
                       ["Preferred Language", selectedLanguage],
-                      ["Est. Daily Rate", `${formatINR(pricing.dailyRate)}/day`],
+                      ["Est. Shift Rate", `${formatINR(pricing.shiftRate)}/shift`],
                       ["GST (18%)", `+${formatINR(pricing.gst)}`],
                     ].map(([k, v]) => (
                       <div key={k} className="flex items-center justify-between text-muted-foreground">
                         <span>{k}</span>
-                        <span className="font-semibold text-foreground">{v}</span>
+                        <span className="font-semibold text-foreground text-right">{v}</span>
                       </div>
                     ))}
                     <div className="pt-2 flex items-center justify-between text-base font-bold text-foreground border-t border-border/60">
@@ -1057,6 +1430,11 @@ export function UniversalCareConfigurator() {
                         search={{
                           service: activeRecipient?.defaultServiceSlug ?? "elderly-care",
                           city: selectedCity.toLowerCase(),
+                          duration: String(billableShifts),
+                          time: startTime,
+                          hours: String(hoursPerDay),
+                          shift: shiftType,
+                          schedule: schedulePattern,
                         }}
                         onClick={() =>
                           track("configurator_proceed_booking", {
@@ -1066,6 +1444,10 @@ export function UniversalCareConfigurator() {
                             ageGroup: selectedAgeGroupId,
                             city: selectedCity,
                             duration: durationDays,
+                            shifts: billableShifts,
+                            hoursPerDay,
+                            startTime,
+                            schedulePattern,
                           })
                         }
                       >
@@ -1102,7 +1484,7 @@ export function UniversalCareConfigurator() {
                       Verified Attendants in {selectedCity}
                     </h3>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Matched by credentials, police clearance, and {selectedLanguage} language capability.
+                      Matched by credentials, police clearance, {selectedLanguage} language capability, and {hoursPerDay}-hour availability.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
