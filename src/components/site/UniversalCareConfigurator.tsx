@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Sparkles,
@@ -296,11 +296,40 @@ export function UniversalCareConfigurator() {
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl border border-border bg-card">
-                  <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-2">Duration: <span className="text-primary">{durationDays} Days</span></label>
-                  <div className="flex items-center gap-2">
-                    {[7, 14, 30].map((days) => (
-                      <button key={days} type="button" onClick={() => setDurationDays(days)} className={`flex-1 py-2 rounded-xl border text-xs font-semibold transition-all ${durationDays === days ? "border-primary bg-primary text-primary-foreground" : "border-border bg-secondary/30 text-muted-foreground hover:text-foreground"}`}>{days} Days</button>
+                <div className="p-5 rounded-2xl border border-border bg-card space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider">
+                      Duration
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <button type="button" onClick={() => setDurationDays((d) => Math.max(1, d - 1))} className="size-6 rounded-lg border border-border bg-secondary/40 text-sm font-bold text-foreground hover:bg-secondary flex items-center justify-center leading-none">−</button>
+                      <input
+                        type="number"
+                        min={1}
+                        max={90}
+                        value={durationDays}
+                        onChange={(e) => {
+                          const v = parseInt(e.target.value, 10);
+                          if (!isNaN(v)) setDurationDays(Math.min(90, Math.max(1, v)));
+                        }}
+                        className="w-14 text-center text-sm font-bold text-primary rounded-xl border border-primary/40 bg-primary-soft py-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <button type="button" onClick={() => setDurationDays((d) => Math.min(90, d + 1))} className="size-6 rounded-lg border border-border bg-secondary/40 text-sm font-bold text-foreground hover:bg-secondary flex items-center justify-center leading-none">+</button>
+                      <span className="text-xs text-muted-foreground ml-0.5">days</span>
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min={1}
+                    max={90}
+                    value={durationDays}
+                    onChange={(e) => setDurationDays(Number(e.target.value))}
+                    className="w-full accent-primary h-1.5 rounded-full cursor-pointer"
+                  />
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <span className="text-[10px] text-muted-foreground mr-1">Quick:</span>
+                    {[7, 14, 21, 30, 60, 90].map((days) => (
+                      <button key={days} type="button" onClick={() => setDurationDays(days)} className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border transition-all ${durationDays === days ? "border-primary bg-primary text-primary-foreground" : "border-border/60 bg-secondary/30 text-muted-foreground hover:text-foreground hover:border-border"}`}>{days}d</button>
                     ))}
                   </div>
                 </div>
