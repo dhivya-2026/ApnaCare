@@ -132,7 +132,7 @@ export function AttendantCard({ a, img }: { a: Attendant; img?: string }) {
         {a.certifications.map((c) => <span key={c} role="listitem" className="rounded-full border border-border bg-secondary/30 px-2.5 py-1 text-xs font-medium">{c}</span>)}
       </div>
       <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground"><Languages className="size-4" aria-hidden />{a.languages.join(", ")}</p>
-      <BookLink service={a.services[0]} variant="outline" className="mt-6 min-h-[44px]">Request {a.name.split(" ")[0]}</BookLink>
+      <BookLink service={a.services[0]} variant="outline" className="mt-6 min-h-[44px]">Choose {a.name.split(" ")[0]} as Your Saha</BookLink>
     </article>
   );
 }

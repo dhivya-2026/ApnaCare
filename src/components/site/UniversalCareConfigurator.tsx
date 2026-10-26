@@ -1154,7 +1154,7 @@ export function UniversalCareConfigurator() {
                         Preferred Shift Start Time
                       </label>
                       <span className="text-[11px] text-muted-foreground">
-                        Attendant reporting time at your location
+                        Saha reporting time at your location
                       </span>
                     </div>
                     <input
@@ -1475,7 +1475,7 @@ export function UniversalCareConfigurator() {
                   <div>
                     <span className="eyebrow">Real-Time Match</span>
                     <h3 className="mt-2 text-2xl font-display font-semibold text-foreground">
-                      Verified Attendants in {selectedCity}
+                      Verified Saha Care Team in {selectedCity}
                     </h3>
                     <p className="text-xs text-muted-foreground mt-1">
                       Matched by credentials, police clearance, {selectedLanguage} language capability, and {hoursPerDay}-hour availability.
@@ -1525,7 +1525,7 @@ export function UniversalCareConfigurator() {
                           search={{ service: attendant.services[0], city: attendant.city.toLowerCase() }}
                           className="font-semibold text-primary hover:underline"
                         >
-                          Request Profile &#10148;
+                          Choose This Saha &#10148;
                         </Link>
                       </div>
                     </div>

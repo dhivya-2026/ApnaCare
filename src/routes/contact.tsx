@@ -105,10 +105,10 @@ function Contact() {
       <PageHero
         eyebrow="24/7 Care Coordination"
         title="We're Here for Your Family, Day and Night"
-        sub="Speak directly with an experienced care coordinator about attendant assignments, hospital bedside assistance, custom schedules, or outstation mobility."
+        sub="Speak directly with an experienced care coordinator about Saha assignments, hospital bedside assistance, custom schedules, or outstation mobility."
       >
         <BookLink size="lg" variant="warm">
-          Book an Attendant
+          Find Your Saha
         </BookLink>
         <CallLink variant="outline">Call 24/7 Desk</CallLink>
       </PageHero>

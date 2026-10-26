@@ -28,8 +28,8 @@ import { sendToGoogleSheet } from "@/lib/analytics";
 export const Route = createFileRoute("/attendant-login")({
   head: () =>
     seo(
-      "Attendant Portal — ApnaCare Caregiver Hub",
-      "Official portal for verified ApnaCare women attendants. Shift check-in, real-time assignment telemetry, and 24/7 command center escalation.",
+      "Saha Portal — ApnaCare Care Team Hub",
+      "Official portal for verified ApnaCare Saha care companions and specialists. Shift check-in, real-time assignment telemetry, and 24/7 command center escalation.",
       { noindex: true }
     ),
   component: AttendantPortal,
@@ -155,9 +155,9 @@ function AttendantPortal() {
   return (
     <>
       <PageHero
-        eyebrow="Caregiver Operations"
-        title="ApnaCare Attendant & Specialist Portal"
-        sub="Authorized workspace for registered women attendants to manage shift check-ins, record daily vitals, view safety guidelines, and connect with the 24/7 Command Center."
+        eyebrow="Saha Care Team Operations"
+        title="ApnaCare Saha & Specialist Portal"
+        sub="Authorized workspace for registered ApnaCare Saha team members to manage shift check-ins, record daily vitals, view safety guidelines, and connect with the 24/7 Command Center."
       />
 
       <section className="container-page py-12 md:py-16">
@@ -166,9 +166,9 @@ function AttendantPortal() {
             <div className="grid size-12 place-items-center rounded-2xl bg-primary-soft text-primary">
               <ShieldCheck className="size-6" />
             </div>
-            <h1 className="mt-4 text-2xl font-semibold">Attendant Sign In</h1>
+            <h1 className="mt-4 text-2xl font-semibold">Saha Team Sign In</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Enter your registered attendant credentials or use the instant preview.
+              Enter your registered Saha credentials or use the instant preview.
             </p>
 
             <form onSubmit={handleLogin} className="mt-6 space-y-4">
@@ -198,7 +198,7 @@ function AttendantPortal() {
 
               <Button type="submit" disabled={isLoading} className="w-full h-12 text-base font-medium mt-2">
                 {isLoading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-                Sign In to Attendant Dashboard
+                Sign In to Saha Dashboard
               </Button>
             </form>
 
@@ -209,12 +209,12 @@ function AttendantPortal() {
                 onClick={() => handleLogin(undefined, true)}
                 className="w-full rounded-xl bg-secondary py-3 text-xs font-semibold text-primary transition-colors hover:bg-secondary/80 flex items-center justify-center gap-1.5"
               >
-                <Sparkles className="size-3.5" /> Instant Demo Sign-in (Sunitha Krishnan)
+                <Sparkles className="size-3.5" /> Instant Demo Sign-in (Sunitha Krishnan — Saha Lead)
               </button>
             </div>
 
             <p className="mt-4 text-center text-xs text-muted-foreground">
-              New attendant or credential renewal? Contact your city supervisor at{" "}
+              New Saha team member or credential renewal? Contact your city coordinator at{" "}
               <a href={`tel:${SITE.SUPPORT_PHONE_TEL}`} className="font-semibold text-primary hover:underline">{SITE.SUPPORT_PHONE}</a>.
             </p>
           </div>

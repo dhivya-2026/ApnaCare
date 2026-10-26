@@ -90,7 +90,7 @@ function ICPSolutionPage() {
                 <span className="grid size-5 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
                   <Check className="size-3" />
                 </span>
-                <span>Government ID Verified & Police Screened Attendants & Licensed Nursing Staff</span>
+                <span>Government ID Verified & Police Screened Saha Team & Licensed Nursing Staff</span>
               </div>
               <div className="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-foreground">
                 <span className="grid size-5 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
@@ -422,11 +422,11 @@ function ICPSolutionPage() {
             <SectionHeading
               eyebrow="Common Questions"
               title={`FAQs for ${icp.name}`}
-              sub="Clear answers about scheduling, security verifications, attendant replacements, and billing."
+              sub="Clear answers about scheduling, security verifications, Saha replacements, and billing."
             />
             <div className="mt-8 flex flex-col gap-3">
               <BookLink size="lg" variant="warm">
-                Book an Attendant Now
+                Find Your Saha Now
               </BookLink>
               <CallLink variant="outline">Call 24/7 Desk</CallLink>
             </div>

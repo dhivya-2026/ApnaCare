@@ -416,7 +416,7 @@ function ServicesPage() {
               </div>
               <h3 className="text-lg font-bold text-foreground">5-Step Background Verification</h3>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Every attendant undergoes biometric Aadhaar verification, court record checks, verified residential address inspection, credential verification, and practical patient handling assessments.
+                Every Saha team member undergoes biometric Aadhaar verification, court record checks, verified residential address inspection, credential verification, and practical patient handling assessments.
               </p>
             </div>
 

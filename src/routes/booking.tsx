@@ -31,8 +31,8 @@ export const Route = createFileRoute("/booking")({
   }),
   head: () =>
     seo(
-      "Book a Women Attendant — ApnaCare",
-      "Reserve verified women attendants for elderly care, hospital assistance, nursing, post-natal recovery, and travel mobility across South India."
+      "Find Your Saha — ApnaCare",
+      "Reserve verified Saha companions and healthcare professionals for elderly care, hospital assistance, nursing, post-natal recovery, and travel mobility across South India."
     ),
   component: BookingPage,
 });
@@ -272,7 +272,7 @@ function BookingPage() {
           <h1 className="mt-2 text-3xl font-semibold">Care Request Successfully Registered</h1>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             Your unique booking reference is <strong className="text-foreground font-mono text-base">{done}</strong>.
-            A regional care coordinator has received this request and will reach out on your mobile number to confirm the assigned attendant profile.
+            A regional care coordinator has received this request and will reach out on your mobile number to confirm your assigned Saha profile.
           </p>
 
           {/* Lead Pipeline Processing Transparency */}
@@ -306,7 +306,7 @@ function BookingPage() {
               ["Contact Mobile", f.mobile],
               ["Estimated Total", formatINR(totals.finalAmount)],
               ["18% GST Invoicing", "Included in Total"],
-              ["Attendant Match", "In Progress (Coordinator Dispatch)"],
+              ["Saha Match", "In Progress (Coordinator Dispatch)"],
             ].map(([k, v]) => (
               <div key={k}>
                 <dt className="text-xs text-muted-foreground uppercase">{k}</dt>
@@ -318,7 +318,7 @@ function BookingPage() {
           <div className="mt-6 rounded-2xl border border-primary/20 bg-primary-soft/50 p-4 text-xs text-muted-foreground leading-relaxed flex items-center gap-3">
             <ShieldCheck className="size-5 shrink-0 text-primary" />
             <span>
-              All assigned attendants carry verified photo identification badges and documented police verification filings. If you need immediate assistance, our 24/7 desk is at{" "}
+              All assigned Saha team members carry verified photo identification badges and documented police verification filings. If you need immediate assistance, our 24/7 desk is at{" "}
               <a href={`tel:${SITE.SUPPORT_PHONE_TEL}`} className="font-bold text-primary hover:underline">{SITE.SUPPORT_PHONE}</a>.
             </span>
           </div>
@@ -346,8 +346,8 @@ function BookingPage() {
     <>
       <PageHero
         eyebrow="Safe & Verified Care"
-        title="Reserve an Attendant in 6 Simple Steps"
-        sub="Complete your care requirements. Your session state is automatically saved, and our transparent rates detail the base caregiver fee plus 18% statutory GST invoice with zero hidden charges."
+        title="Find Your Saha in 6 Simple Steps"
+        sub="Complete your care requirements. Your session state is automatically saved, and our transparent rates detail the base care fee plus 18% statutory GST invoice with zero hidden charges."
       />
 
       <section className="container-page grid gap-10 py-12 lg:grid-cols-[1.6fr_1fr]">
@@ -586,7 +586,7 @@ function BookingPage() {
               <div className="space-y-4 animate-fade-in">
                 <h3 className="text-xl font-semibold">3. Service Location</h3>
                 <p className="text-sm text-muted-foreground">
-                  Where should the attendant report? We maintain local attendant clusters in all active metro zones.
+                  Where should your Saha report? We maintain local clusters in all active metro zones.
                 </p>
 
                 {/* Planned City Expression of Interest Notice */}
@@ -718,7 +718,7 @@ function BookingPage() {
                   </div>
                 </div>
                 <p className="rounded-xl bg-primary-soft/50 p-3 text-xs text-primary font-medium">
-                  Priority Standby Backup: If your assigned attendant is unavailable due to an unexpected emergency, our regional coordinator prioritizes standby replacement dispatch to minimize care disruption.
+                  Priority Standby Backup: If your assigned Saha is unavailable due to an unexpected emergency, our regional coordinator prioritizes standby replacement dispatch to minimize care disruption.
                 </p>
               </div>
             )}
@@ -767,7 +767,7 @@ function BookingPage() {
                   <div>
                     <p className="font-semibold text-foreground">Verified Coordinator Confirmation</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      We will call <strong>{f.mobile}</strong> to confirm your shift requirements and share the assigned attendant's verified credential card before dispatch.
+                      We will call <strong>{f.mobile}</strong> to confirm your shift requirements and share your assigned Saha's verified credential card before dispatch.
                     </p>
                   </div>
                 </div>

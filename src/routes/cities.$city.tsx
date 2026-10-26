@@ -32,11 +32,11 @@ function CityDetailPage() {
     <>
       <PageHero
         eyebrow={`Local Coverage · ${city.state}`}
-        title={`ApnaCare Women Attendants in ${city.name}`}
+        title={`ApnaCare Saha Care Team in ${city.name}`}
         sub={city.description}
       >
         <BookLink size="lg" variant="warm" city={city.name}>
-          Book Attendant in {city.name}
+          Find Your Saha in {city.name}
         </BookLink>
         <CallLink variant="outline">Call {city.name} Command Desk</CallLink>
       </PageHero>
@@ -44,7 +44,7 @@ function CityDetailPage() {
       <section className="border-b border-border bg-card py-6">
         <div className="container-page grid grid-cols-2 gap-4 md:grid-cols-4">
           <div className="rounded-2xl bg-secondary/50 p-4">
-            <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Users className="size-4 text-primary" /> Active Attendants</p>
+            <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Users className="size-4 text-primary" /> Active Saha Team</p>
             <p className="mt-2 font-display text-2xl font-bold">{city.attendants}</p>
           </div>
           <div className="rounded-2xl bg-secondary/50 p-4">
@@ -116,17 +116,17 @@ function CityDetailPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold">Featured Attendants in {city.name}</h2>
+              <h2 className="text-2xl font-semibold">Meet Our Saha Team in {city.name}</h2>
               <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/50 px-3 py-1 text-xs text-muted-foreground">
                 <ShieldCheck className="size-3.5 text-primary" />
-                <span>Illustrative caregiver profiles in this active cluster. Assignment is finalized following personalized care needs matching.</span>
+                <span>Illustrative Saha profiles in this active cluster. Assignment is finalized following personalized care needs matching.</span>
               </div>
               <div className="mt-6 grid gap-6 sm:grid-cols-2">
                 {localAttendants.length > 0 ? (
                   localAttendants.map((a) => <AttendantCard key={a.id} a={a} />)
                 ) : (
                   <div className="col-span-full rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
-                    <p>Attendants actively on duty. Submit your care requirements to view matched profiles.</p>
+                    <p>Saha team actively on duty. Submit your care requirements to view matched profiles.</p>
                   </div>
                 )}
               </div>
@@ -167,7 +167,7 @@ function CityDetailPage() {
 
               <div className="mt-8 space-y-3">
                 <Button asChild className="w-full" size="lg">
-                  <Link to="/booking" search={{ city: city.name }}>Request Attendant in {city.name}</Link>
+                  <Link to="/booking" search={{ city: city.name }}>Find Your Saha in {city.name}</Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full">
                   <Link to="/contact">Contact {city.name} Hub</Link>

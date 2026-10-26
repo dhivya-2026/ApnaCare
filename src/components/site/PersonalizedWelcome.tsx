@@ -115,7 +115,7 @@ function buildShortcuts(
   if (shortcuts.length < 3) {
     shortcuts.push({
       id: "explore-services",
-      label: currentPath === "/services" ? "Book an Attendant" : "Explore Care Services",
+      label: currentPath === "/services" ? "Find Your Saha" : "Explore Care Services",
       icon: isReturning ? <CalendarDays className="size-3.5" /> : <Sparkles className="size-3.5" />,
       to: currentPath === "/services" ? "/booking" : "/services",
       isPrimary: shortcuts.length === 0,

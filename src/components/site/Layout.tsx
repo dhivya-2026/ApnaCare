@@ -321,27 +321,27 @@ const NAV_ITEMS: NavItem[] = [
     },
   },
   {
-    label: "Attendants",
+    label: "Saha Team",
     children: [
       {
-        label: "Browse Attendants",
+        label: "Meet Our Saha Team",
         to: "/#attendants",
-        description: "View verified attendant profiles & ratings",
+        description: "Meet the people behind your peace of mind",
         badge: "Directory",
         icon: Users,
       },
       {
-        label: "Attendant Login",
+        label: "Saha Portal Login",
         to: "/attendant-login",
-        description: "Secure portal for care professionals",
-        badge: "Caregiver Portal",
+        description: "Secure workspace for verified Saha team members",
+        badge: "Saha Portal",
         icon: KeyRound,
       },
       {
-        label: "Become an Attendant",
+        label: "Become a Saha",
         to: "/become-an-attendant",
-        description: "Apply to join our vetted women care network",
-        badge: "Careers",
+        description: "Join the Saha team — vetted care for South Indian families",
+        badge: "Join Us",
         icon: Sparkles,
       },
     ],
@@ -1114,12 +1114,12 @@ function Footer() {
             </li>
             <li>
               <Link to="/attendant-login" className="hover:text-white transition-colors">
-                Attendant Portal Login
+                Saha Portal Login
               </Link>
             </li>
             <li>
               <Link to="/become-an-attendant" className="hover:text-white transition-colors">
-                Become an Attendant
+                Become a Saha (Join Our Team)
               </Link>
             </li>
           </ul>

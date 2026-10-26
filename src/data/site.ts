@@ -1,12 +1,15 @@
 // Central, config-driven content and data models for ApnaCare.
 // Edit here — never hardcode content in individual components.
 
+import { SAHA_BRAND } from "./sahaBrand";
+export { SAHA_BRAND };
+
 export const SITE = {
   name: "ApnaCare",
   legalName: "ApnaCare Health & Mobility Support Services Pvt. Ltd.",
   url: "https://apnacare.lovable.app",
-  tagline: "Trusted Women Attendant Services You Can Rely On",
-  coreMessage: "Trusted Women Attendants for Every Stage of Care",
+  tagline: "Trusted Saha Care & Family Support Services You Can Rely On",
+  coreMessage: "Meet the Saha Team — Trusted Care for Every Stage of Life",
   SUPPORT_PHONE: "+91 88254 93949",
   SUPPORT_PHONE_TEL: "+918825493949",
   WHATSAPP: "918825493949",

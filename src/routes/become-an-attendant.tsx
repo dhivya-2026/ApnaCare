@@ -41,8 +41,8 @@ import hero1 from "@/assets/hero-1.jpg";
 export const Route = createFileRoute("/become-an-attendant")({
   head: () =>
     seo(
-      "Become an Attendant — Join Apna Care",
-      "Apply to join the Apna Care team as a caregiver or healthcare professional. Make a meaningful difference in people's lives across South India."
+      "Become a Saha — Join the ApnaCare Care Team",
+      "Apply to join the ApnaCare Saha care team as a non-clinical care companion or healthcare professional. Meet the people behind your peace of mind across South India."
     ),
   component: BecomeAnAttendant,
 });
@@ -134,15 +134,15 @@ function BecomeAnAttendant() {
           <div className="max-w-2xl">
             <p className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/15 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] backdrop-blur">
               <Sparkles className="size-3.5 text-terracotta" />
-              Careers at Apna Care
+              Join the Saha Team
             </p>
 
             <h1 className="mt-6 text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl text-balance">
-              Build a Rewarding Career with Apna Care
+              Become a Saha — Support Families with Dignity & Heart
             </h1>
 
             <p className="mt-5 max-w-xl text-lg text-primary-foreground/85 leading-relaxed">
-              Make a meaningful difference in people's lives. Join Apna Care as a caregiver or healthcare professional and help families access compassionate, reliable care.
+              Meet the people behind your peace of mind. Join the ApnaCare Saha team — people who support families through everyday care needs, hospital visits, and important moments at home.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -154,7 +154,7 @@ function BecomeAnAttendant() {
                   track("career_apply_now_click");
                 }}
               >
-                Apply Now
+                Join the Saha Team
                 <ChevronRight className="size-4" />
               </Button>
               <Button
@@ -170,7 +170,7 @@ function BecomeAnAttendant() {
 
             <div className="mt-8 flex items-center gap-2 text-xs text-primary-foreground/75 font-medium">
               <ShieldCheck className="size-4 text-terracotta" />
-              <span>100% Police-Verified Attendants · Applications reviewed in confidence</span>
+              <span>100% Police-Verified Saha Care Professionals · Applications reviewed in confidence</span>
             </div>
           </div>
         </div>
@@ -222,8 +222,8 @@ function BecomeAnAttendant() {
       <section ref={formRef as React.RefObject<HTMLElement>} id="application-form" className="container-page py-16 md:py-20">
         <div className="max-w-3xl mx-auto">
           <SectionHeading
-            eyebrow="Apply Now"
-            title="Attendant Application Form"
+            eyebrow="Join the Workforce"
+            title="Saha Application Form"
             sub="Please fill in all required fields accurately. Your information is handled securely and used only for recruitment and verification purposes."
           />
           <div className="mt-10">
@@ -828,7 +828,7 @@ function ApplicationForm() {
           ) : (
             <>
               <HeartHandshake className="size-5" />
-              Submit Application
+              Submit Saha Application
             </>
           )}
         </Button>

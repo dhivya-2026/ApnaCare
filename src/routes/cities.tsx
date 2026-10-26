@@ -24,10 +24,10 @@ function CitiesPage() {
       <PageHero
         eyebrow="Regional Delivery Network"
         title="Cities We Serve Across South India"
-        sub="Every active operating city features localized women attendant clusters, police background screening records, and a priority cluster backup protocol."
+        sub="Every active operating city features localized Saha team clusters, police background screening records, and a priority cluster backup protocol."
       >
         <BookLink size="lg" variant="warm">
-          Book an Attendant
+          Find Your Saha
         </BookLink>
         <CallLink variant="outline">Speak to Regional Coordinator</CallLink>
       </PageHero>
@@ -45,7 +45,7 @@ function CitiesPage() {
           <div className="flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-xl bg-primary-soft text-primary"><Users className="size-5" /></span>
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase">Trained Attendants</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase">Trained Saha Team</p>
               <p className="text-sm font-semibold">Active In Local Clusters</p>
             </div>
           </div>
@@ -74,7 +74,7 @@ function CitiesPage() {
             Directly Serviced Metropolitan Hubs
           </h2>
           <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-            Bookings in these four metropolitan centers include verified attendants, supervisor oversight, and our priority cluster standby backup protocol.
+            Bookings in these four metropolitan centers include verified Saha companions, supervisor oversight, and our priority cluster standby backup protocol.
           </p>
         </div>
 

@@ -66,23 +66,23 @@ import nursingCare from "@/assets/nursing-care.jpg";
 // Scannable, customer-focused FAQs answering genuine family questions
 const FAQS = [
   {
-    q: "How are ApnaCare attendants verified and vetted?",
-    a: "Every attendant undergoes a structured 5-stage background verification: government photo ID authentication, police verification documentation filing, residential address checks, reference reviews, and practical caregiving skills assessment before home assignment.",
+    q: "How are ApnaCare Saha team members verified and vetted?",
+    a: "Every Saha care companion undergoes a structured 5-stage background verification: government photo ID authentication, police verification documentation filing, residential address checks, reference reviews, and practical caregiving skills assessment before home assignment.",
   },
   {
-    q: "What is the difference between a care attendant and a registered nurse?",
-    a: "A care attendant provides supportive personal care — companionship, mobility assistance, bathing, feeding accompaniment, and oral prescription reminder logging. A registered nurse (GNM or B.Sc. Nursing) is medically licensed to perform clinical procedures such as sterile wound dressings, IV infusions, injections, and catheter management under physician prescription.",
+    q: "What is the difference between a Saha care companion and a registered nurse?",
+    a: "A Saha care companion provides supportive personal care — companionship, mobility assistance, bathing, feeding accompaniment, and oral prescription reminder logging. A registered nurse (GNM or B.Sc. Nursing) is medically licensed to perform clinical procedures such as sterile wound dressings, IV infusions, injections, and catheter management under physician prescription.",
   },
   {
     q: "How do families receive daily care updates?",
-    a: "Attendants maintain daily routine activity logs recording meal accompaniment, mobility exercises, and personal comfort. Families receive scheduled daily WhatsApp updates, while clinical vital sign charting is strictly conducted during registered nursing visits.",
+    a: "Saha team members maintain daily routine activity logs recording meal accompaniment, mobility exercises, and personal comfort. Families receive scheduled daily WhatsApp updates, while clinical vital sign charting is strictly conducted during registered nursing visits.",
   },
   {
-    q: "What happens if our assigned attendant falls ill or has an emergency?",
-    a: "We maintain a priority cluster backup protocol across our active operating hubs (Bengaluru, Chennai, Hyderabad, and Coimbatore). If your primary attendant cannot attend due to an illness or emergency, our regional coordinator prioritizes standby attendant reassignment to minimize disruption to your care schedule.",
+    q: "What happens if our assigned Saha falls ill or has an emergency?",
+    a: "We maintain a priority cluster backup protocol across our active operating hubs (Bengaluru, Chennai, Hyderabad, and Coimbatore). If your primary Saha cannot attend due to an illness or emergency, our regional coordinator prioritizes standby companion reassignment to minimize disruption to your care schedule.",
   },
   {
-    q: "Can we preview the attendant profile before confirming?",
+    q: "Can we preview the Saha profile before confirming?",
     a: "Yes. Once you share your requirements, your care coordinator shares the verified digital profile with background clearance, experience records, and language fluencies so your family can review and approve before work begins.",
   },
   {
@@ -349,7 +349,7 @@ const CARE_DIFFERENCE_STEPS = [
     phase: "Support Arranged",
     title: "Verified Specialist Matched",
     description:
-      "A police-cleared attendant or licensed nurse is assigned. You preview their credentials, background clearance, and clear GST rates before work begins.",
+      "A police-cleared Saha care companion or licensed nurse is assigned. You preview their credentials, background clearance, and clear GST rates before work begins.",
     icon: UserCheck,
     colorClass: "text-terracotta bg-terracotta/10 border-terracotta/25",
   },
@@ -395,7 +395,7 @@ const ONBOARDING_STEPS = [
     icon: CalendarCheck,
     title: "Confirm Agreed Care & Responsibilities",
     description:
-      "Your attendant arrives punctually. Families receive daily digital wellness logs via WhatsApp, backed by our priority cluster standby backup protocol.",
+      "Your assigned Saha arrives punctually. Families receive daily digital wellness logs via WhatsApp, backed by our priority cluster standby backup protocol.",
     meta: "Continuous coordinator oversight",
   },
 ];
@@ -406,7 +406,7 @@ const TRUST_PILLARS = [
     icon: ShieldCheck,
     title: "Government ID Authentication & Police Screening",
     description:
-      "Every attendant undergoes government photo ID authentication, police background screening filings, and residential address checks before entering any home.",
+      "Every Saha team member undergoes government photo ID authentication, police background screening filings, and residential address checks before entering any home.",
   },
   {
     icon: BadgeCheck,
@@ -418,7 +418,7 @@ const TRUST_PILLARS = [
     icon: Clock,
     title: "Priority Cluster Backup Protocol",
     description:
-      "Reliable care continuity. If your primary attendant is unavailable due to an unexpected emergency, our local cluster prioritizes standby replacement dispatch.",
+      "Reliable care continuity. If your primary Saha is unavailable due to an unexpected emergency, our local cluster prioritizes standby replacement dispatch.",
   },
   {
     icon: IndianRupee,
@@ -737,7 +737,7 @@ function HomePage() {
               <div className="rounded-2xl border border-border bg-secondary/30 p-5">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary mb-3">
                   <Heart className="size-3.5" />
-                  General Duty Care Attendant (Non-Clinical)
+                  Saha Care Companion (Non-Clinical Support)
                 </span>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">
                   Provides warm, supportive personal care and companionship for seniors and recovering patients:
@@ -796,17 +796,17 @@ function HomePage() {
           <div className="mt-12">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
               <div>
-                <span className="eyebrow">Care Specialist Profiles</span>
+                <span className="eyebrow">Saha Profiles</span>
                 <h3 className="mt-1 text-2xl font-bold font-display text-foreground">
-                  Meet Our Care Specialists
+                  Meet the people behind your peace of mind.
                 </h3>
                 <p className="mt-1 text-xs sm:text-sm text-muted-foreground max-w-xl">
-                  Filter by city to inspect specialist qualifications, certifications, and language fluencies.
+                  Meet the Saha team — people who support your family through everyday care needs, hospital visits, and important moments at home.
                 </p>
               </div>
 
               {/* City filter */}
-              <div className="flex flex-wrap gap-2 shrink-0" role="tablist" aria-label="Filter attendants by city">
+              <div className="flex flex-wrap gap-2 shrink-0" role="tablist" aria-label="Filter Saha team by city">
                 {["All", "Bengaluru", "Chennai", "Hyderabad", "Coimbatore"].map((c) => (
                   <button
                     key={c}
@@ -833,7 +833,7 @@ function HomePage() {
             <div className="mt-4 rounded-xl border border-border/80 bg-background/80 px-4 py-3 flex items-start gap-2.5 text-xs text-muted-foreground">
               <Info className="size-4 text-primary shrink-0 mt-0.5" />
               <p>
-                <strong className="text-foreground font-semibold">Representative Profiles:</strong> The profiles below illustrate verified caregiver roles, background checks, and skill sets. In each operating city, all assigned attendants undergo biometric Aadhaar authentication and criminal record screening prior to home placement.
+                <strong className="text-foreground font-semibold">Representative Profiles:</strong> The profiles below illustrate verified Saha roles, background checks, and skill sets. In each operating city, all assigned Saha companions undergo biometric Aadhaar authentication and criminal record screening prior to home placement.
               </p>
             </div>
 
@@ -933,7 +933,7 @@ function HomePage() {
                         search={{ service: a.services[0], city: a.city }}
                         onClick={() => track("attendant_request_click", { attendant: a.id })}
                       >
-                        Request Care Assessment
+                        Choose Your Saha
                         <ArrowRight className="size-3.5 ml-1.5" />
                       </Link>
                     </Button>

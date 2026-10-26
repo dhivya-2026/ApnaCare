@@ -107,7 +107,7 @@ export const GLOBAL_MENU: QuickReply[] = [
   { label: "🏠 Elder Care", action: { type: "start_booking", service: "elderly-care" } },
   { label: "🏥 Hospital Assistance", action: { type: "start_booking", service: "hospital-attendants" } },
   { label: "✈️ Travel Support", action: { type: "start_booking", service: "travel-assistance" } },
-  { label: "⚡ Book Care Attendant (Chat Booking)", action: { type: "start_booking" } },
+  { label: "⚡ Book Care Attendant / Saha (Chat Booking)", action: { type: "start_booking" } },
   { label: "💉 Clinical Nursing (GNM/B.Sc)", action: { type: "start_booking", service: "nursing-services" } },
   { label: "👶 Post-Natal Care", action: { type: "start_booking", service: "post-natal-care" } },
   { label: "🚗 Women Drivers", action: { type: "start_booking", service: "women-drivers" } },
@@ -139,9 +139,9 @@ export const GLOBAL_MENU: QuickReply[] = [
     label: "🛡️ Police & Background Checks",
     action: {
       type: "message",
-      text: "Every ApnaCare woman attendant undergoes:\n1. Station-level local police verification\n2. Aadhaar biometric authentication\n3. In-person residential address verification\n4. Hospital clinical & eldercare bedside drills\n5. 90-minute regional backup standby\n\nReady to book verified care for your family?",
+      text: "Every ApnaCare Saha team member undergoes:\n1. Station-level local police verification\n2. Aadhaar biometric authentication\n3. In-person residential address verification\n4. Hospital clinical & eldercare bedside drills\n5. 90-minute regional backup standby\n\nReady to book verified care for your family?",
       nextReplies: [
-        { label: "⚡ Book an Attendant Now", action: { type: "start_booking" } },
+        { label: "⚡ Find Your Saha Now", action: { type: "start_booking" } },
         { label: "📞 Speak to Coordinator", action: { type: "call" } },
       ],
     },
@@ -176,7 +176,7 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
   switch (step) {
     case "ask_service":
       return {
-        text: "👋 Welcome to **ApnaCare Chat-Based Booking**!\nLet's match the right verified attendant for your family in 2 minutes.\n\nFirst question: **What type of support or service does your family need?**",
+        text: "👋 Welcome to **ApnaCare Chat-Based Booking**!\nLet's match the right verified Saha companion for your family in 2 minutes.\n\nFirst question: **What type of support or service does your family need?**",
         replies: [
           { label: "🏠 Elderly Care & Daily Living", action: { type: "booking_answer", field: "service", value: "elderly-care", displayLabel: "Elderly Care" } },
           { label: "🏥 Hospital Bedside Vigil", action: { type: "booking_answer", field: "service", value: "hospital-attendants", displayLabel: "Hospital Bedside" } },
@@ -207,7 +207,7 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
 
     case "ask_city":
       return {
-        text: `Noted: Care for **${draft.patientAge}**.\n\n**Which city will the attendant be assisting in?**`,
+        text: `Noted: Care for **${draft.patientAge}**.\n\n**Which city will your Saha be assisting in?**`,
         replies: [
           { label: "🏙️ Bengaluru", action: { type: "booking_answer", field: "city", value: "Bengaluru" } },
           { label: "🏛️ Chennai", action: { type: "booking_answer", field: "city", value: "Chennai" } },
@@ -286,7 +286,7 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
 
     case "ask_urgency":
       return {
-        text: `Special requirements: **${draft.conditions}**.\n\n**When would you like the attendant to start?**`,
+        text: `Special requirements: **${draft.conditions}**.\n\n**When would you like your Saha to start?**`,
         replies: [
           { label: "🚨 Immediately (Today / Urgent within 4 hrs)", action: { type: "booking_answer", field: "urgency", value: "Immediately (Today)" } },
           { label: "🌅 Tomorrow Morning", action: { type: "booking_answer", field: "urgency", value: "Tomorrow Morning" } },

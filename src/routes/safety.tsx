@@ -25,7 +25,7 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/safety")({
   head: () =>
     seo(
-      "Safety & Attendant Verification Architecture — ApnaCare",
+      "Safety & Saha Team Verification Architecture — ApnaCare",
       "Our 5-stage vetting protocol: Government photo ID authentication, state police background screening, practical care evaluations, check-in tracking, and regional supervisor backup coordination."
     ),
   component: Safety,
@@ -113,10 +113,10 @@ function Safety() {
       <PageHero
         eyebrow="Our Safety Covenant"
         title="Our Standard is Uncompromising Trust"
-        sub="We treat your family's safety as a personal sacred duty. Every ApnaCare attendant passes our multi-tier background screening, clinical evaluations, and 24/7 command center monitoring."
+        sub="We treat your family's safety as a personal sacred duty. Every ApnaCare Saha team member passes our multi-tier background screening, clinical evaluations, and 24/7 command center monitoring."
       >
         <BookLink size="lg" variant="warm">
-          Book a Verified Attendant
+          Find Your Saha
         </BookLink>
         <Button asChild variant="outline">
           <Link to="/safety-guidelines">Read Safety Guidelines & Code of Conduct</Link>
@@ -127,7 +127,7 @@ function Safety() {
       <section id="verification" className="container-page py-16 md:py-24 scroll-mt-20">
         <SectionHeading
           eyebrow="Verification Funnel"
-          title="The 5-Stage Attendant Vetting Protocol"
+          title="The 5-Stage Saha Team Vetting Protocol"
           sub="Only 1 in 8 applicants successfully clears our background and practical patient-handling criteria."
         />
 
@@ -198,8 +198,8 @@ function Safety() {
           <div className="flex flex-wrap items-end justify-between gap-6">
             <SectionHeading
               eyebrow="Representative Profiles"
-              title="Illustrative Care Specialist Profiles"
-              sub="Representative profiles illustrating background screening standards, language fluencies, and practical care certifications across regional caregiver clusters."
+              title="Meet Our Saha Team Profiles"
+              sub="Representative profiles illustrating background screening standards, language fluencies, and practical care certifications across regional Saha clusters."
             />
             <Button asChild variant="outline">
               <Link to="/safety-guidelines">

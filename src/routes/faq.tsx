@@ -65,10 +65,10 @@ function FAQPage() {
       <PageHero
         eyebrow="Answer Engine & FAQs"
         title="Direct Answers to Real Family Questions"
-        sub="Clear, straightforward information regarding caregiver verification, nurse vs attendant scopes, transparent billing, and operational protocols."
+        sub="Clear, straightforward information regarding Saha team verification, nurse vs attendant scopes, transparent billing, and operational protocols."
       >
         <BookLink size="lg" variant="warm">
-          Book Care Now
+          Find Your Saha
         </BookLink>
         <a
           href={waUrl}

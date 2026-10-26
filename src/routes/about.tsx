@@ -94,9 +94,9 @@ const APPROACH_STEPS: ApproachStep[] = [
     label: "2. Explore your options",
     headline: "Review verified profiles with clear rates.",
     statement:
-      "See background-verified attendant credentials, verified ID, and all-inclusive pricing.",
+      "See background-verified Saha credentials, verified ID, and all-inclusive pricing.",
     description:
-      "We provide complete visibility before you commit. You receive digital attendant profiles with verified experience, identity documentation, and all-inclusive daily rates with statutory GST.",
+      "We provide complete visibility before you commit. You receive digital Saha profiles with verified experience, identity documentation, and all-inclusive daily rates with statutory GST.",
     image: nursingCare,
     imageAlt: "Verified care attendant professionally preparing care routines",
     pill: "Verified Transparency",
@@ -113,7 +113,7 @@ const APPROACH_STEPS: ApproachStep[] = [
     statement:
       "Stay connected through daily WhatsApp wellness logs, coordinator check-ins, and standby backup.",
     description:
-      "Care is an ongoing relationship. Your family receives structured daily WhatsApp wellness logs tracking meals, vitals, and medication, backed by regional standby attendants if unexpected emergencies arise.",
+      "Care is an ongoing relationship. Your family receives structured daily WhatsApp wellness logs tracking meals, vitals, and medication, backed by regional standby Saha companions if unexpected emergencies arise.",
     image: hero5,
     imageAlt: "Assisted care delivery with professional accompaniment and coordination",
     pill: "Active Coordination",
@@ -299,7 +299,7 @@ function AboutPage() {
                   variant="outline"
                   className="min-h-[48px] px-6 text-sm font-semibold"
                 >
-                  Book an Attendant
+                  Find Your Saha
                 </BookLink>
               </div>
 
@@ -307,7 +307,7 @@ function AboutPage() {
               <div className="pt-4 border-t border-border/60 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                   <CheckCircle2 className="size-4 text-primary shrink-0" />
-                  Police-verified attendants
+                  Police-verified Saha team
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <CheckCircle2 className="size-4 text-primary shrink-0" />
@@ -695,7 +695,7 @@ function AboutPage() {
             Care begins with respect.
           </h2>
           <p className="mt-3 text-muted-foreground text-fluid-body leading-relaxed">
-            Four core values shape every coordinator conversation and attendant interaction.
+            Four core values shape every coordinator conversation and Saha team interaction.
           </p>
         </div>
 
@@ -744,7 +744,7 @@ function AboutPage() {
               Local Care Coordination in 4 Metros
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-ink-foreground/75 leading-relaxed">
-              We operate dedicated regional desks with verified attendant pools and standby
+              We operate dedicated regional desks with verified Saha team pools and standby
               reassignment across South India.
             </p>
           </div>
@@ -818,7 +818,7 @@ function AboutPage() {
               variant="outline"
               className="min-h-[48px] px-6 text-sm font-semibold"
             >
-              Book an Attendant
+              Find Your Saha
             </BookLink>
           </div>
 
