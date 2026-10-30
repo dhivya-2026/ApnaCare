@@ -16,6 +16,7 @@ import { calcBookingTotal } from "@/lib/pricing";
 import { track, submitLeadWithReliability } from "@/lib/analytics";
 import { recordBookingDraft, recordServiceInteraction } from "@/lib/sessionEngine";
 import { seo } from "@/lib/seo";
+import { getSavedCustomer, saveCustomer, saveCarePlan, getSavedCarePlan } from "@/lib/unifiedBookingEngine";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/booking")({
@@ -69,13 +70,14 @@ function BookingPage() {
     const timingNote = search.shift
       ? `Requested Timing: ${search.shift} (${search.hours ? `${search.hours} hrs/shift` : "flexible"}, Reporting: ${search.time || "08:00"}${search.schedule ? `, Schedule: ${search.schedule}` : ""})`
       : "";
+    const savedCust = typeof window !== "undefined" ? getSavedCustomer() : null;
     const initial = {
-      name: "",
-      mobile: "",
-      email: "",
+      name: savedCust?.name || "",
+      mobile: savedCust?.phone || "",
+      email: savedCust?.email || "",
       serviceId: search.service ?? "",
-      city: search.city ?? "",
-      location: "",
+      city: search.city || savedCust?.city || "",
+      location: savedCust?.fullAddress || "",
       date: "",
       time: search.time || "08:00",
       duration: search.duration || "1",
@@ -238,6 +240,15 @@ function BookingPage() {
       idempotency_token: idempotencyToken,
     });
 
+    // Sync to unified customer profile
+    saveCustomer({
+      name: f.name,
+      phone: f.mobile,
+      email: f.email,
+      city: f.city,
+      fullAddress: f.location,
+    });
+
     const result = await submitLeadWithReliability({
       event_type: "booking",
       event_name: "booking_completed",
@@ -264,9 +275,10 @@ function BookingPage() {
       discount: totals.discount,
       gst: totals.gst,
       total_amount: totals.finalAmount,
-      booking_status: "Confirmed",
-      follow_up_status: "Pending Coordinator Dispatch",
-      lead_source: "website_booking_flow",
+      booking_status: "Submitted",
+      follow_up_status: "Pending Coordinator Review",
+      entry_point: "ENTRY_B_DIRECT_SERVICE",
+      lead_source: "direct_service_booking",
       page_path: "/booking",
     });
 
@@ -304,7 +316,7 @@ function BookingPage() {
             <CheckCircle2 className="size-10" />
           </div>
           <span className="mt-4 inline-block text-xs font-bold uppercase tracking-wider text-terracotta">
-            Care Request Accepted & Logged
+            Care Request Registered · Pending Coordinator Review
           </span>
           <h1 className="mt-2 text-3xl font-semibold">Care Request Successfully Registered</h1>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -324,7 +336,7 @@ function BookingPage() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Downstream Processing:</span>
-              <span className="font-semibold text-primary">Pending Coordinator Dispatch (Within 2 Hours)</span>
+              <span className="font-semibold text-primary">Pending Coordinator Review (Within 2 Hours)</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Verification Check:</span>
@@ -343,7 +355,7 @@ function BookingPage() {
               ["Contact Mobile", f.mobile],
               ["Estimated Total", formatINR(totals.finalAmount)],
               ["18% GST Invoicing", "Included in Total"],
-              ["Saha Match", "In Progress (Coordinator Dispatch)"],
+              ["Saha Match", "In Progress (Coordinator Review & Dispatch)"],
             ].map(([k, v]) => (
               <div key={k}>
                 <dt className="text-xs text-muted-foreground uppercase">{k}</dt>

@@ -107,13 +107,13 @@ export function BookLink({
             service,
             city,
             target_url: "/booking",
-            cta_text: typeof children === "string" ? children : "Request Assistance",
+            cta_text: typeof children === "string" ? children : "Book a Service",
           });
           track("booking_cta_click", { service, city });
           if (onClick) onClick();
         }}
       >
-        {children ?? "Request Assistance"}
+        {children ?? "Book a Service"}
       </Link>
     </Button>
   );

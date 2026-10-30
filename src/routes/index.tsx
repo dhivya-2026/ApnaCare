@@ -525,19 +525,36 @@ function HomePage() {
                 {strings.heroSupporting}
               </p>
 
-              {/* Primary and Secondary Action Buttons */}
+              {/* Standardized Unified CTAs: Personalise Care, Book a Service, Become a Partner & Coordinator */}
               <div className="mt-8 flex flex-wrap items-center gap-3.5 w-full sm:w-auto">
                 <Button
                   asChild
                   size="lg"
                   className="rounded-full px-8 shadow-soft hover:shadow-lift transition-all min-h-[48px] font-bold text-sm sm:text-base"
                 >
+                  <a
+                    href="#custom-care-plan"
+                    onClick={() => {
+                      track("hero_personalise_care");
+                      const el = document.getElementById("custom-care-plan");
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                  >
+                    Personalise Care
+                    <ArrowRight className="ml-2 size-4" />
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="rounded-full px-6 min-h-[48px] font-semibold border-border bg-card hover:bg-secondary text-sm sm:text-base"
+                >
                   <Link
                     to="/booking"
-                    onClick={() => track("hero_request_assistance")}
+                    onClick={() => track("hero_book_service")}
                   >
-                    {strings.requestConsultation}
-                    <ArrowRight className="ml-2 size-4" />
+                    Book a Service
                   </Link>
                 </Button>
                 <Button
@@ -557,9 +574,9 @@ function HomePage() {
                 </Button>
                 <Button
                   asChild
-                  variant="outline"
+                  variant="ghost"
                   size="lg"
-                  className="rounded-full px-6 min-h-[48px] font-semibold border-border bg-card hover:bg-secondary text-sm sm:text-base"
+                  className="rounded-full px-5 min-h-[48px] font-semibold text-muted-foreground hover:text-foreground text-sm sm:text-base"
                 >
                   <a
                     href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
@@ -567,7 +584,7 @@ function HomePage() {
                     className="inline-flex items-center gap-2"
                   >
                     <Phone className="size-4 text-primary" />
-                    <span>{strings.callCoordinator} ({SITE.SUPPORT_PHONE})</span>
+                    <span>Talk to Coordinator ({SITE.SUPPORT_PHONE})</span>
                   </a>
                 </Button>
               </div>

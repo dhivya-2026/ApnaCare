@@ -63,6 +63,7 @@ import {
 } from "@/data/assessmentEngine";
 import type { IndividualRecipient } from "@/data/familyBookingModel";
 import { submitLeadWithReliability } from "@/lib/analytics";
+import { getSavedCustomer, saveCustomer, saveCarePlan } from "@/lib/unifiedBookingEngine";
 import { formatINR, buildWhatsAppUrl, CITIES } from "@/data/site";
 import { track } from "@/lib/analytics";
 
@@ -242,13 +243,13 @@ export function UniversalCareConfigurator() {
   const [customRequirements, setCustomRequirements] = useState("");
 
   // ─── Step 7: Booking & Consent Submission State ──────────────────────────
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
-  const [customerRelationship, setCustomerRelationship] = useState("Daughter / Son");
-  const [emergencyName, setEmergencyName] = useState("");
-  const [emergencyPhone, setEmergencyPhone] = useState("");
-  const [fullAddress, setFullAddress] = useState("");
+  const [customerName, setCustomerName] = useState(() => (typeof window !== "undefined" ? getSavedCustomer().name : ""));
+  const [customerPhone, setCustomerPhone] = useState(() => (typeof window !== "undefined" ? getSavedCustomer().phone : ""));
+  const [customerEmail, setCustomerEmail] = useState(() => (typeof window !== "undefined" ? getSavedCustomer().email : ""));
+  const [customerRelationship, setCustomerRelationship] = useState(() => (typeof window !== "undefined" ? getSavedCustomer().relationship || "Daughter / Son" : "Daughter / Son"));
+  const [emergencyName, setEmergencyName] = useState(() => (typeof window !== "undefined" ? getSavedCustomer().emergencyName || "" : ""));
+  const [emergencyPhone, setEmergencyPhone] = useState(() => (typeof window !== "undefined" ? getSavedCustomer().emergencyPhone || "" : ""));
+  const [fullAddress, setFullAddress] = useState(() => (typeof window !== "undefined" ? getSavedCustomer().fullAddress || "" : ""));
   const [consentCare, setConsentCare] = useState(true);
   const [consentRx, setConsentRx] = useState(true);
   const [consentWhatsApp, setConsentWhatsApp] = useState(true);
@@ -493,6 +494,18 @@ export function UniversalCareConfigurator() {
 
   // Transition to /booking with active plan
   const handleProceedToBooking = () => {
+    saveCustomer({
+      name: customerName,
+      phone: customerPhone,
+      email: customerEmail,
+      city,
+      fullAddress,
+      relationship: customerRelationship,
+      emergencyName,
+      emergencyPhone,
+    });
+    saveCarePlan(generatedPlan);
+
     try {
       sessionStorage.setItem("apnacare_active_care_plan", JSON.stringify(generatedPlan));
     } catch {
@@ -530,6 +543,18 @@ export function UniversalCareConfigurator() {
 
     const bookingRef = `AC-BK-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 
+    saveCustomer({
+      name: customerName,
+      phone: customerPhone,
+      email: customerEmail,
+      city,
+      fullAddress,
+      relationship: customerRelationship,
+      emergencyName,
+      emergencyPhone,
+    });
+    saveCarePlan(generatedPlan);
+
     try {
       await submitLeadWithReliability(
         {
@@ -562,6 +587,14 @@ export function UniversalCareConfigurator() {
           selected_task_ids: selectedTaskIds.join(", "),
           triage_status: triageEvaluation.triageStatus,
           clinical_review_required: triageEvaluation.clinicalReviewRequired ? "Yes" : "No",
+          booking_status: triageEvaluation.clinicalReviewRequired
+            ? "Clinical review required"
+            : triageEvaluation.coordinatorReviewRequired
+            ? "Coordinator review"
+            : "Submitted",
+          follow_up_status: "Pending Coordinator Review",
+          entry_point: "ENTRY_A_PERSONALISE",
+          lead_source: "care_planner_journey",
           emergency_screen_passed: triageEvaluation.emergencyAlert ? "Emergency Flagged" : "Clear",
           risk_flags_summary: triageEvaluation.riskFlags.map((r) => r.label).join("; ") || "None",
           estimated_subtotal: generatedPlan.pricing.subtotal,

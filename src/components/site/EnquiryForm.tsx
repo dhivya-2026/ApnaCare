@@ -6,14 +6,15 @@
  * Wire up onSubmit to a real endpoint before going live.
  */
 
-import { useState } from "react";
-import { Calendar, CheckCircle2, Phone, ShieldCheck, AlertCircle, RefreshCw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Calendar, CheckCircle2, Phone, ShieldCheck, AlertCircle, RefreshCw, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { SERVICES, CITIES, SITE } from "@/data/site";
-import { track, submitLeadWithReliability } from "@/lib/analytics";
+import { SERVICES, CITIES, SITE, buildWhatsAppUrl } from "@/data/site";
+import { track } from "@/lib/analytics";
+import { getSavedCustomer, submitConsultationRequest } from "@/lib/unifiedBookingEngine";
 import { cn } from "@/lib/utils";
 
 interface EnquiryFormProps {
@@ -42,23 +43,27 @@ const PHONE_RE = /^[6-9]\d{9}$/;
 
 export function EnquiryForm({
   preselectedService = "",
-  title = "Request a Callback",
-  subtitle = "Share your details and we'll call you within 2 hours.",
+  title = "Talk to a Care Coordinator",
+  subtitle = "Request a callback from our regional desk to discuss care options, shifts, and pricing.",
   className,
   bookingUrl = "https://calendar.app.google/tZ4exnXrAWnu9PuQ9",
 }: EnquiryFormProps) {
-  const [f, setF] = useState<FormState>({
-    name: "",
-    phone: "",
-    service: preselectedService,
-    city: "Bengaluru",
-    timeframe: "Within 24-48 hrs",
-    message: "",
+  const [f, setF] = useState<FormState>(() => {
+    const saved = getSavedCustomer();
+    return {
+      name: saved.name || "",
+      phone: saved.phone || "",
+      service: preselectedService,
+      city: saved.city || "Bengaluru",
+      timeframe: "Within 24-48 hrs",
+      message: "",
+    };
   });
   const [errors, setErrors] = useState<Partial<FormState>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [consultationId, setConsultationId] = useState("");
 
   const update = (field: keyof FormState, value: string) => {
     setF((prev) => ({ ...prev, [field]: value }));
@@ -84,34 +89,24 @@ export function EnquiryForm({
     setSubmitting(true);
     setSubmitError(null);
     track("consultation_cta_clicked", { service: f.service, city: f.city, source_section: "enquiry_form" });
-    track("enquiry_form_submit", { service: f.service, city: f.city });
 
-    const result = await submitLeadWithReliability({
-      event_type: "callback",
-      event_name: "callback_requested",
-      lead_type: "CALLBACK",
-      form_name: "Quick Callback Form",
-      enquiry_id: "enq_" + Date.now().toString(36),
+    const result = await submitConsultationRequest({
       name: f.name,
-      customer_name: f.name,
       phone: f.phone,
-      mobile: f.phone,
       service: f.service,
-      service_name: f.service,
       city: f.city,
       timeframe: f.timeframe,
-      message: f.message ? `[${f.timeframe}] ${f.message}` : `[${f.timeframe}]`,
-      lead_status: "New",
-      follow_up_status: "Pending Callback",
-      page_path: typeof window !== "undefined" ? window.location.pathname : "/",
+      message: f.message,
+      sourceSection: "talk_to_us_form",
     });
 
     setSubmitting(false);
     if (result.success) {
+      setConsultationId(result.consultationId);
       setDone(true);
-      track("enquiry_form_success", { service: f.service, city: f.city });
+      track("enquiry_form_success", { service: f.service, city: f.city, consultation_id: result.consultationId });
     } else {
-      setSubmitError("We were unable to connect to the intake desk. Your details are preserved. Please click retry or call directly.");
+      setSubmitError("We were unable to connect to the intake desk. Your details are preserved. Please click retry or message directly on WhatsApp.");
     }
   };
 
@@ -119,47 +114,33 @@ export function EnquiryForm({
     return (
       <div className={cn("rounded-2xl border border-border bg-card p-8 text-center", className)}>
         <CheckCircle2 className="mx-auto mb-3 size-12 text-primary" />
-        <h3 className="text-lg font-semibold">Callback Requested!</h3>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Consultation Request Logged</span>
+        <h3 className="text-lg font-semibold mt-1">Callback Requested!</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Thank you, <strong>{f.name}</strong>. Our team will call you at <strong>{f.phone}</strong>{" "}
-          within 2 hours.
+          Thank you, <strong>{f.name}</strong>. Reference: <strong className="font-mono text-foreground">{consultationId}</strong>.
+          Our care desk will call you at <strong>{f.phone}</strong> ({f.timeframe.toLowerCase()}).
         </p>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Our regional care desk has logged your request and an experienced coordinator will connect with you promptly.
-        </p>
+        <div className="mt-3 rounded-xl bg-secondary/50 p-3 text-xs text-muted-foreground text-left space-y-1">
+          <p className="font-semibold text-foreground">Next Steps:</p>
+          <p>• A regional coordinator will discuss your family's needs, shift hours, and pricing.</p>
+          <p>• This request is an initial consultation and does not automatically confirm a caregiver placement.</p>
+        </div>
         <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button
-            asChild
-            variant="warm"
-            size="sm"
-            className="gap-2 shadow-soft hover:shadow-lift"
-          >
+          <Button asChild variant="warm" size="sm" className="gap-2">
             <a
-              href={bookingUrl}
+              href={buildWhatsAppUrl(`*ApnaCare Consultation Request (${consultationId})*\n\nHello, I requested a callback regarding ${f.service} in ${f.city}.`)}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => track("book_time_slot_click", { location: "quick_callback_form_success" })}
             >
-              <Calendar className="size-3.5" />
-              <span>Book a Time Slot on Calendar</span>
+              <MessageCircle className="size-3.5" />
+              <span>Connect on WhatsApp</span>
             </a>
           </Button>
-          <button
-            onClick={() => {
-              setDone(false);
-              setF({
-                name: "",
-                phone: "",
-                service: preselectedService || "",
-                city: "Bengaluru",
-                timeframe: "Within 24-48 hrs",
-                message: "",
-              });
-            }}
-            className="text-xs font-medium text-primary underline hover:text-primary/80"
-          >
-            Submit another request
-          </button>
+          <Button asChild variant="outline" size="sm">
+            <a href="#custom-care-plan">
+              <span>Personalise Care Plan Online</span>
+            </a>
+          </Button>
         </div>
       </div>
     );
