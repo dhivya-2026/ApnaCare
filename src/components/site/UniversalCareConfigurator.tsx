@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Sparkles,
   Heart,
@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   ShieldCheck,
   ArrowRight,
+  ArrowLeft,
   MessageCircle,
   AlertCircle,
   MapPin,
@@ -20,19 +21,17 @@ import {
   Check,
   RotateCcw,
   ChevronRight,
-  ChevronDown,
   Search,
   Clock,
   CalendarDays,
   X,
   Car,
-  HelpCircle,
-  Sliders,
-  UserCheck,
-  PhoneCall,
+  User,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   CARE_CATEGORIES,
   searchTasksByKeyword,
@@ -41,7 +40,6 @@ import {
 } from "@/data/careNeedsTaxonomy";
 import {
   generateCarePlan,
-  RECIPIENT_OPTIONS,
   type RecipientProfileType,
   type RecipientProfile,
   type ScheduleType,
@@ -56,133 +54,136 @@ import { track } from "@/lib/analytics";
 
 const STORAGE_KEY = "apnacare_custom_care_plan_draft_v2";
 
-// Situation Presets for "Help Me Choose"
-interface SituationPreset {
-  id: string;
+// Visual Personas for Step 1
+interface RecipientPersona {
+  id: RecipientProfileType;
   title: string;
-  recipientType: RecipientProfileType;
+  subtitle: string;
   badge: string;
-  description: string;
-  taskIds: string[];
-  defaultDuration: DurationOption;
-  defaultSchedule: ScheduleType;
+  icon: typeof User;
+  defaultGender: "male" | "female" | "both" | "other";
+  defaultAge: string;
+  defaultNeeds: string[];
 }
 
-const SITUATION_PRESETS: SituationPreset[] = [
+const PERSONAS: RecipientPersona[] = [
   {
-    id: "preset-elderly-home",
-    title: "Elderly Parent at Home",
-    recipientType: "elderly_parent",
+    id: "elderly_parent",
+    title: "My Father",
+    subtitle: "Senior male needing walking, personal care, or companionship",
     badge: "Most Common",
-    description: "Daily hygiene, walking assistance, warm companionship, and medication prompts",
-    taskIds: [
-      "task-walk-indoor",
-      "task-hyg-bathing",
-      "task-meal-serving",
-      "task-med-remind",
-      "task-comp-conversation",
-      "task-rel-daily-reports",
-    ],
-    defaultDuration: "full_day_12h",
-    defaultSchedule: "daily",
+    icon: User,
+    defaultGender: "male",
+    defaultAge: "70–80 years",
+    defaultNeeds: ["task-walk-indoor", "task-hyg-bathing", "task-meal-serving", "task-med-remind"],
   },
   {
-    id: "preset-hospital-discharge",
-    title: "Post-Hospital Recovery",
-    recipientType: "adult",
-    badge: "Surgical Recovery",
-    description: "Post-discharge bedside care, surgical wound dressing, and mobility rehabilitation",
-    taskIds: [
-      "task-disch-home-acc",
-      "task-post-rec-assist",
-      "task-hyg-sponge",
-      "task-proc-wound",
-      "task-mon-bp",
-      "task-rel-remote-updates",
-    ],
-    defaultDuration: "full_day_12h",
-    defaultSchedule: "daily",
+    id: "elderly_parent",
+    title: "My Mother",
+    subtitle: "Senior female needing gentle hygiene, mobility, and warmth",
+    badge: "Most Common",
+    icon: Heart,
+    defaultGender: "female",
+    defaultAge: "70–80 years",
+    defaultNeeds: ["task-walk-indoor", "task-hyg-sponge", "task-meal-serving", "task-comp-conversation"],
   },
   {
-    id: "preset-newborn-maternal",
+    id: "elderly_parent",
+    title: "Both Parents",
+    subtitle: "Elderly couple needing shared domestic and wellness support",
+    badge: "Couple Plan",
+    icon: Users,
+    defaultGender: "both",
+    defaultAge: "70–80 years",
+    defaultNeeds: ["task-walk-indoor", "task-hh-meal-prep", "task-med-remind", "task-comp-conversation"],
+  },
+  {
+    id: "adult",
+    title: "Post-Hospital Patient",
+    subtitle: "Recovering from surgery, fracture, or hospital discharge",
+    badge: "Post-Surgical",
+    icon: Home,
+    defaultGender: "female",
+    defaultAge: "50–65 years",
+    defaultNeeds: ["task-post-rec-assist", "task-disch-home-acc", "task-hyg-sponge", "task-proc-wound"],
+  },
+  {
+    id: "new_mother",
     title: "New Mother & Baby",
-    recipientType: "new_mother",
+    subtitle: "Traditional Japa care, baby oil massage & mother nutrition",
     badge: "Fourth Trimester",
-    description: "Traditional baby massage, newborn oil bath, mother nutrition, and sleep support",
-    taskIds: [
-      "task-mat-daily",
-      "task-mat-meal",
-      "task-nb-bath",
-      "task-nb-diaper",
-      "task-nb-feeding-rtn",
-      "task-nb-overnight",
-    ],
-    defaultDuration: "full_day_12h",
-    defaultSchedule: "daily",
+    icon: Baby,
+    defaultGender: "female",
+    defaultAge: "Newborn + Mother",
+    defaultNeeds: ["task-mat-daily", "task-mat-meal", "task-nb-bath", "task-nb-diaper", "task-nb-overnight"],
   },
   {
-    id: "preset-assisted-transit",
-    title: "Hospital Visit & Errands",
-    recipientType: "elderly_parent",
-    badge: "Mobility & Transit",
-    description: "Door-to-door transit, appointment accompaniment, and pharmacy pickup",
-    taskIds: [
-      "task-trans-appointment",
-      "task-apt-doc-acc",
-      "task-local-pharmacy",
-      "task-saf-safe-arrival",
-    ],
-    defaultDuration: "hourly_4h",
-    defaultSchedule: "one_time",
+    id: "person_with_disability",
+    title: "Specialised Daily Support",
+    subtitle: "Parkinson's, post-stroke recovery, or dementia assistance",
+    badge: "High Dependency",
+    icon: Shield,
+    defaultGender: "male",
+    defaultAge: "60–75 years",
+    defaultNeeds: ["task-dis-physical", "task-transfer-bed-chair", "task-hyg-sponge", "task-dis-supervision"],
+  },
+  {
+    id: "myself",
+    title: "Myself",
+    subtitle: "Personal accompaniment, hospital appointments, or mobility",
+    badge: "Self",
+    icon: User,
+    defaultGender: "other",
+    defaultAge: "30–50 years",
+    defaultNeeds: ["task-trans-appointment", "task-apt-doc-acc", "task-local-pharmacy"],
   },
 ];
 
 export function UniversalCareConfigurator() {
-  // Step navigation: 1: Needs -> 2: Recipient -> 3: Situation -> 4: Schedule -> 5: Preferences -> 6: Plan Summary
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
+  const navigate = useNavigate();
 
-  // Step 1: Needs selection state
+  // Progressive 5-step journey:
+  // Step 1: Who Needs Care (Persona, Gender, Age)
+  // Step 2: Care & Support Required (Visual theme pills, NO endless checkboxes)
+  // Step 3: Location & Schedule (City, Duration, Calendar)
+  // Step 4: Saha Language & Preferences (Language, Caregiver Gender)
+  // Step 5: Custom Plan Review & Transparent Pricing
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+
+  // ─── Step 1: Recipient Profile State ─────────────────────────────────────
+  const [selectedPersonaIdx, setSelectedPersonaIdx] = useState<number>(0);
+  const [recipientType, setRecipientType] = useState<RecipientProfileType>("elderly_parent");
+  const [recipientTitle, setRecipientTitle] = useState<string>("My Father");
+  const [patientGender, setPatientGender] = useState<"male" | "female" | "both" | "other">("male");
+  const [ageGroup, setAgeGroup] = useState<string>("70–80 years");
+  const [livingSituation, setLivingSituation] = useState<string>("Living with family");
+
+  // ─── Step 2: Care Needs State ────────────────────────────────────────────
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([
     "task-walk-indoor",
     "task-hyg-bathing",
     "task-med-remind",
     "task-comp-conversation",
   ]);
-  const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>(["cat-mobility", "cat-daily-living"]);
+  const [activeCategoryId, setActiveCategoryId] = useState<string>("cat-mobility");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showHelpModal, setShowHelpModal] = useState(false);
 
-  // Step 2: Recipient state
-  const [recipientType, setRecipientType] = useState<RecipientProfileType>("elderly_parent");
-  const [ageGroup, setAgeGroup] = useState("70–80 years");
-  const [livingSituation, setLivingSituation] = useState("Living with family");
-
-  // Step 3: Contextual situation questions state
-  const [contextualAnswers, setContextualAnswers] = useState<Record<string, string | string[]>>({
-    mobility_independence: "needs_stick_walker",
-    daily_care_scope: "daytime_assistance",
-    nursing_prescription: "rx_yes_available",
-  });
-
-  // Step 4: Schedule & Location state
+  // ─── Step 3: Schedule & Location State ───────────────────────────────────
   const [city, setCity] = useState("Bengaluru");
   const [area, setArea] = useState("Indiranagar / Koramangala");
-  const [address, setAddress] = useState("");
-  const [venueType, setVenueType] = useState<"home" | "hospital" | "transit_hub" | "other">("home");
-  const [scheduleType, setScheduleType] = useState<ScheduleType>("daily");
-  const [timing, setTiming] = useState<TimingPreference>("morning");
   const [duration, setDuration] = useState<DurationOption>("full_day_12h");
+  const [scheduleType, setScheduleType] = useState<ScheduleType>("daily");
   const [calendarDays, setCalendarDays] = useState(14);
+  const [timing, setTiming] = useState<TimingPreference>("morning");
   const [startTime, setStartTime] = useState("08:00");
 
-  // Step 5: Professional & Service Preferences
+  // ─── Step 4: Preferences State ───────────────────────────────────────────
   const [preferredLanguage, setPreferredLanguage] = useState("Tamil");
-  const [genderPreference, setGenderPreference] = useState<"female_only" | "male_only" | "no_preference">("female_only");
-  const [continuityRequirement, setContinuityRequirement] = useState(true);
+  const [genderPreference, setGenderPreference] = useState<"female_only" | "male_only" | "no_preference">("male_only");
   const [familyUpdateFrequency, setFamilyUpdateFrequency] = useState<"daily_whatsapp" | "twice_daily" | "weekly_summary">("daily_whatsapp");
   const [customRequirements, setCustomRequirements] = useState("");
 
-  // Restore draft from localStorage on initial mount
+  // Restore draft from localStorage on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -193,6 +194,9 @@ export function UniversalCareConfigurator() {
           setSelectedTaskIds(d.selectedTaskIds);
         }
         if (d.recipientType) setRecipientType(d.recipientType);
+        if (d.recipientTitle) setRecipientTitle(d.recipientTitle);
+        if (d.patientGender) setPatientGender(d.patientGender);
+        if (d.ageGroup) setAgeGroup(d.ageGroup);
         if (d.city) setCity(d.city);
         if (d.duration) setDuration(d.duration);
         if (d.preferredLanguage) setPreferredLanguage(d.preferredLanguage);
@@ -202,7 +206,7 @@ export function UniversalCareConfigurator() {
     }
   }, []);
 
-  // Save draft whenever selections change
+  // Save draft whenever key fields change
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -211,6 +215,9 @@ export function UniversalCareConfigurator() {
         JSON.stringify({
           selectedTaskIds,
           recipientType,
+          recipientTitle,
+          patientGender,
+          ageGroup,
           city,
           duration,
           preferredLanguage,
@@ -218,63 +225,84 @@ export function UniversalCareConfigurator() {
         })
       );
     } catch {
-      // Ignore quota error
+      // Ignore
     }
-  }, [selectedTaskIds, recipientType, city, duration, preferredLanguage, calendarDays]);
+  }, [
+    selectedTaskIds,
+    recipientType,
+    recipientTitle,
+    patientGender,
+    ageGroup,
+    city,
+    duration,
+    preferredLanguage,
+    calendarDays,
+  ]);
 
-  // Derived filtered search results
-  const searchResults = useMemo(() => {
-    return searchTasksByKeyword(searchQuery);
-  }, [searchQuery]);
+  // Handle persona selection
+  const handleSelectPersona = (idx: number) => {
+    const p = PERSONAS[idx];
+    setSelectedPersonaIdx(idx);
+    setRecipientType(p.id);
+    setRecipientTitle(p.title);
+    setPatientGender(p.defaultGender);
+    setAgeGroup(p.defaultAge);
+    setSelectedTaskIds(p.defaultNeeds);
 
-  // Derived selected tasks count per category
-  const selectedCountByCategory = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const cat of CARE_CATEGORIES) {
-      let c = 0;
-      for (const sub of cat.subcategories) {
-        for (const t of sub.tasks) {
-          if (selectedTaskIds.includes(t.id)) c++;
-        }
-      }
-      counts[cat.id] = c;
+    // Adjust smart Saha gender recommendation
+    if (p.defaultGender === "female") {
+      setGenderPreference("female_only");
+    } else if (p.defaultGender === "male") {
+      setGenderPreference("male_only");
+    } else {
+      setGenderPreference("no_preference");
     }
-    return counts;
-  }, [selectedTaskIds]);
 
-  // Toggle category expansion
-  const toggleCategoryExpand = (catId: string) => {
-    setExpandedCategoryIds((prev) =>
-      prev.includes(catId) ? prev.filter((id) => id !== catId) : [...prev, catId]
-    );
-    track("planner_category_toggle", { category_id: catId });
+    track("planner_persona_selected", { persona: p.title, gender: p.defaultGender });
   };
 
   // Toggle individual task selection
-  const toggleTaskSelection = (taskId: string) => {
+  const toggleTask = (taskId: string) => {
     setSelectedTaskIds((prev) => {
-      const isSelected = prev.includes(taskId);
-      const next = isSelected ? prev.filter((id) => id !== taskId) : [...prev, taskId];
-      track(isSelected ? "planner_need_removed" : "planner_need_selected", { task_id: taskId });
+      const exists = prev.includes(taskId);
+      const next = exists ? prev.filter((id) => id !== taskId) : [...prev, taskId];
+      track(exists ? "planner_need_removed" : "planner_need_selected", { task_id: taskId });
       return next;
     });
   };
 
-  // Apply a Situation Preset
-  const applyPreset = (preset: SituationPreset) => {
-    setSelectedTaskIds(preset.taskIds);
-    setRecipientType(preset.recipientType);
-    setDuration(preset.defaultDuration);
-    setScheduleType(preset.defaultSchedule);
-    setShowHelpModal(false);
-    track("planner_preset_applied", { preset_id: preset.id });
-  };
+  // Search results
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return searchTasksByKeyword(searchQuery);
+  }, [searchQuery]);
 
-  // Build the Generated Care Plan using the Compatibility Engine
+  // Active Category Object
+  const activeCategory = useMemo(() => {
+    return CARE_CATEGORIES.find((c) => c.id === activeCategoryId) || CARE_CATEGORIES[0];
+  }, [activeCategoryId]);
+
+  // Derived count per category
+  const selectedCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const cat of CARE_CATEGORIES) {
+      let count = 0;
+      for (const sub of cat.subcategories) {
+        for (const t of sub.tasks) {
+          if (selectedTaskIds.includes(t.id)) count++;
+        }
+      }
+      counts[cat.id] = count;
+    }
+    return counts;
+  }, [selectedTaskIds]);
+
+  // Build Generated Care Plan
   const generatedPlan: GeneratedCarePlan = useMemo(() => {
     const recipient: RecipientProfile = {
       type: recipientType,
-      label: RECIPIENT_OPTIONS.find((r) => r.id === recipientType)?.label ?? "Recipient",
+      label: recipientTitle,
+      gender: patientGender,
       ageGroup,
       livingSituation,
     };
@@ -282,8 +310,7 @@ export function UniversalCareConfigurator() {
     const schedule: PlanSchedule = {
       city,
       area,
-      address,
-      venueType,
+      venueType: "home",
       scheduleType,
       timing,
       duration,
@@ -294,7 +321,7 @@ export function UniversalCareConfigurator() {
     const preferences: PlanPreferences = {
       preferredLanguage,
       genderPreference,
-      continuityRequirement,
+      continuityRequirement: true,
       familyUpdateFrequency,
       specialNotes: customRequirements,
     };
@@ -303,12 +330,12 @@ export function UniversalCareConfigurator() {
   }, [
     selectedTaskIds,
     recipientType,
+    recipientTitle,
+    patientGender,
     ageGroup,
     livingSituation,
     city,
     area,
-    address,
-    venueType,
     scheduleType,
     timing,
     duration,
@@ -316,1158 +343,1017 @@ export function UniversalCareConfigurator() {
     startTime,
     preferredLanguage,
     genderPreference,
-    continuityRequirement,
     familyUpdateFrequency,
     customRequirements,
   ]);
 
-  // Active Contextual Questions based on user's selected categories
-  const relevantContextualQuestions = useMemo(() => {
-    const activeQuestions = [];
-    for (const cat of CARE_CATEGORIES) {
-      if ((selectedCountByCategory[cat.id] ?? 0) > 0 && cat.contextualQuestions.length > 0) {
-        for (const q of cat.contextualQuestions) {
-          activeQuestions.push({ category: cat, question: q });
-        }
-      }
+  // Transition to /booking with active plan
+  const handleProceedToBooking = () => {
+    try {
+      sessionStorage.setItem("apnacare_active_care_plan", JSON.stringify(generatedPlan));
+    } catch {
+      // Ignore
     }
-    return activeQuestions;
-  }, [selectedCountByCategory]);
 
-  // WhatsApp redirection URL
-  const waUrl = buildWhatsAppUrl(
-    `Hello ApnaCare! I have customized a care plan (${generatedPlan.id}) for my ${generatedPlan.recipient.label} in ${generatedPlan.schedule.city}. Could a regional care coordinator review this?`
-  );
+    track("planner_booking_transfer", {
+      plan_id: generatedPlan.id,
+      tasks_count: selectedTaskIds.length,
+      city,
+      patient_gender: patientGender,
+      recipient: recipientTitle,
+    });
+
+    navigate({
+      to: "/booking",
+      search: {
+        service: generatedPlan.recommendedModules[0]?.serviceSlug || "elderly-care",
+        city: city.toLowerCase(),
+        duration: String(generatedPlan.schedule.calendarDays || 1),
+        time: startTime,
+        shift: duration,
+        planId: generatedPlan.id,
+      },
+    });
+  };
+
+  const STEPS_NAV = [
+    { num: 1, label: "Who Needs Care", icon: User },
+    { num: 2, label: "Care & Support", icon: Heart },
+    { num: 3, label: "Schedule & City", icon: CalendarDays },
+    { num: 4, label: "Language & Match", icon: Languages },
+    { num: 5, label: "Care Plan Review", icon: Sparkles },
+  ];
 
   return (
-    <section
-      id="care-planner"
-      className="py-16 md:py-24 border-b border-border/60 bg-secondary/15 scroll-mt-20"
-      aria-labelledby="care-planner-heading"
-    >
-      <div className="container-page">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-8 border-b border-border/70">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary-soft/80 px-3.5 py-1 text-xs font-semibold text-primary">
-              <Sliders className="size-3.5" />
-              <span>Intelligent Care Customisation Engine</span>
-            </div>
-            <h2
-              id="care-planner-heading"
-              className="mt-3 text-fluid-section font-display font-semibold text-foreground tracking-tight"
-            >
-              Customise Your Family's Exact Care Plan
-            </h2>
-            <p className="mt-3 text-fluid-body text-readable-muted">
-              You don't need to fit into rigid healthcare packages. Choose specific tasks across 12 care categories, specify circumstances, and let ApnaCare organise the right support around your loved one.
-            </p>
-          </div>
+    <section id="custom-care-plan" className="py-16 bg-gradient-to-b from-secondary/40 via-background to-secondary/20">
+      <div className="container-page max-w-6xl">
+        {/* Header Intro */}
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-primary/10 text-primary mb-3">
+            <Sparkles className="size-3.5" /> Intelligent Care Customisation
+          </span>
+          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+            Personalise Support for Your Family's Needs
+          </h2>
+          <p className="mt-3 text-sm md:text-base text-muted-foreground leading-relaxed">
+            No rigid packages or guesswork. Tell us who needs care, choose the exact daily assistance required, and let ApnaCare organise verified Saha companions and healthcare professionals around you.
+          </p>
 
-          {/* Quick Stats & Reset Button */}
-          <div className="flex items-center gap-3 self-start md:self-end shrink-0">
-            <div className="rounded-2xl border border-border bg-card px-4 py-2.5 shadow-2xs text-xs">
-              <span className="text-muted-foreground block text-[11px] font-medium uppercase tracking-wider">Selected Tasks</span>
-              <span className="font-bold text-foreground text-sm flex items-center gap-1.5 mt-0.5">
-                <CheckCircle2 className="size-4 text-primary" />
-                {selectedTaskIds.length} tasks chosen
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowHelpModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-2xl border border-primary/30 bg-primary-soft/60 px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary/10 transition-colors shadow-2xs min-h-[44px] cursor-pointer"
-            >
-              <HelpCircle className="size-4" />
-              <span>Help Me Choose</span>
-            </button>
+          {/* Interactive Stepper Indicator */}
+          <div className="mt-8 flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+            {STEPS_NAV.map((s) => {
+              const isCurrent = currentStep === s.num;
+              const isPast = currentStep > s.num;
+              const StepIcon = s.icon;
+              return (
+                <button
+                  key={s.num}
+                  type="button"
+                  onClick={() => setCurrentStep(s.num as any)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
+                    isCurrent
+                      ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20 scale-105"
+                      : isPast
+                      ? "bg-primary-soft text-primary hover:bg-primary-soft/80 cursor-pointer"
+                      : "bg-muted text-muted-foreground/60 cursor-pointer hover:bg-muted/80"
+                  }`}
+                >
+                  <StepIcon className="size-3.5 shrink-0" />
+                  <span>
+                    {s.num}. {s.label}
+                  </span>
+                  {isPast && <Check className="size-3 text-primary stroke-[3]" />}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Step Progress Bar (6 Steps) */}
-        <nav aria-label="Care plan customisation steps" className="mt-8 overflow-x-auto pb-2">
-          <ol className="flex items-center gap-2 sm:gap-3 min-w-[700px]">
-            {[
-              { num: 1, label: "1. Select Needs" },
-              { num: 2, label: "2. Recipient" },
-              { num: 3, label: "3. Situation" },
-              { num: 4, label: "4. Schedule" },
-              { num: 5, label: "5. Preferences" },
-              { num: 6, label: "6. Personalised Plan" },
-            ].map((s) => {
-              const isCurrent = currentStep === s.num;
-              const isPast = currentStep > s.num;
-              return (
-                <li key={s.num} className="flex-1">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(s.num as any)}
-                    className={`w-full flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all text-left ${
-                      isCurrent
-                        ? "bg-primary text-primary-foreground shadow-soft ring-2 ring-primary/20"
-                        : isPast
-                        ? "bg-card border border-primary/30 text-foreground hover:bg-secondary/40"
-                        : "bg-card/50 border border-border/80 text-muted-foreground hover:bg-secondary/20"
-                    }`}
-                  >
-                    <span
-                      className={`grid size-5 place-items-center rounded-full text-[10px] font-bold shrink-0 ${
-                        isCurrent
-                          ? "bg-primary-foreground text-primary"
-                          : isPast
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-muted-foreground"
-                      }`}
-                    >
-                      {isPast ? <Check className="size-3" /> : s.num}
-                    </span>
-                    <span className="truncate">{s.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </nav>
-
-        {/* ─────────────────────────────────────────────────────────────
-            STEP 01: IDENTIFY THE NEEDS (12 CATEGORIES & MULTI-SELECT)
-        ───────────────────────────────────────────────────────────── */}
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {/* STEP 1: WHO NEEDS CARE? (Persona, Patient Gender & Age)          */}
+        {/* ───────────────────────────────────────────────────────────────── */}
         {currentStep === 1 && (
-          <div className="mt-8 animate-fade-in space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h3 className="text-xl sm:text-2xl font-bold font-display text-foreground">
-                  What kind of support does your loved one need?
-                </h3>
-                <p className="mt-1 text-xs sm:text-sm text-readable-muted">
-                  Every family has different needs. Select anything that applies. You can combine different types of support to create a plan that works for your family.
-                </p>
-              </div>
-
-              {/* Search Field */}
-              <div className="relative w-full sm:w-80 shrink-0">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search tasks (e.g. wheelchair, injection, bath)..."
-                  className="pl-9.5 pr-8 h-11 rounded-xl text-xs bg-card border-border"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="size-3.5" />
-                  </button>
-                )}
-              </div>
+          <div className="card-soft p-6 md:p-10 shadow-soft max-w-4xl mx-auto space-y-8 animate-fade-in">
+            <div>
+              <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 1 of 5</span>
+              <h3 className="text-2xl font-semibold mt-1">Who are you looking for care for?</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Select the family member or loved one. We customize care routines and Saha matching based on their comfort and gender.
+              </p>
             </div>
 
-            {/* If searching: Show Instant Filtered Results */}
-            {searchQuery.trim().length > 0 ? (
-              <div className="rounded-3xl border border-primary/20 bg-card p-6 shadow-soft space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-border">
-                  <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
-                    <Search className="size-4 text-primary" />
-                    Search Results ({searchResults.length} matches for "{searchQuery}")
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="text-xs text-primary font-semibold hover:underline"
-                  >
-                    Clear Search
-                  </button>
-                </div>
-
-                {searchResults.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-muted-foreground">
-                    <p>No matching care tasks found for "{searchQuery}".</p>
-                    <p className="mt-1">You can add this as a custom requirement in Step 5 or browse the 12 categories below.</p>
-                  </div>
-                ) : (
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {searchResults.map(({ task, category, subcategory }) => {
-                      const isSelected = selectedTaskIds.includes(task.id);
-                      return (
-                        <div
-                          key={task.id}
-                          onClick={() => toggleTaskSelection(task.id)}
-                          className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 ${
-                            isSelected
-                              ? "bg-primary-soft/60 border-primary text-foreground shadow-2xs"
-                              : "bg-secondary/30 border-border hover:border-primary/40 text-foreground/90"
-                          }`}
-                        >
-                          <div
-                            className={`mt-0.5 size-4.5 rounded-md border flex items-center justify-center shrink-0 ${
-                              isSelected
-                                ? "bg-primary border-primary text-primary-foreground"
-                                : "border-muted-foreground/50 bg-card"
-                            }`}
-                          >
-                            {isSelected && <Check className="size-3" />}
-                          </div>
-                          <div className="min-w-0 flex-1 text-xs">
-                            <span className="font-semibold block truncate">{task.name}</span>
-                            <span className="text-[11px] text-muted-foreground block line-clamp-1 mt-0.5">
-                              {category.name} · {subcategory.name}
-                            </span>
-                            {task.clinicalClassification === "CLINICAL_NURSING" && (
-                              <span className="inline-block mt-1 text-[10px] font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-900/50 px-1.5 py-0.2 rounded">
-                                Licensed Nurse
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            ) : null}
-
-            {/* 12 Categories Grid */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {CARE_CATEGORIES.map((cat) => {
-                const isExpanded = expandedCategoryIds.includes(cat.id);
-                const selectedCount = selectedCountByCategory[cat.id] ?? 0;
-                const totalTasksInCat = cat.subcategories.reduce((acc, sub) => acc + sub.tasks.length, 0);
-
+            {/* Persona Visual Cards Grid */}
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {PERSONAS.map((p, idx) => {
+                const isSelected = selectedPersonaIdx === idx;
+                const PIcon = p.icon;
                 return (
-                  <div
-                    key={cat.id}
-                    className={`rounded-3xl border transition-all overflow-hidden bg-card ${
-                      selectedCount > 0
-                        ? "border-primary/40 shadow-soft ring-1 ring-primary/20"
-                        : "border-border/80 shadow-2xs hover:border-border"
+                  <button
+                    key={p.title}
+                    type="button"
+                    onClick={() => handleSelectPersona(idx)}
+                    className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
+                      isSelected
+                        ? "bg-primary-soft/80 border-primary ring-2 ring-primary/20 shadow-sm"
+                        : "bg-card border-border hover:border-primary/40 hover:bg-secondary/40"
                     }`}
                   >
-                    {/* Category Card Header */}
-                    <div
-                      onClick={() => toggleCategoryExpand(cat.id)}
-                      className="p-5 cursor-pointer select-none flex items-start justify-between gap-3 hover:bg-secondary/30 transition-colors"
-                      role="button"
-                      tabIndex={0}
-                      aria-expanded={isExpanded}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") toggleCategoryExpand(cat.id);
-                      }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="grid size-11 place-items-center rounded-2xl bg-primary-soft text-primary font-bold shrink-0 text-sm">
-                          {cat.categoryNumber < 10 ? `0${cat.categoryNumber}` : cat.categoryNumber}
-                        </span>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-bold text-sm text-foreground leading-snug">{cat.name}</h4>
-                          </div>
-                          <p className="mt-1 text-xs text-readable-muted line-clamp-2 leading-relaxed">
-                            {cat.tagline}
-                          </p>
-                          <div className="mt-2.5 flex items-center gap-2">
-                            {selectedCount > 0 ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2.5 py-0.5 text-[10px] font-bold">
-                                <Check className="size-3" /> {selectedCount} selected
-                              </span>
-                            ) : (
-                              <span className="text-[11px] text-muted-foreground">
-                                {totalTasksInCat} options
-                              </span>
-                            )}
-                            {cat.isClinical && (
-                              <span className="text-[10px] font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-900/50 px-2 py-0.5 rounded-full">
-                                Clinical Scope
-                              </span>
-                            )}
-                          </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div
+                          className={`size-9 rounded-xl grid place-items-center ${
+                            isSelected ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+                          }`}
+                        >
+                          <PIcon className="size-4.5" />
                         </div>
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                          {p.badge}
+                        </span>
                       </div>
-
-                      <div className="p-1 rounded-lg text-muted-foreground hover:text-foreground shrink-0 mt-1">
-                        {isExpanded ? <ChevronDown className="size-4.5" /> : <ChevronRight className="size-4.5" />}
-                      </div>
+                      <h4 className="font-semibold text-sm text-foreground">{p.title}</h4>
+                      <p className="text-xs text-muted-foreground mt-1 leading-snug">{p.subtitle}</p>
                     </div>
 
-                    {/* Expandable Subcategories and Tasks */}
-                    {isExpanded && (
-                      <div className="px-5 pb-5 pt-2 border-t border-border/60 bg-secondary/20 space-y-4">
-                        {cat.subcategories.map((sub) => (
-                          <div key={sub.id} className="space-y-2">
-                            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                              {sub.name}
-                            </p>
-                            <div className="space-y-1.5">
-                              {sub.tasks.map((task) => {
-                                const isSelected = selectedTaskIds.includes(task.id);
-                                return (
-                                  <label
-                                    key={task.id}
-                                    className={`flex items-start gap-2.5 p-2 rounded-xl text-xs cursor-pointer transition-colors ${
-                                      isSelected
-                                        ? "bg-card border border-primary/30 text-foreground font-medium shadow-2xs"
-                                        : "hover:bg-card/70 text-foreground/80"
-                                    }`}
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={isSelected}
-                                      onChange={() => toggleTaskSelection(task.id)}
-                                      className="mt-0.5 size-4 rounded accent-primary shrink-0 cursor-pointer"
-                                    />
-                                    <div className="min-w-0 flex-1">
-                                      <div className="flex items-center justify-between gap-1">
-                                        <span className="font-semibold text-xs text-foreground">{task.name}</span>
-                                        {task.requiresDoctorPrescription && (
-                                          <span className="text-[9px] font-bold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.2 rounded shrink-0">
-                                            Rx Req
-                                          </span>
-                                        )}
-                                      </div>
-                                      <p className="text-[11px] text-muted-foreground leading-normal mt-0.5">
-                                        {task.description}
-                                      </p>
-                                    </div>
-                                  </label>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
+                    {isSelected && (
+                      <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-primary">
+                        <CheckCircle2 className="size-3.5" /> Selected
                       </div>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
 
-            {/* Bottom Floating Step Bar */}
-            <div className="rounded-2xl border border-border bg-card p-4 shadow-soft flex flex-wrap items-center justify-between gap-4">
-              <div className="text-xs text-muted-foreground">
-                <span className="font-bold text-foreground text-sm">{selectedTaskIds.length} tasks selected</span> across{" "}
-                <span className="font-semibold text-foreground">
-                  {Object.values(selectedCountByCategory).filter((c) => c > 0).length} categories
-                </span>
-                . You can review and refine anytime.
+            {/* PROMINENT GENDER OF THE PATIENT / MEMBER (User Request) */}
+            <div className="rounded-2xl border border-primary/20 bg-primary-soft/30 p-5 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <User className="size-4 text-primary" />
+                    Gender of the Member / Patient needing support *
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Essential for matching: Ensures complete dignity, personal hygiene comfort (e.g. female attendant for mother's bathing) and cultural sensitivity.
+                  </p>
+                </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                {[
+                  { id: "male", label: "Male Patient", icon: "👨" },
+                  { id: "female", label: "Female Patient", icon: "👩" },
+                  { id: "both", label: "Both Parents", icon: "👫" },
+                  { id: "other", label: "Prefer Not to Say", icon: "🤝" },
+                ].map((g) => {
+                  const isChecked = patientGender === g.id;
+                  return (
+                    <button
+                      key={g.id}
+                      type="button"
+                      onClick={() => {
+                        setPatientGender(g.id as any);
+                        if (g.id === "female") setGenderPreference("female_only");
+                        else if (g.id === "male") setGenderPreference("male_only");
+                      }}
+                      className={`h-12 px-4 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+                        isChecked
+                          ? "bg-primary text-primary-foreground border-primary shadow-2xs font-bold"
+                          : "bg-card border-border hover:border-primary/40 text-foreground"
+                      }`}
+                    >
+                      <span>{g.icon}</span>
+                      <span>{g.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Age Bracket & Living Setting */}
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                  Approximate Age Group
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {["60–70 years", "70–80 years", "80+ years", "30–59 years", "Newborn + Mother", "Child"].map((age) => (
+                    <button
+                      key={age}
+                      type="button"
+                      onClick={() => setAgeGroup(age)}
+                      className={`h-10 px-2 rounded-xl border text-xs font-semibold transition-all truncate ${
+                        ageGroup === age
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card border-border hover:border-primary/30 text-foreground"
+                      }`}
+                    >
+                      {age}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                  Current Living Setting
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    "Living with family",
+                    "Living independently",
+                    "Currently in hospital",
+                    "Bedbound / limited mobility",
+                  ].map((sit) => (
+                    <button
+                      key={sit}
+                      type="button"
+                      onClick={() => setLivingSituation(sit)}
+                      className={`h-10 px-2.5 rounded-xl border text-xs font-semibold transition-all truncate ${
+                        livingSituation === sit
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card border-border hover:border-primary/30 text-foreground"
+                      }`}
+                    >
+                      {sit}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Bar */}
+            <div className="flex items-center justify-between border-t border-border pt-6">
+              <span className="text-xs text-muted-foreground">
+                Configuring care for: <strong className="text-foreground">{recipientTitle}</strong> ({patientGender}, {ageGroup})
+              </span>
+              <Button onClick={() => setCurrentStep(2)} className="gap-2">
+                Continue to Care & Support <ArrowRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {/* STEP 2: CARE & SUPPORT REQUIRED (Interactive Pills — NO ENDLESS CHECKBOXES) */}
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {currentStep === 2 && (
+          <div className="card-soft p-6 md:p-10 shadow-soft max-w-5xl mx-auto space-y-6 animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 2 of 5</span>
+                <h3 className="text-2xl font-semibold mt-1">What daily support does {recipientTitle} need?</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Tap any task to add or remove it from your care plan. No tedious checklists or rigid packages.
+                </p>
+              </div>
+
+              {/* Live Selected Counter Badge */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary text-primary-foreground flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="size-3.5" />
+                  {selectedTaskIds.length} Needs Selected
+                </span>
                 {selectedTaskIds.length > 0 && (
                   <button
                     type="button"
                     onClick={() => setSelectedTaskIds([])}
-                    className="text-xs text-muted-foreground hover:text-destructive transition-colors font-medium cursor-pointer"
+                    className="text-xs text-muted-foreground hover:text-destructive underline"
                   >
-                    Clear Selections
+                    Clear
                   </button>
                 )}
-                <Button
-                  onClick={() => setCurrentStep(2)}
-                  disabled={selectedTaskIds.length === 0}
-                  className="rounded-full px-6 font-bold shadow-soft min-h-[44px]"
-                >
-                  Next: Who Needs Support? <ArrowRight className="size-4 ml-1.5" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ─────────────────────────────────────────────────────────────
-            STEP 02: IDENTIFY THE RECIPIENT
-        ───────────────────────────────────────────────────────────── */}
-        {currentStep === 2 && (
-          <div className="mt-8 animate-fade-in max-w-4xl mx-auto space-y-8">
-            <div>
-              <h3 className="text-xl sm:text-2xl font-bold font-display text-foreground">
-                Who needs this support?
-              </h3>
-              <p className="mt-1 text-xs sm:text-sm text-readable-muted">
-                Understanding who will receive care helps us match appropriate caregiver ergonomics, communication tone, and physical capabilities.
-              </p>
-            </div>
-
-            <div className="grid gap-3.5 sm:grid-cols-2">
-              {RECIPIENT_OPTIONS.map((opt) => {
-                const isSelected = recipientType === opt.id;
-                return (
-                  <div
-                    key={opt.id}
-                    onClick={() => {
-                      setRecipientType(opt.id);
-                      if (opt.defaultAgeGroup) setAgeGroup(opt.defaultAgeGroup);
-                    }}
-                    className={`p-5 rounded-3xl border transition-all cursor-pointer flex items-start gap-4 ${
-                      isSelected
-                        ? "bg-card border-primary ring-2 ring-primary/25 shadow-soft"
-                        : "bg-card/70 border-border hover:border-primary/40 hover:bg-card"
-                    }`}
-                  >
-                    <div
-                      className={`grid size-11 place-items-center rounded-2xl shrink-0 ${
-                        isSelected ? "bg-primary text-primary-foreground font-bold" : "bg-primary-soft text-primary"
-                      }`}
-                    >
-                      <UserCheck className="size-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-bold text-sm text-foreground">{opt.label}</h4>
-                        {isSelected && <span className="text-xs font-bold text-primary">Selected</span>}
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{opt.sub}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Contextual Recipient Details */}
-            <div className="p-6 rounded-3xl border border-border bg-card space-y-4">
-              <h4 className="font-semibold text-sm text-foreground">Recipient Circumstances</h4>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                    Age Group
-                  </label>
-                  <select
-                    value={ageGroup}
-                    onChange={(e) => setAgeGroup(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="Under 18 years">Under 18 years</option>
-                    <option value="18–35 years">18–35 years (Young Adult / Postnatal)</option>
-                    <option value="36–59 years">36–59 years (Adult Recovery)</option>
-                    <option value="60–74 years">60–74 years (Active Senior)</option>
-                    <option value="75–84 years">75–84 years (Elderly Parent)</option>
-                    <option value="85+ years">85+ years (Super Senior Support)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                    Current Living Situation
-                  </label>
-                  <select
-                    value={livingSituation}
-                    onChange={(e) => setLivingSituation(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="Living with family at home">Living with family at home</option>
-                    <option value="Living alone independently">Living alone independently (Children in other city/abroad)</option>
-                    <option value="Currently admitted in hospital">Currently admitted in hospital (Ward bedside)</option>
-                    <option value="Senior living / retirement community">Senior living / retirement community</option>
-                  </select>
-                </div>
               </div>
             </div>
 
-            {/* Step Controls */}
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <Button variant="outline" onClick={() => setCurrentStep(1)} className="rounded-full">
-                Back to Needs
-              </Button>
-              <Button onClick={() => setCurrentStep(3)} className="rounded-full px-6 font-bold">
-                Next: Situation Questions <ArrowRight className="size-4 ml-1.5" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ─────────────────────────────────────────────────────────────
-            STEP 03: UNDERSTAND THE SITUATION (CONTEXTUAL QUESTIONS)
-        ───────────────────────────────────────────────────────────── */}
-        {currentStep === 3 && (
-          <div className="mt-8 animate-fade-in max-w-3xl mx-auto space-y-8">
-            <div>
-              <h3 className="text-xl sm:text-2xl font-bold font-display text-foreground">
-                Help Us Understand the Circumstances
-              </h3>
-              <p className="mt-1 text-xs sm:text-sm text-readable-muted">
-                We only ask questions relevant to your selected needs. This ensures clinical safety and prevents assigning over- or under-qualified professionals.
-              </p>
-            </div>
-
-            {relevantContextualQuestions.length === 0 ? (
-              <div className="rounded-3xl border border-border bg-card p-8 text-center text-xs text-muted-foreground space-y-2">
-                <CheckCircle2 className="size-8 text-primary mx-auto" />
-                <h4 className="font-semibold text-sm text-foreground">All Set for General Care</h4>
-                <p>Your selected care tasks do not require specialized medical or mobility clearances. You can proceed directly to scheduling.</p>
+            {/* Live Selected Task Chips Ribbon */}
+            {selectedTaskIds.length > 0 ? (
+              <div className="rounded-2xl border border-primary/20 bg-primary-soft/30 p-3.5">
+                <div className="flex items-center justify-between text-xs font-semibold text-foreground mb-2">
+                  <span className="flex items-center gap-1.5 text-primary">
+                    <CheckCircle2 className="size-4" /> Active Care Plan Items ({selectedTaskIds.length})
+                  </span>
+                  <span className="text-muted-foreground text-[11px]">Tap (✕) to remove</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedTaskIds.map((taskId) => {
+                    const match = CARE_CATEGORIES.flatMap((c) => c.subcategories.flatMap((s) => s.tasks)).find((t) => t.id === taskId);
+                    return (
+                      <span
+                        key={taskId}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-card border border-primary/30 text-foreground shadow-2xs animate-fade-in"
+                      >
+                        <span>{match?.name || taskId}</span>
+                        <button
+                          type="button"
+                          onClick={() => toggleTask(taskId)}
+                          className="size-3.5 rounded-full hover:bg-muted grid place-items-center text-muted-foreground hover:text-foreground"
+                          title="Remove item"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             ) : (
-              <div className="space-y-6">
-                {relevantContextualQuestions.map(({ category, question }) => (
-                  <div key={question.id} className="rounded-3xl border border-border bg-card p-6 shadow-soft space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary-soft px-2.5 py-0.5 rounded-full">
-                        {category.name}
-                      </span>
-                    </div>
-                    <h4 className="font-bold text-sm text-foreground">{question.question}</h4>
-                    {question.helpText && (
-                      <p className="text-xs text-muted-foreground">{question.helpText}</p>
-                    )}
-
-                    <div className="grid gap-2 sm:grid-cols-2 pt-2">
-                      {question.options.map((opt) => {
-                        const currentVal = contextualAnswers[question.id];
-                        const isSelected = question.isMultiSelect
-                          ? Array.isArray(currentVal) && currentVal.includes(opt.id)
-                          : currentVal === opt.id;
-
-                        return (
-                          <div
-                            key={opt.id}
-                            onClick={() => {
-                              if (question.isMultiSelect) {
-                                const arr = Array.isArray(currentVal) ? [...currentVal] : [];
-                                const next = arr.includes(opt.id) ? arr.filter((x) => x !== opt.id) : [...arr, opt.id];
-                                setContextualAnswers((prev) => ({ ...prev, [question.id]: next }));
-                              } else {
-                                setContextualAnswers((prev) => ({ ...prev, [question.id]: opt.id }));
-                              }
-                            }}
-                            className={`p-3 rounded-2xl border text-xs font-medium cursor-pointer transition-all flex items-center gap-2.5 ${
-                              isSelected
-                                ? "bg-primary-soft/70 border-primary text-foreground shadow-2xs"
-                                : "bg-secondary/30 border-border hover:border-primary/40 text-foreground/80"
-                            }`}
-                          >
-                            <div
-                              className={`size-4 rounded-full border flex items-center justify-center shrink-0 ${
-                                isSelected ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground"
-                              }`}
-                            >
-                              {isSelected && <Check className="size-2.5" />}
-                            </div>
-                            <span className="leading-snug">{opt.label}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
+              <div className="rounded-2xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
+                Tap any care requirement below to add it to your family's plan.
               </div>
             )}
 
-            {/* Step Controls */}
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <Button variant="outline" onClick={() => setCurrentStep(2)} className="rounded-full">
-                Back to Recipient
-              </Button>
-              <Button onClick={() => setCurrentStep(4)} className="rounded-full px-6 font-bold">
-                Next: Location & Schedule <ArrowRight className="size-4 ml-1.5" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ─────────────────────────────────────────────────────────────
-            STEP 04: LOCATION & SCHEDULE
-        ───────────────────────────────────────────────────────────── */}
-        {currentStep === 4 && (
-          <div className="mt-8 animate-fade-in max-w-4xl mx-auto space-y-8">
-            <div>
-              <h3 className="text-xl sm:text-2xl font-bold font-display text-foreground">
-                Where and when is care needed?
-              </h3>
-              <p className="mt-1 text-xs sm:text-sm text-readable-muted">
-                Customise schedule patterns, daily hours, and shift windows. Different service modules can be scheduled flexibly.
-              </p>
+            {/* Quick Keyword Search */}
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Quick search any care need (e.g. walker, sponge bath, injection, insulin, temple, hospital)..."
+                className="pl-9.5 pr-8 h-11 rounded-xl text-xs bg-card border-border"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* Location Card */}
-              <div className="rounded-3xl border border-border bg-card p-6 shadow-soft space-y-4">
-                <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
-                  <MapPin className="size-4" /> Location Details
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                    City (Active Hubs)
-                  </label>
-                  <select
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    {CITIES.map((c) => (
-                      <option key={c.slug} value={c.name}>
-                        {c.name} ({c.state})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                    Neighborhood / Locality
-                  </label>
-                  <Input
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    placeholder="e.g. Indiranagar, T. Nagar, Banjara Hills, RS Puram"
-                    className="h-11 rounded-xl text-xs bg-secondary/30 border-border"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                    Care Setting
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { id: "home", label: "Private Home / Flat" },
-                      { id: "hospital", label: "Hospital Private/Ward" },
-                      { id: "transit_hub", label: "Airport / Railway Station" },
-                      { id: "other", label: "Other Destination" },
-                    ].map((v) => (
+            {/* Instant Search Results if typing */}
+            {searchQuery.trim().length > 0 ? (
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-muted-foreground">
+                  Search Results for "{searchQuery}" ({searchResults.length} matches):
+                </p>
+                <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-3">
+                  {searchResults.map(({ task, category }) => {
+                    const isSelected = selectedTaskIds.includes(task.id);
+                    return (
                       <button
-                        key={v.id}
+                        key={task.id}
                         type="button"
-                        onClick={() => setVenueType(v.id as any)}
-                        className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left ${
-                          venueType === v.id
-                            ? "bg-primary-soft border-primary text-primary"
-                            : "bg-secondary/20 border-border text-muted-foreground hover:text-foreground"
+                        onClick={() => toggleTask(task.id)}
+                        className={`p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                            : "bg-card border-border hover:border-primary/40 text-foreground"
                         }`}
                       >
-                        {v.label}
+                        <div
+                          className={`size-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 ${
+                            isSelected ? "bg-primary-foreground text-primary border-primary-foreground" : "border-muted-foreground/40 bg-card"
+                          }`}
+                        >
+                          {isSelected && <Check className="size-3 stroke-[3]" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-bold leading-snug">{task.name}</p>
+                          <p className={`text-[11px] mt-0.5 line-clamp-1 ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                            {category.name}
+                          </p>
+                          {task.clinicalClassification === "CLINICAL_NURSING" && (
+                            <span className={`inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                              isSelected ? "bg-white/20 text-white" : "bg-sky-100 text-sky-800 dark:bg-sky-900/60 dark:text-sky-300"
+                            }`}>
+                              Registered Nurse
+                            </span>
+                          )}
+                        </div>
                       </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              /* Interactive Category Navigator + Task Cards Cloud (NO endless vertical accordion!) */
+              <div className="space-y-5">
+                {/* Horizontal Category Nav Pills */}
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">
+                    Browse by Care Category (12 Primary Disciplines)
+                  </label>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                    {CARE_CATEGORIES.map((cat) => {
+                      const isActive = activeCategoryId === cat.id;
+                      const count = selectedCounts[cat.id] ?? 0;
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setActiveCategoryId(cat.id)}
+                          className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${
+                            isActive
+                              ? "bg-primary text-primary-foreground shadow-sm ring-2 ring-primary/20"
+                              : "bg-card border border-border hover:bg-secondary/60 text-foreground"
+                          }`}
+                        >
+                          <span>{cat.name}</span>
+                          {count > 0 && (
+                            <span
+                              className={`size-4.5 rounded-full text-[10px] font-bold grid place-items-center ${
+                                isActive ? "bg-primary-foreground text-primary" : "bg-primary text-primary-foreground"
+                              }`}
+                            >
+                              {count}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Active Category Tasks Cloud */}
+                <div className="rounded-3xl border border-border/80 bg-secondary/30 p-5 md:p-6 space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
+                    <div>
+                      <h4 className="font-semibold text-base text-foreground">{activeCategory.name}</h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">{activeCategory.tagline}</p>
+                    </div>
+                    {activeCategory.isClinical && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800 dark:bg-sky-900/60 dark:text-sky-300 shrink-0">
+                        <Stethoscope className="size-3.5" /> Clinical Discipline (Prescription Required)
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Render Subcategories with Compact Interactive Pill Cards */}
+                  <div className="space-y-5">
+                    {activeCategory.subcategories.map((sub) => (
+                      <div key={sub.id} className="space-y-2.5">
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
+                          {sub.name}
+                        </span>
+                        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                          {sub.tasks.map((task) => {
+                            const isSelected = selectedTaskIds.includes(task.id);
+                            return (
+                              <button
+                                key={task.id}
+                                type="button"
+                                onClick={() => toggleTask(task.id)}
+                                className={`p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 ${
+                                  isSelected
+                                    ? "bg-primary text-primary-foreground border-primary shadow-sm ring-1 ring-primary/30"
+                                    : "bg-card border-border hover:border-primary/40 hover:bg-secondary/40 text-foreground"
+                                }`}
+                              >
+                                <div
+                                  className={`size-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 ${
+                                    isSelected
+                                      ? "bg-primary-foreground text-primary border-primary-foreground"
+                                      : "border-muted-foreground/40 bg-card"
+                                  }`}
+                                >
+                                  {isSelected && <Check className="size-3.5 stroke-[3]" />}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-xs font-bold leading-snug">{task.name}</p>
+                                  <p
+                                    className={`text-[11px] mt-1 line-clamp-2 leading-relaxed ${
+                                      isSelected ? "text-primary-foreground/80" : "text-muted-foreground"
+                                    }`}
+                                  >
+                                    {task.description}
+                                  </p>
+                                  {task.clinicalClassification === "CLINICAL_NURSING" && (
+                                    <span
+                                      className={`inline-block mt-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                        isSelected
+                                          ? "bg-white/20 text-white"
+                                          : "bg-sky-100 text-sky-800 dark:bg-sky-900/60 dark:text-sky-300"
+                                      }`}
+                                    >
+                                      Prescribed RN
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
-              </div>
-
-              {/* Schedule Card */}
-              <div className="rounded-3xl border border-border bg-card p-6 shadow-soft space-y-4">
-                <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
-                  <CalendarDays className="size-4" /> Shift Duration & Rhythm
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                    Shift Duration
-                  </label>
-                  <select
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value as any)}
-                    className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="hourly_4h">Short Visit (4 Hours / Trip)</option>
-                    <option value="half_day_8h">Half Day (8 Hours Daytime)</option>
-                    <option value="full_day_12h">Full Day (12 Hours Continuous Vigil)</option>
-                    <option value="overnight_12h">Overnight Vigil (12 Hours Night Shift)</option>
-                    <option value="round_the_clock_24h">24 Hours (Round-the-clock / Live-in)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                    Schedule Pattern
-                  </label>
-                  <select
-                    value={scheduleType}
-                    onChange={(e) => setScheduleType(e.target.value as any)}
-                    className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="daily">Daily Continuous Support</option>
-                    <option value="weekly">Weekdays Only (Monday to Friday)</option>
-                    <option value="one_time">Single Occasion / Appointment Shift</option>
-                    <option value="custom">Custom Roster / Alternate Days</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                      Calendar Span
-                    </label>
-                    <select
-                      value={calendarDays}
-                      onChange={(e) => setCalendarDays(Number(e.target.value))}
-                      className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    >
-                      <option value={1}>1 Day (Single shift)</option>
-                      <option value={7}>7 Days (1 Week)</option>
-                      <option value={14}>14 Days (2 Weeks)</option>
-                      <option value={30}>30 Days (1 Month)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                      Shift Start Time
-                    </label>
-                    <input
-                      type="time"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Step Controls */}
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <Button variant="outline" onClick={() => setCurrentStep(3)} className="rounded-full">
-                Back to Situation
-              </Button>
-              <Button onClick={() => setCurrentStep(5)} className="rounded-full px-6 font-bold">
-                Next: Professional Preferences <ArrowRight className="size-4 ml-1.5" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ─────────────────────────────────────────────────────────────
-            STEP 05: PROFESSIONAL & SERVICE PREFERENCES
-        ───────────────────────────────────────────────────────────── */}
-        {currentStep === 5 && (
-          <div className="mt-8 animate-fade-in max-w-3xl mx-auto space-y-8">
-            <div>
-              <h3 className="text-xl sm:text-2xl font-bold font-display text-foreground">
-                Language & Caregiver Preferences
-              </h3>
-              <p className="mt-1 text-xs sm:text-sm text-readable-muted">
-                South Indian cultural familiarity matters. Select mother-tongue communication, update cadence, and specific household notes.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-soft space-y-6">
-              {/* Language Selection */}
-              <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-2 flex items-center gap-1.5">
-                  <Languages className="size-4 text-primary" /> Spoken Language of Care
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                  {["Tamil", "Telugu", "Kannada", "Malayalam", "English"].map((lang) => (
-                    <button
-                      key={lang}
-                      type="button"
-                      onClick={() => setPreferredLanguage(lang)}
-                      className={`p-3 rounded-2xl border text-xs font-semibold transition-all text-center ${
-                        preferredLanguage === lang
-                          ? "bg-primary text-primary-foreground border-primary shadow-2xs"
-                          : "bg-secondary/30 border-border text-foreground hover:bg-secondary/60"
-                      }`}
-                    >
-                      {lang}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Caregiver Gender */}
-              <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-2 flex items-center gap-1.5">
-                  <Users className="size-4 text-primary" /> Professional Gender Preference
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: "female_only", label: "Female Saha Preferred" },
-                    { id: "male_only", label: "Male Attendant (Physical Lift)" },
-                    { id: "no_preference", label: "No Preference / Earliest" },
-                  ].map((g) => (
-                    <button
-                      key={g.id}
-                      type="button"
-                      onClick={() => setGenderPreference(g.id as any)}
-                      className={`p-3 rounded-2xl border text-xs font-semibold transition-all text-center ${
-                        genderPreference === g.id
-                          ? "bg-primary-soft border-primary text-primary"
-                          : "bg-secondary/30 border-border text-foreground/80 hover:bg-secondary/60"
-                      }`}
-                    >
-                      {g.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Family Update Frequency */}
-              <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-2 flex items-center gap-1.5">
-                  <MessageCircle className="size-4 text-primary" /> Family WhatsApp Update Frequency
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: "daily_whatsapp", label: "Daily WhatsApp Summary" },
-                    { id: "twice_daily", label: "Morning & Evening Logs" },
-                    { id: "weekly_summary", label: "Weekly Consolidate" },
-                  ].map((u) => (
-                    <button
-                      key={u.id}
-                      type="button"
-                      onClick={() => setFamilyUpdateFrequency(u.id as any)}
-                      className={`p-3 rounded-2xl border text-xs font-semibold transition-all text-center ${
-                        familyUpdateFrequency === u.id
-                          ? "bg-primary-soft border-primary text-primary"
-                          : "bg-secondary/30 border-border text-foreground/80 hover:bg-secondary/60"
-                      }`}
-                    >
-                      {u.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Custom Requirements Textarea */}
-              <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider block mb-1.5">
-                  Custom Requirements or Specific Tasks (Optional)
-                </label>
-                <textarea
-                  rows={3}
-                  value={customRequirements}
-                  onChange={(e) => setCustomRequirements(e.target.value)}
-                  placeholder="Specify any custom requests (e.g. strict vegetarian cooking, wheelchair van required, Tamil devotional songs listening, medication routine nuances)..."
-                  className="w-full rounded-2xl border border-border bg-secondary/30 p-3.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-            </div>
-
-            {/* Step Controls */}
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <Button variant="outline" onClick={() => setCurrentStep(4)} className="rounded-full">
-                Back to Schedule
-              </Button>
-              <Button
-                onClick={() => {
-                  setCurrentStep(6);
-                  track("planner_plan_generated", {
-                    tasks_count: selectedTaskIds.length,
-                    city,
-                    duration,
-                  });
-                }}
-                className="rounded-full px-7 font-bold shadow-soft"
-              >
-                Generate My Care Plan <Sparkles className="size-4 ml-1.5" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ─────────────────────────────────────────────────────────────
-            STEP 06: GENERATE THE PERSONALISED CARE PLAN (EDITABLE SUMMARY)
-        ───────────────────────────────────────────────────────────── */}
-        {currentStep === 6 && (
-          <div className="mt-8 animate-fade-in space-y-8">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <div>
-                <span className="eyebrow">Personalised Care Plan</span>
-                <h3 className="mt-1 text-2xl sm:text-3xl font-display font-semibold text-foreground">
-                  Your Personalised ApnaCare Plan
-                </h3>
-                <p className="mt-1 text-xs sm:text-sm text-readable-muted">
-                  Plan Reference: <span className="font-mono font-bold text-foreground">{generatedPlan.id}</span> · Ready to review and carry directly into booking.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentStep(1)}
-                  className="rounded-full text-xs"
-                >
-                  <Sliders className="size-3.5 mr-1.5" /> Edit Selections
-                </Button>
-              </div>
-            </div>
-
-            {/* Statutory Clinical Scope Notice if mixing clinical & non-clinical */}
-            {generatedPlan.clinicalBoundaryNotice && (
-              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-start gap-3 text-xs text-amber-900 dark:text-amber-200">
-                <AlertCircle className="size-5 shrink-0 text-amber-600 mt-0.5" />
-                <p className="leading-relaxed">
-                  <strong>Clinical Scope Separation:</strong> {generatedPlan.clinicalBoundaryNotice}
-                </p>
               </div>
             )}
 
-            <div className="grid gap-8 lg:grid-cols-[1.6fr_1fr] items-start">
-              {/* Left Column: Modules & Selected Tasks */}
-              <div className="space-y-6">
-                {/* Recommended Service Modules */}
-                <div className="rounded-3xl border border-border bg-card p-6 shadow-soft space-y-5">
-                  <div className="flex items-center justify-between pb-3 border-b border-border">
-                    <h4 className="font-bold text-base text-foreground flex items-center gap-2">
-                      <Sparkles className="size-4 text-primary" />
-                      Recommended Care Modules ({generatedPlan.recommendedModules.length})
-                    </h4>
-                    <span className="text-xs text-muted-foreground">Mapped from your needs</span>
-                  </div>
+            {/* Stepper Controls */}
+            <div className="flex items-center justify-between border-t border-border pt-6">
+              <Button variant="outline" onClick={() => setCurrentStep(1)} className="gap-2">
+                <ArrowLeft className="size-4" /> Back to Recipient
+              </Button>
+              <Button
+                onClick={() => setCurrentStep(3)}
+                disabled={selectedTaskIds.length === 0}
+                className="gap-2"
+              >
+                Continue to Schedule ({selectedTaskIds.length} Needs) <ArrowRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        )}
 
-                  <div className="space-y-4">
-                    {generatedPlan.recommendedModules.map((mod) => (
-                      <div
-                        key={mod.id}
-                        className="rounded-2xl border border-border/80 bg-secondary/20 p-4.5 space-y-3"
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                              {mod.categoryName}
-                            </span>
-                            <h5 className="font-bold text-sm text-foreground mt-0.5">{mod.title}</h5>
-                          </div>
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                              mod.requiredRole.includes("Nurse")
-                                ? "bg-sky-100 text-sky-800 dark:bg-sky-900/60 dark:text-sky-300"
-                                : "bg-primary-soft text-primary"
-                            }`}
-                          >
-                            <UserCheck className="size-3" /> {mod.requiredRole}
-                          </span>
-                        </div>
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {/* STEP 3: SCHEDULE, CITY & DURATION                                 */}
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {currentStep === 3 && (
+          <div className="card-soft p-6 md:p-10 shadow-soft max-w-4xl mx-auto space-y-8 animate-fade-in">
+            <div>
+              <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 3 of 5</span>
+              <h3 className="text-2xl font-semibold mt-1">Where and when is care required?</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Choose your city cluster, daily shift duration, and start date. All rates feature full transparency with 18% GST.
+              </p>
+            </div>
 
-                        <p className="text-xs text-readable-muted leading-relaxed">{mod.whyRecommended}</p>
+            {/* City Selection */}
+            <div>
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                City / Metro Cluster in South India *
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                {[
+                  { id: "Bengaluru", label: "Bengaluru", state: "Karnataka" },
+                  { id: "Chennai", label: "Chennai", state: "Tamil Nadu" },
+                  { id: "Hyderabad", label: "Hyderabad", state: "Telangana" },
+                  { id: "Coimbatore", label: "Coimbatore", state: "Tamil Nadu" },
+                  { id: "Kochi", label: "Kochi", state: "Kerala" },
+                ].map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setCity(c.id)}
+                    className={`p-3 rounded-2xl border text-center transition-all ${
+                      city.toLowerCase() === c.id.toLowerCase()
+                        ? "bg-primary text-primary-foreground border-primary shadow-2xs font-bold"
+                        : "bg-card border-border hover:border-primary/40 text-foreground"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold">{c.label}</span>
+                    <span className="block text-[10px] opacity-80 mt-0.5">{c.state}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                        <div className="pt-2 border-t border-border/60">
-                          <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">
-                            Covered Tasks ({mod.coveredTaskNames.length}):
-                          </p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {mod.coveredTaskNames.map((name) => (
-                              <span
-                                key={name}
-                                className="inline-flex items-center gap-1 rounded-lg bg-card px-2 py-0.5 text-[10px] font-medium text-foreground border border-border"
-                              >
-                                <Check className="size-2.5 text-primary" /> {name}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
+            {/* Area / Neighborhood */}
+            <div>
+              <label htmlFor="area-input" className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                Locality / Apartment / Area in {city}
+              </label>
+              <Input
+                id="area-input"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                placeholder="e.g. Jayanagar 4th Block, Adyar Gandhinagar, Banjara Hills Rd 12, Kadavanthra..."
+                className="h-12 rounded-xl text-sm"
+              />
+            </div>
+
+            {/* Shift Duration Cards */}
+            <div>
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                Daily Shift Duration *
+              </label>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  {
+                    id: "half_day_8h",
+                    title: "Day Shift (8 Hours)",
+                    hours: "8 hrs/day",
+                    rate: "₹1,199 / shift",
+                    desc: "Morning routine, bathing, walking & daytime companionship",
+                  },
+                  {
+                    id: "full_day_12h",
+                    title: "Full Day (12 Hours)",
+                    hours: "12 hrs/day",
+                    rate: "₹1,599 / shift",
+                    desc: "Comprehensive morning to evening support (08:00 to 20:00)",
+                  },
+                  {
+                    id: "overnight_12h",
+                    title: "Night Vigil (12 Hours)",
+                    hours: "12 hrs night",
+                    rate: "₹1,599 / shift",
+                    desc: "Overnight bedside vigil, sleep routine & washroom assistance",
+                  },
+                  {
+                    id: "round_the_clock_24h",
+                    title: "24-Hour Live-In",
+                    hours: "24 hrs/day",
+                    rate: "₹2,399 / day",
+                    desc: "Round-the-clock peace of mind with continuous presence",
+                  },
+                ].map((dur) => {
+                  const isSelected = duration === dur.id;
+                  return (
+                    <button
+                      key={dur.id}
+                      type="button"
+                      onClick={() => setDuration(dur.id as any)}
+                      className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                        isSelected
+                          ? "bg-primary-soft/80 border-primary ring-2 ring-primary/20 shadow-sm"
+                          : "bg-card border-border hover:border-primary/40 hover:bg-secondary/40"
+                      }`}
+                    >
+                      <div>
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-secondary text-foreground">
+                          {dur.hours}
+                        </span>
+                        <h5 className="font-semibold text-sm text-foreground mt-2">{dur.title}</h5>
+                        <p className="text-xs text-muted-foreground mt-1 leading-snug">{dur.desc}</p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Selected Tasks Breakdown by Category with Direct Remove */}
-                <div className="rounded-3xl border border-border bg-card p-6 shadow-soft space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-border">
-                    <h4 className="font-bold text-sm text-foreground">
-                      Selected Tasks Breakdown ({selectedTaskIds.length} tasks)
-                    </h4>
-                    <span className="text-xs text-muted-foreground">Click × to remove</span>
-                  </div>
-
-                  <div className="space-y-4">
-                    {generatedPlan.selectedTasksByCategory.map(({ category, tasks }) => (
-                      <div key={category.id} className="space-y-2">
-                        <p className="text-xs font-bold text-primary uppercase tracking-wider">
-                          {category.name} ({tasks.length})
-                        </p>
-                        <div className="grid gap-2 sm:grid-cols-2">
-                          {tasks.map((task) => (
-                            <div
-                              key={task.id}
-                              className="p-2.5 rounded-xl border border-border/70 bg-secondary/30 flex items-center justify-between text-xs"
-                            >
-                              <span className="truncate pr-2 font-medium">{task.name}</span>
-                              <button
-                                type="button"
-                                onClick={() => toggleTaskSelection(task.id)}
-                                title="Remove task from plan"
-                                className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
-                              >
-                                <X className="size-3.5" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
+                      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs">
+                        <span className="font-bold text-primary">{dur.rate}</span>
+                        {isSelected && <Check className="size-4 text-primary" />}
                       </div>
-                    ))}
-                  </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Total Calendar Span */}
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                  Duration of Care Requirement
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { days: 7, label: "1 Week" },
+                    { days: 14, label: "2 Weeks" },
+                    { days: 30, label: "1 Month" },
+                    { days: 1, label: "1 Day (Trial)" },
+                  ].map((d) => (
+                    <button
+                      key={d.days}
+                      type="button"
+                      onClick={() => setCalendarDays(d.days)}
+                      className={`h-11 rounded-xl border text-xs font-semibold transition-all ${
+                        calendarDays === d.days
+                          ? "bg-primary text-primary-foreground border-primary font-bold shadow-2xs"
+                          : "bg-card border-border hover:border-primary/40 text-foreground"
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Right Column: Plan Summary Card & Booking CTAs */}
-              <div className="space-y-6 lg:sticky lg:top-24">
-                <div className="rounded-3xl border border-border bg-card p-6 shadow-soft space-y-5">
-                  <div className="flex items-center justify-between pb-4 border-b border-border">
+              <div>
+                <label htmlFor="start-time-input" className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                  Preferred Reporting Time
+                </label>
+                <select
+                  id="start-time-input"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="h-11 w-full rounded-xl border border-input bg-card px-3 text-xs focus:border-primary outline-none"
+                >
+                  <option value="07:00">07:00 AM (Early Morning Routine)</option>
+                  <option value="08:00">08:00 AM (Standard Daytime Shift)</option>
+                  <option value="09:00">09:00 AM (Mid-Morning Start)</option>
+                  <option value="12:00">12:00 PM (Afternoon Shift)</option>
+                  <option value="20:00">08:00 PM (Overnight Night Vigil)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Stepper Controls */}
+            <div className="flex items-center justify-between border-t border-border pt-6">
+              <Button variant="outline" onClick={() => setCurrentStep(2)} className="gap-2">
+                <ArrowLeft className="size-4" /> Back to Care Needs
+              </Button>
+              <Button onClick={() => setCurrentStep(4)} className="gap-2">
+                Continue to Language & Match <ArrowRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {/* STEP 4: SAHA LANGUAGE & PREFERENCES                               */}
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {currentStep === 4 && (
+          <div className="card-soft p-6 md:p-10 shadow-soft max-w-4xl mx-auto space-y-8 animate-fade-in">
+            <div>
+              <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 4 of 5</span>
+              <h3 className="text-2xl font-semibold mt-1">Caregiver Preferences & Match Criteria</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Regional language compatibility and caregiver gender matching ensure your loved one feels relaxed and understood.
+              </p>
+            </div>
+
+            {/* Caregiver Spoken Language */}
+            <div>
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                Primary Language of Communication *
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { id: "Tamil", name: "Tamil", native: "தமிழ்" },
+                  { id: "Kannada", name: "Kannada", native: "ಕನ್ನಡ" },
+                  { id: "Telugu", name: "Telugu", native: "తెలుగు" },
+                  { id: "Malayalam", name: "Malayalam", native: "മലയാളം" },
+                  { id: "English", name: "English", native: "English" },
+                  { id: "Hindi", name: "Hindi", native: "हिन्दी" },
+                ].map((lang) => (
+                  <button
+                    key={lang.id}
+                    type="button"
+                    onClick={() => setPreferredLanguage(lang.id)}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                      preferredLanguage === lang.id
+                        ? "bg-primary text-primary-foreground border-primary shadow-2xs font-bold"
+                        : "bg-card border-border hover:border-primary/40 text-foreground"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold">{lang.name}</span>
+                    <span className="block text-xs opacity-80 mt-0.5">{lang.native}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Caregiver Gender Preference */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                  Caregiver Gender Preference
+                </label>
+                {patientGender === "female" && (
+                  <span className="text-xs font-bold text-primary flex items-center gap-1">
+                    <Sparkles className="size-3" /> Recommended: Female Saha for {recipientTitle}
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: "female_only", label: "Female Saha", desc: "Recommended for personal hygiene & mother care" },
+                  { id: "male_only", label: "Male Saha", desc: "Recommended for heavy mobility transfers" },
+                  { id: "no_preference", label: "No Preference", desc: "First available verified professional" },
+                ].map((gen) => (
+                  <button
+                    key={gen.id}
+                    type="button"
+                    onClick={() => setGenderPreference(gen.id as any)}
+                    className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                      genderPreference === gen.id
+                        ? "bg-primary text-primary-foreground border-primary shadow-2xs font-bold"
+                        : "bg-card border-border hover:border-primary/40 text-foreground"
+                    }`}
+                  >
                     <div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Care Recipient</span>
-                      <h4 className="font-bold text-base text-foreground mt-0.5">{generatedPlan.recipient.label}</h4>
-                      <p className="text-xs text-muted-foreground">{generatedPlan.recipient.ageGroup}</p>
+                      <span className="block text-sm font-semibold">{gen.label}</span>
+                      <span className="block text-[11px] opacity-80 mt-1 leading-snug">{gen.desc}</span>
                     </div>
-                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary-soft text-primary">
-                      {generatedPlan.schedule.city}
-                    </span>
-                  </div>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                  {/* Schedule Details */}
-                  <div className="space-y-2.5 text-xs pb-4 border-b border-border">
-                    {[
-                      ["Area / Locality", `${generatedPlan.schedule.area}`],
-                      ["Language of Care", generatedPlan.preferences.preferredLanguage],
-                      ["Schedule Pattern", generatedPlan.schedule.scheduleType.toUpperCase()],
-                      ["Daily Duration", `${generatedPlan.schedule.duration.replace("_", " ")}`],
-                      ["Reporting Time", generatedPlan.schedule.startTime || "08:00 AM"],
-                      ["Calendar Span", `${generatedPlan.schedule.calendarDays} Days`],
-                      ["Billable Shifts", `${generatedPlan.pricing.billableShifts} shifts`],
-                    ].map(([k, v]) => (
-                      <div key={k} className="flex items-center justify-between text-muted-foreground">
-                        <span>{k}</span>
-                        <span className="font-semibold text-foreground text-right">{v}</span>
-                      </div>
-                    ))}
-                  </div>
+            {/* Remote Family Updates Cadence */}
+            <div>
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                Family WhatsApp Update Schedule
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { id: "daily_whatsapp", label: "Daily Evening Summary", sub: "Meals, vitals, mobility & mood report" },
+                  { id: "twice_daily", label: "Twice Daily (Morning & Night)", sub: "Comprehensive status after each handover" },
+                  { id: "weekly_summary", label: "Weekly Coordinator Sync", sub: "For independent seniors needing light check-ins" },
+                ].map((up) => (
+                  <button
+                    key={up.id}
+                    type="button"
+                    onClick={() => setFamilyUpdateFrequency(up.id as any)}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                      familyUpdateFrequency === up.id
+                        ? "bg-primary text-primary-foreground border-primary shadow-2xs font-bold"
+                        : "bg-card border-border hover:border-primary/40 text-foreground"
+                    }`}
+                  >
+                    <span className="block text-xs font-semibold">{up.label}</span>
+                    <span className="block text-[11px] opacity-80 mt-1">{up.sub}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                  {/* Pricing Breakdown */}
-                  <div className="space-y-2 text-xs pb-4 border-b border-border">
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>Est. Base Shift Rate</span>
-                      <span className="font-semibold text-foreground">
-                        {formatINR(generatedPlan.pricing.estimatedShiftRate)}/shift
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>Subtotal ({generatedPlan.pricing.billableShifts} shifts)</span>
-                      <span className="font-semibold text-foreground">
-                        {formatINR(generatedPlan.pricing.subtotal)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>Statutory GST (18%)</span>
-                      <span className="font-semibold text-foreground">
-                        +{formatINR(generatedPlan.pricing.gstAmount)}
-                      </span>
-                    </div>
-                    <div className="pt-2 flex items-center justify-between text-base font-bold text-foreground border-t border-border/60">
-                      <span>Estimated Total (incl. GST)</span>
-                      <span className="text-primary text-xl font-display">
-                        {formatINR(generatedPlan.pricing.totalAmount)}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground leading-tight pt-1">
-                      {generatedPlan.pricing.pricingNote}
-                    </p>
-                  </div>
+            {/* Custom Notes */}
+            <div>
+              <label htmlFor="notes-input" className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
+                Special Medical or Dietary Instructions (Optional)
+              </label>
+              <Textarea
+                id="notes-input"
+                rows={3}
+                value={customRequirements}
+                onChange={(e) => setCustomRequirements(e.target.value)}
+                placeholder="e.g. Vegetarian diet, loves Tamil devotional music, walker usage, specific doctor review on Thursday..."
+                className="rounded-xl text-xs"
+              />
+            </div>
 
-                  {/* CTAs */}
-                  <div className="space-y-3 pt-2">
-                    <Button
-                      asChild
-                      size="lg"
-                      className="w-full rounded-full shadow-soft font-bold min-h-[48px]"
-                    >
-                      <Link
-                        to="/booking"
-                        search={generatedPlan.bookingQueryParams}
-                        onClick={() => {
-                          track("planner_proceed_booking", {
-                            plan_id: generatedPlan.id,
-                            total: generatedPlan.pricing.totalAmount,
-                            shifts: generatedPlan.pricing.billableShifts,
-                            city: generatedPlan.schedule.city,
-                          });
-                        }}
-                      >
-                        Continue with My Care Plan <ArrowRight className="size-4 ml-2" />
-                      </Link>
-                    </Button>
+            {/* Stepper Controls */}
+            <div className="flex items-center justify-between border-t border-border pt-6">
+              <Button variant="outline" onClick={() => setCurrentStep(3)} className="gap-2">
+                <ArrowLeft className="size-4" /> Back to Schedule
+              </Button>
+              <Button onClick={() => setCurrentStep(5)} className="gap-2" variant="warm">
+                Generate My Care Plan <Sparkles className="size-4" />
+              </Button>
+            </div>
+          </div>
+        )}
 
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className="w-full rounded-full border-border bg-card hover:bg-secondary text-xs"
-                    >
-                      <a
-                        href={waUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => track("planner_whatsapp_discuss", { plan_id: generatedPlan.id })}
-                      >
-                        <MessageCircle className="size-4 mr-2 text-emerald-600" />
-                        Talk to a Care Coordinator on WhatsApp
-                      </a>
-                    </Button>
-                  </div>
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {/* STEP 5: CUSTOM CARE PLAN REVIEW & TRANSPARENT PRICING             */}
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {currentStep === 5 && (
+          <div className="card-soft p-6 md:p-10 shadow-soft max-w-4xl mx-auto space-y-8 animate-fade-in">
+            {/* Top Success Ribbon */}
+            <div className="rounded-3xl border border-primary/20 bg-primary-soft/40 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-primary text-primary-foreground mb-2">
+                  <CheckCircle2 className="size-3.5" /> Care Plan Formulated
+                </span>
+                <h3 className="text-2xl font-semibold text-foreground">
+                  Customized Care Plan for {recipientTitle}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Plan Reference: <strong className="font-mono text-foreground">{generatedPlan.id}</strong> · {city}, {area || "Area to confirm"}
+                </p>
+              </div>
 
-                  {/* Safety & Trust Micro-Badges */}
-                  <div className="pt-3 border-t border-border/70 flex flex-col gap-1.5 text-[11px] text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <ShieldCheck className="size-3.5 text-primary" />
-                      Aadhaar Biometric & Police Verification Verified
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="size-3.5 text-primary" />
-                      90-Minute Regional Cluster Standby Backup Protocol
-                    </span>
-                  </div>
+              <div className="text-right sm:text-right">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider block">Estimated Shift Rate</span>
+                <span className="text-2xl font-bold text-primary">
+                  {formatINR(generatedPlan.pricing.estimatedShiftRate)}
+                </span>
+                <span className="text-xs text-muted-foreground block">/ shift</span>
+              </div>
+            </div>
+
+            {/* Recipient Profile Badge */}
+            <div className="grid sm:grid-cols-4 gap-3 text-xs">
+              <div className="rounded-2xl bg-secondary/50 p-3.5">
+                <span className="text-muted-foreground uppercase text-[10px] font-bold">Recipient</span>
+                <p className="font-semibold text-foreground mt-0.5">{recipientTitle}</p>
+                <p className="text-muted-foreground capitalize">{patientGender} · {ageGroup}</p>
+              </div>
+              <div className="rounded-2xl bg-secondary/50 p-3.5">
+                <span className="text-muted-foreground uppercase text-[10px] font-bold">Shift Schedule</span>
+                <p className="font-semibold text-foreground mt-0.5">{generatedPlan.schedule.duration.replace(/_/g, " ")}</p>
+                <p className="text-muted-foreground">{calendarDays} shifts · Starting {startTime}</p>
+              </div>
+              <div className="rounded-2xl bg-secondary/50 p-3.5">
+                <span className="text-muted-foreground uppercase text-[10px] font-bold">Caregiver Match</span>
+                <p className="font-semibold text-foreground mt-0.5">{preferredLanguage} Speaker</p>
+                <p className="text-muted-foreground capitalize">{genderPreference.replace(/_/g, " ")}</p>
+              </div>
+              <div className="rounded-2xl bg-secondary/50 p-3.5">
+                <span className="text-muted-foreground uppercase text-[10px] font-bold">Verification</span>
+                <p className="font-semibold text-foreground mt-0.5">Police Verified</p>
+                <p className="text-muted-foreground">Govt ID & Skill Screened</p>
+              </div>
+            </div>
+
+            {/* Statutory Clinical Notice (If Applicable) */}
+            {generatedPlan.clinicalBoundaryNotice && (
+              <div className="rounded-2xl border border-sky-300 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/40 p-4 text-xs space-y-1.5 text-sky-900 dark:text-sky-200">
+                <div className="flex items-center gap-2 font-bold">
+                  <Stethoscope className="size-4 text-sky-600 dark:text-sky-400" />
+                  Statutory Clinical Care Separation Notice
                 </div>
+                <p className="leading-relaxed opacity-90">{generatedPlan.clinicalBoundaryNotice}</p>
+              </div>
+            )}
+
+            {/* Itemized Tasks Included */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                  <CheckCircle2 className="size-4 text-primary" />
+                  Covered Daily Assistance Tasks ({selectedTaskIds.length})
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="text-xs text-primary font-semibold hover:underline"
+                >
+                  Edit Tasks
+                </button>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                {selectedTaskIds.map((taskId) => {
+                  const match = CARE_CATEGORIES.flatMap((c) => c.subcategories.flatMap((s) => s.tasks)).find((t) => t.id === taskId);
+                  return (
+                    <div
+                      key={taskId}
+                      className="p-3 rounded-xl border border-border bg-card flex items-center justify-between gap-2 text-xs"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Check className="size-3.5 text-primary shrink-0 stroke-[3]" />
+                        <span className="font-semibold truncate">{match?.name || taskId}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => toggleTask(taskId)}
+                        className="text-muted-foreground hover:text-destructive shrink-0"
+                        title="Remove task"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Itemized Invoice & GST Calculation */}
+            <div className="rounded-3xl border border-border bg-secondary/30 p-6 space-y-3">
+              <h4 className="font-semibold text-sm text-foreground uppercase tracking-wider mb-2">
+                Itemized Pricing Calculation
+              </h4>
+
+              <dl className="space-y-2 text-xs">
+                <div className="flex justify-between text-muted-foreground">
+                  <dt>
+                    Base Care Assistance ({generatedPlan.pricing.billableShifts} shifts × {formatINR(generatedPlan.pricing.estimatedShiftRate)})
+                  </dt>
+                  <dd className="font-semibold text-foreground">{formatINR(generatedPlan.pricing.subtotal)}</dd>
+                </div>
+
+                <div className="flex justify-between text-muted-foreground">
+                  <dt>Statutory 18% GST (SAC 9993 Invoicing)</dt>
+                  <dd className="font-semibold text-foreground">{formatINR(generatedPlan.pricing.gstAmount)}</dd>
+                </div>
+
+                <div className="flex justify-between text-muted-foreground">
+                  <dt>Agency Broker Fees / Hidden Charges</dt>
+                  <dd className="font-semibold text-emerald-600 dark:text-emerald-400">₹0 (Zero Markup)</dd>
+                </div>
+
+                <div className="flex justify-between border-t border-border pt-3 text-base font-bold text-foreground">
+                  <dt>Total Estimated Care Plan Fee</dt>
+                  <dd className="text-primary text-xl font-mono">{formatINR(generatedPlan.pricing.totalAmount)}</dd>
+                </div>
+              </dl>
+
+              <p className="text-[11px] text-muted-foreground pt-1">
+                {generatedPlan.pricing.pricingNote}
+              </p>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="space-y-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  onClick={handleProceedToBooking}
+                  className="flex-1 h-12 text-sm font-semibold gap-2 shadow-md"
+                  variant="warm"
+                >
+                  Confirm & Reserve This Care Plan <ArrowRight className="size-4" />
+                </Button>
+
+                <Button asChild variant="outline" className="h-12 text-sm font-semibold gap-2 border-primary/40 text-primary">
+                  <a
+                    href={buildWhatsAppUrl(decodeURIComponent(generatedPlan.whatsAppSummary))}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle className="size-4" /> Discuss on WhatsApp
+                  </a>
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(1)}
+                  className="hover:underline flex items-center gap-1"
+                >
+                  <RotateCcw className="size-3" /> Start Fresh or Change Recipient
+                </button>
+                <span>Standby coordinator backup included</span>
               </div>
             </div>
           </div>
         )}
       </div>
-
-      {/* "Help Me Choose" Situation Presets Modal */}
-      {showHelpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-6 md:p-8 shadow-lift max-h-[90vh] overflow-y-auto space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-border">
-              <div>
-                <h4 className="text-xl font-bold font-display text-foreground">
-                  Common Family Situations
-                </h4>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Select a starting situation to automatically populate recommended tasks. You can customise them freely afterwards.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowHelpModal(false)}
-                className="text-muted-foreground hover:text-foreground p-1 rounded-xl"
-              >
-                <X className="size-5" />
-              </button>
-            </div>
-
-            <div className="grid gap-3.5 sm:grid-cols-2">
-              {SITUATION_PRESETS.map((preset) => (
-                <div
-                  key={preset.id}
-                  onClick={() => applyPreset(preset)}
-                  className="p-5 rounded-2xl border border-border bg-secondary/20 hover:border-primary/50 hover:bg-secondary/40 transition-all cursor-pointer space-y-2 flex flex-col justify-between"
-                >
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary-soft px-2 py-0.5 rounded">
-                      {preset.badge}
-                    </span>
-                    <h5 className="font-bold text-sm text-foreground mt-2">{preset.title}</h5>
-                    <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                      {preset.description}
-                    </p>
-                  </div>
-                  <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs text-primary font-semibold">
-                    <span>{preset.taskIds.length} preselected tasks</span>
-                    <span className="flex items-center gap-1">Apply ➔</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-2 text-center">
-              <Button variant="ghost" size="sm" onClick={() => setShowHelpModal(false)} className="text-xs">
-                Close and return to manual selection
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

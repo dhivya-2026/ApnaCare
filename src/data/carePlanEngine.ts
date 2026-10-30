@@ -25,9 +25,12 @@ export type RecipientProfileType =
   | "myself"
   | "someone_else";
 
+export type RecipientGender = "male" | "female" | "both" | "other" | "unspecified";
+
 export interface RecipientProfile {
   type: RecipientProfileType;
   label: string;
+  gender?: RecipientGender | string;
   ageGroup?: string;
   livingSituation?: string;
 }
@@ -397,9 +400,13 @@ export function generateCarePlan(
     .slice(0, 8)
     .join("\n");
 
+  const recipientGenderTag = recipient.gender
+    ? `${recipient.gender === "both" ? "Both Parents" : recipient.gender === "male" ? "Male" : recipient.gender === "female" ? "Female" : recipient.gender}, `
+    : "";
+
   const whatsAppSummary = encodeURIComponent(
     `*ApnaCare Custom Care Plan (${planId})*\n\n` +
-      `*Recipient:* ${recipient.label} (${recipient.ageGroup || "Age specified in consultation"})\n` +
+      `*Recipient:* ${recipient.label} (${recipientGenderTag}${recipient.ageGroup || "Age specified in consultation"})\n` +
       `*City & Area:* ${schedule.city}, ${schedule.area || "Area to confirm"}\n` +
       `*Schedule:* ${schedule.scheduleType.toUpperCase()} · ${schedule.duration} (${totalShifts} billable shifts)\n` +
       `*Language:* ${preferences.preferredLanguage}\n\n` +
@@ -454,3 +461,4 @@ export function generateCarePlan(
     bookingQueryParams,
   };
 }
+
