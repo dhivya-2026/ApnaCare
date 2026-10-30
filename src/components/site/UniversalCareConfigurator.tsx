@@ -219,6 +219,8 @@ export function UniversalCareConfigurator() {
         if (d.city) setCity(d.city);
         if (d.duration) setDuration(d.duration);
         if (d.preferredLanguage) setPreferredLanguage(d.preferredLanguage);
+        // Restore persona card visual selection
+        if (typeof d.selectedPersonaIdx === "number") setSelectedPersonaIdx(d.selectedPersonaIdx);
       }
     } catch {
       // Quiet fallback
@@ -241,6 +243,7 @@ export function UniversalCareConfigurator() {
           duration,
           preferredLanguage,
           calendarDays,
+          selectedPersonaIdx,
         })
       );
     } catch {
@@ -256,6 +259,7 @@ export function UniversalCareConfigurator() {
     duration,
     preferredLanguage,
     calendarDays,
+    selectedPersonaIdx,
   ]);
 
   // Handle persona selection
@@ -508,7 +512,7 @@ export function UniversalCareConfigurator() {
             </div>
 
             {/* ── TRIMESTER QUESTION (only for New Mother & Baby) ─────────── */}
-            {recipientType === "new_mother" && (
+            {PERSONAS[selectedPersonaIdx]?.id === "new_mother" && (
               <div className="rounded-2xl border border-terracotta/30 bg-terracotta/5 p-5 space-y-3 animate-fade-in">
                 <div>
                   <label className="text-sm font-semibold text-foreground flex items-center gap-2">
