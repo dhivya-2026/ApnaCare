@@ -28,6 +28,7 @@ export const Route = createFileRoute("/booking")({
     hours: z.string().optional(),
     shift: z.string().optional(),
     schedule: z.string().optional(),
+    planId: z.string().optional(),
   }),
   head: () =>
     seo(
@@ -112,6 +113,42 @@ function BookingPage() {
   const [bookingCat, setBookingCat] = useState<string>(search.category || "all");
   const [bizModalOpen, setBizModalOpen] = useState(false);
   const [idempotencyToken] = useState(() => "IDEMP-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7));
+  const [customPlan, setCustomPlan] = useState<any>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const rawActive = sessionStorage.getItem("apnacare_active_care_plan");
+      const rawDraft = localStorage.getItem("apnacare_custom_care_plan_draft_v2");
+      let loaded: any = null;
+      if (rawActive) {
+        const p = JSON.parse(rawActive);
+        if (!search.planId || p.planId === search.planId) {
+          loaded = p;
+        }
+      }
+      if (!loaded && rawDraft) {
+        const d = JSON.parse(rawDraft);
+        if (d.plan && (!search.planId || d.plan.planId === search.planId)) {
+          loaded = d.plan;
+        }
+      }
+      if (loaded) {
+        setCustomPlan(loaded);
+        setF((prev) => {
+          if (prev.notes.includes(loaded.planId)) return prev;
+          const taskSummary = (loaded.selectedTasks || []).map((t: any) => `• ${t.name}`).join("\n");
+          const planNotes = `[Custom Care Plan ${loaded.planId}]\nModules: ${(loaded.recommendedModules || []).map((m: any) => m.name).join(", ")}\nConfigured Tasks:\n${taskSummary}\n\n${prev.notes}`.trim();
+          return {
+            ...prev,
+            notes: planNotes,
+          };
+        });
+      }
+    } catch {
+      // Ignore parse error
+    }
+  }, [search.planId]);
 
   // Sync draft to sessionStorage + record cross-session timestamp
   useEffect(() => {
@@ -352,6 +389,20 @@ function BookingPage() {
 
       <section className="container-page grid gap-10 py-12 lg:grid-cols-[1.6fr_1fr]">
         <div className="card-soft p-6 md:p-10 shadow-soft">
+          {customPlan && (
+            <div className="mb-6 rounded-2xl border border-primary/30 bg-primary-soft/40 p-4 text-xs space-y-2 animate-fade-in">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-primary flex items-center gap-1.5">
+                  <Sparkles className="size-4 text-primary" />
+                  Custom Care Plan Attached ({customPlan.planId})
+                </span>
+                <span className="font-mono text-muted-foreground">{customPlan.totalNeedsSelected} Tasks Configured</span>
+              </div>
+              <p className="text-muted-foreground">
+                Your selected needs across {customPlan.recommendedModules?.map((m: any) => m.name).join(", ")} have been attached to this booking request. Our regional coordinator will review each specific task during confirmation.
+              </p>
+            </div>
+          )}
           {/* Step Progress Pills */}
           <nav aria-label="Booking steps progress" className="flex flex-wrap gap-2">
             {STEPS.map((s, i) => {
@@ -866,6 +917,25 @@ function BookingPage() {
           <div>
             <span className="eyebrow">Itemized Invoice</span>
             <h2 className="mt-1 text-2xl font-semibold">Pricing Summary</h2>
+          </div>
+
+          {customPlan && (
+            <div className="rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-primary">Custom Plan: {customPlan.planId}</span>
+                <span className="text-muted-foreground">{customPlan.totalNeedsSelected} Tasks</span>
+              </div>
+              <p className="text-muted-foreground">
+                Modules: {customPlan.recommendedModules?.map((m: any) => m.name).join(", ")}
+              </p>
+              {customPlan.pricing?.estimatedSavings > 0 && (
+                <p className="text-primary font-medium">
+                  Consolidated Bundle: Save ₹{customPlan.pricing.estimatedSavings.toLocaleString("en-IN")} vs separate bookings
+                </p>
+              )}
+            </div>
+          )}
+          <div>
           </div>
 
           {svc ? (
