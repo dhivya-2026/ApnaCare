@@ -193,6 +193,9 @@ export function UniversalCareConfigurator() {
   const [timing, setTiming] = useState<TimingPreference>("morning");
   const [startTime, setStartTime] = useState("08:00");
 
+  // ─── New Mother: Trimester State ─────────────────────────────────────────
+  const [trimester, setTrimester] = useState<string>("");
+
   // ─── Step 4: Preferences State ───────────────────────────────────────────
   const [preferredLanguage, setPreferredLanguage] = useState("Tamil");
   const [genderPreference, setGenderPreference] = useState<"female_only" | "male_only" | "no_preference">("male_only");
@@ -264,6 +267,9 @@ export function UniversalCareConfigurator() {
     setPatientGender(p.defaultGender);
     setAgeGroup(p.defaultAge);
     setSelectedTaskIds(p.defaultNeeds);
+
+    // Reset trimester when switching away from new_mother
+    if (p.id !== "new_mother") setTrimester("");
 
     // Adjust smart Saha gender recommendation
     if (p.defaultGender === "female") {
@@ -500,6 +506,62 @@ export function UniversalCareConfigurator() {
                 );
               })}
             </div>
+
+            {/* ── TRIMESTER QUESTION (only for New Mother & Baby) ─────────── */}
+            {recipientType === "new_mother" && (
+              <div className="rounded-2xl border border-terracotta/30 bg-terracotta/5 p-5 space-y-3 animate-fade-in">
+                <div>
+                  <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Baby className="size-4 text-terracotta" />
+                    Which stage is the mother currently in? *
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Helps us match the right Japa / postnatal care routines, diet support and newborn assistance.
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                  {[
+                    { id: "1st_trimester", label: "1st Trimester", sub: "Weeks 1–12", icon: "🌱" },
+                    { id: "2nd_trimester", label: "2nd Trimester", sub: "Weeks 13–26", icon: "🤰" },
+                    { id: "3rd_trimester", label: "3rd Trimester", sub: "Weeks 27–40", icon: "🤱" },
+                    { id: "4th_trimester", label: "4th Trimester", sub: "After delivery (0–3 months)", icon: "👶" },
+                  ].map((t) => {
+                    const isSelected = trimester === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => {
+                          setTrimester(t.id);
+                          // Adjust default care needs by trimester
+                          if (t.id === "4th_trimester") {
+                            setSelectedTaskIds(["task-mat-daily", "task-mat-meal", "task-nb-bath", "task-nb-diaper", "task-nb-overnight"]);
+                          } else if (t.id === "3rd_trimester") {
+                            setSelectedTaskIds(["task-mat-daily", "task-mat-meal", "task-walk-indoor", "task-hh-meal-prep"]);
+                          } else {
+                            setSelectedTaskIds(["task-mat-daily", "task-mat-meal", "task-comp-conversation"]);
+                          }
+                        }}
+                        className={`p-3 rounded-xl border text-left transition-all flex flex-col gap-0.5 ${
+                          isSelected
+                            ? "bg-terracotta/15 border-terracotta text-terracotta shadow-2xs font-bold"
+                            : "bg-card border-border hover:border-terracotta/40 text-foreground"
+                        }`}
+                      >
+                        <span className="text-lg leading-none">{t.icon}</span>
+                        <span className="text-xs font-semibold mt-1">{t.label}</span>
+                        <span className="text-[10px] text-muted-foreground leading-tight">{t.sub}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {!trimester && (
+                  <p className="text-[11px] text-terracotta/80 font-medium flex items-center gap-1">
+                    ⚠️ Please select a stage so we can customise the right care for mother & baby.
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* PROMINENT GENDER OF THE PATIENT / MEMBER (User Request) */}
             <div className="rounded-2xl border border-primary/20 bg-primary-soft/30 p-5 space-y-3">
