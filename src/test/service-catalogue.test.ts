@@ -57,7 +57,7 @@ describe("Service Catalogue & Customer Segments Architecture", () => {
     expect(names).toContain("patient companionship");
     expect(names).toContain("hospital admission and discharge assistance");
     expect(names).toContain("mobility and wheelchair assistance");
-    expect(names).toContain("hospital visit escorts");
+    expect(names).toContain("hospital visit assisted travel");
     expect(names).toContain("non-medical patient support");
     expect(names).toContain("post-discharge assistance at home");
   });
@@ -76,7 +76,7 @@ describe("Service Catalogue & Customer Segments Architecture", () => {
     expect(names).toContain("senior citizen travel assistance");
     expect(names).toContain("luggage and terminal navigation assistance");
     expect(names).toContain("door-to-door travel assistance, where available");
-    expect(names).toContain("hospital and appointment escorts");
+    expect(names).toContain("hospital and appointment assisted travel");
     expect(names).toContain("journey updates to designated family members");
   });
 
@@ -88,8 +88,8 @@ describe("Service Catalogue & Customer Segments Architecture", () => {
     expect(names).toContain("women-only car-sharing coordination");
     expect(names).toContain("women travel companions");
     expect(names).toContain("workplace commute assistance");
-    expect(names).toContain("personal safety escorts");
-    expect(names).toContain("appointment and shopping escorts");
+    expect(names).toContain("personal safety assisted travel");
+    expect(names).toContain("appointment and shopping assisted travel");
     expect(names).toContain("event accompaniment");
     expect(names).toContain("late-evening travel accompaniment, subject to availability");
     expect(names).toContain("verified companion booking");

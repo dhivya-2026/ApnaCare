@@ -211,8 +211,8 @@ const NAV_ITEMS: NavItem[] = [
         {
           label: "Safety-Focused Partners",
           to: "/solutions/safety-partners",
-          description: "Corporate transport compliance, hospital bedside vigils & escorts",
-          badge: "B2B Escort",
+          description: "Corporate transport compliance, hospital bedside vigils & assisted travel",
+          badge: "B2B Assisted Travel",
           icon: ShieldCheck,
         },
         {
@@ -292,21 +292,21 @@ const NAV_ITEMS: NavItem[] = [
         {
           label: "Airport Meet & Greet",
           to: "/services/airport-pickup",
-          description: "Arrival meet, luggage trolley & terminal escort",
-          badge: "Airport Escort",
+          description: "Arrival meet, luggage trolley & terminal assisted travel",
+          badge: "Airport Assisted Travel",
           icon: Plane,
         },
         {
           label: "Railway Station Assistance",
           to: "/services/railway-assistance",
-          description: "Platform escort, coach boarding & luggage support",
-          badge: "Station Escort",
+          description: "Platform assisted travel, coach boarding & luggage support",
+          badge: "Station Assisted Travel",
           icon: Train,
         },
         {
           label: "Security & Safety Support",
           to: "/services/security-support",
-          description: "Verified residential & transit safety escorts",
+          description: "Verified residential & transit safety assisted travel",
           badge: "Security",
           icon: ShieldCheck,
         },

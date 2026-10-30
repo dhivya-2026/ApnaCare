@@ -57,7 +57,7 @@ const SERVICE_STORY_IMAGES: Record<string, { img: string; alt: string }> = {
   },
   "travel-assistance": {
     img: hero5,
-    alt: "Transit attendant providing escorted mobility assistance at railway terminal",
+    alt: "Transit attendant providing assisted travel mobility assistance at railway terminal",
   },
   "lifestyle-support": {
     img: hero3,
@@ -69,7 +69,7 @@ const SERVICE_STORY_IMAGES: Record<string, { img: string; alt: string }> = {
   },
   "women-drivers": {
     img: hero3,
-    alt: "Professional verified woman driver escorting senior passenger safely",
+    alt: "Professional verified woman driver providing assisted travel for senior passenger safely",
   },
   "airport-pickup": {
     img: hero3,
@@ -77,11 +77,11 @@ const SERVICE_STORY_IMAGES: Record<string, { img: string; alt: string }> = {
   },
   "railway-assistance": {
     img: hero5,
-    alt: "Platform escort attendant guiding senior passenger safely through railway station",
+    alt: "Platform assisted travel attendant guiding senior passenger safely through railway station",
   },
   "security-support": {
     img: hero5,
-    alt: "Vetted security escort ensuring safe transit and residential accompaniment",
+    alt: "Vetted security companion ensuring safe assisted travel and residential accompaniment",
   },
 };
 
@@ -136,7 +136,7 @@ const SERVICE_CTA_LABELS: Record<string, string> = {
   "railway-assistance": "Arrange Station Assistance",
   "home-personal-care": "Enquire About Personal Care",
   "lifestyle-support": "Arrange Lifestyle Support",
-  "security-support": "Request Security Escort",
+  "security-support": "Request Security & Assisted Travel",
 };
 
 function Detail() {
@@ -285,7 +285,7 @@ function Detail() {
                 )}
                 {canonicalPricing.pricingTiers.perTrip && (
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Single Journey Transit Escort:</span>
+                    <span>Single Journey Assisted Travel:</span>
                     <span className="font-medium text-foreground">{formatINR(canonicalPricing.pricingTiers.perTrip)}</span>
                   </div>
                 )}

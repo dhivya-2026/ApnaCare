@@ -18,7 +18,7 @@ export type DeliveryModel =
   | "24-Hour Residential Live-in"
   | "Hospital Inpatient Bedside Vigil"
   | "Clinical Home Visit (Per-Procedure)"
-  | "Chaperoned Journey / Transit Escort"
+  | "Chaperoned Journey / Assisted Travel"
   | "Dedicated Remote Family Care Coordination"
   | "Institutional / B2B Enterprise Agreement";
 
@@ -416,12 +416,12 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
     shortDescription: "Verified companions for airport arrivals, railway platform assistance, medical appointments, and transit navigation.",
     fullDescription: "Reliable travel companions who accompany senior citizens, recovering patients, and solo women during flights, train journeys, and hospital checkups, sharing live trip updates with designated family members.",
     whoItIsFor: [
-      "Elderly parents traveling between cities who need baggage, wheelchair, and gate escort",
+      "Elderly parents traveling between cities who need baggage, wheelchair, and gate assisted travel",
       "Patients needing physical accompaniment to outstation specialty hospitals",
     ],
     inclusions: [
       "Meeting traveler at doorstep, airport terminal curb, or railway platform",
-      "Wheelchair coordination, baggage handling, and security check escort",
+      "Wheelchair coordination, baggage handling, and security check assisted travel",
       "Continuous WhatsApp journey milestone updates to designated family",
     ],
     exclusions: [
@@ -433,7 +433,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
     startingPrice: 999,
     pricingType: "Confirmed",
     applicableTax: "18% Statutory GST (SAC 9993)",
-    shiftDurations: ["Half-Day Transit (4h)", "Full-Day Journey Escort (8-12h)"],
+    shiftDurations: ["Half-Day Transit (4h)", "Full-Day Journey Assisted Travel (8-12h)"],
     supportedActiveCities: ["bengaluru", "chennai", "hyderabad", "coimbatore"],
     plannedExpansionCities: ["kochi", "mysuru", "visakhapatnam"],
     relatedServiceSlugs: ["women-drivers", "airport-pickup", "railway-assistance"],
@@ -457,7 +457,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
     ],
     inclusions: [
       "Driving customer's insured personal vehicle (manual or automatic)",
-      "Assisting elderly passengers with door-to-door walking and umbrella escort",
+      "Assisting elderly passengers with door-to-door walking and assisted travel",
       "Punctual arrival and sanitized vehicle cab check",
     ],
     exclusions: [
@@ -479,13 +479,13 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
   {
     id: "SVC-008",
     slug: "airport-pickup",
-    name: "Airport Meet & Greet Escort",
+    name: "Airport Meet & Greet Assisted Travel",
     familyId: "fam-travel-mobility-accompaniment",
     category: "travel",
     readiness: "Operational",
     clinicalClassification: "Non-Clinical Accompaniment",
     providerType: "Trained Travel Companion",
-    shortDescription: "Terminal arrival meet-and-greet, luggage escort, and safe vehicle handover for elderly parents and solo travelers.",
+    shortDescription: "Terminal arrival meet-and-greet, luggage handling, and safe vehicle handover for elderly parents and solo travelers.",
     fullDescription: "Stationed attendants at Bengaluru, Chennai, Hyderabad, and Coimbatore airports who receive travelers at the arrivals exit gate, assist with baggage trolleys, coordinate with authorized taxis, and accompany passengers until safe home arrival.",
     whoItIsFor: [
       "Seniors arriving on domestic or international flights whose children are stuck at work",
@@ -493,7 +493,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
     ],
     inclusions: [
       "Arrival gate signage greeting with traveler's name",
-      "Luggage trolley assistance and airline wheelchair escort coordination",
+      "Luggage trolley assistance and airline wheelchair assisted travel coordination",
       "Live location tracking shared with family until safe destination arrival",
     ],
     exclusions: ["Airside terminal entry beyond customs without airline authority passes"],
@@ -518,7 +518,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
     readiness: "Operational",
     clinicalClassification: "Non-Clinical Accompaniment",
     providerType: "Trained Travel Companion",
-    shortDescription: "Platform escort, coach seating assistance, porter coordination, and safe railway boarding for senior citizens.",
+    shortDescription: "Platform assisted travel, coach seating assistance, porter coordination, and safe railway boarding for senior citizens.",
     fullDescription: "Dedicated attendants who meet travelers at station porticos, coordinate licensed railway porters, navigate overbridges/elevators, and ensure the traveler is safely settled in their train compartment with luggage secure.",
     whoItIsFor: [
       "Elderly parents boarding or deboarding major rail junctions (e.g., KSR Bengaluru, Chennai Central, Secunderabad, Coimbatore Junction)",
@@ -578,20 +578,20 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
   {
     id: "SVC-011",
     slug: "security-support",
-    name: "Custom Safety & Event Escort",
+    name: "Custom Safety & Event Assisted Travel",
     familyId: "fam-specialized-disability-institutional",
     category: "safety",
     readiness: "Operational",
     clinicalClassification: "Non-Clinical Accompaniment",
     providerType: "Trained Travel Companion",
-    shortDescription: "Vetted women security escorts for residential peace of mind, private transit, and community event safety.",
-    fullDescription: "Screened and trained female security escorts adhering to PSARA standards. Suitable for solo women returning late from work events, residential security standby, or personal accompaniment during sensitive family situations.",
+    shortDescription: "Vetted women security companions for residential peace of mind, private transit, and community event assisted travel.",
+    fullDescription: "Screened and trained female security companions adhering to PSARA standards. Suitable for solo women returning late from work events, residential security standby, or personal accompaniment during sensitive family situations.",
     whoItIsFor: [
-      "Working women commuters seeking vetted late-evening transit escorts",
+      "Working women commuters seeking vetted late-evening assisted travel",
       "Families hosting private functions requiring female security presence",
     ],
     inclusions: [
-      "Vetted female escort with background clearance and identity documentation",
+      "Vetted female travel companion with background clearance and identity documentation",
       "Continuous observation and SOS escalation protocol to central command center",
     ],
     exclusions: ["Armed private security or law enforcement interventions"],

@@ -165,7 +165,7 @@ const ENTERPRISE_OFFERINGS: EnterpriseOffering[] = [
     familyBottleneck:
       "Airports and bustling railway junctions are physically daunting for seniors and solo travelers, causing acute boarding anxiety and high luggage strain.",
     careSolution:
-      "Verified female travel companions meeting passengers at curbs or platforms, coordinating licensed porters, assisting through check-in and security, and escorting safely to train berths or flight gates.",
+      "Verified female travel companions meeting passengers at curbs or platforms, coordinating licensed porters, assisting through check-in and security, and assisting safely to train berths or flight gates.",
     impactBadge: "Eliminates transit disorientation with live photo updates to family",
     timeframeBadge: "Terminal Meet-and-Greet, Full Day, or Intercity Journeys",
     startingPrice: 999,

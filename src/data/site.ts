@@ -50,7 +50,7 @@ export const CATEGORIES: { id: "all" | ServiceCategory; label: string; descripti
   {
     id: "safety",
     label: "Safety & Security",
-    description: "Vetted women security escorts, event attendants and residential safety support.",
+    description: "Vetted women security companions, event attendants and residential safety support.",
   },
   {
     id: "travel",
@@ -344,7 +344,7 @@ export const SERVICES: Service[] = [
     benefits: [
       "Arrival gate meet-and-greet with name placard",
       "Wheelchair & baggage claim coordination",
-      "Safe vehicle escort to doorstep",
+      "Safe vehicle assisted travel to doorstep",
     ],
     includes: [
       "Flight status tracking and flight delay monitoring",
@@ -360,7 +360,7 @@ export const SERVICES: Service[] = [
     ],
     need: "Airports are cavernous and confusing. A trusted woman waiting at the arrival gate transforms anxiety into relief.",
     qualifications: [
-      "Airport Ground Escort Trained",
+      "Airport Ground Assisted Travel Trained",
       "Police Verification Cleared",
       "Valid ID Badges",
     ],
@@ -378,14 +378,14 @@ export const SERVICES: Service[] = [
     shortDesc:
       "Platform-side meet, luggage porter coordination, and safe coach boarding for train travelers.",
     description:
-      "Experienced female station companions who meet passengers at railway station entrances, assist through security checks, coordinate licensed porters, and escort passengers safely right to their coach berth.",
+      "Experienced female station companions who meet passengers at railway station entrances, assist through security checks, coordinate licensed porters, and assist passengers safely right to their coach berth.",
     rating: 4.8,
     reviewCount: 160,
     badge: "Specialized",
     startingPrice: 899,
     pricingUnit: "trip",
     benefits: [
-      "Platform & coach berth escort",
+      "Platform & coach berth assisted travel",
       "Luggage & porter management",
       "Boarding confirmation to family",
     ],
@@ -458,9 +458,9 @@ export const SERVICES: Service[] = [
     name: "Security Support",
     category: "safety",
     shortDesc:
-      "Trained women security escorts and protective companions for events, transit and residential peace of mind.",
+      "Trained women security companions and protective assisted travel for events, transit and residential peace of mind.",
     description:
-      "Disciplined, physically trained female security personnel providing close protection, event security, cash/jewelry transit escorts, and residential gate surveillance with heightened situational awareness.",
+      "Disciplined, physically trained female security personnel providing close protection, event security, cash/jewelry transit protection, and residential gate surveillance with heightened situational awareness.",
     rating: 4.9,
     reviewCount: 115,
     badge: "High Demand",
@@ -472,9 +472,9 @@ export const SERVICES: Service[] = [
       "24/7 control room GPS link",
     ],
     includes: [
-      "Close personal escort during public appearances or legal hearings",
+      "Close personal assisted travel during public appearances or legal hearings",
       "Security supervision at weddings, conferences, and private functions",
-      "Escort for high-value transits (jewelry, cash, sensitive documents)",
+      "Assisted travel for high-value transits (jewelry, cash, sensitive documents)",
       "Instant SOS beacon directly linked to ApnaCare Command Center",
       "Detailed route and venue security reconnaissance",
     ],
@@ -620,14 +620,14 @@ export const PRICING_PLANS = [
   },
   {
     id: "security",
-    name: "Custom Security & Escort",
-    description: "Dedicated security guards, private escorts and customized shifts.",
+    name: "Custom Security & Assisted Travel",
+    description: "Dedicated security guards, private assisted travel and customized shifts.",
     price: 1899,
     unit: "day",
     popular: false,
     serviceSlug: "security-support",
     includes: [
-      "Fully trained defensive security or expert escort",
+      "Fully trained defensive security or expert assisted travel companion",
       "Flexible hourly shifts and standby options",
       "Corporate-grade vetting and PSARA standards",
       "Direct 24/7 coordinator hotline and SOS dispatch",
@@ -730,7 +730,7 @@ export const ATTENDANTS: Attendant[] = [
   {
     id: "a5",
     name: "Revathi Sundaram",
-    role: "Transit & Railway Escort Specialist",
+    role: "Transit & Railway Assisted Travel Specialist",
     rating: 4.9,
     experience: "3+ Years",
     certifications: ["Transit Safety Certified", "Elder Assistance Protocol", "First Aid"],
@@ -745,7 +745,7 @@ export const ATTENDANTS: Attendant[] = [
   {
     id: "a6",
     name: "Kavitha Reddy",
-    role: "Personal Security & Protective Escort",
+    role: "Personal Security & Protective Assisted Travel",
     rating: 4.9,
     experience: "5 Years",
     certifications: [
@@ -758,7 +758,7 @@ export const ATTENDANTS: Attendant[] = [
     services: ["security-support", "women-drivers"],
     city: "Hyderabad",
     availability: "Available this week",
-    bio: "Kavitha provides discreet and vigilant executive security, event accompaniment, and late-night travel escort with unmatched situational alertness.",
+    bio: "Kavitha provides discreet and vigilant executive security, event accompaniment, and late-night assisted travel with unmatched situational alertness.",
     badge: "Security Officer",
   },
 ];
@@ -1161,10 +1161,10 @@ export const ARTICLES: Article[] = [
     author: "Transit Mobility Team",
     date: "August 2026",
     excerpt:
-      "Practical checklist for booking wheelchair assistance, meal requests, and transit companion escorts.",
+      "Practical checklist for booking wheelchair assistance, meal requests, and transit assisted travel companions.",
     body: [
       "Long-distance travel does not have to be stressful for elderly family members. With strategic advance planning, airlines and railways provide comprehensive accessibility services.",
-      "When booking airline tickets, always select the 'WCHR' (Wheelchair for distance to ramp) or 'WCHS' (Wheelchair for stairs) code during reservation. Arrive at least 2.5 hours prior to domestic flights to ensure dedicated ground escort staff are assigned.",
+      "When booking airline tickets, always select the 'WCHR' (Wheelchair for distance to ramp) or 'WCHS' (Wheelchair for stairs) code during reservation. Arrive at least 2.5 hours prior to domestic flights to ensure dedicated ground assisted travel staff are assigned.",
       "For railway journeys, opt for lower berths and look for battery-operated buggy services available on Platform 1 of major junction stations. Book licensed Coolie services via official IRCTC portals where available.",
       "ApnaCare's Airport and Railway companions meet elderly parents right at their vehicle curb, manage all baggage, navigate security check counters, and remain by their side until departure.",
     ],
@@ -1899,7 +1899,7 @@ export const ICPS: ICPInfo[] = [
       {
         problem: "Anxiety during solo airport arrivals or railway transits in unfamiliar cities",
         solution:
-          "A trusted woman companion meets you at the arrival gate or platform with a placard, manages luggage, and escorts you safely to your doorstep.",
+          "A trusted woman companion meets you at the arrival gate or platform with a placard, manages luggage, and assists you safely to your doorstep.",
       },
       {
         problem: "Surge pricing and sudden driver cancellations during emergency commutes",
@@ -1931,14 +1931,14 @@ export const ICPS: ICPInfo[] = [
     name: "Safety-Focused Partners",
     badge: "Enterprise & Institutional Trust",
     subtitle:
-      "Vetted women security escorts, hospital bedside coordination, and workplace mobility programs for institutions that prioritize women's safety.",
+      "Vetted women security assisted travel, hospital bedside coordination, and workplace mobility programs for institutions that prioritize women's safety.",
     summary:
       "Designed for corporates ensuring late-shift employee transport compliance, healthcare facilities seeking trusted patient companions, and community institutions needing screened women attendants.",
     painPoints: [
       {
         problem: "Corporate compliance for night-shift women employees (POSH & State Transport Mandates)",
         solution:
-          "Vetted security escorts and licensed chauffeuses with digital logs, GPS trip feeds, and command room panic integrations.",
+          "Vetted security assisted travel and licensed chauffeuses with digital logs, GPS trip feeds, and command room panic integrations.",
       },
       {
         problem: "Hospitals experiencing nursing shortages for continuous non-clinical bedside vigilance",
@@ -1948,13 +1948,13 @@ export const ICPS: ICPInfo[] = [
       {
         problem: "Events, conferences, and exhibitions requiring high-trust female security and marshals",
         solution:
-          "Trained, PSARA-compliant female security personnel for access control, VIP escorts, and event safety management.",
+          "Trained, PSARA-compliant female security personnel for access control, VIP assisted travel, and event safety management.",
       },
     ],
     featuredServices: ["women-drivers", "hospital-attendants", "travel-assistance"],
     stat: { value: "100%", label: "Police & biometric compliance clearance" },
     quote: {
-      text: "ApnaCare helped us establish a completely safe late-night transit escort protocol for our hospital's nursing and lab staff. Their background checks and telemetry tracking set the benchmark for employee safety.",
+      text: "ApnaCare helped us establish a completely safe late-night assisted travel protocol for our hospital's nursing and lab staff. Their background checks and telemetry tracking set the benchmark for employee safety.",
       author: "Dr. Meenakshi Sundaram",
       role: "Head of Hospital Operations",
       city: "Hyderabad",
@@ -1965,7 +1965,7 @@ export const ICPS: ICPInfo[] = [
         a: "Yes, we provide corporate MSAs, monthly consolidated GST billing, dedicated account managers, and custom SLA agreements.",
       },
       {
-        q: "What certifications do your security and transit escorts possess?",
+        q: "What certifications do your security and assisted travel companions possess?",
         a: "All personnel undergo state police clearance, biometric verification, Basic Life Support (BLS) and first aid certification, and conflict de-escalation training.",
       },
     ],

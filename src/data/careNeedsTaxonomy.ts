@@ -131,7 +131,7 @@ export const CARE_CATEGORIES: CareCategory[] = [
           { id: "task-wc-indoor", name: "Indoor wheelchair movement", description: "Maneuvering corridors, door frames, and bedroom spaces safely", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
           { id: "task-wc-outdoor", name: "Outdoor wheelchair assistance", description: "Navigating apartment ramps, footpaths, and garden trails", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
           { id: "task-wc-entry-exit", name: "Wheelchair entry and exit", description: "Assisting safely into and out of vehicles or seating areas", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
-          { id: "task-wc-public", name: "Accompaniment in public spaces", description: "Wheelchair escort in temples, hospitals, parks, and malls", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
+          { id: "task-wc-public", name: "Accompaniment in public spaces", description: "Wheelchair assisted travel in temples, hospitals, parks, and malls", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
         ],
       },
       {
@@ -250,7 +250,7 @@ export const CARE_CATEGORIES: CareCategory[] = [
           { id: "task-local-pharmacy", name: "Pharmacy visits", description: "Pick-up and drop for medicine purchases with prescription matching", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
           { id: "task-local-grocery", name: "Grocery visits", description: "Accompanied grocery shopping with gentle trolley and basket support", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
           { id: "task-local-shopping", name: "Shopping", description: "Comfortable transport for apparel, footwear, or household purchases", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
-          { id: "task-local-bank", name: "Bank visits", description: "Escorted visit to bank branch for pension or signature formalities", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
+          { id: "task-local-bank", name: "Bank visits", description: "Assisted travel visit to bank branch for pension or signature formalities", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
           { id: "task-local-errands", name: "Personal errands", description: "Utility bill settlements, post office, or government office tasks", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
         ],
       },
@@ -269,12 +269,12 @@ export const CARE_CATEGORIES: CareCategory[] = [
       {
         id: "sub-railway",
         name: "Railway Assistance",
-        description: "Platform escorts, coolie coordination, and compartment boarding",
+        description: "Platform assisted travel, coolie coordination, and compartment boarding",
         tasks: [
           { id: "task-rail-pickup-drop", name: "Station pick-up and drop", description: "Pick-up / drop at major railway terminus (Bengaluru City, Chennai Central, Secunderabad, Coimbatore)", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
-          { id: "task-rail-platform", name: "Platform accompaniment", description: "Escorting across foot overbridges, escalators, and crowded platforms", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
+          { id: "task-rail-platform", name: "Platform accompaniment", description: "Assisting across foot overbridges, escalators, and crowded platforms", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
           { id: "task-rail-boarding", name: "Boarding assistance", description: "Assisting elder into compartment, settling luggage under berth, and confirming seat", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
-          { id: "task-rail-arrival", name: "Arrival assistance", description: "Meeting train at coach door upon deboarding and escorting to vehicle", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
+          { id: "task-rail-arrival", name: "Arrival assistance", description: "Meeting train at coach door upon deboarding and assisting to vehicle", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
         ],
       },
       {
@@ -352,7 +352,7 @@ export const CARE_CATEGORIES: CareCategory[] = [
       {
         id: "sub-toileting",
         name: "Toileting & Continence Care",
-        description: "Bathroom escort, commode transfers, and discreet diaper changes",
+        description: "Bathroom assistance, commode transfers, and discreet diaper changes",
         tasks: [
           { id: "task-toilet-assist", name: "Bathroom assistance", description: "Guiding to toilet, clothing adjustment, and cleansing assistance", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
           { id: "task-toilet-transfer", name: "Toilet transfers", description: "Supporting rise and sit on western commode with grab bar assistance", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
@@ -548,7 +548,7 @@ export const CARE_CATEGORIES: CareCategory[] = [
         description: "Coordinating with hospital departments and collecting diagnostic reports",
         tasks: [
           { id: "task-apt-doc-acc", name: "Doctor appointment accompaniment", description: "Holding patient files, recording doctor instructions, and wheeling to OPD", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
-          { id: "task-apt-diag-assist", name: "Diagnostic appointment assistance", description: "Waiting outside X-ray/scan rooms and escorting back to ward", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
+          { id: "task-apt-diag-assist", name: "Diagnostic appointment assistance", description: "Waiting outside X-ray/scan rooms and assisting back to ward", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
           { id: "task-apt-report-coll", name: "Report collection coordination", description: "Collecting physical lab reports and test films from counters", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
         ],
       },
@@ -559,7 +559,7 @@ export const CARE_CATEGORIES: CareCategory[] = [
         tasks: [
           { id: "task-disch-coord", name: "Discharge coordination", description: "Running pharmacy slips, verifying discharge summary receipt, and coordination", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
           { id: "task-disch-paperwork", name: "Paperwork assistance", description: "Organizing receipts, medical bills, discharge instructions for family filing", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
-          { id: "task-disch-home-acc", name: "Hospital-to-home accompaniment", description: "Escorting in car/ambulance and settling patient safely into home bedroom", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Saha Care Companion" },
+          { id: "task-disch-home-acc", name: "Hospital-to-home accompaniment", description: "Assisted travel in car/ambulance and settling patient safely into home bedroom", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Saha Care Companion" },
         ],
       },
       {
@@ -569,7 +569,7 @@ export const CARE_CATEGORIES: CareCategory[] = [
         tasks: [
           { id: "task-post-rec-assist", name: "Recovery assistance at home", description: "Supporting mobility, diet, and rest protocols prescribed by surgeon", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
           { id: "task-post-daily-living", name: "Daily living support", description: "Bathing, hygiene, and meal assistance during temporary physical vulnerability", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
-          { id: "task-post-followup-acc", name: "Follow-up appointment assistance", description: "Re-booking transport and escorting to surgical review/stitch removal OPDs", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
+          { id: "task-post-followup-acc", name: "Follow-up appointment assistance", description: "Re-booking transport and assisted travel to surgical review/stitch removal OPDs", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
           { id: "task-post-family-updates", name: "Family updates", description: "Daily structured WhatsApp updates on pain levels, mobility, and appetite", clinicalClassification: "COORDINATION", requiredRole: "Saha Care Companion" },
         ],
       },
@@ -843,7 +843,7 @@ export const CARE_CATEGORIES: CareCategory[] = [
           { id: "task-rhb-occupational", name: "Occupational therapy", description: "Fine motor skills, utensil holding, and activities of daily living adaptation", clinicalClassification: "SPECIALIST_REHAB", requiredRole: "Physiotherapist / Specialist Therapist", requiresAssessment: true },
           { id: "task-rhb-speech", name: "Speech and language therapy", description: "Swallowing drills (dysphagia) and expressive speech therapy post-stroke", clinicalClassification: "SPECIALIST_REHAB", requiredRole: "Physiotherapist / Specialist Therapist", requiresAssessment: true },
           { id: "task-rhb-prescribed-ex", name: "Prescribed home exercise programmes", description: "Designing an achievable daily routine for Saha or family to accompany", clinicalClassification: "SPECIALIST_REHAB", requiredRole: "Physiotherapist / Specialist Therapist" },
-          { id: "task-rhb-rehab-acc", name: "Rehabilitation appointment accompaniment", description: "Escorting patient safely to and from physiotherapy clinics or rehab centers", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Saha Care Companion" },
+          { id: "task-rhb-rehab-acc", name: "Rehabilitation appointment accompaniment", description: "Assisted travel for patient safely to and from physiotherapy clinics or rehab centers", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Saha Care Companion" },
         ],
       },
     ],
@@ -908,7 +908,7 @@ export const CARE_CATEGORIES: CareCategory[] = [
     id: "cat-safety-accompaniment",
     categoryNumber: 12,
     name: "Safety, Security & Personal Accompaniment",
-    tagline: "Vetted women travel escorts, senior accompaniment, safe arrivals & night transfers",
+    tagline: "Vetted women assisted travel, senior accompaniment, safe arrivals & night transfers",
     iconName: "ShieldCheck",
     color: "amber",
     isClinical: false,
@@ -917,15 +917,15 @@ export const CARE_CATEGORIES: CareCategory[] = [
     subcategories: [
       {
         id: "sub-personal-safety",
-        name: "Personal Escort & Travel Safety",
-        description: "Vetted women security escorts, event attendants, and safe arrival coordination",
+        name: "Assisted Travel & Personal Safety",
+        description: "Vetted women assisted travel companions, event attendants, and safe arrival coordination",
         tasks: [
           { id: "task-saf-women-travel", name: "Women's travel accompaniment", description: "Vetted companion accompanying solo women travelers during late evening transit", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
           { id: "task-saf-senior-acc", name: "Senior citizen accompaniment", description: "Protective companion beside elder during crowded city transit or markets", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
-          { id: "task-saf-personal-escort", name: "Personal escort", description: "Discrete companion ensuring peace of mind during city transit and meetings", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
+          { id: "task-saf-personal-escort", name: "Assisted travel companion", description: "Discrete companion ensuring peace of mind during city transit and meetings", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
           { id: "task-saf-hosp-visit", name: "Hospital visit accompaniment", description: "Waiting porch accompaniment ensuring patient is never left stranded", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },
           { id: "task-saf-airport", name: "Airport assistance", description: "Dedicated porch-to-porch security and luggage vigil", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
-          { id: "task-saf-railway", name: "Railway station assistance", description: "Safe platform escort and train boarding monitoring", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
+          { id: "task-saf-railway", name: "Railway station assistance", description: "Safe platform assisted travel and train boarding monitoring", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
           { id: "task-saf-safe-arrival", name: "Safe arrival coordination", description: "Real-time trip telemetry and arrival confirmation ping to family", clinicalClassification: "COORDINATION", requiredRole: "Care Coordinator Desk" },
           { id: "task-saf-women-driver", name: "Women-driver requests", description: "Background-verified woman chauffeuse for city and airport commutes", clinicalClassification: "TRANSIT_MOBILITY", requiredRole: "Licensed Woman Chauffeuse / Transit Companion" },
           { id: "task-saf-event", name: "Event assistance", description: "On-site family function assistance for vulnerable seniors or VIP guests", clinicalClassification: "NON_CLINICAL", requiredRole: "Saha Care Companion" },

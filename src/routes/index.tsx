@@ -177,16 +177,16 @@ const FAMILY_SITUATIONS = [
   {
     id: "travel-mobility",
     title: "Assisted Travel & Clinic Accompaniment",
-    tagline: "Safe transit & appointment escort",
+    tagline: "Safe transit & appointment assisted travel",
     trigger: "When medical checkups, outstation transit, or rail journeys need support.",
     description:
       "Vetted women chauffeuses and mobility companions for medical visits, airport arrivals, railway journeys, and safe local city transit.",
     serviceName: "Travel & Mobility Support",
     serviceSlug: "travel-assistance",
     image: hero5,
-    alt: "Professional woman driver providing safe escorted transit for family member",
+    alt: "Professional woman driver providing safe assisted travel for family member",
     badge: "Mobility & Transit",
-    highlights: ["Door-to-door medical escort", "Airport & railway platform assistance", "Licensed women drivers"],
+    highlights: ["Door-to-door medical assisted travel", "Airport & railway platform assistance", "Licensed women drivers"],
     startingPrice: 999,
   },
   {

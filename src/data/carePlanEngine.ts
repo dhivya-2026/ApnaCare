@@ -119,7 +119,7 @@ export const RECIPIENT_OPTIONS: { id: RecipientProfileType; label: string; sub: 
   { id: "new_mother", label: "New Mother & Infant", sub: "Postpartum maternal healing, fourth trimester rest, and traditional baby care", defaultAgeGroup: "Newborn + Mother" },
   { id: "person_with_disability", label: "Person with Disability", sub: "Functional physical, sensory, or neurological support", defaultAgeGroup: "Adult / Senior" },
   { id: "child", label: "Child / Toddler", sub: "Gentle childcare assistance, hospital accompaniment, or family relief", defaultAgeGroup: "0–12 years" },
-  { id: "myself", label: "Myself", sub: "Personal appointment transit, post-discharge support, or personal escort", defaultAgeGroup: "Self" },
+  { id: "myself", label: "Myself", sub: "Personal appointment transit, post-discharge support, or assisted travel", defaultAgeGroup: "Self" },
   { id: "someone_else", label: "Someone Else", sub: "Relative, neighbor, or corporate colleague", defaultAgeGroup: "Custom" },
 ];
 
@@ -315,7 +315,7 @@ export function generateCarePlan(
       id: "mod-transit-mobility",
       serviceSlug: "women-drivers",
       title: "Assisted Transit & Safe Mobility Accompaniment",
-      categoryName: "Transit & Escort",
+      categoryName: "Transit & Assisted Travel",
       requiredRole: "Licensed Woman Chauffeuse / Transit Companion",
       clinicalClassification: "TRANSIT_MOBILITY",
       whyRecommended: "Door-to-door transit, appointment waiting, and airport/railway assisted accompaniment.",

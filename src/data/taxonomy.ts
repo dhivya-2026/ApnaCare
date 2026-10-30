@@ -37,7 +37,7 @@ export interface NeedDiscoveryOption {
   triggerPhrase: string;
   contextDescription: string;
   suggestedServiceSlug: string;
-  providerType: "General Duty Assistant (Attendant)" | "Registered Nurse (GNM / B.Sc)" | "Licensed Driver / Escort";
+  providerType: "General Duty Assistant (Attendant)" | "Registered Nurse (GNM / B.Sc)" | "Licensed Driver / Assisted Travel";
   clinicalBoundary: string;
   estimatedStartingPrice: number;
   priceUnit: string;
@@ -326,8 +326,8 @@ export const ENTERPRISE_TAXONOMY_MAP: TaxonomyRecord[] = [
     },
     solution: {
       id: "sol-railway-station-escort",
-      name: "Dedicated Railway Platform-to-Berth Escort",
-      valueProposition: "Trained female transit attendant meets you at the station porch, coordinates coolies, escorts through platforms, and settles you in your coach berth.",
+      name: "Dedicated Railway Platform-to-Berth Assisted Travel",
+      valueProposition: "Trained female transit attendant meets you at the station porch, coordinates coolies, assists through platforms, and settles you in your coach berth.",
       keyDifferentiator: "Station portal protocol, luggage oversight, and verified coach seat settlement.",
     },
     serviceSlug: "railway-assistance",
@@ -375,7 +375,7 @@ export const ENTERPRISE_TAXONOMY_MAP: TaxonomyRecord[] = [
     },
     solution: {
       id: "sol-verified-women-chauffeuse",
-      name: "Dedicated Women Chauffeur & Mobility Escort",
+      name: "Dedicated Women Chauffeur & Assisted Travel",
       valueProposition: "Licensed, police-verified women drivers for personal vehicle transit, airport pick-ups, or corporate day hire with live tracking.",
       keyDifferentiator: "Clean driving records, defensive driving certification, and GPS safety command center check-ins.",
     },
@@ -464,10 +464,10 @@ export const CANONICAL_AUDIENCE_PATHWAYS: AudiencePathway[] = [
     id: "aud-travel-mobility",
     slug: "women-commuters",
     title: "Someone Needing Help Travelling or Getting Around",
-    eyebrow: "Mobility & Escort",
+    eyebrow: "Mobility & Assisted Travel",
     situation: "Vulnerable individuals, solo women, or elders requiring door-to-door transit protection.",
     painPoint: "Unsafe cabs, difficult station platforms, airport navigation hurdles, or luggage struggles.",
-    desiredOutcome: "Punctual, vetted escort in personal vehicles or at railway/airport stations.",
+    desiredOutcome: "Punctual, vetted assisted travel in personal vehicles or at railway/airport stations.",
     recommendedServices: ["women-drivers", "airport-pickup", "railway-assistance", "travel-assistance"],
     ctaLabel: "Explore Transit Care",
     ctaHref: "/solutions/women-commuters",
@@ -541,10 +541,10 @@ export const CANONICAL_NEEDS_DISCOVERY: NeedDiscoveryOption[] = [
   {
     id: "need-safe-journey",
     triggerPhrase: "I need help arranging a journey",
-    contextDescription: "Door-to-door escort, women chauffeuse for personal cars, airport terminal assistance, or railway platform help.",
+    contextDescription: "Door-to-door assisted travel, women chauffeuse for personal cars, airport terminal assistance, or railway platform help.",
     suggestedServiceSlug: "women-drivers",
-    providerType: "Licensed Driver / Escort",
-    clinicalBoundary: "Defensive driving and mobility escort. Wheelchair transfers handled gently; emergency transport requires ambulance.",
+    providerType: "Licensed Driver / Assisted Travel",
+    clinicalBoundary: "Defensive driving and assisted travel. Wheelchair transfers handled gently; emergency transport requires ambulance.",
     estimatedStartingPrice: 1199,
     priceUnit: "day",
     status: "EXISTING_VERIFIED",
@@ -628,7 +628,7 @@ export const CANONICAL_CARE_OUTCOMES: HumanCareOutcome[] = [
     id: "out-safe-journey",
     title: "Arranging an Accompanied Journey",
     shortDescription: "Door-to-door safety for women, elders, and patients travelling in unfamiliar settings.",
-    intendedBenefit: "Verified women drivers and platform assistants escorting you every step of the way.",
+    intendedBenefit: "Verified women drivers and platform assistants assisting you every step of the way.",
     relevantServiceSlugs: ["women-drivers", "airport-pickup", "railway-assistance", "travel-assistance"],
   },
   {

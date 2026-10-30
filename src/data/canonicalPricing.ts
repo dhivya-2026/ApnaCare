@@ -268,7 +268,7 @@ export const CANONICAL_SERVICE_PRICING: Record<string, ServicePricingModel> = {
   },
   "airport-pickup": {
     serviceSlug: "airport-pickup",
-    serviceName: "Airport Meet & Greet Escort",
+    serviceName: "Airport Meet & Greet Assisted Travel",
     category: "travel",
     pricingType: "Confirmed",
     baseUnit: "trip",
@@ -361,7 +361,7 @@ export const CANONICAL_SERVICE_PRICING: Record<string, ServicePricingModel> = {
   },
   "security-support": {
     serviceSlug: "security-support",
-    serviceName: "Custom Safety & Event Escort",
+    serviceName: "Custom Safety & Event Assisted Travel",
     category: "safety",
     pricingType: "Confirmed",
     baseUnit: "day",
@@ -388,7 +388,7 @@ export const CANONICAL_SERVICE_PRICING: Record<string, ServicePricingModel> = {
         Hyderabad: "₹1,700 – ₹2,600 / shift",
         Coimbatore: "₹1,500 – ₹2,200 / shift",
       },
-      marketReferenceNote: "PSARA compliant background checks; unarmed escort duty.",
+      marketReferenceNote: "PSARA compliant background checks; unarmed assisted travel duty.",
     },
   },
   "care-coordination": {

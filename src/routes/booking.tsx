@@ -635,7 +635,7 @@ function BookingPage() {
                   <div className="rounded-xl border border-primary/30 bg-primary-soft/40 p-3.5 text-xs text-foreground/90 flex items-start gap-2">
                     <MapPin className="size-4 shrink-0 text-primary mt-0.5" />
                     <div>
-                      <strong className="block font-semibold text-primary">Travel Escort Boundary:</strong>
+                      <strong className="block font-semibold text-primary">Assisted Travel Boundary:</strong>
                       ApnaCare provides physical accompaniment and safety supervision during transit. Flight tickets, rail fares, and passenger transit tickets are booked and paid directly by the client.
                     </div>
                   </div>

@@ -95,10 +95,10 @@ export const CATALOGUE_CATEGORIES: CatalogueCategory[] = [
     id: "womens-mobility",
     code: "D",
     title: "Women's Mobility",
-    tagline: "Safe commutes, chauffeuses and personal journey escorts",
+    tagline: "Safe commutes, chauffeuses and personal assisted travel",
     targetAudience: "For women who want additional support while travelling or commuting",
     description:
-      "Licensed women drivers, personal safety escorts, and verified companion bookings designed specifically for women's daily mobility and evening commutes.",
+      "Licensed women drivers, personal safety assisted travel, and verified companion bookings designed specifically for women's daily mobility and evening commutes.",
     iconName: "Car",
   },
   {
@@ -613,13 +613,13 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     id: "hosp-admission-discharge",
     name: "Hospital admission and discharge assistance",
     categoryId: "hospital-assistance",
-    shortDesc: "Navigating billing paperwork, wheelchair escort, and safe transition home.",
+    shortDesc: "Navigating billing paperwork, wheelchair assisted travel, and safe transition home.",
     description:
-      "Handling the physically draining logistics of hospital admissions and discharge days: pharmacy lines, discharge summary collection, wheelchair escort, and transport into the home bed.",
+      "Handling the physically draining logistics of hospital admissions and discharge days: pharmacy lines, discharge summary collection, wheelchair assisted travel, and transport into the home bed.",
     intendedCustomer: "Families overwhelmed by hospital discharge formalities and elder transport.",
     keyBenefits: [
       "Streamlines paperwork queues while patient rests comfortably",
-      "Safe, supported wheelchair escort to the car",
+      "Safe, supported wheelchair assisted travel to the car",
       "Settles the patient comfortably into their home bed upon arrival",
     ],
     whatIncluded: [
@@ -670,7 +670,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
   },
   {
     id: "hosp-visit-escorts",
-    name: "Hospital visit escorts",
+    name: "Hospital visit assisted travel",
     categoryId: "hospital-assistance",
     shortDesc: "Accompanying elderly patients from home to outpatient doctor appointments.",
     description:
@@ -805,7 +805,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     whatIncluded: [
       "Meet-and-greet at designated station concourse",
       "Train arrival and platform number verification",
-      "Porter coordination and baggage escort to the coach",
+      "Porter coordination and baggage assisted travel to the coach",
       "Settling passenger safely into berth with luggage secured",
     ],
     whatNotIncluded: [
@@ -823,7 +823,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     id: "trv-bus-terminal",
     name: "Bus terminal assistance",
     categoryId: "travel-assistance",
-    shortDesc: "Intercity bus terminal meet-and-greet, bay navigation, and boarding escort.",
+    shortDesc: "Intercity bus terminal meet-and-greet, bay navigation, and boarding assisted travel.",
     description:
       "Navigating crowded intercity bus stands (e.g. Majestic in Bengaluru, CMBT in Chennai, MGBS in Hyderabad), finding correct boarding bays, and ensuring safe seating.",
     intendedCustomer: "Elderly passengers and solo women taking intercity private or KSRTC/SETC buses.",
@@ -882,7 +882,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     id: "trv-airport-coordination",
     name: "Airport pickup and drop-off coordination",
     categoryId: "travel-assistance",
-    shortDesc: "Punctual home pickup, curb departure escort, or arrival gate vehicle transfer.",
+    shortDesc: "Punctual home pickup, curb departure assisted travel, or arrival gate vehicle transfer.",
     description:
       "Coordinating timely airport transit in verified vehicles, helping load baggage, and ensuring passengers reach the departure terminal with ample buffer time.",
     intendedCustomer: "Travelers departing for early-morning flights or arriving late at night.",
@@ -911,9 +911,9 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     id: "trv-airport-meet-greet",
     name: "Airport meet-and-greet assistance",
     categoryId: "travel-assistance",
-    shortDesc: "Terminal arrival greeting with name placard, trolley help, and curb escort.",
+    shortDesc: "Terminal arrival greeting with name placard, trolley help, and curb assisted travel.",
     description:
-      "A warm, verified female companion meets arriving passengers right at the airport arrival concourse with a personalized placard, manages the luggage trolley, and escorts them to their car.",
+      "A warm, verified female companion meets arriving passengers right at the airport arrival concourse with a personalized placard, manages the luggage trolley, and assists them safely to their car.",
     intendedCustomer: "Senior citizens flying in alone, NRI parents, or solo international travelers.",
     keyBenefits: [
       "Instant relief upon exiting the arrival gate into crowded terminals",
@@ -924,7 +924,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
       "Flight status tracking and monitoring for delays",
       "Meeting with personalized name placard at terminal exit",
       "Luggage trolley assistance and coordinating pickup vehicle",
-      "Accompanied escort to vehicle door with live status confirmation",
+      "Accompanied assisted travel to vehicle door with live status confirmation",
     ],
     whatNotIncluded: [
       "Airside customs clearance bypassing official regulations",
@@ -1010,7 +1010,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     ],
     whatIncluded: [
       "Home departure assistance and packing verification",
-      "Transit escort (cab, flight, train, bus)",
+      "Assisted travel (cab, flight, train, bus)",
       "Arrival handover to family at destination address",
     ],
     whatNotIncluded: [
@@ -1026,7 +1026,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
   },
   {
     id: "trv-hospital-escorts",
-    name: "Hospital and appointment escorts",
+    name: "Hospital and appointment assisted travel",
     categoryId: "travel-assistance",
     shortDesc: "Accompanied transport to clinical consultations, lab tests, and eye checkups.",
     description:
@@ -1175,9 +1175,9 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
   },
   {
     id: "wm-personal-safety-escorts",
-    name: "Personal safety escorts",
+    name: "Personal safety assisted travel",
     categoryId: "womens-mobility",
-    shortDesc: "Vetted women security escorts trained in situational awareness and close protection.",
+    shortDesc: "Vetted women security companions trained in situational awareness and assisted travel protection.",
     description:
       "Discreet, disciplined female security attendants providing physical accompaniment and vigilance for women attending high-density events or navigating sensitive situations.",
     intendedCustomer: "Women attending public appearances, high-profile events, or court proceedings.",
@@ -1187,7 +1187,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
       "Direct link to ApnaCare emergency command center",
     ],
     whatIncluded: [
-      "Continuous close escort during event or transit",
+      "Continuous close assisted travel during event or transit",
       "Advance venue reconnaissance and safe exit path planning",
       "Emergency de-escalation protocols",
     ],
@@ -1204,7 +1204,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
   },
   {
     id: "wm-appointment-shopping",
-    name: "Appointment and shopping escorts",
+    name: "Appointment and shopping assisted travel",
     categoryId: "womens-mobility",
     shortDesc: "Accompanying women during marketplace shopping, banking, and personal errands.",
     description:
@@ -1242,7 +1242,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     keyBenefits: [
       "Safe, verified companion ensuring you never travel to/from events alone",
       "Assistance with wardrobe, purse holding, and personal comfort",
-      "Punctual departure escort once the event concludes",
+      "Punctual departure assisted travel once the event concludes",
     ],
     whatIncluded: [
       "Accompaniment from doorstep to event venue",
@@ -1616,7 +1616,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     id: "biz-corporate-travel",
     name: "Corporate travel assistance",
     categoryId: "business-institutional",
-    shortDesc: "Safe transit, chauffeuses, and terminal escorts for visiting female executives and delegates.",
+    shortDesc: "Safe transit, chauffeuses, and terminal assisted travel for visiting female executives and delegates.",
     description:
       "Verified travel companions and professional women chauffeurs ensuring female executives, international delegates, and VIP clients travel safely across city appointments.",
     intendedCustomer: "Corporate travel desks, MNC administrative teams, and event organizers.",
@@ -1645,7 +1645,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     categoryId: "business-institutional",
     shortDesc: "Safe evening commutes and chauffeuse networks for women working late shifts.",
     description:
-      "Turnkey safe transit programmes for BPO, healthcare, and IT companies operating night or rotational shifts, providing vetted female drivers and escort companions.",
+      "Turnkey safe transit programmes for BPO, healthcare, and IT companies operating night or rotational shifts, providing vetted female drivers and assisted travel companions.",
     intendedCustomer: "Enterprises with evening/night shifts prioritizing POSH and women safety compliance.",
     keyBenefits: [
       "100% compliance with statutory state guidelines for women night workers",
@@ -1654,7 +1654,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     ],
     whatIncluded: [
       "Scheduled fleet or dedicated chauffeuse routing",
-      "Security companion escort for the last mile to doorstep",
+      "Security companion assisted travel for the last mile to doorstep",
       "Real-time corporate dashboard tracking employee drop confirmations",
     ],
     whatNotIncluded: [
@@ -1796,7 +1796,7 @@ export const CUSTOMER_ENTRY_POINTS: CustomerEntryPoint[] = [
     targetCategoryId: "travel-assistance",
     suggestedServiceId: "trv-airport-meet-greet",
     mappedCoreServiceSlug: "airport-pickup",
-    subtitle: "Arrival meet-and-greet, luggage trolley handling & platform coach escort.",
+    subtitle: "Arrival meet-and-greet, luggage trolley handling & platform coach assisted travel.",
   },
   {
     id: "entry-women-mobility",

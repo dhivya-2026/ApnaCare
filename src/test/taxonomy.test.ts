@@ -95,7 +95,7 @@ describe("Enterprise Taxonomy & Relationship Engine", () => {
     expect(CANONICAL_NEEDS_DISCOVERY.length).toBeGreaterThanOrEqual(6);
     for (const need of CANONICAL_NEEDS_DISCOVERY) {
       expect(need.triggerPhrase).toBeDefined();
-      expect(need.providerType).toMatch(/^(General Duty Assistant \(Attendant\)|Registered Nurse \(GNM \/ B\.Sc\)|Licensed Driver \/ Escort)$/);
+      expect(need.providerType).toMatch(/^(General Duty Assistant \(Attendant\)|Registered Nurse \(GNM \/ B\.Sc\)|Licensed Driver \/ Assisted Travel)$/);
       expect(need.clinicalBoundary).toBeDefined();
       expect(need.estimatedStartingPrice).toBeGreaterThan(0);
     }

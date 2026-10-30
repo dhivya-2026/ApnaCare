@@ -166,10 +166,10 @@ export const CARE_MODULES: CareModule[] = [
   },
   {
     id: "mod-transit-escort",
-    name: "Assisted Transit & Medical Clinic Escort",
+    name: "Assisted Transit & Medical Clinic Travel",
     category: "mobility_transit",
     description:
-      "Door-to-door clinic visit accompaniment, wheelchair assistance, or railway/airport terminal escort.",
+      "Door-to-door clinic visit accompaniment, wheelchair assistance, or railway/airport terminal assisted travel.",
     iconName: "Car",
     isClinical: false,
     requiredStaffRole: "Licensed Chauffeuse",
@@ -207,10 +207,10 @@ export const CARE_MODULES: CareModule[] = [
   },
   {
     id: "mod-personal-escort",
-    name: "Personal Safety Escort",
+    name: "Personal Safety & Assisted Travel",
     category: "mobility_transit",
     description:
-      "Vetted woman escort for appointments, events, late-evening travel and unfamiliar routes.",
+      "Vetted woman companion for appointments, events, late-evening assisted travel and unfamiliar routes.",
     iconName: "Shield",
     isClinical: false,
     requiredStaffRole: "General Duty Attendant",

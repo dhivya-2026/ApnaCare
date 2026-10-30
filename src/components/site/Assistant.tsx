@@ -115,7 +115,7 @@ export const GLOBAL_MENU: QuickReply[] = [
     label: "🧭 Explore All Services",
     action: {
       type: "message",
-      text: "ApnaCare offers comprehensive specialized care services across South India:\n• **Elderly Care**: Companionship & daily living\n• **Hospital Bedside**: 12h/24h ward vigil\n• **Clinical Nursing**: Registered GNM/B.Sc nurses\n• **Post-Natal**: Fourth trimester infant & maternal healing\n• **Mobility & Travel**: Station escorts & women chauffeuses\n\nWhich care pathway would you like to explore?",
+      text: "ApnaCare offers comprehensive specialized care services across South India:\n• **Elderly Care**: Companionship & daily living\n• **Hospital Bedside**: 12h/24h ward vigil\n• **Clinical Nursing**: Registered GNM/B.Sc nurses\n• **Post-Natal**: Fourth trimester infant & maternal healing\n• **Mobility & Travel**: Station assisted travel & women chauffeuses\n\nWhich care pathway would you like to explore?",
       nextReplies: [
         { label: "🏠 Elder Care", action: { type: "start_booking", service: "elderly-care" } },
         { label: "🏥 Hospital Assistance", action: { type: "start_booking", service: "hospital-attendants" } },
@@ -184,7 +184,7 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
           { label: "👶 Post-Natal & Infant Care", action: { type: "booking_answer", field: "service", value: "post-natal-care", displayLabel: "Post-Natal Care" } },
           { label: "🧼 Home & Personal Care", action: { type: "booking_answer", field: "service", value: "home-personal-care", displayLabel: "Home & Personal Care" } },
           { label: "🚗 Verified Women Driver", action: { type: "booking_answer", field: "service", value: "women-drivers", displayLabel: "Women Driver" } },
-          { label: "✈️ Travel & Station Escort", action: { type: "booking_answer", field: "service", value: "travel-assistance", displayLabel: "Travel Assistance" } },
+          { label: "✈️ Travel & Station Assisted Travel", action: { type: "booking_answer", field: "service", value: "travel-assistance", displayLabel: "Travel Assistance" } },
           { label: "❌ Cancel Booking", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
         ],
         placeholder: "Type your needed service or choose an option above...",

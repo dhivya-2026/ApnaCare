@@ -37,7 +37,7 @@ function TermsPage() {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-foreground">2. Nature of Services</h2>
             <p>
-              ApnaCare matches families with pre-screened, police-verified women attendants for non-invasive home personal care, hospital bedside assistance, newborn/post-natal care, transit escorts, and chauffeuse driving services.
+              ApnaCare matches families with pre-screened, police-verified women attendants for non-invasive home personal care, hospital bedside assistance, newborn/post-natal care, transit assisted travel, and chauffeuse driving services.
             </p>
             <p>
               <strong>Important Clinical Disclaimer:</strong> Unless specifically booking a Registered Nurse ("Nursing Services"), our attendants are trained caregivers and companions, not licensed doctors. Attendants do not prescribe medications, diagnose illnesses, or perform invasive surgical interventions. In any acute medical emergency, hospital treatment or Dial 108/112 must be summoned immediately.
