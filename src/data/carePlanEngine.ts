@@ -259,21 +259,24 @@ export function generateCarePlan(
     });
   }
 
-  // Rule E: Maternal & Newborn -> Postnatal Japa Module
+  // Rule E: Maternal, Newborn & Childcare -> Postnatal / Nanny Module
   const maternalTasks = tasksByCategoryMap.get("cat-maternal-infant")?.tasks ?? [];
   if (maternalTasks.length > 0) {
+    const isChildNanny = recipient.type === "child" || maternalTasks.some((t) => t.id.startsWith("task-child-"));
     requiredRolesSet.add("Saha Care Companion");
     recommendedModules.push({
-      id: "mod-maternal-postnatal",
-      serviceSlug: "post-natal-care",
-      title: "Postnatal Maternal & Newborn Support",
-      categoryName: "Maternity & Newborn",
+      id: isChildNanny ? "mod-childcare-nanny" : "mod-maternal-postnatal",
+      serviceSlug: isChildNanny ? "home-personal-care" : "post-natal-care",
+      title: isChildNanny ? "Trusted Childcare & Nanny Support" : "Postnatal Maternal & Newborn Support",
+      categoryName: isChildNanny ? "Childcare & Family" : "Maternity & Newborn",
       requiredRole: "Saha Care Companion",
       clinicalClassification: "NON_CLINICAL",
-      whyRecommended: "Traditional mother recovery nutrition, newborn warm bath, and sleep routine guidance.",
+      whyRecommended: isChildNanny
+        ? "Attentive child supervision, nutritious meals, bedtime routines, and parent updates during travel or work."
+        : "Traditional mother recovery nutrition, newborn warm bath, and sleep routine guidance.",
       coveredTaskNames: maternalTasks.map((t) => t.name),
       operationalStatus: "AVAILABLE",
-      estimatedBaseRatePerShift: 1799,
+      estimatedBaseRatePerShift: isChildNanny ? 1299 : 1799,
       unit: "day",
     });
   }

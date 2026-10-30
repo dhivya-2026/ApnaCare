@@ -128,6 +128,22 @@ const PERSONAS: RecipientPersona[] = [
     defaultNeeds: ["task-dis-physical", "task-transfer-bed-chair", "task-hyg-sponge", "task-dis-supervision"],
   },
   {
+    id: "child",
+    title: "My Child / Toddler",
+    subtitle: "Trusted nanny & babysitting while parents are at work or out of station",
+    badge: "Nanny & Childcare",
+    icon: Baby,
+    defaultGender: "other",
+    defaultAge: "3 years",
+    defaultNeeds: [
+      "task-child-supervision",
+      "task-child-meals",
+      "task-child-bedtime",
+      "task-child-outstation-cover",
+      "task-child-parent-updates",
+    ],
+  },
+  {
     id: "myself",
     title: "Myself",
     subtitle: "Personal accompaniment, hospital appointments, or mobility",
@@ -530,52 +546,74 @@ export function UniversalCareConfigurator() {
               </div>
             </div>
 
-            {/* Age Bracket & Living Setting */}
+            {/* Age of Recipient (User can type any exact age or pick quick suggestion) & Living Setting */}
             <div className="grid sm:grid-cols-2 gap-6">
-              <div>
-                <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
-                  Approximate Age Group
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {["60–70 years", "70–80 years", "80+ years", "30–59 years", "Newborn + Mother", "Child"].map((age) => (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="custom-age-input" className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                    Age of the Person Needing Care *
+                  </label>
+                  <span className="text-[11px] text-muted-foreground">Type any age or pick below</span>
+                </div>
+                <Input
+                  id="custom-age-input"
+                  type="text"
+                  value={ageGroup}
+                  onChange={(e) => setAgeGroup(e.target.value)}
+                  placeholder="e.g. 74 years, 4 years, 8 months, 82..."
+                  className="h-11 rounded-xl text-sm bg-card border-border font-medium"
+                />
+                {/* Quick suggestions for 1-tap convenience without restricting the user */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {[
+                    "75 years",
+                    "82 years",
+                    "68 years",
+                    "4 years (Child)",
+                    "2 years (Toddler)",
+                    "6 months",
+                    "45 years",
+                  ].map((sugg) => (
                     <button
-                      key={age}
+                      key={sugg}
                       type="button"
-                      onClick={() => setAgeGroup(age)}
-                      className={`h-10 px-2 rounded-xl border text-xs font-semibold transition-all truncate ${
-                        ageGroup === age
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-card border-border hover:border-primary/30 text-foreground"
+                      onClick={() => setAgeGroup(sugg)}
+                      className={`px-2.5 py-1 rounded-lg text-xs border transition-all ${
+                        ageGroup === sugg
+                          ? "bg-primary text-primary-foreground border-primary font-bold shadow-2xs"
+                          : "bg-card border-border hover:bg-secondary/60 text-foreground"
                       }`}
                     >
-                      {age}
+                      {sugg}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div>
-                <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-2">
-                  Current Living Setting
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-foreground uppercase tracking-wider block">
+                  Current Living Setting / Situation *
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    "Living with family",
-                    "Living independently",
-                    "Currently in hospital",
-                    "Bedbound / limited mobility",
+                    { id: "Living with family", label: "Living with family" },
+                    { id: "Parents out of station / travelling", label: "Parents out of station ✈️" },
+                    { id: "Living independently", label: "Living independently" },
+                    { id: "Currently in hospital", label: "Currently in hospital 🏥" },
+                    { id: "Bedbound / limited mobility", label: "Bedbound / recovery" },
+                    { id: "Temporary relief cover", label: "Temporary relief cover" },
                   ].map((sit) => (
                     <button
-                      key={sit}
+                      key={sit.id}
                       type="button"
-                      onClick={() => setLivingSituation(sit)}
-                      className={`h-10 px-2.5 rounded-xl border text-xs font-semibold transition-all truncate ${
-                        livingSituation === sit
-                          ? "bg-primary text-primary-foreground border-primary"
+                      onClick={() => setLivingSituation(sit.id)}
+                      className={`h-10 px-2.5 rounded-xl border text-xs font-semibold transition-all truncate text-left ${
+                        livingSituation === sit.id
+                          ? "bg-primary text-primary-foreground border-primary shadow-2xs font-bold"
                           : "bg-card border-border hover:border-primary/30 text-foreground"
                       }`}
                     >
-                      {sit}
+                      {sit.label}
                     </button>
                   ))}
                 </div>
@@ -662,6 +700,26 @@ export function UniversalCareConfigurator() {
                 Tap any care requirement below to add it to your family's plan.
               </div>
             )}
+
+            {/* Quick 1-Tap Persona Shortcut */}
+            <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-2xl bg-secondary/50 border border-border text-xs">
+              <span className="text-muted-foreground flex items-center gap-1.5 font-medium">
+                <Zap className="size-3.5 text-primary" />
+                Quick preset for <strong>{recipientTitle}</strong>:
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  const persona = PERSONAS[selectedPersonaIdx];
+                  if (persona) {
+                    setSelectedTaskIds(persona.defaultNeeds);
+                  }
+                }}
+                className="text-primary font-bold hover:underline inline-flex items-center gap-1"
+              >
+                Apply Recommended Tasks for {recipientTitle} →
+              </button>
+            </div>
 
             {/* Quick Keyword Search */}
             <div className="relative">
