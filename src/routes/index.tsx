@@ -544,6 +544,21 @@ function HomePage() {
                   asChild
                   variant="outline"
                   size="lg"
+                  className="rounded-full px-6 min-h-[48px] font-semibold border-primary/40 bg-primary-soft text-primary hover:bg-primary hover:text-primary-foreground text-sm sm:text-base transition-all"
+                >
+                  <Link
+                    to="/ecosystem-partners"
+                    onClick={() => track("hero_become_partner")}
+                    className="inline-flex items-center gap-2"
+                  >
+                    <Layers className="size-4" />
+                    <span>Become a Partner</span>
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
                   className="rounded-full px-6 min-h-[48px] font-semibold border-border bg-card hover:bg-secondary text-sm sm:text-base"
                 >
                   <a

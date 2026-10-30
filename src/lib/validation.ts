@@ -6,11 +6,17 @@ export const optionalEmail = z.union([z.literal(""), emailSchema]);
 export const nameSchema = z.string().trim().min(2, "Please enter a name").max(100);
 
 export const partnerSchema = z.object({
-  orgName: nameSchema, orgType: z.string().min(1, "Select a type"), contact: nameSchema,
-  email: emailSchema, phone: phoneSchema,
-  website: z.union([z.literal(""), z.string().trim().url("Enter a valid URL")]),
-  state: z.string().trim().min(2, "Required"), city: z.string().trim().min(2, "Required"),
-  members: z.string().max(10).optional(), category: z.string().optional(), interest: z.string().max(1000).optional(),
+  orgName: nameSchema,
+  orgType: z.string().min(1, "Select organization type"),
+  contact: nameSchema,
+  phone: phoneSchema,
+  email: optionalEmail,
+  website: z.union([z.literal(""), z.string().trim().url("Enter a valid URL")]).optional(),
+  city: z.string().trim().min(2, "Please enter your city"),
+  state: z.string().trim().optional(),
+  members: z.string().max(20).optional(),
+  category: z.string().optional(),
+  interest: z.string().max(1000).optional(),
 });
 
 export function fieldErrors(err: z.ZodError) {
