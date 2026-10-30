@@ -15,6 +15,7 @@ import {
   type ClinicalClassification,
 } from "./careNeedsTaxonomy";
 import { formatINR, SITE } from "./site";
+import type { ClinicalTriageStatus, RiskFlag, IndividualRecipient } from "./familyBookingModel";
 
 export type RecipientProfileType =
   | "elderly_parent"
@@ -79,6 +80,7 @@ export interface RecommendedModule {
 export interface GeneratedCarePlan {
   id: string;
   recipient: RecipientProfile;
+  recipients?: IndividualRecipient[];
   selectedTaskIds: string[];
   selectedTasksByCategory: {
     category: CareCategory;
@@ -93,6 +95,9 @@ export interface GeneratedCarePlan {
   clinicalBoundaryNotice?: string;
   feasibilityStatus: "AVAILABLE" | "ASSESSMENT_REQUIRED" | "PARTNER_DEPENDENT";
   feasibilityReasons: string[];
+  triageStatus?: ClinicalTriageStatus;
+  riskFlags?: RiskFlag[];
+  assessmentAnswers?: Record<string, any>;
   schedule: PlanSchedule;
   preferences: PlanPreferences;
   pricing: {
@@ -119,6 +124,62 @@ export const RECIPIENT_OPTIONS: { id: RecipientProfileType; label: string; sub: 
 ];
 
 /**
+ * Multi-Recipient Family Care Plan Generator:
+ * Takes multiple individual recipient profiles (e.g. Father needing mobility + Mother needing hygiene),
+ * consolidates their tasks, evaluates whether one or two caregivers are needed, and outputs a combined family plan.
+ */
+export function generateFamilyCarePlan(
+  recipients: IndividualRecipient[],
+  schedule: PlanSchedule,
+  preferences: PlanPreferences,
+  customRequirements?: string
+): GeneratedCarePlan {
+  // Aggregate all unique task IDs across all recipients
+  const allTaskIds = Array.from(new Set(recipients.flatMap((r) => r.selectedTaskIds)));
+
+  // Combine risk flags across recipients
+  const combinedRiskFlags = recipients.flatMap((r) => r.riskFlags || []);
+
+  // Determine highest triage status
+  let triageStatus: ClinicalTriageStatus = "STANDARD_ASSESSMENT";
+  if (recipients.some((r) => r.triageStatus === "EMERGENCY_MEDICAL_ADVISED")) {
+    triageStatus = "EMERGENCY_MEDICAL_ADVISED";
+  } else if (recipients.some((r) => r.triageStatus === "CLINICAL_REVIEW_REQUIRED")) {
+    triageStatus = "CLINICAL_REVIEW_REQUIRED";
+  } else if (recipients.some((r) => r.triageStatus === "COORDINATOR_REVIEW_REQUIRED")) {
+    triageStatus = "COORDINATOR_REVIEW_REQUIRED";
+  }
+
+  // Combined answers map
+  const combinedAnswers: Record<string, any> = {};
+  recipients.forEach((r) => {
+    Object.assign(combinedAnswers, r.assessmentAnswers || {});
+  });
+
+  const primaryRecipient: RecipientProfile = {
+    type: recipients.length > 1 ? "elderly_parent" : (recipients[0]?.relationship.toLowerCase().includes("mother") ? "elderly_parent" : "adult"),
+    label: recipients.map((r) => r.name || r.relationship).join(" & "),
+    gender: recipients.length > 1 ? "both" : recipients[0]?.gender || "unspecified",
+    ageGroup: recipients.map((r) => `${r.relationship}: ${r.age}`).join(" · "),
+    livingSituation: recipients[0]?.livingSituation || "Living together",
+  };
+
+  return generateCarePlan(
+    allTaskIds,
+    primaryRecipient,
+    schedule,
+    preferences,
+    customRequirements,
+    {
+      triageStatus,
+      riskFlags: combinedRiskFlags,
+      answers: combinedAnswers,
+      recipients,
+    }
+  );
+}
+
+/**
  * Service Compatibility Engine:
  * Analyzes selected tasks and determines proper module recommendations,
  * statutory role separations, and feasibility statuses.
@@ -128,7 +189,13 @@ export function generateCarePlan(
   recipient: RecipientProfile,
   schedule: PlanSchedule,
   preferences: PlanPreferences,
-  customRequirements?: string
+  customRequirements?: string,
+  assessmentData?: {
+    triageStatus?: ClinicalTriageStatus;
+    riskFlags?: RiskFlag[];
+    answers?: Record<string, any>;
+    recipients?: IndividualRecipient[];
+  }
 ): GeneratedCarePlan {
   const planId = `AC-PLAN-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 
@@ -435,9 +502,20 @@ export function generateCarePlan(
     planId,
   };
 
+  if (assessmentData?.triageStatus === "CLINICAL_REVIEW_REQUIRED" || assessmentData?.triageStatus === "COORDINATOR_REVIEW_REQUIRED" || assessmentData?.triageStatus === "EMERGENCY_MEDICAL_ADVISED") {
+    feasibilityStatus = "ASSESSMENT_REQUIRED";
+    if (assessmentData?.triageStatus === "CLINICAL_REVIEW_REQUIRED") {
+      feasibilityReasons.push("Clinical procedure or prescription verification required before staff assignment.");
+    }
+    if (assessmentData?.triageStatus === "EMERGENCY_MEDICAL_ADVISED") {
+      feasibilityReasons.push("Emergency condition reported — routine home placement blocked.");
+    }
+  }
+
   return {
     id: planId,
     recipient,
+    recipients: assessmentData?.recipients,
     selectedTaskIds,
     selectedTasksByCategory,
     recommendedModules,
@@ -449,6 +527,9 @@ export function generateCarePlan(
     clinicalBoundaryNotice,
     feasibilityStatus,
     feasibilityReasons,
+    triageStatus: assessmentData?.triageStatus,
+    riskFlags: assessmentData?.riskFlags,
+    assessmentAnswers: assessmentData?.answers,
     schedule,
     preferences,
     pricing: {

@@ -135,7 +135,7 @@ function BookingPage() {
       }
       if (loaded) {
         setCustomPlan(loaded);
-        setF((prev) => {
+        setF((prev: any) => {
           if (prev.notes.includes(loaded.planId)) return prev;
           const taskSummary = (loaded.selectedTasks || []).map((t: any) => `• ${t.name}`).join("\n");
           const planNotes = `[Custom Care Plan ${loaded.planId}]\nModules: ${(loaded.recommendedModules || []).map((m: any) => m.name).join(", ")}\nConfigured Tasks:\n${taskSummary}\n\n${prev.notes}`.trim();

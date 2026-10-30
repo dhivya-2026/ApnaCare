@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   MessageCircle,
   AlertCircle,
+  AlertTriangle,
   MapPin,
   Languages,
   Check,
@@ -28,10 +29,16 @@ import {
   Car,
   User,
   Zap,
+  HelpCircle,
+  Phone,
+  Mail,
+  FileText,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   CARE_CATEGORIES,
   searchTasksByKeyword,
@@ -49,6 +56,13 @@ import {
   type PlanPreferences,
   type GeneratedCarePlan,
 } from "@/data/carePlanEngine";
+import {
+  getQuestionsForRecipient,
+  evaluateAssessmentTriage,
+  type ConditionalQuestion,
+} from "@/data/assessmentEngine";
+import type { IndividualRecipient } from "@/data/familyBookingModel";
+import { submitLeadWithReliability } from "@/lib/analytics";
 import { formatINR, buildWhatsAppUrl, CITIES } from "@/data/site";
 import { track } from "@/lib/analytics";
 
@@ -153,26 +167,46 @@ const PERSONAS: RecipientPersona[] = [
     defaultAge: "30–50 years",
     defaultNeeds: ["task-trans-appointment", "task-apt-doc-acc", "task-local-pharmacy"],
   },
+  {
+    id: "someone_else",
+    title: "Someone Else / Help Me Choose",
+    subtitle: "Custom situation, relative, neighbor, or need guidance deciding",
+    badge: "Flexible",
+    icon: HelpCircle,
+    defaultGender: "other",
+    defaultAge: "Custom age",
+    defaultNeeds: ["task-walk-indoor", "task-comp-conversation"],
+  },
 ];
 
 export function UniversalCareConfigurator() {
   const navigate = useNavigate();
 
-  // Progressive 5-step journey:
-  // Step 1: Who Needs Care (Persona, Gender, Age)
-  // Step 2: Care & Support Required (Visual theme pills, NO endless checkboxes)
-  // Step 3: Location & Schedule (City, Duration, Calendar)
-  // Step 4: Saha Language & Preferences (Language, Caregiver Gender)
-  // Step 5: Custom Plan Review & Transparent Pricing
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  // Progressive 7-step journey (Prompt Section 10):
+  // Step 1: Who Needs Care (Persona, Gender, Age, Multi-recipient)
+  // Step 2: What Help is Needed (Care Needs Taxonomy)
+  // Step 3: Understand the Situation (Dynamic Conditional Questions & Triage)
+  // Step 4: When & Where (Location, Schedule, Shift, Duration)
+  // Step 5: Saha Matching Preferences (Language, Caregiver Gender, Updates)
+  // Step 6: Review Your Care Plan (Editable Modules, GST Pricing, Risk Notice)
+  // Step 7: Request Confirmation (Contact, DPDP Consent, Verified Submission)
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5 | 6 | 7>(1);
 
   // ─── Step 1: Recipient Profile State ─────────────────────────────────────
   const [selectedPersonaIdx, setSelectedPersonaIdx] = useState<number>(0);
   const [recipientType, setRecipientType] = useState<RecipientProfileType>("elderly_parent");
   const [recipientTitle, setRecipientTitle] = useState<string>("My Father");
+  const [recipientName, setRecipientName] = useState<string>("");
   const [patientGender, setPatientGender] = useState<"male" | "female" | "both" | "other">("male");
   const [ageGroup, setAgeGroup] = useState<string>("70–80 years");
   const [livingSituation, setLivingSituation] = useState<string>("Living with family");
+
+  // Multi-recipient state (e.g. Both Parents or second loved one)
+  const [hasSecondRecipient, setHasSecondRecipient] = useState<boolean>(false);
+  const [recipient2Name, setRecipient2Name] = useState<string>("");
+  const [recipient2Relationship, setRecipient2Relationship] = useState<string>("Mother");
+  const [recipient2Gender, setRecipient2Gender] = useState<string>("female");
+  const [recipient2Age, setRecipient2Age] = useState<string>("72 years");
 
   // ─── Step 2: Care Needs State ────────────────────────────────────────────
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([
@@ -184,7 +218,12 @@ export function UniversalCareConfigurator() {
   const [activeCategoryId, setActiveCategoryId] = useState<string>("cat-mobility");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ─── Step 3: Schedule & Location State ───────────────────────────────────
+  // ─── Step 3: Assessment Answers State (Dynamic Conditional Engine) ─────────
+  const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, any>>({
+    q_emergency_screen: "no_emergency",
+  });
+
+  // ─── Step 4: Schedule & Location State ───────────────────────────────────
   const [city, setCity] = useState("Bengaluru");
   const [area, setArea] = useState("Indiranagar / Koramangala");
   const [duration, setDuration] = useState<DurationOption>("full_day_12h");
@@ -196,11 +235,27 @@ export function UniversalCareConfigurator() {
   // ─── New Mother: Trimester State ─────────────────────────────────────────
   const [trimester, setTrimester] = useState<string>("");
 
-  // ─── Step 4: Preferences State ───────────────────────────────────────────
+  // ─── Step 5: Preferences State ───────────────────────────────────────────
   const [preferredLanguage, setPreferredLanguage] = useState("Tamil");
   const [genderPreference, setGenderPreference] = useState<"female_only" | "male_only" | "no_preference">("male_only");
   const [familyUpdateFrequency, setFamilyUpdateFrequency] = useState<"daily_whatsapp" | "twice_daily" | "weekly_summary">("daily_whatsapp");
   const [customRequirements, setCustomRequirements] = useState("");
+
+  // ─── Step 7: Booking & Consent Submission State ──────────────────────────
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerRelationship, setCustomerRelationship] = useState("Daughter / Son");
+  const [emergencyName, setEmergencyName] = useState("");
+  const [emergencyPhone, setEmergencyPhone] = useState("");
+  const [fullAddress, setFullAddress] = useState("");
+  const [consentCare, setConsentCare] = useState(true);
+  const [consentRx, setConsentRx] = useState(true);
+  const [consentWhatsApp, setConsentWhatsApp] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [confirmedBookingRef, setConfirmedBookingRef] = useState<string>("");
+  const [submissionError, setSubmissionError] = useState<string>("");
 
   // Restore draft from localStorage on mount
   useEffect(() => {
@@ -323,6 +378,20 @@ export function UniversalCareConfigurator() {
     return counts;
   }, [selectedTaskIds]);
 
+  // Active questions dynamically filtered from assessment catalog
+  const activeQuestions = useMemo(() => {
+    return getQuestionsForRecipient(recipientType, selectedTaskIds);
+  }, [recipientType, selectedTaskIds]);
+
+  // Real-time clinical triage evaluation
+  const triageEvaluation = useMemo(() => {
+    return evaluateAssessmentTriage(
+      { relationship: recipientTitle, gender: patientGender },
+      selectedTaskIds,
+      assessmentAnswers
+    );
+  }, [recipientTitle, patientGender, selectedTaskIds, assessmentAnswers]);
+
   // Build Generated Care Plan
   const generatedPlan: GeneratedCarePlan = useMemo(() => {
     const recipient: RecipientProfile = {
@@ -352,7 +421,48 @@ export function UniversalCareConfigurator() {
       specialNotes: customRequirements,
     };
 
-    return generateCarePlan(selectedTaskIds, recipient, schedule, preferences, customRequirements);
+    const recipientsList: IndividualRecipient[] = hasSecondRecipient
+      ? [
+          {
+            id: "rec-1",
+            name: recipientName || recipientTitle,
+            relationship: recipientTitle,
+            gender: patientGender,
+            age: ageGroup,
+            livingSituation,
+            selectedTaskIds,
+            assessmentAnswers,
+            riskFlags: triageEvaluation.riskFlags,
+            triageStatus: triageEvaluation.triageStatus,
+          },
+          {
+            id: "rec-2",
+            name: recipient2Name || recipient2Relationship,
+            relationship: recipient2Relationship,
+            gender: recipient2Gender as any,
+            age: recipient2Age,
+            livingSituation,
+            selectedTaskIds,
+            assessmentAnswers: {},
+            riskFlags: [],
+            triageStatus: "STANDARD_ASSESSMENT",
+          },
+        ]
+      : [];
+
+    return generateCarePlan(
+      selectedTaskIds,
+      recipient,
+      schedule,
+      preferences,
+      customRequirements,
+      {
+        triageStatus: triageEvaluation.triageStatus,
+        riskFlags: triageEvaluation.riskFlags,
+        answers: assessmentAnswers,
+        recipients: recipientsList.length > 0 ? recipientsList : undefined,
+      }
+    );
   }, [
     selectedTaskIds,
     recipientType,
@@ -360,6 +470,12 @@ export function UniversalCareConfigurator() {
     patientGender,
     ageGroup,
     livingSituation,
+    hasSecondRecipient,
+    recipientName,
+    recipient2Name,
+    recipient2Relationship,
+    recipient2Gender,
+    recipient2Age,
     city,
     area,
     scheduleType,
@@ -371,6 +487,8 @@ export function UniversalCareConfigurator() {
     genderPreference,
     familyUpdateFrequency,
     customRequirements,
+    triageEvaluation,
+    assessmentAnswers,
   ]);
 
   // Transition to /booking with active plan
@@ -402,12 +520,83 @@ export function UniversalCareConfigurator() {
     });
   };
 
+  const handleSubmitBookingRequest = async () => {
+    if (!customerName.trim() || !customerPhone.trim()) {
+      setSubmissionError("Please provide your name and a valid Indian mobile number.");
+      return;
+    }
+    setSubmissionError("");
+    setIsSubmitting(true);
+
+    const bookingRef = `AC-BK-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+
+    try {
+      await submitLeadWithReliability(
+        {
+          booking_ref: bookingRef,
+          plan_id: generatedPlan.id,
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          customer_email: customerEmail || "unspecified@apnacare.in",
+          customer_relationship: customerRelationship,
+          emergency_contact_name: emergencyName,
+          emergency_contact_phone: emergencyPhone,
+          recipient_name: recipientName || recipientTitle,
+          recipient_type: recipientType,
+          recipient_gender: patientGender,
+          recipient_age: ageGroup,
+          living_situation: livingSituation,
+          has_second_recipient: hasSecondRecipient ? "Yes" : "No",
+          recipient_2_name: hasSecondRecipient ? recipient2Name : undefined,
+          recipient_2_relationship: hasSecondRecipient ? recipient2Relationship : undefined,
+          city,
+          area,
+          full_address: fullAddress,
+          duration,
+          calendar_days: calendarDays,
+          shift_timing: timing,
+          reporting_time: startTime,
+          language: preferredLanguage,
+          caregiver_gender_preference: genderPreference,
+          selected_tasks_count: selectedTaskIds.length,
+          selected_task_ids: selectedTaskIds.join(", "),
+          triage_status: triageEvaluation.triageStatus,
+          clinical_review_required: triageEvaluation.clinicalReviewRequired ? "Yes" : "No",
+          emergency_screen_passed: triageEvaluation.emergencyAlert ? "Emergency Flagged" : "Clear",
+          risk_flags_summary: triageEvaluation.riskFlags.map((r) => r.label).join("; ") || "None",
+          estimated_subtotal: generatedPlan.pricing.subtotal,
+          estimated_gst: generatedPlan.pricing.gstAmount,
+          estimated_total: generatedPlan.pricing.totalAmount,
+          consent_care_accepted: consentCare ? "Yes" : "No",
+          consent_rx_accepted: consentRx ? "Yes" : "No",
+          consent_dpdp_timestamp: new Date().toISOString(),
+        },
+        "AC-BK"
+      );
+
+      setConfirmedBookingRef(bookingRef);
+      setSubmissionSuccess(true);
+      track("care_plan_booking_submitted", {
+        booking_ref: bookingRef,
+        plan_id: generatedPlan.id,
+        triage_status: triageEvaluation.triageStatus,
+        total_amount: generatedPlan.pricing.totalAmount,
+      });
+    } catch {
+      setSubmissionError("Network error occurred while submitting. Please tap below to confirm instantly via WhatsApp.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const STEPS_NAV = [
     { num: 1, label: "Who Needs Care", icon: User },
     { num: 2, label: "Care & Support", icon: Heart },
-    { num: 3, label: "Schedule & City", icon: CalendarDays },
-    { num: 4, label: "Language & Match", icon: Languages },
-    { num: 5, label: "Care Plan Review", icon: Sparkles },
+    { num: 3, label: "Situation & Needs", icon: Activity },
+    { num: 4, label: "Schedule & City", icon: CalendarDays },
+    { num: 5, label: "Language & Match", icon: Languages },
+    { num: 6, label: "Care Plan Review", icon: Sparkles },
+    { num: 7, label: "Confirm & Request", icon: ShieldCheck },
   ];
 
   return (
@@ -684,6 +873,64 @@ export function UniversalCareConfigurator() {
                   ))}
                 </div>
               </div>
+            </div>
+
+            {/* Multi-Recipient Support (Prompt Section 11) */}
+            <div className="rounded-2xl border border-dashed border-border p-4 bg-card/60 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <UserPlus className="size-4 text-primary" />
+                  <span className="text-xs font-semibold text-foreground">
+                    Care for Both Parents or Additional Family Member?
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setHasSecondRecipient(!hasSecondRecipient)}
+                  className={`text-xs font-bold px-3 py-1 rounded-full border transition-all ${
+                    hasSecondRecipient
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-secondary hover:bg-secondary/80 text-foreground"
+                  }`}
+                >
+                  {hasSecondRecipient ? "✓ Second Recipient Added" : "+ Add Second Recipient"}
+                </button>
+              </div>
+
+              {hasSecondRecipient && (
+                <div className="pt-3 border-t border-border grid sm:grid-cols-3 gap-3 animate-fade-in text-xs">
+                  <div>
+                    <label className="text-[11px] font-medium text-muted-foreground block mb-1">Second Recipient Name</label>
+                    <Input
+                      value={recipient2Name}
+                      onChange={(e) => setRecipient2Name(e.target.value)}
+                      placeholder="e.g. Mother / Kamala"
+                      className="h-9 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-medium text-muted-foreground block mb-1">Relationship & Gender</label>
+                    <select
+                      value={recipient2Gender}
+                      onChange={(e) => setRecipient2Gender(e.target.value)}
+                      className="h-9 w-full rounded-md border border-input bg-card px-2 text-xs"
+                    >
+                      <option value="female">Female (e.g. Mother / Grandmother)</option>
+                      <option value="male">Male (e.g. Father / Grandfather)</option>
+                      <option value="other">Other / Custom</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-medium text-muted-foreground block mb-1">Approximate Age</label>
+                    <Input
+                      value={recipient2Age}
+                      onChange={(e) => setRecipient2Age(e.target.value)}
+                      placeholder="e.g. 70 years"
+                      className="h-9 text-xs"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Action Bar */}
@@ -978,19 +1225,204 @@ export function UniversalCareConfigurator() {
                 disabled={selectedTaskIds.length === 0}
                 className="gap-2"
               >
-                Continue to Schedule ({selectedTaskIds.length} Needs) <ArrowRight className="size-4" />
+                Continue to Needs Assessment ({selectedTaskIds.length} Needs) <ArrowRight className="size-4" />
               </Button>
             </div>
           </div>
         )}
 
         {/* ───────────────────────────────────────────────────────────────── */}
-        {/* STEP 3: SCHEDULE, CITY & DURATION                                 */}
+        {/* STEP 3: UNDERSTAND THE SITUATION (Dynamic Conditional Assessment) */}
         {/* ───────────────────────────────────────────────────────────────── */}
         {currentStep === 3 && (
           <div className="card-soft p-6 md:p-10 shadow-soft max-w-4xl mx-auto space-y-8 animate-fade-in">
             <div>
-              <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 3 of 5</span>
+              <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 3 of 7</span>
+              <h3 className="text-2xl font-semibold mt-1">
+                Understand {recipientTitle}'s Specific Circumstances
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                These targeted questions are generated specifically for the {selectedTaskIds.length} care tasks you selected. No generic or irrelevant questions.
+              </p>
+            </div>
+
+            {/* Acute Emergency Screening Warning (If Triggered) */}
+            {triageEvaluation.emergencyAlert && (
+              <div className="rounded-2xl border-2 border-destructive bg-destructive/10 p-5 space-y-2 text-destructive">
+                <div className="flex items-center gap-2 font-bold text-sm">
+                  <AlertTriangle className="size-5" />
+                  Immediate Medical Attention Advised
+                </div>
+                <p className="text-xs leading-relaxed">
+                  You indicated that an acute medical emergency is present. ApnaCare provides planned daily living support and hospital accompaniment, <strong>not emergency medical resuscitation</strong>. Please immediately call <strong>108 (Ambulance)</strong> or <strong>112 (National Emergency)</strong> or go to the nearest hospital casualty.
+                </p>
+              </div>
+            )}
+
+            {/* Dynamic Real-time Triage Status Badge */}
+            <div className="rounded-2xl border p-4 flex items-center justify-between gap-3 text-xs bg-card">
+              <div className="flex items-center gap-2.5">
+                {triageEvaluation.clinicalReviewRequired ? (
+                  <div className="size-8 rounded-xl bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 grid place-items-center shrink-0">
+                    <Stethoscope className="size-4" />
+                  </div>
+                ) : triageEvaluation.coordinatorReviewRequired ? (
+                  <div className="size-8 rounded-xl bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 grid place-items-center shrink-0">
+                    <AlertCircle className="size-4" />
+                  </div>
+                ) : (
+                  <div className="size-8 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 grid place-items-center shrink-0">
+                    <CheckCircle2 className="size-4" />
+                  </div>
+                )}
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {triageEvaluation.clinicalReviewRequired
+                      ? "Clinical Nursing Pathway (Prescription Verified)"
+                      : triageEvaluation.coordinatorReviewRequired
+                      ? "Specialized Care Coordination Review"
+                      : "Standard Care Assessment — Direct Saha Companion Matching"}
+                  </p>
+                  <p className="text-muted-foreground text-[11px] mt-0.5">
+                    {triageEvaluation.clinicalReviewRequired
+                      ? "Requires written doctor prescription for invasive procedures."
+                      : triageEvaluation.coordinatorReviewRequired
+                      ? "High-dependency or transfer safety evaluated by coordinator before dispatch."
+                      : "Verified non-clinical support matched with 100% ID clearance."}
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold uppercase px-2 py-1 rounded-md bg-secondary text-foreground shrink-0">
+                {triageEvaluation.triageStatus.replace(/_/g, " ")}
+              </span>
+            </div>
+
+            {/* Questions List */}
+            <div className="space-y-6">
+              {activeQuestions.map((q, qIdx) => {
+                const currentAnswer = assessmentAnswers[q.id];
+                return (
+                  <div
+                    key={q.id}
+                    className="p-5 rounded-2xl border border-border bg-card space-y-3 shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                        Question {qIdx + 1} · {q.category.replace(/_/g, " ")}
+                      </span>
+                      {q.required && (
+                        <span className="text-[10px] text-terracotta font-semibold">Required</span>
+                      )}
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-semibold text-foreground">{q.question}</h4>
+                      {q.description && (
+                        <p className="text-xs text-muted-foreground mt-0.5">{q.description}</p>
+                      )}
+                    </div>
+
+                    {/* Single Choice Options */}
+                    {q.inputType === "single_choice" && q.options && (
+                      <div className="grid gap-2 sm:grid-cols-2 pt-1">
+                        {q.options.map((opt) => {
+                          const isSelected = currentAnswer === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => {
+                                setAssessmentAnswers((prev) => ({
+                                  ...prev,
+                                  [q.id]: opt.id,
+                                }));
+                              }}
+                              className={`p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 ${
+                                isSelected
+                                  ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
+                                  : "bg-secondary/40 border-border hover:border-primary/40 text-foreground"
+                              }`}
+                            >
+                              <div
+                                className={`size-4 rounded-full border mt-0.5 shrink-0 grid place-items-center ${
+                                  isSelected
+                                    ? "border-primary-foreground bg-primary-foreground text-primary"
+                                    : "border-muted-foreground/40"
+                                }`}
+                              >
+                                {isSelected && <div className="size-1.5 rounded-full bg-primary" />}
+                              </div>
+                              <span className="leading-snug">{opt.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Multi Choice Options */}
+                    {q.inputType === "multi_choice" && q.options && (
+                      <div className="grid gap-2 sm:grid-cols-2 pt-1">
+                        {q.options.map((opt) => {
+                          const selectedArr: string[] = Array.isArray(currentAnswer) ? currentAnswer : [];
+                          const isSelected = selectedArr.includes(opt.id);
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => {
+                                setAssessmentAnswers((prev) => {
+                                  const existing = Array.isArray(prev[q.id]) ? prev[q.id] : [];
+                                  const next = existing.includes(opt.id)
+                                    ? existing.filter((x: string) => x !== opt.id)
+                                    : [...existing, opt.id];
+                                  return { ...prev, [q.id]: next };
+                                });
+                              }}
+                              className={`p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 ${
+                                isSelected
+                                  ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
+                                  : "bg-secondary/40 border-border hover:border-primary/40 text-foreground"
+                              }`}
+                            >
+                              <div
+                                className={`size-4 rounded-md border mt-0.5 shrink-0 grid place-items-center ${
+                                  isSelected
+                                    ? "border-primary-foreground bg-primary-foreground text-primary"
+                                    : "border-muted-foreground/40"
+                                }`}
+                              >
+                                {isSelected && <Check className="size-3 stroke-[3]" />}
+                              </div>
+                              <span className="leading-snug">{opt.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Stepper Controls */}
+            <div className="flex items-center justify-between border-t border-border pt-6">
+              <Button variant="outline" onClick={() => setCurrentStep(2)} className="gap-2">
+                <ArrowLeft className="size-4" /> Back to Care Needs
+              </Button>
+              <Button onClick={() => setCurrentStep(4)} className="gap-2">
+                Continue to Schedule & City <ArrowRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {/* STEP 4: SCHEDULE, CITY & DURATION                                 */}
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {currentStep === 4 && (
+          <div className="card-soft p-6 md:p-10 shadow-soft max-w-4xl mx-auto space-y-8 animate-fade-in">
+            <div>
+              <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 4 of 7</span>
               <h3 className="text-2xl font-semibold mt-1">Where and when is care required?</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 Choose your city cluster, daily shift duration, and start date. All rates feature full transparency with 18% GST.
@@ -1156,10 +1588,10 @@ export function UniversalCareConfigurator() {
 
             {/* Stepper Controls */}
             <div className="flex items-center justify-between border-t border-border pt-6">
-              <Button variant="outline" onClick={() => setCurrentStep(2)} className="gap-2">
-                <ArrowLeft className="size-4" /> Back to Care Needs
+              <Button variant="outline" onClick={() => setCurrentStep(3)} className="gap-2">
+                <ArrowLeft className="size-4" /> Back to Assessment
               </Button>
-              <Button onClick={() => setCurrentStep(4)} className="gap-2">
+              <Button onClick={() => setCurrentStep(5)} className="gap-2">
                 Continue to Language & Match <ArrowRight className="size-4" />
               </Button>
             </div>
@@ -1167,12 +1599,12 @@ export function UniversalCareConfigurator() {
         )}
 
         {/* ───────────────────────────────────────────────────────────────── */}
-        {/* STEP 4: SAHA LANGUAGE & PREFERENCES                               */}
+        {/* STEP 5: SAHA LANGUAGE & PREFERENCES                               */}
         {/* ───────────────────────────────────────────────────────────────── */}
-        {currentStep === 4 && (
+        {currentStep === 5 && (
           <div className="card-soft p-6 md:p-10 shadow-soft max-w-4xl mx-auto space-y-8 animate-fade-in">
             <div>
-              <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 4 of 5</span>
+              <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 5 of 7</span>
               <h3 className="text-2xl font-semibold mt-1">Caregiver Preferences & Match Criteria</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 Regional language compatibility and caregiver gender matching ensure your loved one feels relaxed and understood.
@@ -1292,10 +1724,10 @@ export function UniversalCareConfigurator() {
 
             {/* Stepper Controls */}
             <div className="flex items-center justify-between border-t border-border pt-6">
-              <Button variant="outline" onClick={() => setCurrentStep(3)} className="gap-2">
+              <Button variant="outline" onClick={() => setCurrentStep(4)} className="gap-2">
                 <ArrowLeft className="size-4" /> Back to Schedule
               </Button>
-              <Button onClick={() => setCurrentStep(5)} className="gap-2" variant="warm">
+              <Button onClick={() => setCurrentStep(6)} className="gap-2" variant="warm">
                 Generate My Care Plan <Sparkles className="size-4" />
               </Button>
             </div>
@@ -1303,9 +1735,9 @@ export function UniversalCareConfigurator() {
         )}
 
         {/* ───────────────────────────────────────────────────────────────── */}
-        {/* STEP 5: CUSTOM CARE PLAN REVIEW & TRANSPARENT PRICING             */}
+        {/* STEP 6: CUSTOM CARE PLAN REVIEW & TRANSPARENT PRICING             */}
         {/* ───────────────────────────────────────────────────────────────── */}
-        {currentStep === 5 && (
+        {currentStep === 6 && (
           <div className="card-soft p-6 md:p-10 shadow-soft max-w-4xl mx-auto space-y-8 animate-fade-in">
             {/* Top Success Ribbon */}
             <div className="rounded-3xl border border-primary/20 bg-primary-soft/40 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1446,11 +1878,11 @@ export function UniversalCareConfigurator() {
             <div className="space-y-3 pt-2">
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
-                  onClick={handleProceedToBooking}
+                  onClick={() => setCurrentStep(7)}
                   className="flex-1 h-12 text-sm font-semibold gap-2 shadow-md"
                   variant="warm"
                 >
-                  Confirm & Reserve This Care Plan <ArrowRight className="size-4" />
+                  Proceed to Final Confirmation & Submit <ArrowRight className="size-4" />
                 </Button>
 
                 <Button asChild variant="outline" className="h-12 text-sm font-semibold gap-2 border-primary/40 text-primary">
@@ -1467,14 +1899,245 @@ export function UniversalCareConfigurator() {
               <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
                 <button
                   type="button"
-                  onClick={() => setCurrentStep(1)}
+                  onClick={() => setCurrentStep(5)}
                   className="hover:underline flex items-center gap-1"
                 >
-                  <RotateCcw className="size-3" /> Start Fresh or Change Recipient
+                  <ArrowLeft className="size-3" /> Back to Preferences
                 </button>
                 <span>Standby coordinator backup included</span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {/* STEP 7: FINAL CONFIRMATION & STRUCTURED REQUEST SUBMISSION        */}
+        {/* ───────────────────────────────────────────────────────────────── */}
+        {currentStep === 7 && (
+          <div className="card-soft p-6 md:p-10 shadow-soft max-w-4xl mx-auto space-y-8 animate-fade-in">
+            {submissionSuccess ? (
+              <div className="text-center py-8 space-y-5 animate-fade-in">
+                <div className="size-16 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 grid place-items-center mx-auto shadow-sm">
+                  <CheckCircle2 className="size-8" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">Request Successfully Received</span>
+                  <h3 className="text-2xl font-bold text-foreground mt-1">
+                    Your ApnaCare Request is Registered!
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Booking Reference: <strong className="font-mono text-foreground text-sm">{confirmedBookingRef}</strong> · Care Plan: <strong className="font-mono text-foreground">{generatedPlan.id}</strong>
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-secondary/30 p-5 max-w-lg mx-auto text-left text-xs space-y-2">
+                  <p className="font-semibold text-foreground">What happens next?</p>
+                  <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
+                    <li>Our South India Care Coordinator will call you on <strong>{customerPhone}</strong> within 15–30 minutes.</li>
+                    <li>We verify schedule timings, language alignment, and police verification ID clearance.</li>
+                    <li>You will receive your Saha profile match and live updates via WhatsApp.</li>
+                  </ul>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-3 max-w-md mx-auto">
+                  <Button asChild className="h-12 text-sm font-semibold gap-2" variant="warm">
+                    <a
+                      href={buildWhatsAppUrl(`*ApnaCare Booking Confirmation (${confirmedBookingRef})*\n\nHello, I have submitted my care plan for ${recipientTitle}. Please verify the match and assignment.`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircle className="size-4" /> Message Coordinator on WhatsApp
+                    </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSubmissionSuccess(false);
+                      setCurrentStep(1);
+                    }}
+                    className="h-12 text-xs"
+                  >
+                    Start Another Plan
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div>
+                  <span className="text-xs font-bold uppercase text-terracotta tracking-wider">Step 7 of 7</span>
+                  <h3 className="text-2xl font-semibold mt-1">Family Contact & Booking Confirmation</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Provide your contact details so our regional coordinator can connect with you and verify Saha arrival.
+                  </p>
+                </div>
+
+                {submissionError && (
+                  <div className="p-3.5 rounded-xl border border-destructive bg-destructive/10 text-destructive text-xs font-medium flex items-center gap-2">
+                    <AlertCircle className="size-4 shrink-0" />
+                    <span>{submissionError}</span>
+                  </div>
+                )}
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="cust-name" className="text-xs font-semibold">Your Full Name *</Label>
+                    <Input
+                      id="cust-name"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="e.g. Ananya Raman"
+                      className="h-11 text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="cust-phone" className="text-xs font-semibold">Mobile Number (+91) *</Label>
+                    <Input
+                      id="cust-phone"
+                      type="tel"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder="e.g. 98825 49349"
+                      className="h-11 text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="cust-email" className="text-xs font-semibold">Email Address (Optional)</Label>
+                    <Input
+                      id="cust-email"
+                      type="email"
+                      value={customerEmail}
+                      onChange={(e) => setCustomerEmail(e.target.value)}
+                      placeholder="e.g. ananya@gmail.com"
+                      className="h-11 text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="cust-rel" className="text-xs font-semibold">Relationship to {recipientTitle} *</Label>
+                    <select
+                      id="cust-rel"
+                      value={customerRelationship}
+                      onChange={(e) => setCustomerRelationship(e.target.value)}
+                      className="h-11 w-full rounded-xl border border-input bg-card px-3 text-xs"
+                    >
+                      <option value="Daughter / Son">Daughter / Son</option>
+                      <option value="Spouse">Spouse / Partner</option>
+                      <option value="Parent">Parent (for child/toddler)</option>
+                      <option value="Self">Self</option>
+                      <option value="Sibling / Relative">Sibling / Relative</option>
+                      <option value="Family Friend">Family Friend / Neighbor</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Service Address & Landmark */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="full-address" className="text-xs font-semibold">Service Address & Landmark in {city} *</Label>
+                  <Textarea
+                    id="full-address"
+                    rows={2}
+                    value={fullAddress}
+                    onChange={(e) => setFullAddress(e.target.value)}
+                    placeholder={`e.g. Flat 302, Shanthi Heights, 12th Cross Road, ${area || city}`}
+                    className="text-xs rounded-xl"
+                  />
+                </div>
+
+                {/* Emergency Contact */}
+                <div className="rounded-2xl border border-border bg-secondary/20 p-4 space-y-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
+                    Local Emergency Contact (Optional but Recommended)
+                  </span>
+                  <div className="grid sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <Label htmlFor="em-name" className="text-[11px]">Emergency Contact Name</Label>
+                      <Input
+                        id="em-name"
+                        value={emergencyName}
+                        onChange={(e) => setEmergencyName(e.target.value)}
+                        placeholder="e.g. Dr. Ramesh (Brother)"
+                        className="h-9 text-xs mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="em-phone" className="text-[11px]">Emergency Contact Phone</Label>
+                      <Input
+                        id="em-phone"
+                        type="tel"
+                        value={emergencyPhone}
+                        onChange={(e) => setEmergencyPhone(e.target.value)}
+                        placeholder="e.g. 98765 43210"
+                        className="h-9 text-xs mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Purpose-Specific Statutory & DPDP Consents */}
+                <div className="space-y-2.5 pt-2 border-t border-border text-xs">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={consentCare}
+                      onChange={(e) => setConsentCare(e.target.checked)}
+                      className="mt-0.5 rounded text-primary"
+                    />
+                    <span className="text-muted-foreground leading-snug">
+                      I authorize ApnaCare to process this care assessment solely to coordinate background-verified Saha companion matching and healthcare oversight under Indian DPDP privacy standards.
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={consentRx}
+                      onChange={(e) => setConsentRx(e.target.checked)}
+                      className="mt-0.5 rounded text-primary"
+                    />
+                    <span className="text-muted-foreground leading-snug">
+                      I understand that invasive clinical procedures require a valid physician prescription and are administered exclusively by registered nurses, not non-clinical companions.
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={consentWhatsApp}
+                      onChange={(e) => setConsentWhatsApp(e.target.checked)}
+                      className="mt-0.5 rounded text-primary"
+                    />
+                    <span className="text-muted-foreground leading-snug">
+                      Receive booking confirmation, daily WhatsApp wellness updates, and assigned Saha profile via WhatsApp.
+                    </span>
+                  </label>
+                </div>
+
+                {/* Submit Controls */}
+                <div className="flex items-center justify-between border-t border-border pt-6">
+                  <Button variant="outline" onClick={() => setCurrentStep(6)} className="gap-2">
+                    <ArrowLeft className="size-4" /> Back to Care Plan
+                  </Button>
+                  <Button
+                    onClick={handleSubmitBookingRequest}
+                    disabled={isSubmitting || !customerName.trim() || !customerPhone.trim()}
+                    className="gap-2 px-8"
+                    variant="warm"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Zap className="size-4 animate-spin" /> Submitting Request...
+                      </>
+                    ) : (
+                      <>
+                        Submit Verified Care Request <ArrowRight className="size-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
