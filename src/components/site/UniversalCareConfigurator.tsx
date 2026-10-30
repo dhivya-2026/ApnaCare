@@ -507,7 +507,7 @@ export function UniversalCareConfigurator() {
                 <div>
                   <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <User className="size-4 text-primary" />
-                    Gender of the Member / Patient needing support *
+                    Gender of the Member needing support *
                   </label>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Essential for matching: Ensures complete dignity, personal hygiene comfort (e.g. female attendant for mother's bathing) and cultural sensitivity.
@@ -517,8 +517,8 @@ export function UniversalCareConfigurator() {
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
                 {[
-                  { id: "male", label: "Male Patient", icon: "👨" },
-                  { id: "female", label: "Female Patient", icon: "👩" },
+                  { id: "male", label: "Male", icon: "👨" },
+                  { id: "female", label: "Female", icon: "👩" },
                   { id: "both", label: "Both Parents", icon: "👫" },
                   { id: "other", label: "Prefer Not to Say", icon: "🤝" },
                 ].map((g) => {
