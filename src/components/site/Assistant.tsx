@@ -28,8 +28,23 @@ import { SERVICES, CITIES, SITE, formatINR, buildWhatsAppUrl, Service, getICP, g
 import { track, sendToGoogleSheet } from "@/lib/analytics";
 import { useVisitorPersona } from "@/hooks/useVisitorPersona";
 import { recordBookingDraft, recordServiceInteraction } from "@/lib/sessionEngine";
+import { getSavedCustomer, saveCustomer } from "@/lib/unifiedBookingEngine";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface CarePack {
+  id: string;
+  name: string;
+  badge: string;
+  subtitle: string;
+  serviceSlug: string;
+  serviceName: string;
+  startingPrice: number;
+  pricingUnit: string;
+  shiftSchedule: string;
+  whatYouGet: string[];
+  bestFor: string[];
+}
 
 export interface BookingCardData {
   ref: string;
@@ -37,6 +52,8 @@ export interface BookingCardData {
   mobile: string;
   serviceName: string;
   patientAge: string;
+  packName?: string;
+  packInclusions?: string[];
   city: string;
   location: string;
   shiftSchedule: string;
@@ -75,20 +92,29 @@ export interface PageContextInfo {
 
 export type BookingStep =
   | "none"
-  | "ask_service"
-  | "ask_age"
+  | "ask_recipient"
+  | "ask_situation"
+  | "recommend_packs"
   | "ask_city"
   | "ask_location"
-  | "ask_shift"
-  | "ask_duration"
-  | "ask_conditions"
   | "ask_urgency"
   | "ask_contact"
-  | "complete";
+  | "complete"
+  // Legacy / Direct fallbacks for backward compatibility
+  | "ask_service"
+  | "ask_age"
+  | "ask_shift"
+  | "ask_duration"
+  | "ask_conditions";
 
 export interface BookingDraft {
   serviceId?: string;
   serviceName?: string;
+  recipient?: string;
+  situation?: string;
+  selectedPackId?: string;
+  selectedPackName?: string;
+  selectedPackInclusions?: string[];
   patientAge?: string;
   city?: string;
   location?: string;
@@ -99,6 +125,179 @@ export interface BookingDraft {
   customerName?: string;
   mobile?: string;
   ref?: string;
+}
+
+// ─── Care Packs Catalog & Intelligent Recommendation Engine ──────────────────
+
+export const CARE_PACKS: Record<string, CarePack> = {
+  elder_day_companion: {
+    id: "elder_day_companion",
+    name: "Dignified Day Companion Pack",
+    badge: "Most Popular",
+    subtitle: "Everyday mobility, personal hygiene, and warm companionship while family is at work",
+    serviceSlug: "elderly-care",
+    serviceName: "Elderly Care at Home",
+    startingPrice: 1299,
+    pricingUnit: "12-hr day shift",
+    shiftSchedule: "12-Hour Day Shift (8 AM - 8 PM)",
+    whatYouGet: [
+      "Dedicated, police-verified female Saha companion",
+      "Morning sponge bath, personal grooming & dignity hygiene support",
+      "Gentle walking assistance, wheelchair transfers & fall prevention",
+      "Timely oral medication reminders & vital sign logging",
+      "Nutritious warm meal accompaniment & light pantry preparation",
+      "Daily WhatsApp digital wellness logs dispatched to family",
+      "90-min regional emergency cluster standby replacement backup",
+    ],
+    bestFor: ["father", "mother", "parents", "elderly", "daily living", "walking", "bathing", "companionship"],
+  },
+  elder_livein: {
+    id: "elder_livein",
+    name: "24/7 Continuous Live-In Care Pack",
+    badge: "Round-the-Clock Safety",
+    subtitle: "Continuous day-and-night companion living at home for seniors needing round-the-clock peace of mind",
+    serviceSlug: "elderly-care",
+    serviceName: "Elderly Care at Home",
+    startingPrice: 1799,
+    pricingUnit: "24-hr day",
+    shiftSchedule: "24-Hour Live-in Care (Continuous)",
+    whatYouGet: [
+      "Resident police-verified Saha attendant living in family home",
+      "Night-time monitoring, bathroom assistance & zero unattended falls",
+      "Complete personal hygiene, grooming, and bed-bound comfort",
+      "Regular diet assistance, hydration reminders & routine tracking",
+      "Direct daily oversight from dedicated regional care coordinator",
+      "Standby replacement guarantee if primary attendant is unavailable",
+      "18% statutory GST invoice with zero broker commissions",
+    ],
+    bestFor: ["24/7", "live in", "live-in", "night", "alone", "unattended", "parents alone", "continuous"],
+  },
+  hospital_bedside: {
+    id: "hospital_bedside",
+    name: "Hospital Ward Bedside Vigil Pack",
+    badge: "Hospital & Recovery",
+    subtitle: "Attentive bedside presence in private or general wards, relieving exhausted family members",
+    serviceSlug: "hospital-attendants",
+    serviceName: "Hospital & Bedside Support",
+    startingPrice: 1499,
+    pricingUnit: "12-hr shift",
+    shiftSchedule: "12-Hour Day or Night Ward Vigil",
+    whatYouGet: [
+      "Attentive bedside attendant stationed in private or general ward",
+      "Immediate nurse call-bell coordination & doctor instruction liaison",
+      "Patient sponge baths, commode/bedpan assistance & fresh clothes change",
+      "Position adjustments to prevent ward stiffness and bed sores",
+      "Hourly WhatsApp status check-ins for anxious or distant family",
+      "Discharge coordination: billing lines, wheelchair escort & home transfer",
+    ],
+    bestFor: ["hospital", "bedside", "ward", "icu", "surgery", "operation", "discharge", "post-op"],
+  },
+  clinical_nursing: {
+    id: "clinical_nursing",
+    name: "Certified Clinical Nursing Pack",
+    badge: "Licensed GNM / B.Sc",
+    subtitle: "Medical and surgical nursing procedures administered strictly per written physician prescription",
+    serviceSlug: "nursing-services",
+    serviceName: "Certified Clinical Nursing",
+    startingPrice: 1999,
+    pricingUnit: "clinical shift",
+    shiftSchedule: "Visit or 12-Hour Clinical Nursing",
+    whatYouGet: [
+      "State Nursing Council registered GNM or B.Sc nurse",
+      "Sterile surgical wound dressings & bedsore management",
+      "IV infusions, doctor-prescribed injections & cannula management",
+      "Catheter insertion / care and Ryle's tube feeding supervision",
+      "Clinical vital signs charting & physician prescription adherence",
+      "Emergency medical coordination protocols",
+    ],
+    bestFor: ["nurse", "nursing", "injection", "iv", "wound", "dressing", "catheter", "sterile", "clinical"],
+  },
+  post_natal_mother_baby: {
+    id: "post_natal_mother_baby",
+    name: "Mother & Baby Post-Natal Healing Pack",
+    badge: "Traditional Japa & Nurturing",
+    subtitle: "Gentle mother healing, traditional massage, and delicate newborn care routines",
+    serviceSlug: "post-natal-care",
+    serviceName: "Post-Natal & Infant Care",
+    startingPrice: 1799,
+    pricingUnit: "day",
+    shiftSchedule: "10-Hour Day Shift or 24-Hour Live-in",
+    whatYouGet: [
+      "Experienced traditional Japa & maternal care specialist",
+      "Traditional herbal mother massage & hot water fomentation",
+      "Gentle baby oil massage, lukewarm bath & umbilical cord hygiene",
+      "Post-C-section incision care & supportive recovery rest",
+      "Night feeding support & burping so the new mother can rest and sleep",
+      "Nutritious post-natal meal accompaniment for lactation",
+    ],
+    bestFor: ["baby", "mother", "newborn", "post-natal", "postnatal", "japa", "c-section", "pregnancy", "delivery"],
+  },
+  specialised_dependency: {
+    id: "specialised_dependency",
+    name: "High-Dependency & Neuro Support Pack",
+    badge: "Specialized Attendant",
+    subtitle: "Care for Parkinson's, post-stroke rehabilitation, and dementia memory support",
+    serviceSlug: "elderly-care",
+    serviceName: "Specialised Daily Support",
+    startingPrice: 1599,
+    pricingUnit: "shift",
+    shiftSchedule: "12-Hour Shift or 24-Hour Live-in",
+    whatYouGet: [
+      "Attendant trained in patient ergonomics and neurological care",
+      "Two-person gentle transfer techniques & anti-fall room safety",
+      "Dementia redirection, memory validation & patient emotional calm",
+      "Bed-bound sponge baths, diaper hygiene & skin integrity checks",
+      "Assistance with doctor-prescribed physiotherapy movement drills",
+      "Continuous coordination with regional supervisor & daily digital logs",
+    ],
+    bestFor: ["stroke", "parkinson", "dementia", "alzheimer", "paralysis", "bedridden", "dependent", "fracture", "high-dependency"],
+  },
+  assisted_travel_transit: {
+    id: "assisted_travel_transit",
+    name: "Door-to-Door Assisted Travel Pack",
+    badge: "Assisted Travel & Transit",
+    subtitle: "Accompanied travel for senior citizens, airport navigation, and railway platform assistance",
+    serviceSlug: "travel-assistance",
+    serviceName: "Assisted Travel",
+    startingPrice: 899,
+    pricingUnit: "trip",
+    shiftSchedule: "Single Trip or Full-Day Travel Escort",
+    whatYouGet: [
+      "Verified female companion meeting at doorstep, airport curb or platform",
+      "Luggage handling & licensed coolie coordination",
+      "Wheelchair assistance through airport check-in, security & gate boarding",
+      "Railway coach seat locating, luggage stowing & arrival greeting",
+      "Live GPS trip feed and photo check-in sent to family WhatsApp",
+      "Safe doorstep handover at destination address",
+    ],
+    bestFor: ["travel", "airport", "railway", "train", "flight", "transit", "station", "commute", "chauffeuse", "driver"],
+  },
+};
+
+export function getRecommendedPacks(recipient: string, situation: string, serviceSlug?: string): CarePack[] {
+  const query = `${recipient} ${situation} ${serviceSlug || ""}`.toLowerCase();
+
+  if (serviceSlug === "post-natal-care" || query.includes("baby") || query.includes("newborn") || query.includes("japa") || query.includes("post-natal") || query.includes("postnatal")) {
+    return [CARE_PACKS.post_natal_mother_baby, CARE_PACKS.elder_day_companion];
+  }
+  if (serviceSlug === "nursing-services" || query.includes("injection") || query.includes("wound") || query.includes("catheter") || query.includes("iv") || query.includes("sterile") || query.includes("clinical")) {
+    return [CARE_PACKS.clinical_nursing, CARE_PACKS.hospital_bedside];
+  }
+  if (serviceSlug === "hospital-attendants" || query.includes("hospital") || query.includes("ward") || query.includes("surgery") || query.includes("icu") || query.includes("operation") || query.includes("discharge")) {
+    return [CARE_PACKS.hospital_bedside, CARE_PACKS.clinical_nursing, CARE_PACKS.elder_day_companion];
+  }
+  if (serviceSlug === "travel-assistance" || serviceSlug === "women-drivers" || query.includes("airport") || query.includes("railway") || query.includes("flight") || query.includes("train") || query.includes("travel")) {
+    return [CARE_PACKS.assisted_travel_transit, CARE_PACKS.elder_day_companion];
+  }
+  if (query.includes("stroke") || query.includes("parkinson") || query.includes("dementia") || query.includes("alzheimer") || query.includes("paralysis") || query.includes("bedridden") || query.includes("high-dependency")) {
+    return [CARE_PACKS.specialised_dependency, CARE_PACKS.elder_livein, CARE_PACKS.elder_day_companion];
+  }
+  if (query.includes("24") || query.includes("live") || query.includes("night") || query.includes("alone") || query.includes("round the clock")) {
+    return [CARE_PACKS.elder_livein, CARE_PACKS.elder_day_companion, CARE_PACKS.specialised_dependency];
+  }
+
+  // Default Elder Care recommendations: Day companion and 24/7 live-in
+  return [CARE_PACKS.elder_day_companion, CARE_PACKS.elder_livein, CARE_PACKS.hospital_bedside];
 }
 
 // ─── Global Fallback Menus ───────────────────────────────────────────────────
@@ -158,56 +357,123 @@ export const GLOBAL_MENU: QuickReply[] = [
 
 // ─── Step Metadata & Question Generator ─────────────────────────────────────
 
-const STEP_PROGRESS_MAP: Record<BookingStep, { num: number; title: string }> = {
+export const STEP_PROGRESS_MAP: Record<BookingStep, { num: number; title: string }> = {
   none: { num: 0, title: "" },
+  ask_recipient: { num: 1, title: "Who Needs Care" },
+  ask_situation: { num: 2, title: "Care Situation" },
+  recommend_packs: { num: 3, title: "Recommended Packs" },
+  ask_city: { num: 4, title: "City" },
+  ask_location: { num: 4, title: "Locality" },
+  ask_urgency: { num: 5, title: "Start Date" },
+  ask_contact: { num: 6, title: "Confirmation" },
+  complete: { num: 6, title: "Booking Confirmed" },
+  // Backward compatibility mappings
   ask_service: { num: 1, title: "Support Needed" },
-  ask_age: { num: 2, title: "Patient Age & Profile" },
-  ask_city: { num: 3, title: "City" },
-  ask_location: { num: 3, title: "Locality / Ward" },
+  ask_age: { num: 2, title: "Patient Age" },
   ask_shift: { num: 4, title: "Shift Schedule" },
   ask_duration: { num: 4, title: "Duration" },
   ask_conditions: { num: 5, title: "Patient Needs" },
-  ask_urgency: { num: 5, title: "Start Date" },
-  ask_contact: { num: 6, title: "Contact Confirmation" },
-  complete: { num: 6, title: "Booking Confirmed" },
 };
 
 function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string; replies: QuickReply[]; placeholder?: string } {
   switch (step) {
-    case "ask_service":
+    case "ask_recipient":
       return {
-        text: "👋 Welcome to **ApnaCare Chat-Based Booking**!\nLet's match the right verified Saha companion for your family in 2 minutes.\n\nFirst question: **What type of support or service does your family need?**",
+        text: "👋 Welcome to **ApnaCare Conversational Care Concierge**!\n\nLet's start by understanding your family's needs: **Who are you booking care for?**\n\n*(You can pick an option below or describe your family's situation in your own words)*",
         replies: [
-          { label: "🏠 Elderly Care & Daily Living", action: { type: "booking_answer", field: "service", value: "elderly-care", displayLabel: "Elderly Care" } },
-          { label: "🏥 Hospital Bedside Vigil", action: { type: "booking_answer", field: "service", value: "hospital-attendants", displayLabel: "Hospital Bedside" } },
-          { label: "💉 Clinical Nursing (GNM/B.Sc)", action: { type: "booking_answer", field: "service", value: "nursing-services", displayLabel: "Clinical Nursing" } },
-          { label: "👶 Post-Natal & Infant Care", action: { type: "booking_answer", field: "service", value: "post-natal-care", displayLabel: "Post-Natal Care" } },
-          { label: "🧼 Home & Personal Care", action: { type: "booking_answer", field: "service", value: "home-personal-care", displayLabel: "Home & Personal Care" } },
-          { label: "🚗 Verified Women Driver", action: { type: "booking_answer", field: "service", value: "women-drivers", displayLabel: "Women Driver" } },
-          { label: "✈️ Travel & Station Assisted Travel", action: { type: "booking_answer", field: "service", value: "travel-assistance", displayLabel: "Travel Assistance" } },
-          { label: "❌ Cancel Booking", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
-        ],
-        placeholder: "Type your needed service or choose an option above...",
-      };
-
-    case "ask_age":
-      return {
-        text: `Understood: **${draft.serviceName || "Care Service"}**.\n\n**Who needs this care, and what is their approximate age?**`,
-        replies: [
-          { label: "👵 Mother (60-75 yrs)", action: { type: "booking_answer", field: "age", value: "Mother (60-75 yrs)" } },
-          { label: "👴 Father (60-75 yrs)", action: { type: "booking_answer", field: "age", value: "Father (60-75 yrs)" } },
-          { label: "🧓 Elderly Senior (75+ yrs)", action: { type: "booking_answer", field: "age", value: "Elderly Senior (75+ yrs)" } },
-          { label: "🏥 Adult Patient (Post-Op / Hospital)", action: { type: "booking_answer", field: "age", value: "Adult Post-Op Patient" } },
-          { label: "👶 New Mother & Newborn", action: { type: "booking_answer", field: "age", value: "New Mother & Newborn" } },
-          { label: "👤 Self / Working Adult (25-55 yrs)", action: { type: "booking_answer", field: "age", value: "Self / Adult (25-55 yrs)" } },
+          { label: "👴 My Elderly Father", action: { type: "booking_answer", field: "recipient", value: "My Elderly Father" } },
+          { label: "👵 My Elderly Mother", action: { type: "booking_answer", field: "recipient", value: "My Elderly Mother" } },
+          { label: "🧓 Both My Parents", action: { type: "booking_answer", field: "recipient", value: "Both My Parents" } },
+          { label: "🏥 Patient in Hospital / Post-Op Recovery", action: { type: "booking_answer", field: "recipient", value: "Hospital / Post-Op Patient" } },
+          { label: "👶 New Mother & Newborn Baby", action: { type: "booking_answer", field: "recipient", value: "New Mother & Baby" } },
+          { label: "🧠 Chronic Care (Stroke, Parkinson's, Dementia)", action: { type: "booking_answer", field: "recipient", value: "Chronic / Specialised Care" } },
+          { label: "👤 Myself / Personal Assistance", action: { type: "booking_answer", field: "recipient", value: "Myself" } },
           { label: "❌ Cancel", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
         ],
-        placeholder: "Select an option or type age (e.g. 78 years old)...",
+        placeholder: "Type who needs care or explain your situation in words...",
       };
 
-    case "ask_city":
+    case "ask_situation": {
+      const rec = draft.recipient || "your loved one";
+      const lowerRec = rec.toLowerCase();
+      let situationOptions: { label: string; value: string }[] = [];
+
+      if (lowerRec.includes("hospital") || lowerRec.includes("post-op")) {
+        situationOptions = [
+          { label: "🏥 Ward Bedside Attendant (Day or Night Vigil)", value: "Ward Bedside Attendant" },
+          { label: "🩺 Post-Discharge Home Convalescence", value: "Post-Discharge Home Recovery" },
+          { label: "💉 Prescribed Clinical Nursing (Wound, IV, Catheter)", value: "Clinical Nursing & Wound Care" },
+          { label: "🚶 Mobility & Sponge Bath Assistance", value: "Mobility & Sponge Bath Assistance" },
+        ];
+      } else if (lowerRec.includes("mother") || lowerRec.includes("baby")) {
+        situationOptions = [
+          { label: "🍼 Newborn Oil Massage & Bathing (Japa)", value: "Newborn Japa & Mother Massage" },
+          { label: "🤱 Post-C-Section Convalescence & Rest", value: "Post-C-Section Recovery" },
+          { label: "🌙 Night-Time Feeding & Infant Respite", value: "Night Respite & Feeding Care" },
+          { label: "🏡 24-hr Full-Time Mother & Baby Live-In", value: "24-hr Japa Live-in Care" },
+        ];
+      } else if (lowerRec.includes("chronic") || lowerRec.includes("stroke") || lowerRec.includes("dementia") || lowerRec.includes("parkinson")) {
+        situationOptions = [
+          { label: "🧠 Dementia / Alzheimer's Memory & Calm", value: "Dementia & Memory Care" },
+          { label: "⚡ Post-Stroke Paralysis & Transfer Drills", value: "Post-Stroke Rehabilitation" },
+          { label: "🤝 Parkinson's Daily Balance & Living", value: "Parkinson's Daily Support" },
+          { label: "🛏️ Bedridden Diaper & Commode Care", value: "Bedridden & Diaper Hygiene" },
+        ];
+      } else {
+        situationOptions = [
+          { label: "🚶 Walking, Transfers & Fall Safety", value: "Walking & Fall Prevention" },
+          { label: "🛁 Bathing, Dressing & Dignity Hygiene", value: "Bathing & Personal Hygiene" },
+          { label: "💊 Medication Reminders & Companionship", value: "Medication & Companionship" },
+          { label: "🛏️ Bedridden / Diaper & Commode Support", value: "Bedridden & Diaper Care" },
+          { label: "🏡 24/7 Round-the-Clock Peace of Mind", value: "24/7 Live-in Safety" },
+        ];
+      }
+
       return {
-        text: `Noted: Care for **${draft.patientAge}**.\n\n**Which city will your Saha be assisting in?**`,
+        text: `Understood: care for **${rec}**.\n\n**Could you describe their current situation or what support they need most?**\n\n*(Pick an option or describe their condition in detail)*`,
+        replies: [
+          ...situationOptions.map((opt) => ({
+            label: opt.label,
+            action: { type: "booking_answer" as const, field: "situation", value: opt.value },
+          })),
+          { label: "❌ Cancel", action: { type: "booking_answer" as const, field: "cancel", value: "cancel" } },
+        ],
+        placeholder: "Type their physical/medical situation in detail...",
+      };
+    }
+
+    case "recommend_packs": {
+      const packs = getRecommendedPacks(draft.recipient || "", draft.situation || "", draft.serviceId);
+      const packsSummary = packs
+        .map(
+          (p, idx) =>
+            `📦 **Pack ${idx + 1}: ${p.name}** (${formatINR(p.startingPrice)} / ${p.pricingUnit})\n🏷️ *${p.badge}* · ${p.shiftSchedule}\n💡 *${p.subtitle}*\n**What they get:**\n• ${p.whatYouGet.join("\n• ")}`
+        )
+        .join("\n\n────────────────────\n\n");
+
+      return {
+        text: `✨ **Recommended Care Packs for ${draft.recipient || "Your Family"}**\nBased on your situation (*${draft.situation || "General Care"}*), here are our tailored packages with complete inclusion transparency:\n\n${packsSummary}\n\n**Which pack would you like to reserve?**`,
+        replies: [
+          ...packs.map((p, idx) => ({
+            label: `👉 Choose Pack ${idx + 1}: ${p.name}`,
+            action: {
+              type: "booking_answer" as const,
+              field: "pack",
+              value: p.id,
+              displayLabel: `Selected: ${p.name}`,
+            },
+          })),
+          { label: "💬 Speak to Coordinator for Custom Plan", action: { type: "whatsapp" as const, msg: `Hi ApnaCare! I need a custom care plan for ${draft.recipient} (${draft.situation}).` } },
+          { label: "❌ Cancel", action: { type: "booking_answer" as const, field: "cancel", value: "cancel" } },
+        ],
+        placeholder: "Select a pack above or ask a question...",
+      };
+    }
+
+    case "ask_city": {
+      const packName = draft.selectedPackName || "Care Package";
+      return {
+        text: `Excellent choice! You've selected **${packName}**.\n\n**Which city will your Saha be assisting in?**`,
         replies: [
           { label: "🏙️ Bengaluru", action: { type: "booking_answer", field: "city", value: "Bengaluru" } },
           { label: "🏛️ Chennai", action: { type: "booking_answer", field: "city", value: "Chennai" } },
@@ -217,6 +483,7 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
         ],
         placeholder: "Select your city or type location...",
       };
+    }
 
     case "ask_location": {
       const city = draft.city || "Bengaluru";
@@ -243,50 +510,9 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
       };
     }
 
-    case "ask_shift":
-      return {
-        text: `Area noted: **${draft.location}, ${draft.city}**.\n\n**What shift schedule does your family require?**`,
-        replies: [
-          { label: "☀️ 12-Hour Day Shift (8 AM - 8 PM)", action: { type: "booking_answer", field: "shift", value: "12-Hour Day Shift (8 AM - 8 PM)" } },
-          { label: "🌙 12-Hour Night Shift (8 PM - 8 AM)", action: { type: "booking_answer", field: "shift", value: "12-Hour Night Shift (8 PM - 8 AM)" } },
-          { label: "🏡 24-Hour Live-in Care (Round-the-clock)", action: { type: "booking_answer", field: "shift", value: "24-Hour Live-in Care" } },
-          { label: "⏱️ Part-Time / Per Trip", action: { type: "booking_answer", field: "shift", value: "Part-Time / Per Trip" } },
-          { label: "❌ Cancel", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
-        ],
-        placeholder: "Select preferred shift timing...",
-      };
-
-    case "ask_duration":
-      return {
-        text: `Shift: **${draft.shiftSchedule}**.\n\n**How long do you expect to need this care support?**`,
-        replies: [
-          { label: "🗓️ 1 to 7 Days (Short-term)", action: { type: "booking_answer", field: "duration", value: "1 to 7 Days" } },
-          { label: "🗓️ 15 Days (Convalescence)", action: { type: "booking_answer", field: "duration", value: "15 Days" } },
-          { label: "🗓️ 1 Month (30 Days)", action: { type: "booking_answer", field: "duration", value: "30 Days (1 Month)" } },
-          { label: "🔄 Ongoing Monthly Care", action: { type: "booking_answer", field: "duration", value: "Ongoing Monthly" } },
-          { label: "❌ Cancel", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
-        ],
-        placeholder: "Select duration or type number of days...",
-      };
-
-    case "ask_conditions":
-      return {
-        text: `Duration: **${draft.duration}**.\n\n**Does the patient have any specific medical condition or support requirements?**`,
-        replies: [
-          { label: "🚶 Mobility Assist & Fall Safety", action: { type: "booking_answer", field: "condition", value: "Mobility Assist & Fall Safety" } },
-          { label: "🛏️ Bedridden & Hygiene / Diaper Care", action: { type: "booking_answer", field: "condition", value: "Bedridden & Hygiene Care" } },
-          { label: "💊 Medication & Vital Signs Check", action: { type: "booking_answer", field: "condition", value: "Medication & Vital Signs Check" } },
-          { label: "🧠 Memory Care / Dementia Support", action: { type: "booking_answer", field: "condition", value: "Memory Care / Dementia Support" } },
-          { label: "🩹 Post-Surgical Recovery Care", action: { type: "booking_answer", field: "condition", value: "Post-Surgical Recovery Care" } },
-          { label: "🤝 Companionship & Light Support", action: { type: "booking_answer", field: "condition", value: "Companionship & Light Support" } },
-          { label: "✅ No special condition / Standard care", action: { type: "booking_answer", field: "condition", value: "Standard care" } },
-        ],
-        placeholder: "Select or type any specific patient condition...",
-      };
-
     case "ask_urgency":
       return {
-        text: `Special requirements: **${draft.conditions}**.\n\n**When would you like your Saha to start?**`,
+        text: `Location noted: **${draft.location}, ${draft.city}**.\n\n**When would you like your Saha to start?**`,
         replies: [
           { label: "🚨 Immediately (Today / Urgent within 4 hrs)", action: { type: "booking_answer", field: "urgency", value: "Immediately (Today)" } },
           { label: "🌅 Tomorrow Morning", action: { type: "booking_answer", field: "urgency", value: "Tomorrow Morning" } },
@@ -297,16 +523,38 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
         placeholder: "Select urgency or type start date...",
       };
 
-    case "ask_contact":
+    case "ask_contact": {
+      const saved = typeof window !== "undefined" ? getSavedCustomer() : null;
+      const hasSavedContact = saved && saved.name && saved.phone;
+      const replies: QuickReply[] = [];
+      if (hasSavedContact) {
+        replies.push({
+          label: `✅ Confirm as ${saved.name} (${saved.phone})`,
+          action: { type: "booking_answer", field: "contact_preset", value: `${saved.name}||${saved.phone}` },
+        });
+      }
+      replies.push(
+        { label: "💬 Share Details on WhatsApp", action: { type: "whatsapp", msg: `Hi ApnaCare! I want to complete booking for ${draft.selectedPackName || draft.serviceName} in ${draft.city}.` } },
+        { label: "📞 Call Coordinator Line", action: { type: "call" } },
+        { label: "❌ Cancel Booking", action: { type: "booking_answer", field: "cancel", value: "cancel" } }
+      );
+
       return {
-        text: `All care specs recorded! 🎯\n\nLastly, please provide your **Full Name** and **10-Digit Mobile Number** so our ${draft.city || "regional"} care coordinator can confirm your attendant dispatch and match.`,
-        replies: [
-          { label: "💬 Share Details on WhatsApp", action: { type: "whatsapp", msg: `Hi ApnaCare! I want to complete booking for ${draft.serviceName} in ${draft.city}.` } },
-          { label: "📞 Call Coordinator Line", action: { type: "call" } },
-          { label: "❌ Cancel Booking", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
-        ],
-        placeholder: "Type Name & 10-digit mobile (e.g. Ramesh, 9876543210)...",
+        text: `All care specifications recorded! 🎯\n\nLastly, please provide your **Full Name** and **10-Digit Mobile Number** so our regional care coordinator in ${draft.city || "South India"} can assign your police-verified Saha.`,
+        replies,
+        placeholder: hasSavedContact ? `Confirm above or type Name & 10-digit mobile...` : "Type Name & 10-digit mobile (e.g. Ramesh, 9876543210)...",
       };
+    }
+
+    // Legacy fallbacks
+    case "ask_service":
+      return getStepQuestion("ask_recipient", draft);
+    case "ask_age":
+      return getStepQuestion("ask_situation", draft);
+    case "ask_shift":
+    case "ask_duration":
+    case "ask_conditions":
+      return getStepQuestion("recommend_packs", draft);
 
     default:
       return { text: "", replies: [] };
@@ -531,18 +779,23 @@ export function Assistant() {
     ]);
   };
 
-  // Start booking flow
+  // Start conversational booking flow
   const initiateBooking = (serviceSlug?: string) => {
-    let nextStep: BookingStep = "ask_service";
-    let draftUpdate: BookingDraft = {};
+    const savedCustomer = typeof window !== "undefined" ? getSavedCustomer() : null;
+    let nextStep: BookingStep = "ask_recipient";
+    let draftUpdate: BookingDraft = {
+      city: savedCustomer?.city || "",
+      customerName: savedCustomer?.name || "",
+      mobile: savedCustomer?.phone || "",
+    };
 
     if (serviceSlug) {
       const s = SERVICES.find((item) => item.slug === serviceSlug);
       draftUpdate = {
+        ...draftUpdate,
         serviceId: serviceSlug,
         serviceName: s ? s.name : serviceSlug,
       };
-      nextStep = "ask_age";
     }
 
     setBookingDraft(draftUpdate);
@@ -583,6 +836,55 @@ export function Assistant() {
     let nextStep: BookingStep = bookingStep;
 
     switch (field) {
+      case "recipient":
+        updatedDraft = { ...updatedDraft, recipient: value, patientAge: value };
+        nextStep = "ask_situation";
+        break;
+
+      case "situation":
+        updatedDraft = { ...updatedDraft, situation: value, conditions: value };
+        nextStep = "recommend_packs";
+        break;
+
+      case "pack": {
+        const pack = CARE_PACKS[value] || Object.values(CARE_PACKS)[0];
+        updatedDraft = {
+          ...updatedDraft,
+          selectedPackId: pack.id,
+          selectedPackName: pack.name,
+          selectedPackInclusions: pack.whatYouGet,
+          serviceId: pack.serviceSlug,
+          serviceName: pack.serviceName,
+          shiftSchedule: pack.shiftSchedule,
+        };
+        nextStep = "ask_city";
+        break;
+      }
+
+      case "city":
+        updatedDraft = { ...updatedDraft, city: value };
+        nextStep = "ask_location";
+        break;
+
+      case "location":
+        updatedDraft = { ...updatedDraft, location: value };
+        nextStep = "ask_urgency";
+        break;
+
+      case "urgency":
+        updatedDraft = { ...updatedDraft, urgency: value };
+        nextStep = "ask_contact";
+        break;
+
+      case "contact_preset": {
+        const [cName, cPhone] = value.split("||");
+        setBookingDraft(updatedDraft);
+        setMsgs((prev) => [...prev, userMsg]);
+        completeBooking(cName, cPhone);
+        return;
+      }
+
+      // Backward compatibility mappings
       case "service": {
         const s = SERVICES.find((item) => item.slug === value);
         updatedDraft = {
@@ -590,36 +892,24 @@ export function Assistant() {
           serviceId: value,
           serviceName: s ? s.name : value,
         };
-        nextStep = "ask_age";
+        nextStep = "ask_recipient";
         break;
       }
       case "age":
-        updatedDraft = { ...updatedDraft, patientAge: value };
-        nextStep = "ask_city";
-        break;
-      case "city":
-        updatedDraft = { ...updatedDraft, city: value };
-        nextStep = "ask_location";
-        break;
-      case "location":
-        updatedDraft = { ...updatedDraft, location: value };
-        nextStep = "ask_shift";
+        updatedDraft = { ...updatedDraft, patientAge: value, recipient: value };
+        nextStep = "ask_situation";
         break;
       case "shift":
         updatedDraft = { ...updatedDraft, shiftSchedule: value };
-        nextStep = "ask_duration";
+        nextStep = "ask_city";
         break;
       case "duration":
         updatedDraft = { ...updatedDraft, duration: value };
-        nextStep = "ask_conditions";
-        break;
-      case "condition":
-        updatedDraft = { ...updatedDraft, conditions: value };
         nextStep = "ask_urgency";
         break;
-      case "urgency":
-        updatedDraft = { ...updatedDraft, urgency: value };
-        nextStep = "ask_contact";
+      case "condition":
+        updatedDraft = { ...updatedDraft, conditions: value, situation: value };
+        nextStep = "recommend_packs";
         break;
     }
 
@@ -651,28 +941,37 @@ export function Assistant() {
     setBookingDraft(finalDraft);
     setBookingStep("complete");
 
+    // Save customer to unified store
+    saveCustomer({
+      name,
+      phone,
+      city: finalDraft.city || "Bengaluru",
+      fullAddress: finalDraft.location || "",
+      relationship: finalDraft.recipient || "Family Member",
+    });
+
     // Dispatch lead via sendToGoogleSheet
     await sendToGoogleSheet({
       event_type: "booking",
       event_name: "chat_booking_completed",
       lead_type: "CHAT_BOOKING",
-      form_name: "Conversational Chat Booking App",
+      form_name: "Conversational Chat Booking Concierge",
       booking_ref: ref,
       customer_name: name,
       name: name,
       mobile: phone,
       phone: phone,
       service_id: finalDraft.serviceId || "care-service",
-      service_name: finalDraft.serviceName || "Care Service",
+      service_name: finalDraft.selectedPackName || finalDraft.serviceName || "Care Service",
       city: finalDraft.city || "South India",
       location_address: finalDraft.location || "",
-      patient_age: finalDraft.patientAge || "",
+      patient_age: finalDraft.recipient || finalDraft.patientAge || "",
       shift_type: finalDraft.shiftSchedule || "",
       duration_days: finalDraft.duration || "1",
-      special_notes: `Patient: ${finalDraft.patientAge} | Needs: ${finalDraft.conditions} | Start: ${finalDraft.urgency} | Shift: ${finalDraft.shiftSchedule}`,
-      booking_status: "Confirmed",
-      follow_up_status: "Pending Coordinator Dispatch",
-      lead_source: "bottom_right_chat_app",
+      special_notes: `Pack: ${finalDraft.selectedPackName || "Standard"} | For: ${finalDraft.recipient} | Situation: ${finalDraft.situation} | Start: ${finalDraft.urgency}`,
+      booking_status: "Submitted",
+      follow_up_status: "Pending Coordinator Review",
+      lead_source: "bottom_right_conversational_concierge",
       page_path: pathname,
     }).catch(() => {});
 
@@ -687,19 +986,21 @@ export function Assistant() {
     // Bot confirmation message with Interactive Booking Card
     const confirmationMsg: BotMsg = {
       from: "bot",
-      text: "🎉 **Care Request Successfully Registered!**\nYour booking details have been dispatched to our regional care command center. Here is your official service requisition summary:",
+      text: "🎉 **Care Request Successfully Registered!**\nYour customized care pack request has been dispatched to our regional command center. Here is your official service summary:",
       bookingCard: {
         ref,
         customerName: name,
         mobile: phone,
-        serviceName: finalDraft.serviceName || "Care Service",
-        patientAge: finalDraft.patientAge || "Family Member",
+        serviceName: finalDraft.selectedPackName || finalDraft.serviceName || "Care Service",
+        patientAge: finalDraft.recipient || finalDraft.patientAge || "Family Member",
+        packName: finalDraft.selectedPackName,
+        packInclusions: finalDraft.selectedPackInclusions,
         city: finalDraft.city || "South India",
         location: finalDraft.location || "City Center",
         shiftSchedule: finalDraft.shiftSchedule || "Standard Shift",
         duration: finalDraft.duration || "As requested",
         urgency: finalDraft.urgency || "Immediately",
-        conditions: finalDraft.conditions || "General care",
+        conditions: finalDraft.situation || finalDraft.conditions || "General care",
       },
       replies: [
         {
@@ -839,12 +1140,25 @@ export function Assistant() {
 
     // Case 2: In active booking question step (user typed free-form answer)
     if (bookingStep !== "none" && bookingStep !== "complete") {
-      if (bookingStep === "ask_service") {
-        processBookingAnswer("service", text, text);
+      if (bookingStep === "ask_recipient") {
+        processBookingAnswer("recipient", text, text);
         return;
       }
-      if (bookingStep === "ask_age") {
-        processBookingAnswer("age", text, text);
+      if (bookingStep === "ask_situation") {
+        processBookingAnswer("situation", text, text);
+        return;
+      }
+      if (bookingStep === "recommend_packs") {
+        // If user typed 1 or 2 or a pack name
+        const lowerT = text.toLowerCase();
+        const packs = getRecommendedPacks(bookingDraft.recipient || "", bookingDraft.situation || "", bookingDraft.serviceId);
+        let chosen = packs[0];
+        if (lowerT.includes("2") || lowerT.includes("second") || (packs[1] && lowerT.includes(packs[1].name.toLowerCase()))) {
+          chosen = packs[1] || packs[0];
+        } else if (lowerT.includes("3") || lowerT.includes("third") || (packs[2] && lowerT.includes(packs[2].name.toLowerCase()))) {
+          chosen = packs[2] || packs[0];
+        }
+        processBookingAnswer("pack", chosen.id, `Selected: ${chosen.name}`);
         return;
       }
       if (bookingStep === "ask_city") {
@@ -853,6 +1167,19 @@ export function Assistant() {
       }
       if (bookingStep === "ask_location") {
         processBookingAnswer("location", text, text);
+        return;
+      }
+      if (bookingStep === "ask_urgency") {
+        processBookingAnswer("urgency", text, text);
+        return;
+      }
+      // Backward compatibility
+      if (bookingStep === "ask_service") {
+        processBookingAnswer("service", text, text);
+        return;
+      }
+      if (bookingStep === "ask_age") {
+        processBookingAnswer("age", text, text);
         return;
       }
       if (bookingStep === "ask_shift") {
@@ -867,17 +1194,55 @@ export function Assistant() {
         processBookingAnswer("condition", text, text);
         return;
       }
-      if (bookingStep === "ask_urgency") {
-        processBookingAnswer("urgency", text, text);
-        return;
-      }
     }
 
     // Case 3: Free-form conversational intent detection from idle state
     const lower = text.toLowerCase();
 
-    // Booking intent detection
-    if (lower.includes("book") || lower.includes("reserve") || lower.includes("need attendant") || lower.includes("hire") || lower.includes("want attendant")) {
+    // Check if user explained a situation directly (e.g. "My father is 78 and had a stroke in Chennai")
+    const hasRecipient = lower.includes("father") || lower.includes("mother") || lower.includes("parent") || lower.includes("grandfather") || lower.includes("grandmother") || lower.includes("patient") || lower.includes("baby") || lower.includes("myself");
+    const hasSituation = lower.includes("stroke") || lower.includes("hospital") || lower.includes("surgery") || lower.includes("bedridden") || lower.includes("walking") || lower.includes("fall") || lower.includes("dementia") || lower.includes("parkinson") || lower.includes("bath") || lower.includes("nurse") || lower.includes("japa");
+
+    if (hasRecipient && hasSituation) {
+      setMsgs((prev) => [...prev, userMsg]);
+      let extractedRecipient = "Family Member";
+      if (lower.includes("father")) extractedRecipient = "My Father";
+      else if (lower.includes("mother")) extractedRecipient = "My Mother";
+      else if (lower.includes("parent")) extractedRecipient = "Both Parents";
+      else if (lower.includes("baby")) extractedRecipient = "New Mother & Baby";
+      else if (lower.includes("patient")) extractedRecipient = "Hospital / Recovery Patient";
+
+      let extractedCity = "";
+      if (lower.includes("bengaluru") || lower.includes("bangalore")) extractedCity = "Bengaluru";
+      else if (lower.includes("chennai")) extractedCity = "Chennai";
+      else if (lower.includes("hyderabad")) extractedCity = "Hyderabad";
+      else if (lower.includes("coimbatore")) extractedCity = "Coimbatore";
+
+      const updatedDraft: BookingDraft = {
+        recipient: extractedRecipient,
+        situation: text,
+        patientAge: extractedRecipient,
+        conditions: text,
+        city: extractedCity,
+      };
+
+      setBookingDraft(updatedDraft);
+      setBookingStep("recommend_packs");
+
+      const packsQuestion = getStepQuestion("recommend_packs", updatedDraft);
+      setMsgs((prev) => [
+        ...prev,
+        {
+          from: "bot",
+          text: `Thank you for explaining your situation! We have understood care for **${extractedRecipient}**${extractedCity ? ` in **${extractedCity}**` : ""}.\n\n${packsQuestion.text}`,
+          replies: packsQuestion.replies,
+        },
+      ]);
+      return;
+    }
+
+    // General booking intent detection
+    if (lower.includes("book") || lower.includes("reserve") || lower.includes("need attendant") || lower.includes("hire") || lower.includes("want attendant") || lower.includes("looking for care")) {
       setMsgs((prev) => [...prev, userMsg]);
 
       // Check if service mentioned
@@ -949,6 +1314,9 @@ export function Assistant() {
 
   // Dynamic input placeholder
   const inputPlaceholder = useMemo(() => {
+    if (bookingStep === "ask_recipient") return "Who needs care? Or explain your situation...";
+    if (bookingStep === "ask_situation") return "Describe their situation or what help is needed...";
+    if (bookingStep === "recommend_packs") return "Click a pack above or ask any question...";
     if (bookingStep === "ask_contact") return "Type Name and 10-digit mobile (e.g. Ramesh, 9876543210)...";
     if (bookingStep === "ask_age") return "Type patient age or relation (e.g. 78 years old)...";
     if (bookingStep === "ask_location") return `Type area or landmark in ${bookingDraft.city || "city"}...`;
@@ -1132,9 +1500,33 @@ export function Assistant() {
                       </span>
                     </div>
 
+                    {/* Reserved Pack & What You Get */}
+                    {m.bookingCard.packName && (
+                      <div className="mt-3 rounded-xl bg-primary-soft/60 p-2.5 border border-primary/20">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] uppercase font-bold text-primary tracking-wider">Reserved Care Pack</span>
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-500/15 px-2 py-0.5 rounded-full">Included</span>
+                        </div>
+                        <p className="font-semibold text-xs text-foreground mt-0.5">{m.bookingCard.packName}</p>
+                        {m.bookingCard.packInclusions && m.bookingCard.packInclusions.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            <p className="text-[10px] font-bold uppercase text-muted-foreground">What your family gets:</p>
+                            <ul className="space-y-1 text-[11px] text-foreground">
+                              {m.bookingCard.packInclusions.slice(0, 4).map((inc: string, idx: number) => (
+                                <li key={idx} className="flex items-start gap-1.5 leading-snug">
+                                  <Check className="size-3 text-primary shrink-0 mt-0.5" />
+                                  <span>{inc}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
                       <div className="rounded-xl bg-secondary/35 p-2">
-                        <dt className="text-[10px] uppercase font-bold text-muted-foreground">Service</dt>
+                        <dt className="text-[10px] uppercase font-bold text-muted-foreground">Service / Pack</dt>
                         <dd className="font-semibold text-foreground mt-0.5 truncate">{m.bookingCard.serviceName}</dd>
                       </div>
                       <div className="rounded-xl bg-secondary/35 p-2">
