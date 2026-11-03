@@ -952,6 +952,16 @@ function Header() {
               Request Assistance
             </BookLink>
 
+            {/* Get Started - portal entry */}
+            <Link
+              to="/login"
+              onClick={() => track("get_started_click", { source: "header_desktop" })}
+              className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors shrink-0 whitespace-nowrap min-h-[44px]"
+            >
+              <KeyRound className="size-3.5" />
+              Get Started
+            </Link>
+
             {/* Mobile menu toggle */}
             <Button
               variant="outline"
@@ -1008,11 +1018,12 @@ function Header() {
                 Chat on WhatsApp
               </a>
               <Link
-                to="/attendant-login"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-3 py-2 text-sm text-center font-medium hover:bg-secondary text-muted-foreground hover:text-foreground"
+                to="/login"
+                onClick={() => { track("get_started_click", { source: "mobile_menu" }); setMobileOpen(false); }}
+                className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10"
               >
-                Attendant Portal Login
+                <KeyRound className="size-4" />
+                Get Started / Sign In
               </Link>
             </div>
           </div>

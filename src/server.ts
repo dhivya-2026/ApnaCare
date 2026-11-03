@@ -69,6 +69,32 @@ export default {
         return await GET(request);
       }
 
+      // ── Auth Platform v2 ──────────────────────────────────────────
+      if (url.pathname === "/api/auth/register") {
+        const { default: handler } = await import("./server/auth/routes/register");
+        return await handler(request);
+      }
+      if (url.pathname === "/api/auth/login-v2") {
+        const { default: handler } = await import("./server/auth/routes/login-v2");
+        return await handler(request);
+      }
+      if (url.pathname === "/api/auth/me") {
+        const { default: handler } = await import("./server/auth/routes/me");
+        return await handler(request);
+      }
+      if (url.pathname.startsWith("/api/customers/")) {
+        const { default: handler } = await import("./server/auth/routes/customers");
+        return await handler(request);
+      }
+      if (url.pathname.startsWith("/api/sahas/")) {
+        const { default: handler } = await import("./server/auth/routes/sahas");
+        return await handler(request);
+      }
+      if (url.pathname.startsWith("/api/admin/")) {
+        const { default: handler } = await import("./server/auth/routes/admin");
+        return await handler(request);
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

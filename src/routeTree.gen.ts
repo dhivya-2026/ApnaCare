@@ -18,14 +18,23 @@ import { Route as CitiesRouteImport } from './routes/cities'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EcosystemPartnersRouteImport } from './routes/ecosystem-partners'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as SafetyGuidelinesRouteImport } from './routes/safety-guidelines'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
+import { Route as CustomerDashboardRouteImport } from './routes/customer/dashboard'
+import { Route as CustomerLoginRouteImport } from './routes/customer/login'
+import { Route as CustomerRegisterRouteImport } from './routes/customer/register'
 import { Route as KnowledgeHubIndexRouteImport } from './routes/knowledge-hub.index'
 import { Route as KnowledgeHubSlugRouteImport } from './routes/knowledge-hub.$slug'
+import { Route as SahaDashboardRouteImport } from './routes/saha/dashboard'
+import { Route as SahaLoginRouteImport } from './routes/saha/login'
+import { Route as SahaRegisterRouteImport } from './routes/saha/register'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as SolutionsSlugRouteImport } from './routes/solutions.$slug'
@@ -75,6 +84,11 @@ const FaqRoute = FaqRouteImport.update({
   path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -100,10 +114,35 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CitiesCityRoute = CitiesCityRouteImport.update({
   id: '/$city',
   path: '/$city',
   getParentRoute: () => CitiesRoute,
+} as any)
+const CustomerDashboardRoute = CustomerDashboardRouteImport.update({
+  id: '/customer/dashboard',
+  path: '/customer/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerLoginRoute = CustomerLoginRouteImport.update({
+  id: '/customer/login',
+  path: '/customer/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerRegisterRoute = CustomerRegisterRouteImport.update({
+  id: '/customer/register',
+  path: '/customer/register',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const KnowledgeHubIndexRoute = KnowledgeHubIndexRouteImport.update({
   id: '/knowledge-hub/',
@@ -113,6 +152,21 @@ const KnowledgeHubIndexRoute = KnowledgeHubIndexRouteImport.update({
 const KnowledgeHubSlugRoute = KnowledgeHubSlugRouteImport.update({
   id: '/knowledge-hub/$slug',
   path: '/knowledge-hub/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SahaDashboardRoute = SahaDashboardRouteImport.update({
+  id: '/saha/dashboard',
+  path: '/saha/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SahaLoginRoute = SahaLoginRouteImport.update({
+  id: '/saha/login',
+  path: '/saha/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SahaRegisterRoute = SahaRegisterRouteImport.update({
+  id: '/saha/register',
+  path: '/saha/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesIndexRoute = ServicesIndexRouteImport.update({
@@ -141,13 +195,22 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
+  '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
   '/safety-guidelines': typeof SafetyGuidelinesRoute
   '/terms': typeof TermsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/login': typeof AdminLoginRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/customer/dashboard': typeof CustomerDashboardRoute
+  '/customer/login': typeof CustomerLoginRoute
+  '/customer/register': typeof CustomerRegisterRoute
   '/knowledge-hub/$slug': typeof KnowledgeHubSlugRoute
+  '/saha/dashboard': typeof SahaDashboardRoute
+  '/saha/login': typeof SahaLoginRoute
+  '/saha/register': typeof SahaRegisterRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub/': typeof KnowledgeHubIndexRoute
@@ -163,13 +226,22 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
+  '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
   '/safety-guidelines': typeof SafetyGuidelinesRoute
   '/terms': typeof TermsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/login': typeof AdminLoginRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/customer/dashboard': typeof CustomerDashboardRoute
+  '/customer/login': typeof CustomerLoginRoute
+  '/customer/register': typeof CustomerRegisterRoute
   '/knowledge-hub/$slug': typeof KnowledgeHubSlugRoute
+  '/saha/dashboard': typeof SahaDashboardRoute
+  '/saha/login': typeof SahaLoginRoute
+  '/saha/register': typeof SahaRegisterRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub': typeof KnowledgeHubIndexRoute
@@ -186,13 +258,22 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
+  '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
   '/safety-guidelines': typeof SafetyGuidelinesRoute
   '/terms': typeof TermsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/login': typeof AdminLoginRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/customer/dashboard': typeof CustomerDashboardRoute
+  '/customer/login': typeof CustomerLoginRoute
+  '/customer/register': typeof CustomerRegisterRoute
   '/knowledge-hub/$slug': typeof KnowledgeHubSlugRoute
+  '/saha/dashboard': typeof SahaDashboardRoute
+  '/saha/login': typeof SahaLoginRoute
+  '/saha/register': typeof SahaRegisterRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub/': typeof KnowledgeHubIndexRoute
@@ -210,13 +291,22 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
+    | '/login'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
     | '/safety-guidelines'
     | '/terms'
+    | '/admin/dashboard'
+    | '/admin/login'
     | '/cities/$city'
+    | '/customer/dashboard'
+    | '/customer/login'
+    | '/customer/register'
     | '/knowledge-hub/$slug'
+    | '/saha/dashboard'
+    | '/saha/login'
+    | '/saha/register'
     | '/services/$slug'
     | '/solutions/$slug'
     | '/knowledge-hub/'
@@ -232,13 +322,22 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
+    | '/login'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
     | '/safety-guidelines'
     | '/terms'
+    | '/admin/dashboard'
+    | '/admin/login'
     | '/cities/$city'
+    | '/customer/dashboard'
+    | '/customer/login'
+    | '/customer/register'
     | '/knowledge-hub/$slug'
+    | '/saha/dashboard'
+    | '/saha/login'
+    | '/saha/register'
     | '/services/$slug'
     | '/solutions/$slug'
     | '/knowledge-hub'
@@ -254,13 +353,22 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
+    | '/login'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
     | '/safety-guidelines'
     | '/terms'
+    | '/admin/dashboard'
+    | '/admin/login'
     | '/cities/$city'
+    | '/customer/dashboard'
+    | '/customer/login'
+    | '/customer/register'
     | '/knowledge-hub/$slug'
+    | '/saha/dashboard'
+    | '/saha/login'
+    | '/saha/register'
     | '/services/$slug'
     | '/solutions/$slug'
     | '/knowledge-hub/'
@@ -277,12 +385,21 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   EcosystemPartnersRoute: typeof EcosystemPartnersRoute
   FaqRoute: typeof FaqRoute
+  LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   SafetyRoute: typeof SafetyRoute
   SafetyGuidelinesRoute: typeof SafetyGuidelinesRoute
   TermsRoute: typeof TermsRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  CustomerDashboardRoute: typeof CustomerDashboardRoute
+  CustomerLoginRoute: typeof CustomerLoginRoute
+  CustomerRegisterRoute: typeof CustomerRegisterRoute
   KnowledgeHubSlugRoute: typeof KnowledgeHubSlugRoute
+  SahaDashboardRoute: typeof SahaDashboardRoute
+  SahaLoginRoute: typeof SahaLoginRoute
+  SahaRegisterRoute: typeof SahaRegisterRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   SolutionsSlugRoute: typeof SolutionsSlugRoute
   KnowledgeHubIndexRoute: typeof KnowledgeHubIndexRoute
@@ -354,6 +471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -389,12 +513,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cities/$city': {
       id: '/cities/$city'
       path: '/$city'
       fullPath: '/cities/$city'
       preLoaderRoute: typeof CitiesCityRouteImport
       parentRoute: typeof CitiesRoute
+    }
+    '/customer/dashboard': {
+      id: '/customer/dashboard'
+      path: '/customer/dashboard'
+      fullPath: '/customer/dashboard'
+      preLoaderRoute: typeof CustomerDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/login': {
+      id: '/customer/login'
+      path: '/customer/login'
+      fullPath: '/customer/login'
+      preLoaderRoute: typeof CustomerLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/register': {
+      id: '/customer/register'
+      path: '/customer/register'
+      fullPath: '/customer/register'
+      preLoaderRoute: typeof CustomerRegisterRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/knowledge-hub/': {
       id: '/knowledge-hub/'
@@ -408,6 +567,27 @@ declare module '@tanstack/react-router' {
       path: '/knowledge-hub/$slug'
       fullPath: '/knowledge-hub/$slug'
       preLoaderRoute: typeof KnowledgeHubSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saha/dashboard': {
+      id: '/saha/dashboard'
+      path: '/saha/dashboard'
+      fullPath: '/saha/dashboard'
+      preLoaderRoute: typeof SahaDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saha/login': {
+      id: '/saha/login'
+      path: '/saha/login'
+      fullPath: '/saha/login'
+      preLoaderRoute: typeof SahaLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saha/register': {
+      id: '/saha/register'
+      path: '/saha/register'
+      fullPath: '/saha/register'
+      preLoaderRoute: typeof SahaRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services/': {
@@ -455,12 +635,21 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   EcosystemPartnersRoute: EcosystemPartnersRoute,
   FaqRoute: FaqRoute,
+  LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   SafetyRoute: SafetyRoute,
   SafetyGuidelinesRoute: SafetyGuidelinesRoute,
   TermsRoute: TermsRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  CustomerDashboardRoute: CustomerDashboardRoute,
+  CustomerLoginRoute: CustomerLoginRoute,
+  CustomerRegisterRoute: CustomerRegisterRoute,
   KnowledgeHubSlugRoute: KnowledgeHubSlugRoute,
+  SahaDashboardRoute: SahaDashboardRoute,
+  SahaLoginRoute: SahaLoginRoute,
+  SahaRegisterRoute: SahaRegisterRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   SolutionsSlugRoute: SolutionsSlugRoute,
   KnowledgeHubIndexRoute: KnowledgeHubIndexRoute,

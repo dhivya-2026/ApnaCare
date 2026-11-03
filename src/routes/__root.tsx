@@ -16,6 +16,7 @@ import { SiteLayout } from "@/components/site/Layout";
 import { Toaster } from "@/components/ui/sonner";
 import { SITE } from "@/data/site";
 import { LanguageProvider } from "@/lib/i18n";
+import { AuthProvider } from "@/hooks/useAuth";
 
 function NotFoundComponent() {
   return (
@@ -136,10 +137,12 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <SiteLayout><Outlet /></SiteLayout>
-        <Toaster />
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <SiteLayout><Outlet /></SiteLayout>
+          <Toaster />
+        </LanguageProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
