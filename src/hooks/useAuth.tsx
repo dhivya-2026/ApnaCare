@@ -30,6 +30,19 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+async function parseJsonResponse(res: Response): Promise<any> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {
+      error: res.ok
+        ? "Unexpected response from server"
+        : `Service unavailable (${res.status}: ${res.statusText || "Not Found"})`,
+    };
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [customer, setCustomer] = useState<any | null>(null);
@@ -40,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch("/api/auth/me", { credentials: "include" });
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         if (data.authenticated && data.user) {
           setUser(data.user);
           setCustomer(data.customer || null);
@@ -73,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password, role }),
       });
 
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       if (!res.ok) {
         return {
           success: false,
@@ -102,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
+      const data = await parseJsonResponse(res);
       if (!res.ok) {
         return {
           success: false,
@@ -171,4 +184,3 @@ export function useAuth() {
   }
   return context;
 }
-
