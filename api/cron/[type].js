@@ -19589,50 +19589,6 @@ async function recordReportDelivery(record, config) {
 }
 
 // src/server/reports/report-runner.ts
-function validateCronAuth(request, config) {
-  if (config.cronSecret) {
-    if (!request) {
-      return { authorized: false, reason: "Request context missing" };
-    }
-    let authHeader = "";
-    let xCronSecret = "";
-    if (typeof request.headers?.get === "function") {
-      authHeader = request.headers.get("authorization") || "";
-      xCronSecret = request.headers.get("x-cron-secret") || "";
-    } else if (request.headers && typeof request.headers === "object") {
-      authHeader = String(request.headers["authorization"] || "");
-      xCronSecret = String(request.headers["x-cron-secret"] || "");
-    }
-    let querySecret = "";
-    if (request.query && typeof request.query === "object") {
-      querySecret = String(request.query.secret || "");
-    }
-    if (!querySecret && request.url) {
-      try {
-        const url = new URL(request.url, "https://apna-care.vercel.app");
-        querySecret = url.searchParams.get("secret") || "";
-      } catch {
-        querySecret = "";
-      }
-    }
-    const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
-    const isMatch = bearerToken && bearerToken === config.cronSecret || xCronSecret && xCronSecret === config.cronSecret || querySecret && querySecret === config.cronSecret;
-    if (!isMatch) {
-      return {
-        authorized: false,
-        reason: "Invalid or missing authorization token. Supply Bearer <CRON_SECRET> or ?secret=..."
-      };
-    }
-    return { authorized: true };
-  }
-  if (!config.isDevelopment) {
-    return {
-      authorized: false,
-      reason: "CRON_SECRET is not configured in Vercel environment variables. All report execution is locked until CRON_SECRET is set."
-    };
-  }
-  return { authorized: true };
-}
 async function runReport(options) {
   const startMs = Date.now();
   const config = getServerReportConfig();
@@ -19715,72 +19671,59 @@ async function runReport(options) {
   };
 }
 
-// src/server/reports/routes/monthly-report.ts
-var dynamic = "force-dynamic";
-function reply(res, statusCode, data) {
+// src/server/auth/utils.ts
+function reply(res, statusCode, data, headers = {}) {
   const payload = JSON.stringify(data);
   if (res && typeof res.status === "function" && typeof res.json === "function") {
+    for (const [k, v] of Object.entries(headers)) {
+      res.setHeader(k, v);
+    }
     return res.status(statusCode).json(data);
   }
   if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
     res.statusCode = statusCode;
     res.setHeader("Content-Type", "application/json");
-    return res.end(payload);
-  }
-  if (res && typeof res.writeHead === "function" && typeof res.end === "function") {
-    res.writeHead(statusCode, { "Content-Type": "application/json" });
+    for (const [k, v] of Object.entries(headers)) {
+      res.setHeader(k, v);
+    }
     return res.end(payload);
   }
   return new Response(payload, {
     status: statusCode,
-    headers: { "Content-Type": "application/json" }
+    headers: {
+      "Content-Type": "application/json",
+      ...headers
+    }
   });
 }
+
+// src/server/reports/routes/cron-dispatcher.ts
 async function handler(req, res) {
   try {
     const config = getServerReportConfig();
-    let query = {};
-    if (req.query && typeof req.query === "object") {
-      for (const [k, v] of Object.entries(req.query)) {
-        query[k] = Array.isArray(v) ? v[0] : String(v || "");
-      }
-    } else if (req.url) {
-      try {
-        const parsed = new URL(req.url, "https://apna-care.vercel.app");
-        parsed.searchParams.forEach((val, key) => {
-          query[key] = val;
-        });
-      } catch {
-        query = {};
-      }
+    const rawUrl = req.url || "";
+    const parsed = new URL(rawUrl, "http://localhost");
+    const segments = parsed.pathname.split("/").filter(Boolean);
+    const lastSeg = req.query?.type || segments[segments.length - 1] || "";
+    let reportType = "daily";
+    if (lastSeg.includes("weekly")) {
+      reportType = "weekly";
+    } else if (lastSeg.includes("monthly")) {
+      reportType = "monthly";
     }
-    const authReq = {
-      headers: req.headers,
-      query,
-      url: req.url || "/api/cron/monthly-report"
-    };
-    const auth = validateCronAuth(authReq, config);
-    if (!auth.authorized) {
-      return reply(res, 401, {
-        status: "error",
-        code: "UNAUTHORIZED",
-        message: auth.reason || "Unauthorized"
-      });
-    }
-    const force = query.force === "true";
-    const period = query.period || void 0;
-    const isTest = query.test === "true";
+    const force = parsed.searchParams.get("force") === "true";
+    const period = parsed.searchParams.get("period") || void 0;
+    const isTest = parsed.searchParams.get("test") === "true";
     const result = await runReport({
-      type: "monthly",
+      type: reportType,
       force,
       periodKey: period,
       isTest
     });
-    const statusCode = 200;
-    return reply(res, statusCode, result);
+    return reply(res, 200, result);
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error("[MonthlyReportCron] Unhandled error:", err);
+    console.error("[CronDispatcher] Error:", err);
     return reply(res, 500, {
       status: "error",
       code: "INTERNAL_ERROR",
@@ -19791,8 +19734,11 @@ async function handler(req, res) {
 async function GET(req, res) {
   return handler(req, res);
 }
+async function POST(req, res) {
+  return handler(req, res);
+}
 export {
   GET,
-  handler as default,
-  dynamic
+  POST,
+  handler as default
 };
