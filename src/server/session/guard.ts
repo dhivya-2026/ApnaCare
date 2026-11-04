@@ -43,7 +43,12 @@ export async function requireAuth(
     };
   }
 
-  if (requiredRole && session.role !== requiredRole && session.role !== "admin") {
+  if (
+    requiredRole &&
+    session.role !== requiredRole &&
+    session.role !== "admin" &&
+    session.role !== "SUPER_ADMIN"
+  ) {
     return {
       authorized: false,
       error: "Forbidden: insufficient permissions",
