@@ -97,4 +97,3 @@ describe("About Us Page — Leadership, Architecture & Purpose", () => {
     });
   });
 });
-
