@@ -20352,6 +20352,10 @@ async function handler(req, res) {
     return reply(res, 500, { error: "Internal server error" });
   }
 }
+async function GET(req, res) {
+  return handler(req, res);
+}
 export {
+  GET,
   handler as default
 };

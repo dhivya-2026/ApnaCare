@@ -150,3 +150,23 @@ export default async function handler(req: any, res?: any) {
   }
 }
 
+export async function GET(req: any, res?: any) {
+  return handler(req, res);
+}
+
+export async function POST(req: any, res?: any) {
+  return handler(req, res);
+}
+
+export async function PUT(req: any, res?: any) {
+  return handler(req, res);
+}
+
+export async function PATCH(req: any, res?: any) {
+  return handler(req, res);
+}
+
+export async function DELETE(req: any, res?: any) {
+  return handler(req, res);
+}
+

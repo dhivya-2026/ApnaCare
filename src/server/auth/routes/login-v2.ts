@@ -117,3 +117,7 @@ export default async function handler(req: any, res?: any) {
   }
 }
 
+export async function POST(req: any, res?: any) {
+  return handler(req, res);
+}
+

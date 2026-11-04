@@ -55,3 +55,7 @@ export default async function handler(req: any, res?: any) {
   }
 }
 
+export async function GET(req: any, res?: any) {
+  return handler(req, res);
+}
+

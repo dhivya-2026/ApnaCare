@@ -24466,6 +24466,10 @@ async function handler(req, res) {
     return reply(res, 500, { error: "Internal server error" });
   }
 }
+async function POST(req, res) {
+  return handler(req, res);
+}
 export {
+  POST,
   handler as default
 };

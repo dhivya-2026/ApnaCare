@@ -20439,6 +20439,26 @@ async function handler(req, res) {
     return reply(res, 500, { error: "Internal server error" });
   }
 }
+async function GET(req, res) {
+  return handler(req, res);
+}
+async function POST(req, res) {
+  return handler(req, res);
+}
+async function PUT(req, res) {
+  return handler(req, res);
+}
+async function PATCH(req, res) {
+  return handler(req, res);
+}
+async function DELETE(req, res) {
+  return handler(req, res);
+}
 export {
+  DELETE,
+  GET,
+  PATCH,
+  POST,
+  PUT,
   handler as default
 };
