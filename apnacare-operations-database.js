@@ -373,3 +373,4 @@ function logAudit(ss, actorId, action, entity, entityId, details) {
   const logId = "log_" + new Date().getTime();
   sheet.appendRow([logId, actorId || "SYSTEM", action, entity, entityId, details, new Date().toISOString()]);
 }
+
