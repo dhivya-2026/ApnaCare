@@ -30,6 +30,9 @@ async function gasRead(tab: string, query?: Record<string, string>): Promise<any
   if (query) {
     Object.entries(query).forEach(([k, v]) => params.set(k, v));
   }
+  if (GAS_SECRET) {
+    params.set("secret", GAS_SECRET);
+  }
 
   const res = await fetch(`${GAS_URL}?${params.toString()}`, {
     headers: {
@@ -58,7 +61,7 @@ async function gasWrite(tab: string, row: Record<string, string>): Promise<{ suc
       "Content-Type": "application/json",
       Authorization: `Bearer ${GAS_SECRET}`,
     },
-    body: JSON.stringify({ action: "write", tab, row }),
+    body: JSON.stringify({ action: "write", tab, row, secret: GAS_SECRET }),
     signal: AbortSignal.timeout(10000),
   });
 
@@ -81,7 +84,7 @@ async function gasUpdate(tab: string, id: string, idField: string, updates: Reco
       "Content-Type": "application/json",
       Authorization: `Bearer ${GAS_SECRET}`,
     },
-    body: JSON.stringify({ action: "update", tab, id, idField, updates }),
+    body: JSON.stringify({ action: "update", tab, id, idField, updates, secret: GAS_SECRET }),
     signal: AbortSignal.timeout(10000),
   });
 
