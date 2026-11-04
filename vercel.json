@@ -1,43 +1,57 @@
 {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=()"
-        }
-      ]
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/daily-report",
-      "schedule": "30 3 * * *"
-    },
-    {
-      "path": "/api/cron/weekly-report",
-      "schedule": "30 3 * * 1"
-    },
-    {
-      "path": "/api/cron/monthly-report",
-      "schedule": "30 3 1 * *"
-    }
-  ]
+    "headers":  [
+                    {
+                        "source":  "/(.*)",
+                        "headers":  [
+                                        {
+                                            "key":  "X-Content-Type-Options",
+                                            "value":  "nosniff"
+                                        },
+                                        {
+                                            "key":  "X-Frame-Options",
+                                            "value":  "SAMEORIGIN"
+                                        },
+                                        {
+                                            "key":  "X-XSS-Protection",
+                                            "value":  "1; mode=block"
+                                        },
+                                        {
+                                            "key":  "Referrer-Policy",
+                                            "value":  "strict-origin-when-cross-origin"
+                                        },
+                                        {
+                                            "key":  "Permissions-Policy",
+                                            "value":  "camera=(), microphone=(), geolocation=()"
+                                        }
+                                    ]
+                    }
+                ],
+    "crons":  [
+                  {
+                      "path":  "/api/cron/daily-report",
+                      "schedule":  "30 3 * * *"
+                  },
+                  {
+                      "path":  "/api/cron/weekly-report",
+                      "schedule":  "30 3 * * 1"
+                  },
+                  {
+                      "path":  "/api/cron/monthly-report",
+                      "schedule":  "30 3 1 * *"
+                  }
+              ],
+    "rewrites":  [
+                     {
+                         "destination":  "/api/customers/[...slug]",
+                         "source":  "/api/customers/:match*"
+                     },
+                     {
+                         "destination":  "/api/sahas/[...slug]",
+                         "source":  "/api/sahas/:match*"
+                     },
+                     {
+                         "destination":  "/api/admin/[...slug]",
+                         "source":  "/api/admin/:match*"
+                     }
+                 ]
 }

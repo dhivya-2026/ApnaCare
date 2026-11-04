@@ -23,8 +23,11 @@ const targets = [
   { in: "src/server/auth/routes/login-v2.ts", out: "api/auth/login-v2.js" },
   { in: "src/server/auth/routes/me.ts", out: "api/auth/me.js" },
   { in: "src/server/auth/routes/customers.ts", out: "api/customers/index.js" },
+  { in: "src/server/auth/routes/customers.ts", out: "api/customers/[...slug].js" },
   { in: "src/server/auth/routes/sahas.ts", out: "api/sahas/index.js" },
+  { in: "src/server/auth/routes/sahas.ts", out: "api/sahas/[...slug].js" },
   { in: "src/server/auth/routes/admin.ts", out: "api/admin/index.js" },
+  { in: "src/server/auth/routes/admin.ts", out: "api/admin/[...slug].js" },
 ];
 
 for (const target of targets) {
