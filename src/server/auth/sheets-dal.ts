@@ -15,8 +15,8 @@
  * anonymous submissions. All auth-sensitive operations use the server GAS URL.
  */
 
-const GAS_URL = process.env.GOOGLE_APPS_SCRIPT_URL || process.env.VITE_GOOGLE_APPS_SCRIPT_URL || "";
-const GAS_SECRET = process.env.GOOGLE_APPS_SCRIPT_SECRET || "";
+const GAS_URL = process.env.GOOGLE_APPS_SCRIPT_OPERATIONS_URL || process.env.GOOGLE_APPS_SCRIPT_URL || process.env.VITE_GOOGLE_APPS_SCRIPT_URL || "";
+const GAS_SECRET = process.env.GOOGLE_APPS_SCRIPT_SECRET || "ApnaCareSecureSecret2026";
 
 // ── Low-level request helpers ─────────────────────────────────────────────────
 
