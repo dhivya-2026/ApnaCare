@@ -4060,17 +4060,15 @@ var memoryStore = {
   bookings: /* @__PURE__ */ new Map(),
   attendance: /* @__PURE__ */ new Map()
 };
+var DEFAULT_OPS_URL = "https://script.google.com/macros/s/AKfycbxKdzTONWfrma5IorgffqozoxoAz36k2BOqT-Tf_wfi06y6ttU353QCSa8tt0r4cbjFew/exec";
 function getOpsUrl() {
-  return process.env.GOOGLE_APPS_SCRIPT_OPS_URL || process.env.VITE_GOOGLE_APPS_SCRIPT_OPS_URL;
+  return process.env.GOOGLE_APPS_SCRIPT_OPS_URL || process.env.VITE_GOOGLE_APPS_SCRIPT_OPS_URL || DEFAULT_OPS_URL;
 }
 function isSheetsEnabled() {
-  return process.env.GOOGLE_SHEETS_ENABLED === "true" && !!getOpsUrl();
+  return true;
 }
 async function callOpsSheet(action, payload) {
   const url = getOpsUrl();
-  if (!url) {
-    return { success: false, error: "GOOGLE_APPS_SCRIPT_OPS_URL not configured" };
-  }
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -4078,13 +4076,17 @@ async function callOpsSheet(action, payload) {
       body: JSON.stringify({
         action,
         payload,
-        secret: process.env.ADMIN_PROVISION_SECRET || ""
-      })
+        secret: process.env.ADMIN_PROVISION_SECRET || "apnacare_operations_master_2026"
+      }),
+      redirect: "follow"
     });
-    if (!res.ok) {
-      return { success: false, error: `HTTP ${res.status}` };
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return { success: false, error: `Invalid JSON from sheet: ${text.slice(0, 100)}` };
     }
-    const data = await res.json();
     return data;
   } catch (err) {
     console.warn(`[SheetsDAL] Request failed for action ${action}:`, err);
@@ -4307,50 +4309,60 @@ async function handler(req, res) {
     const now = (/* @__PURE__ */ new Date()).toISOString();
     const userRecord = {
       userId,
+      user_id: userId,
       email,
       phone: data.phone,
       fullName: data.fullName,
+      full_name: data.fullName,
       role: data.role,
       password: data.password,
       passwordHash: data.password,
+      password_hash: data.password,
       accountStatus: "ACTIVE",
+      account_status: "ACTIVE",
       city: data.city,
       createdAt: now,
-      updatedAt: now
+      created_at: now,
+      updatedAt: now,
+      updated_at: now
     };
-    await callOpsSheet("CREATE_USER", userRecord);
     let customerId;
     let sahaId;
-    if (data.role === "CUSTOMER") {
-      customerId = `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-      await callOpsSheet("CREATE_CUSTOMER", {
-        customerId,
-        userId,
-        fullName: data.fullName,
-        email,
-        phone: data.phone,
-        city: data.city,
-        languagePreference: "English",
-        createdAt: now
-      });
-    } else if (data.role === "SAHA") {
-      sahaId = `saha_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-      await callOpsSheet("CREATE_SAHA", {
-        sahaId,
-        userId,
-        fullName: data.fullName,
-        email,
-        phone: data.phone,
-        city: data.city,
-        approvalStatus: "APPROVED",
-        qualifications: data.qualifications || "",
-        experience: data.experience || "",
-        serviceCapabilities: (data.serviceCapabilities || []).join(","),
-        languagesSpoken: (data.languagesSpoken || ["English"]).join(","),
-        availability: data.availability || "",
-        createdAt: now,
-        updatedAt: now
-      });
+    try {
+      await callOpsSheet("CREATE_USER", userRecord);
+      if (data.role === "CUSTOMER") {
+        customerId = `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        await callOpsSheet("CREATE_CUSTOMER", {
+          customerId,
+          userId,
+          fullName: data.fullName,
+          email,
+          phone: data.phone,
+          city: data.city,
+          languagePreference: "English",
+          createdAt: now
+        });
+      } else if (data.role === "SAHA") {
+        sahaId = `saha_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        await callOpsSheet("CREATE_SAHA", {
+          sahaId,
+          userId,
+          fullName: data.fullName,
+          email,
+          phone: data.phone,
+          city: data.city,
+          approvalStatus: "APPROVED",
+          qualifications: data.qualifications || "",
+          experience: data.experience || "",
+          serviceCapabilities: (data.serviceCapabilities || []).join(","),
+          languagesSpoken: (data.languagesSpoken || ["English"]).join(","),
+          availability: data.availability || "",
+          createdAt: now,
+          updatedAt: now
+        });
+      }
+    } catch (sheetWriteErr) {
+      console.warn("[Register] Sheet write non-fatal error:", sheetWriteErr);
     }
     const cookie = buildSetCookieHeader({
       userId,
@@ -4443,13 +4455,17 @@ async function handler2(req, res) {
     if (!user) {
       return reply(res, 401, { error: "Invalid email or password" });
     }
-    const sheetPassword = user.password || user.passwordHash || "";
+    const sheetPassword = user.password || user.passwordHash || user.password_hash || "";
     if (String(sheetPassword) !== String(password)) {
       return reply(res, 401, { error: "Invalid email or password" });
     }
+    const userId = user.userId || user.user_id || `usr_${Date.now()}`;
+    const fullName = user.fullName || user.full_name || "User";
+    const phone = user.phone ? String(user.phone) : "";
+    const city = user.city || "Bengaluru";
     const userRole = role || user.role || "CUSTOMER";
-    let customerId = user.customerId;
-    let sahaId = user.sahaId;
+    let customerId = user.customerId || user.customer_id;
+    let sahaId = user.sahaId || user.saha_id;
     if (userRole === "CUSTOMER" || user.role === "CUSTOMER") {
       try {
         const cust = await getCustomerByUserId(user.userId);
@@ -4492,12 +4508,12 @@ async function handler2(req, res) {
       }
     }
     const sessionPayload = {
-      userId: user.userId,
+      userId,
       role: userRole,
       email: user.email,
-      fullName: user.fullName || "User",
-      phone: user.phone || "",
-      city: user.city || "",
+      fullName,
+      phone,
+      city,
       customerId,
       sahaId
     };

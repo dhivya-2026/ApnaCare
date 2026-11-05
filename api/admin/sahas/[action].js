@@ -20284,17 +20284,15 @@ var memoryStore = {
   bookings: /* @__PURE__ */ new Map(),
   attendance: /* @__PURE__ */ new Map()
 };
+var DEFAULT_OPS_URL = "https://script.google.com/macros/s/AKfycbxKdzTONWfrma5IorgffqozoxoAz36k2BOqT-Tf_wfi06y6ttU353QCSa8tt0r4cbjFew/exec";
 function getOpsUrl() {
-  return process.env.GOOGLE_APPS_SCRIPT_OPS_URL || process.env.VITE_GOOGLE_APPS_SCRIPT_OPS_URL;
+  return process.env.GOOGLE_APPS_SCRIPT_OPS_URL || process.env.VITE_GOOGLE_APPS_SCRIPT_OPS_URL || DEFAULT_OPS_URL;
 }
 function isSheetsEnabled() {
-  return process.env.GOOGLE_SHEETS_ENABLED === "true" && !!getOpsUrl();
+  return true;
 }
 async function callOpsSheet(action, payload) {
   const url = getOpsUrl();
-  if (!url) {
-    return { success: false, error: "GOOGLE_APPS_SCRIPT_OPS_URL not configured" };
-  }
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -20302,13 +20300,17 @@ async function callOpsSheet(action, payload) {
       body: JSON.stringify({
         action,
         payload,
-        secret: process.env.ADMIN_PROVISION_SECRET || ""
-      })
+        secret: process.env.ADMIN_PROVISION_SECRET || "apnacare_operations_master_2026"
+      }),
+      redirect: "follow"
     });
-    if (!res.ok) {
-      return { success: false, error: `HTTP ${res.status}` };
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return { success: false, error: `Invalid JSON from sheet: ${text.slice(0, 100)}` };
     }
-    const data = await res.json();
     return data;
   } catch (err) {
     console.warn(`[SheetsDAL] Request failed for action ${action}:`, err);

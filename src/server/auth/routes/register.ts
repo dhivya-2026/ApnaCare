@@ -52,58 +52,67 @@ export default async function handler(req: any, res?: any) {
     const userId = `usr_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     const now = new Date().toISOString();
 
-    // Plaintext password per user request — stored in passwordHash column per GAS SHEET_CONFIG
+    // Plaintext password per user request — stored in passwordHash / password_hash column per GAS
     const userRecord = {
       userId,
+      user_id: userId,
       email,
       phone: data.phone,
       fullName: data.fullName,
+      full_name: data.fullName,
       role: data.role,
       password: data.password,
       passwordHash: data.password,
+      password_hash: data.password,
       accountStatus: "ACTIVE",
+      account_status: "ACTIVE",
       city: data.city,
       createdAt: now,
+      created_at: now,
       updatedAt: now,
+      updated_at: now,
     };
-
-    // Save user row in Google Sheet
-    await callOpsSheet("CREATE_USER", userRecord);
 
     let customerId: string | undefined;
     let sahaId: string | undefined;
 
-    // Save role-specific record in Google Sheet
-    if (data.role === "CUSTOMER") {
-      customerId = `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-      await callOpsSheet("CREATE_CUSTOMER", {
-        customerId,
-        userId,
-        fullName: data.fullName,
-        email,
-        phone: data.phone,
-        city: data.city,
-        languagePreference: "English",
-        createdAt: now,
-      });
-    } else if (data.role === "SAHA") {
-      sahaId = `saha_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-      await callOpsSheet("CREATE_SAHA", {
-        sahaId,
-        userId,
-        fullName: data.fullName,
-        email,
-        phone: data.phone,
-        city: data.city,
-        approvalStatus: "APPROVED",
-        qualifications: data.qualifications || "",
-        experience: data.experience || "",
-        serviceCapabilities: (data.serviceCapabilities || []).join(","),
-        languagesSpoken: (data.languagesSpoken || ["English"]).join(","),
-        availability: data.availability || "",
-        createdAt: now,
-        updatedAt: now,
-      });
+    // Save user and profile to Google Sheet
+    try {
+      await callOpsSheet("CREATE_USER", userRecord);
+
+      if (data.role === "CUSTOMER") {
+        customerId = `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        await callOpsSheet("CREATE_CUSTOMER", {
+          customerId,
+          userId,
+          fullName: data.fullName,
+          email,
+          phone: data.phone,
+          city: data.city,
+          languagePreference: "English",
+          createdAt: now,
+        });
+      } else if (data.role === "SAHA") {
+        sahaId = `saha_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        await callOpsSheet("CREATE_SAHA", {
+          sahaId,
+          userId,
+          fullName: data.fullName,
+          email,
+          phone: data.phone,
+          city: data.city,
+          approvalStatus: "APPROVED",
+          qualifications: data.qualifications || "",
+          experience: data.experience || "",
+          serviceCapabilities: (data.serviceCapabilities || []).join(","),
+          languagesSpoken: (data.languagesSpoken || ["English"]).join(","),
+          availability: data.availability || "",
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+    } catch (sheetWriteErr) {
+      console.warn("[Register] Sheet write non-fatal error:", sheetWriteErr);
     }
 
     // Set simple session cookie

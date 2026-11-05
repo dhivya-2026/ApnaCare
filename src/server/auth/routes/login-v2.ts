@@ -80,15 +80,19 @@ export default async function handler(req: any, res?: any) {
       return reply(res, 401, { error: "Invalid email or password" });
     }
 
-    // 3. Compare plaintext password from sheet column
-    const sheetPassword = user.password || user.passwordHash || "";
+    // 3. Compare plaintext password from sheet column (handles snake_case and camelCase)
+    const sheetPassword = user.password || user.passwordHash || user.password_hash || "";
     if (String(sheetPassword) !== String(password)) {
       return reply(res, 401, { error: "Invalid email or password" });
     }
 
+    const userId = user.userId || user.user_id || `usr_${Date.now()}`;
+    const fullName = user.fullName || user.full_name || "User";
+    const phone = user.phone ? String(user.phone) : "";
+    const city = user.city || "Bengaluru";
     const userRole = role || user.role || "CUSTOMER";
-    let customerId = user.customerId;
-    let sahaId = user.sahaId;
+    let customerId = user.customerId || user.customer_id;
+    let sahaId = user.sahaId || user.saha_id;
 
     // 4. Ensure customer/saha record exists so dashboards load smoothly
     if (userRole === "CUSTOMER" || user.role === "CUSTOMER") {
@@ -134,12 +138,12 @@ export default async function handler(req: any, res?: any) {
     }
 
     const sessionPayload = {
-      userId: user.userId,
+      userId,
       role: userRole,
       email: user.email,
-      fullName: user.fullName || "User",
-      phone: user.phone || "",
-      city: user.city || "",
+      fullName,
+      phone,
+      city,
       customerId,
       sahaId,
     };
