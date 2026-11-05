@@ -896,60 +896,60 @@ function AdminDashboardContent() {
                 </div>
 
                 {/* MONTHLY BAR TRAJECTORY */}
-                <div className="space-y-2">
+                <div className="space-y-3 pb-3 border-b border-border">
                   <p className="text-xs font-semibold text-foreground">Monthly Booking Inflow (Last 6 Months):</p>
-                  <div className="grid grid-cols-6 gap-2 items-end h-28 pt-4 border-b border-border pb-2 text-center text-xs">
-                    <div className="space-y-1">
-                      <div className="bg-amber-500/30 rounded-t-lg mx-auto w-8" style={{ height: "45px" }} />
-                      <p className="text-[11px] text-muted-foreground">Jun</p>
-                      <p className="text-[10px] font-bold text-foreground">142</p>
+                  <div className="grid grid-cols-6 gap-2 items-end pt-4 pb-2 text-center">
+                    <div className="flex flex-col items-center justify-end h-36 space-y-1.5">
+                      <span className="text-[11px] font-bold text-foreground">142</span>
+                      <div className="bg-amber-500/30 rounded-t-lg w-full max-w-[38px]" style={{ height: "45px" }} />
+                      <span className="text-[11px] font-medium text-muted-foreground pt-1">Jun</span>
                     </div>
-                    <div className="space-y-1">
-                      <div className="bg-amber-500/40 rounded-t-lg mx-auto w-8" style={{ height: "55px" }} />
-                      <p className="text-[11px] text-muted-foreground">Jul</p>
-                      <p className="text-[10px] font-bold text-foreground">178</p>
+                    <div className="flex flex-col items-center justify-end h-36 space-y-1.5">
+                      <span className="text-[11px] font-bold text-foreground">178</span>
+                      <div className="bg-amber-500/40 rounded-t-lg w-full max-w-[38px]" style={{ height: "58px" }} />
+                      <span className="text-[11px] font-medium text-muted-foreground pt-1">Jul</span>
                     </div>
-                    <div className="space-y-1">
-                      <div className="bg-amber-500/50 rounded-t-lg mx-auto w-8" style={{ height: "65px" }} />
-                      <p className="text-[11px] text-muted-foreground">Aug</p>
-                      <p className="text-[10px] font-bold text-foreground">210</p>
+                    <div className="flex flex-col items-center justify-end h-36 space-y-1.5">
+                      <span className="text-[11px] font-bold text-foreground">210</span>
+                      <div className="bg-amber-500/50 rounded-t-lg w-full max-w-[38px]" style={{ height: "70px" }} />
+                      <span className="text-[11px] font-medium text-muted-foreground pt-1">Aug</span>
                     </div>
-                    <div className="space-y-1">
-                      <div className="bg-amber-500/60 rounded-t-lg mx-auto w-8" style={{ height: "76px" }} />
-                      <p className="text-[11px] text-muted-foreground">Sep</p>
-                      <p className="text-[10px] font-bold text-foreground">245</p>
+                    <div className="flex flex-col items-center justify-end h-36 space-y-1.5">
+                      <span className="text-[11px] font-bold text-foreground">245</span>
+                      <div className="bg-amber-500/60 rounded-t-lg w-full max-w-[38px]" style={{ height: "84px" }} />
+                      <span className="text-[11px] font-medium text-muted-foreground pt-1">Sep</span>
                     </div>
-                    <div className="space-y-1">
-                      <div className="bg-amber-500/80 rounded-t-lg mx-auto w-8" style={{ height: "88px" }} />
-                      <p className="text-[11px] text-muted-foreground">Oct</p>
-                      <p className="text-[10px] font-bold text-foreground">284</p>
+                    <div className="flex flex-col items-center justify-end h-36 space-y-1.5">
+                      <span className="text-[11px] font-bold text-foreground">284</span>
+                      <div className="bg-amber-500/80 rounded-t-lg w-full max-w-[38px]" style={{ height: "98px" }} />
+                      <span className="text-[11px] font-medium text-muted-foreground pt-1">Oct</span>
                     </div>
-                    <div className="space-y-1">
-                      <div className="bg-amber-600 rounded-t-lg mx-auto w-8" style={{ height: "100px" }} />
-                      <p className="text-[11px] font-bold text-amber-700">Nov*</p>
-                      <p className="text-[10px] font-bold text-amber-700">320 (est)</p>
+                    <div className="flex flex-col items-center justify-end h-36 space-y-1.5">
+                      <span className="text-[11px] font-bold text-amber-700">320*</span>
+                      <div className="bg-amber-600 rounded-t-lg w-full max-w-[38px] shadow-xs" style={{ height: "112px" }} />
+                      <span className="text-[11px] font-bold text-amber-700 pt-1">Nov</span>
                     </div>
                   </div>
                 </div>
 
                 {/* SHIFT TIMING DEMAND */}
-                <div className="space-y-2 text-xs">
+                <div className="space-y-3 pt-2 text-xs">
                   <p className="font-semibold text-foreground">Peak Daily Shift Demand Windows:</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="p-2.5 rounded-xl bg-secondary/40 border border-border">
-                      <p className="text-foreground font-bold text-sm">62%</p>
-                      <p className="text-[11px] text-muted-foreground">12h Day Shift</p>
-                      <p className="text-[10px] text-primary">08:00 AM - 08:00 PM</p>
+                    <div className="p-3 rounded-xl bg-secondary/40 border border-border">
+                      <p className="text-foreground font-bold text-base">62%</p>
+                      <p className="text-[11px] font-semibold text-foreground mt-0.5">12h Day Shift</p>
+                      <p className="text-[10px] text-primary mt-0.5">08:00 AM - 08:00 PM</p>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-secondary/40 border border-border">
-                      <p className="text-foreground font-bold text-sm">24%</p>
-                      <p className="text-[11px] text-muted-foreground">24h Live-in Companion</p>
-                      <p className="text-[10px] text-emerald-700">Continuous Support</p>
+                    <div className="p-3 rounded-xl bg-secondary/40 border border-border">
+                      <p className="text-foreground font-bold text-base">24%</p>
+                      <p className="text-[11px] font-semibold text-foreground mt-0.5">24h Live-in Companion</p>
+                      <p className="text-[10px] text-emerald-700 mt-0.5">Continuous Support</p>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-secondary/40 border border-border">
-                      <p className="text-foreground font-bold text-sm">14%</p>
-                      <p className="text-[11px] text-muted-foreground">12h Night Shift</p>
-                      <p className="text-[10px] text-blue-700">08:00 PM - 08:00 AM</p>
+                    <div className="p-3 rounded-xl bg-secondary/40 border border-border">
+                      <p className="text-foreground font-bold text-base">14%</p>
+                      <p className="text-[11px] font-semibold text-foreground mt-0.5">12h Night Shift</p>
+                      <p className="text-[10px] text-blue-700 mt-0.5">08:00 PM - 08:00 AM</p>
                     </div>
                   </div>
                 </div>
