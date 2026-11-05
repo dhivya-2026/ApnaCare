@@ -63,6 +63,42 @@ function AttendantLoginPage() {
           </div>
         )}
 
+                {/* Demo Test Credentials Card */}
+        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-emerald-700">Verified Saha Attendant:</span>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("lakshmi.saha@apnacare.in");
+                setPassword("SahaPass@2026!");
+              }}
+              className="text-[11px] font-bold text-emerald-700 underline hover:text-emerald-800 transition-colors"
+            >
+              Auto-Fill
+            </button>
+          </div>
+          <p className="font-mono text-[11px] text-muted-foreground">
+            lakshmi.saha@apnacare.in &bull; SahaPass@2026!
+          </p>
+          <div className="flex items-center justify-between pt-1 border-t border-emerald-500/20">
+            <span className="font-semibold text-amber-700">Pending Approval Saha:</span>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("kavitha.saha@apnacare.in");
+                setPassword("SahaPass@2026!");
+              }}
+              className="text-[11px] font-bold text-amber-700 underline hover:text-amber-800 transition-colors"
+            >
+              Auto-Fill
+            </button>
+          </div>
+          <p className="font-mono text-[11px] text-muted-foreground">
+            kavitha.saha@apnacare.in &bull; SahaPass@2026!
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-xs font-semibold">Registered Email</Label>

@@ -63,6 +63,26 @@ function AdminLoginPage() {
           </div>
         )}
 
+                {/* Demo Test Credentials Card */}
+        <div className="rounded-xl border border-amber-600/20 bg-amber-500/10 p-3 text-xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-amber-700">Super Admin Credentials:</span>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("admin@apnacare.in");
+                setPassword("ApnaAdmin@2026!");
+              }}
+              className="text-[11px] font-bold text-amber-700 underline hover:text-amber-800 transition-colors"
+            >
+              Auto-Fill
+            </button>
+          </div>
+          <p className="font-mono text-[11px] text-muted-foreground">
+            admin@apnacare.in &bull; ApnaAdmin@2026!
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-xs font-semibold">Administrator Email</Label>

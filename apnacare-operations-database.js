@@ -22,7 +22,7 @@ const CONFIG = {
   ADMIN_EMAIL: "admin@apnacare.in",
   // Initial PBKDF2 hash for ApnaAdmin@2026!
   ADMIN_PASSWORD_HASH:
-    "pbkdf2:sha256:100000:7c5885068cf0cfabf6d2133ef146ecbb:36261543ea17b8f6731ba3c7a36cb92bfd29e3a35a74e142e0aebf73319be8f9",
+    "pbkdf2:sha256:100000:7c5885068cf0cfabf6d2133ef146ecbb:006efca8e8491a486a8dff94b97c649386c46918d66c245b309ad2b402675867",
 };
 
 const SCHEMAS = {
@@ -163,6 +163,12 @@ function doPost(e) {
 
       case "findAdminByEmail":
         return jsonResponse(findRowByColumn(ss, "Admins", "email", data.email));
+
+      case "createAdmin":
+        return jsonResponse(appendRowObject(ss, "Admins", data.admin));
+
+      case "updateAdmin":
+        return jsonResponse(updateRowObject(ss, "Admins", "admin_id", data.adminId, data.updates));
 
       case "createBooking":
         return jsonResponse(appendRowObject(ss, "Bookings", data.booking));

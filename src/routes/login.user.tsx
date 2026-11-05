@@ -67,6 +67,26 @@ function UserLoginPage() {
           </div>
         )}
 
+                {/* Demo Test Credentials Card */}
+        <div className="rounded-xl border border-primary/20 bg-primary-soft/40 p-3 text-xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-primary">Demo User Credentials:</span>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("user.test@apnacare.in");
+                setPassword("UserPass@2026!");
+              }}
+              className="text-[11px] font-bold text-primary underline hover:text-primary/80 transition-colors"
+            >
+              Auto-Fill
+            </button>
+          </div>
+          <p className="font-mono text-[11px] text-muted-foreground">
+            user.test@apnacare.in &bull; UserPass@2026!
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-xs font-semibold">Email Address</Label>
