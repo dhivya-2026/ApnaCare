@@ -20,6 +20,7 @@ import {
   MapPin,
   Activity,
   Sparkle,
+  ExternalLink,
 } from "lucide-react";
 import { BookLink } from "@/components/site/Layout";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ import hero3 from "@/assets/hero-3.jpg";
 import hero5 from "@/assets/hero-5.jpg";
 import hero6 from "@/assets/hero-6.jpg";
 import nursingCare from "@/assets/nursing-care.jpg";
+import trustgridLogo from "@/assets/trustgrid-logo.png";
 
 export const Route = createFileRoute("/about")({
   head: () =>
@@ -51,6 +53,7 @@ export const Route = createFileRoute("/about")({
           "Rohini Sankaranarayanan COO ApnaCare",
           "Prof Shoba T Women SHG ApnaCare",
           "family care coordination Bengaluru Chennai Hyderabad Coimbatore",
+          "TRUSTGRID.AI strategic investor partner",
         ],
         schema: [
           buildOrganizationSchema(),
@@ -126,6 +129,33 @@ export const WOMEN_LEADERSHIP: WomanLeader[] = [
       "Caregiving is inherently dignified work. By empowering women from self-help groups with professional skills and fair wages, we elevate entire families while solving urgent care needs for seniors.",
   },
 ];
+
+/* ── Strategic Investor & Partner Mandate ────────────────────────── */
+export interface StrategicPartner {
+  id: string;
+  name: string;
+  designation: string;
+  website: string;
+  logo: string;
+  sectionEyebrow: string;
+  heading: string;
+  summary: string;
+  partnershipStatement: string;
+}
+
+export const STRATEGIC_INVESTOR_PARTNER: StrategicPartner = {
+  id: "trustgrid-ai",
+  name: "TRUSTGRID.AI",
+  designation: "Strategic Investor & Partner",
+  website: "https://trustgrid.ai/",
+  logo: trustgridLogo,
+  sectionEyebrow: "INVESTOR & STRATEGIC PARTNERS",
+  heading: "Building a Stronger Future of Care, Together.",
+  summary:
+    "ApnaCare is strengthened by strategic partnerships that support our vision of making dependable, accessible and compassionate care more accessible to families.",
+  partnershipStatement:
+    "We are proud to recognize TRUSTGRID.AI as a strategic investor and partner in ApnaCare's journey. This strategic relationship supports our ambition to build a scalable, technology-enabled care ecosystem focused on making care coordination simpler, more accessible and more dependable for families.",
+};
 
 /* ── What We Do: Core Care Services & Family Outcomes ────────────── */
 export const WHAT_WE_DO = [
@@ -1038,7 +1068,133 @@ function AboutPage() {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          SECTION 8 — OUR PRESENCE (OPERATING METROS & REGIONAL DESKS)
+          SECTION 8 — INVESTOR & STRATEGIC PARTNERS
+          Section eyebrow: INVESTOR & STRATEGIC PARTNERS
+          Main heading: Building a Stronger Future of Care, Together.
+          Partner: TRUSTGRID.AI — Strategic Investor & Partner
+      ───────────────────────────────────────────────────────────── */}
+      <section
+        id="investor-partners"
+        className="relative border-b border-border/70 bg-gradient-to-b from-card via-secondary/20 to-background py-16 md:py-24"
+        aria-labelledby="investor-partners-heading"
+      >
+        <div className="container-page">
+          {/* Section Header */}
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+              <Handshake className="size-3.5 text-primary" />
+              {STRATEGIC_INVESTOR_PARTNER.sectionEyebrow}
+            </div>
+            <h2
+              id="investor-partners-heading"
+              className="text-fluid-section font-display font-semibold text-foreground tracking-tight leading-tight"
+            >
+              {STRATEGIC_INVESTOR_PARTNER.heading}
+            </h2>
+            <p className="text-muted-foreground text-fluid-body leading-relaxed">
+              {STRATEGIC_INVESTOR_PARTNER.summary}
+            </p>
+          </div>
+
+          {/* Featured Strategic Partnership Card */}
+          <div className="mt-12 mx-auto max-w-5xl rounded-3xl border border-border/90 bg-card p-6 sm:p-10 md:p-12 shadow-soft hover:shadow-lift transition-all duration-300">
+            <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
+              {/* Left Column: Official TRUSTGRID.AI Brand Showcase */}
+              <div className="lg:col-span-5">
+                <div className="rounded-2xl border border-border/80 bg-background/90 p-6 sm:p-8 flex flex-col items-center text-center shadow-xs">
+                  {/* TRUSTGRID.AI Logo in Official Dimensions */}
+                  <div className="grid h-24 w-full place-items-center rounded-xl bg-card border border-border/50 p-4">
+                    <img
+                      src={STRATEGIC_INVESTOR_PARTNER.logo}
+                      alt="TRUSTGRID.AI Logo"
+                      className="h-14 sm:h-16 w-auto max-w-[140px] object-contain transition-transform duration-300 hover:scale-105"
+                      width={90}
+                      height={75}
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <h3 className="mt-4 text-xl sm:text-2xl font-display font-bold tracking-tight text-foreground">
+                    {STRATEGIC_INVESTOR_PARTNER.name}
+                  </h3>
+
+                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary border border-primary/20">
+                    <Sparkles className="size-3 text-primary shrink-0" />
+                    {STRATEGIC_INVESTOR_PARTNER.designation}
+                  </span>
+
+                  <a
+                    href={STRATEGIC_INVESTOR_PARTNER.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                    aria-label="Visit TRUSTGRID.AI official website (opens in a new tab)"
+                  >
+                    <span>trustgrid.ai</span>
+                    <ExternalLink className="size-3" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Right Column: Partnership Details & Narrative */}
+              <div className="lg:col-span-7 space-y-5">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                    Strategic Backing
+                  </span>
+                  <h4 className="mt-1 text-xl sm:text-2xl font-display font-semibold text-foreground tracking-tight">
+                    {STRATEGIC_INVESTOR_PARTNER.name} — {STRATEGIC_INVESTOR_PARTNER.designation}
+                  </h4>
+                </div>
+
+                <blockquote className="rounded-xl border-l-2 border-primary bg-primary-soft/30 p-4 text-xs sm:text-sm text-foreground/90 italic leading-relaxed">
+                  “{STRATEGIC_INVESTOR_PARTNER.partnershipStatement.replace(/^[“"]|[”"]$/g, '')}”
+                </blockquote>
+
+                {/* Key Strategic Alignment Pillars */}
+                <div className="grid gap-2.5 sm:grid-cols-2 pt-1 text-xs">
+                  <div className="flex items-start gap-2 rounded-lg bg-secondary/30 p-2.5 border border-border/40">
+                    <CheckCircle2 className="size-4 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-foreground">Scalable Ecosystem</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        Streamlined coordination frameworks for families across South India.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2 rounded-lg bg-secondary/30 p-2.5 border border-border/40">
+                    <CheckCircle2 className="size-4 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-foreground">Technology-Enabled Trust</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        Strengthening verification rigor and rapid dispatch responsiveness.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Call to Action Link */}
+                <div className="pt-2">
+                  <a
+                    href={STRATEGIC_INVESTOR_PARTNER.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary-soft/80 px-6 py-2.5 text-xs sm:text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-white hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    onClick={() => track("about_partner_trustgrid_click", { destination: STRATEGIC_INVESTOR_PARTNER.website })}
+                  >
+                    <span>Explore TRUSTGRID.AI</span>
+                    <ArrowRight className="size-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION 9 — OUR PRESENCE (OPERATING METROS & REGIONAL DESKS)
       ───────────────────────────────────────────────────────────── */}
       <section
         id="presence"

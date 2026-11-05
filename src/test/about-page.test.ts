@@ -4,6 +4,7 @@ import {
   SUB_NAV_LINKS,
   WHAT_WE_DO,
   CORE_VALUES,
+  STRATEGIC_INVESTOR_PARTNER,
 } from "../routes/about";
 
 describe("About Us Page — Leadership, Architecture & Purpose", () => {
@@ -96,4 +97,42 @@ describe("About Us Page — Leadership, Architecture & Purpose", () => {
       expect(ids).toContain("family-support");
     });
   });
+
+  describe("Strategic Investor & Partner Integration — TRUSTGRID.AI", () => {
+    it("recognizes TRUSTGRID.AI with exact required name and designation", () => {
+      expect(STRATEGIC_INVESTOR_PARTNER).toBeDefined();
+      expect(STRATEGIC_INVESTOR_PARTNER.name).toBe("TRUSTGRID.AI");
+      expect(STRATEGIC_INVESTOR_PARTNER.designation).toBe("Strategic Investor & Partner");
+      expect(STRATEGIC_INVESTOR_PARTNER.website).toBe("https://trustgrid.ai/");
+    });
+
+    it("presents the exact section eyebrow and main heading", () => {
+      expect(STRATEGIC_INVESTOR_PARTNER.sectionEyebrow).toBe("INVESTOR & STRATEGIC PARTNERS");
+      expect(STRATEGIC_INVESTOR_PARTNER.heading).toBe("Building a Stronger Future of Care, Together.");
+    });
+
+    it("includes the verified supporting copy and partnership narrative without invented figures", () => {
+      expect(STRATEGIC_INVESTOR_PARTNER.summary).toBe(
+        "ApnaCare is strengthened by strategic partnerships that support our vision of making dependable, accessible and compassionate care more accessible to families."
+      );
+      expect(STRATEGIC_INVESTOR_PARTNER.partnershipStatement).toContain(
+        "We are proud to recognize TRUSTGRID.AI as a strategic investor and partner in ApnaCare's journey."
+      );
+      expect(STRATEGIC_INVESTOR_PARTNER.partnershipStatement).toContain(
+        "technology-enabled care ecosystem focused on making care coordination simpler, more accessible and more dependable for families."
+      );
+
+      // Verify no invented investment amounts, funding rounds, or equity percentages
+      const inventedTerms = ["series a", "series b", "million", "equity", "valuation", "seed round", "$", "crore"];
+      for (const term of inventedTerms) {
+        expect(STRATEGIC_INVESTOR_PARTNER.summary.toLowerCase()).not.toContain(term);
+        expect(STRATEGIC_INVESTOR_PARTNER.partnershipStatement.toLowerCase()).not.toContain(term);
+      }
+    });
+
+    it("verifies the official logo asset exists and is configured", () => {
+      expect(STRATEGIC_INVESTOR_PARTNER.logo).toBeTruthy();
+    });
+  });
+
 });
