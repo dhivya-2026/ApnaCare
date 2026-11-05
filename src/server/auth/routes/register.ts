@@ -145,9 +145,12 @@ export default async function handler(req: any, res?: any) {
       },
       { "Set-Cookie": cookie }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Register] Error:", error);
-    return reply(res, 500, { error: "Registration failed. Please try again." });
+    return reply(res, 500, {
+      error: error?.message || "Registration failed. Please try again.",
+      details: error?.stack,
+    });
   }
 }
 

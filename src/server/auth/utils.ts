@@ -33,26 +33,7 @@ export function reply(
 export async function parseBody(req: any): Promise<any> {
   if (!req) return {};
 
-  // 1. Web Standard Request with .json() method (Vercel Web Route)
-  if (typeof req.json === "function") {
-    try {
-      return await req.json();
-    } catch {
-      // fallback to text if json() fails
-    }
-  }
-
-  // 2. Web Standard Request with .text() method
-  if (typeof req.text === "function") {
-    try {
-      const text = await req.text();
-      return text ? JSON.parse(text) : {};
-    } catch {
-      return {};
-    }
-  }
-
-  // 3. Pre-parsed JavaScript object (Express / Vercel body-parser)
+  // 1. Pre-parsed JavaScript object (Express / Vercel body-parser) - check FIRST
   if (
     req.body &&
     typeof req.body === "object" &&
@@ -62,7 +43,7 @@ export async function parseBody(req: any): Promise<any> {
     return req.body;
   }
 
-  // 4. String body
+  // 2. String body
   if (typeof req.body === "string") {
     try {
       return JSON.parse(req.body);
@@ -71,21 +52,51 @@ export async function parseBody(req: any): Promise<any> {
     }
   }
 
-  // 5. Node.js IncomingMessage stream
+  // 3. Web Standard Request with .json() method (Vercel Edge / Web Route)
+  if (typeof req.json === "function") {
+    try {
+      return await req.json();
+    } catch {
+      // fallback
+    }
+  }
+
+  // 4. Web Standard Request with .text() method
+  if (typeof req.text === "function") {
+    try {
+      const text = await req.text();
+      return text ? JSON.parse(text) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  // 5. If stream already ended without body
+  if (req.readableEnded || req.complete) {
+    return {};
+  }
+
+  // 6. Node.js IncomingMessage stream with timeout safety
   if (typeof req.on === "function") {
     return new Promise((resolve) => {
       let data = "";
+      const timer = setTimeout(() => resolve({}), 2000);
+
       req.on("data", (chunk: any) => {
         data += chunk;
       });
       req.on("end", () => {
+        clearTimeout(timer);
         try {
           resolve(data ? JSON.parse(data) : {});
         } catch {
           resolve({});
         }
       });
-      req.on("error", () => resolve({}));
+      req.on("error", () => {
+        clearTimeout(timer);
+        resolve({});
+      });
     });
   }
 

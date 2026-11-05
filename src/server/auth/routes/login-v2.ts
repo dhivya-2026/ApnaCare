@@ -159,9 +159,9 @@ export default async function handler(req: any, res?: any) {
       },
       { "Set-Cookie": cookie }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Login] Error:", error);
-    return reply(res, 500, { error: "Sign in failed. Please try again." });
+    return reply(res, 500, { error: error?.message || "Sign in failed. Please try again.", details: error?.stack });
   }
 }
 

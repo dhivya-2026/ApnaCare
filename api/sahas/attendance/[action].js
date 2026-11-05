@@ -20432,6 +20432,16 @@ function reply(res, statusCode, data, headers = {}) {
 }
 async function parseBody(req) {
   if (!req) return {};
+  if (req.body && typeof req.body === "object" && typeof req.body.pipe !== "function" && typeof req.body.getReader !== "function") {
+    return req.body;
+  }
+  if (typeof req.body === "string") {
+    try {
+      return JSON.parse(req.body);
+    } catch {
+      return {};
+    }
+  }
   if (typeof req.json === "function") {
     try {
       return await req.json();
@@ -20446,30 +20456,28 @@ async function parseBody(req) {
       return {};
     }
   }
-  if (req.body && typeof req.body === "object" && typeof req.body.pipe !== "function" && typeof req.body.getReader !== "function") {
-    return req.body;
-  }
-  if (typeof req.body === "string") {
-    try {
-      return JSON.parse(req.body);
-    } catch {
-      return {};
-    }
+  if (req.readableEnded || req.complete) {
+    return {};
   }
   if (typeof req.on === "function") {
     return new Promise((resolve) => {
       let data = "";
+      const timer = setTimeout(() => resolve({}), 2e3);
       req.on("data", (chunk) => {
         data += chunk;
       });
       req.on("end", () => {
+        clearTimeout(timer);
         try {
           resolve(data ? JSON.parse(data) : {});
         } catch {
           resolve({});
         }
       });
-      req.on("error", () => resolve({}));
+      req.on("error", () => {
+        clearTimeout(timer);
+        resolve({});
+      });
     });
   }
   return {};
