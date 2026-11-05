@@ -18,7 +18,6 @@ import { Route as CitiesRouteImport } from './routes/cities'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EcosystemPartnersRouteImport } from './routes/ecosystem-partners'
 import { Route as FaqRouteImport } from './routes/faq'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as SafetyRouteImport } from './routes/safety'
@@ -30,6 +29,7 @@ import { Route as DashboardAttendantRouteImport } from './routes/dashboard.atten
 import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
 import { Route as KnowledgeHubIndexRouteImport } from './routes/knowledge-hub.index'
 import { Route as KnowledgeHubSlugRouteImport } from './routes/knowledge-hub.$slug'
+import { Route as LoginIndexRouteImport } from './routes/login.index'
 import { Route as LoginAdminRouteImport } from './routes/login.admin'
 import { Route as LoginAttendantRouteImport } from './routes/login.attendant'
 import { Route as LoginUserRouteImport } from './routes/login.user'
@@ -82,11 +82,6 @@ const EcosystemPartnersRoute = EcosystemPartnersRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -144,20 +139,25 @@ const KnowledgeHubSlugRoute = KnowledgeHubSlugRouteImport.update({
   path: '/knowledge-hub/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginIndexRoute = LoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginAdminRoute = LoginAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => LoginRoute,
+  id: '/login/admin',
+  path: '/login/admin',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LoginAttendantRoute = LoginAttendantRouteImport.update({
-  id: '/attendant',
-  path: '/attendant',
-  getParentRoute: () => LoginRoute,
+  id: '/login/attendant',
+  path: '/login/attendant',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LoginUserRoute = LoginUserRouteImport.update({
-  id: '/user',
-  path: '/user',
-  getParentRoute: () => LoginRoute,
+  id: '/login/user',
+  path: '/login/user',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterAttendantRoute = RegisterAttendantRouteImport.update({
   id: '/register/attendant',
@@ -195,7 +195,6 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
-  '/login': typeof LoginRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
@@ -214,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/services/$slug': typeof ServicesSlugRoute
   '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub/': typeof KnowledgeHubIndexRoute
+  '/login/': typeof LoginIndexRoute
   '/services/': typeof ServicesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -226,7 +226,6 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
-  '/login': typeof LoginRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
@@ -245,6 +244,7 @@ export interface FileRoutesByTo {
   '/services/$slug': typeof ServicesSlugRoute
   '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub': typeof KnowledgeHubIndexRoute
+  '/login': typeof LoginIndexRoute
   '/services': typeof ServicesIndexRoute
 }
 export interface FileRoutesById {
@@ -258,7 +258,6 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
-  '/login': typeof LoginRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
@@ -277,6 +276,7 @@ export interface FileRoutesById {
   '/services/$slug': typeof ServicesSlugRoute
   '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub/': typeof KnowledgeHubIndexRoute
+  '/login/': typeof LoginIndexRoute
   '/services/': typeof ServicesIndexRoute
 }
 export interface FileRouteTypes {
@@ -291,7 +291,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
-    | '/login'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
@@ -310,6 +309,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/solutions/$slug'
     | '/knowledge-hub/'
+    | '/login/'
     | '/services/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -322,7 +322,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
-    | '/login'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
@@ -341,6 +340,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/solutions/$slug'
     | '/knowledge-hub'
+    | '/login'
     | '/services'
   id:
     | '__root__'
@@ -353,7 +353,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
-    | '/login'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
@@ -372,6 +371,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/solutions/$slug'
     | '/knowledge-hub/'
+    | '/login/'
     | '/services/'
   fileRoutesById: FileRoutesById
 }
@@ -385,7 +385,6 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   EcosystemPartnersRoute: typeof EcosystemPartnersRoute
   FaqRoute: typeof FaqRoute
-  LoginRoute: typeof LoginRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   SafetyRoute: typeof SafetyRoute
@@ -395,11 +394,15 @@ export interface RootRouteChildren {
   DashboardAttendantRoute: typeof DashboardAttendantRoute
   DashboardUserRoute: typeof DashboardUserRoute
   KnowledgeHubSlugRoute: typeof KnowledgeHubSlugRoute
+  LoginAdminRoute: typeof LoginAdminRoute
+  LoginAttendantRoute: typeof LoginAttendantRoute
+  LoginUserRoute: typeof LoginUserRoute
   RegisterAttendantRoute: typeof RegisterAttendantRoute
   RegisterUserRoute: typeof RegisterUserRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   SolutionsSlugRoute: typeof SolutionsSlugRoute
   KnowledgeHubIndexRoute: typeof KnowledgeHubIndexRoute
+  LoginIndexRoute: typeof LoginIndexRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
 }
 
@@ -466,13 +469,6 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -552,26 +548,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KnowledgeHubSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login/': {
+      id: '/login/'
+      path: '/login'
+      fullPath: '/login/'
+      preLoaderRoute: typeof LoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login/admin': {
       id: '/login/admin'
-      path: '/admin'
+      path: '/login/admin'
       fullPath: '/login/admin'
       preLoaderRoute: typeof LoginAdminRouteImport
-      parentRoute: typeof LoginRoute
+      parentRoute: typeof rootRouteImport
     }
     '/login/attendant': {
       id: '/login/attendant'
-      path: '/attendant'
+      path: '/login/attendant'
       fullPath: '/login/attendant'
       preLoaderRoute: typeof LoginAttendantRouteImport
-      parentRoute: typeof LoginRoute
+      parentRoute: typeof rootRouteImport
     }
     '/login/user': {
       id: '/login/user'
-      path: '/user'
+      path: '/login/user'
       fullPath: '/login/user'
       preLoaderRoute: typeof LoginUserRouteImport
-      parentRoute: typeof LoginRoute
+      parentRoute: typeof rootRouteImport
     }
     '/register/attendant': {
       id: '/register/attendant'
@@ -622,20 +625,6 @@ const CitiesRouteChildren: CitiesRouteChildren = {
 const CitiesRouteWithChildren =
   CitiesRoute._addFileChildren(CitiesRouteChildren)
 
-interface LoginRouteChildren {
-  LoginAdminRoute: typeof LoginAdminRoute
-  LoginAttendantRoute: typeof LoginAttendantRoute
-  LoginUserRoute: typeof LoginUserRoute
-}
-
-const LoginRouteChildren: LoginRouteChildren = {
-  LoginAdminRoute: LoginAdminRoute,
-  LoginAttendantRoute: LoginAttendantRoute,
-  LoginUserRoute: LoginUserRoute,
-}
-
-const LoginRouteWithChildren = LoginRoute._addFileChildren(LoginRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -646,7 +635,6 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   EcosystemPartnersRoute: EcosystemPartnersRoute,
   FaqRoute: FaqRoute,
-  LoginRoute: LoginRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   SafetyRoute: SafetyRoute,
@@ -656,11 +644,15 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardAttendantRoute: DashboardAttendantRoute,
   DashboardUserRoute: DashboardUserRoute,
   KnowledgeHubSlugRoute: KnowledgeHubSlugRoute,
+  LoginAdminRoute: LoginAdminRoute,
+  LoginAttendantRoute: LoginAttendantRoute,
+  LoginUserRoute: LoginUserRoute,
   RegisterAttendantRoute: RegisterAttendantRoute,
   RegisterUserRoute: RegisterUserRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   SolutionsSlugRoute: SolutionsSlugRoute,
   KnowledgeHubIndexRoute: KnowledgeHubIndexRoute,
+  LoginIndexRoute: LoginIndexRoute,
   ServicesIndexRoute: ServicesIndexRoute,
 }
 export const routeTree = rootRouteImport

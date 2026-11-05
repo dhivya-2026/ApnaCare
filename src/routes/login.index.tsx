@@ -3,7 +3,7 @@ import { Users, HeartHandshake, ShieldCheck, ArrowRight, UserPlus, LogIn, Sparkl
 import { Button } from "@/components/ui/button";
 import { seo } from "@/lib/seo";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/login/")({
   head: () =>
     seo(
       "Welcome to ApnaCare — Unified Authentication Portal",
