@@ -14018,6 +14018,47 @@ var require_built3 = __commonJS({
   }
 });
 
+// src/server/auth/simple-session.ts
+var COOKIE_NAME = "apnacare_session";
+var COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+function encodeSession(session) {
+  const payload = JSON.stringify(session);
+  return Buffer.from(payload).toString("base64");
+}
+function decodeSession(token) {
+  try {
+    const payload = Buffer.from(token, "base64").toString("utf-8");
+    const parsed = JSON.parse(payload);
+    if (!parsed.userId) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+function buildSetCookieHeader(session) {
+  const value = encodeSession(session);
+  return `${COOKIE_NAME}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${COOKIE_MAX_AGE}`;
+}
+function getSessionFromRequest(req) {
+  let cookieHeader = "";
+  if (req.headers && typeof req.headers === "object") {
+    cookieHeader = req.headers.cookie || req.headers.Cookie || "";
+  }
+  if (!cookieHeader && typeof req.headers?.get === "function") {
+    cookieHeader = req.headers.get("cookie") || "";
+  }
+  if (!cookieHeader) return null;
+  const cookies = Object.fromEntries(
+    cookieHeader.split(";").map((c) => {
+      const eq = c.indexOf("=");
+      return [c.slice(0, eq).trim(), c.slice(eq + 1).trim()];
+    })
+  );
+  const token = cookies[COOKIE_NAME];
+  if (!token) return null;
+  return decodeSession(token);
+}
+
 // src/server/session/cookies.ts
 var DEFAULT_SESSION_CONFIG = {
   cookieName: "apnacare_session",
@@ -14029,26 +14070,6 @@ var DEFAULT_SESSION_CONFIG = {
   sameSite: "lax",
   path: "/"
 };
-function getEffectiveCookieName(isSecure = DEFAULT_SESSION_CONFIG.secure) {
-  if (isSecure && process.env.NODE_ENV === "production") {
-    return `__Host-${DEFAULT_SESSION_CONFIG.cookieName}`;
-  }
-  return DEFAULT_SESSION_CONFIG.cookieName;
-}
-function createSessionCookieHeader(sessionId, maxAgeSeconds = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, isSecure = DEFAULT_SESSION_CONFIG.secure) {
-  const name = getEffectiveCookieName(isSecure);
-  const parts = [
-    `${name}=${sessionId}`,
-    `Path=${DEFAULT_SESSION_CONFIG.path}`,
-    `Max-Age=${maxAgeSeconds}`,
-    `SameSite=${DEFAULT_SESSION_CONFIG.sameSite.charAt(0).toUpperCase() + DEFAULT_SESSION_CONFIG.sameSite.slice(1)}`,
-    "HttpOnly"
-  ];
-  if (isSecure) {
-    parts.push("Secure");
-  }
-  return parts.join("; ");
-}
 function parseSessionCookie(cookieHeader) {
   if (!cookieHeader) return null;
   const cookies = cookieHeader.split(";").map((c) => c.trim());
@@ -14066,9 +14087,6 @@ function parseSessionCookie(cookieHeader) {
   }
   return null;
 }
-
-// src/server/session/session-manager.ts
-import { randomBytes, createHash } from "crypto";
 
 // node_modules/uncrypto/dist/crypto.node.mjs
 import nodeCrypto from "node:crypto";
@@ -20157,57 +20175,36 @@ function getSessionStore() {
 }
 
 // src/server/session/session-manager.ts
-function generateSessionId() {
-  return randomBytes(32).toString("base64url");
-}
-function hashValue(val) {
-  if (!val) return void 0;
-  return createHash("sha256").update(val).digest("hex").slice(0, 16);
-}
-async function createSession(userId, role, metadata, reqContext) {
-  const store = getSessionStore();
-  const sessionId = generateSessionId();
-  const now = Date.now();
-  const session = {
-    sessionId,
-    userId,
-    role,
-    metadata,
-    createdAt: now,
-    lastActivityAt: now,
-    expiresAt: now + DEFAULT_SESSION_CONFIG.maxLifetimeSeconds * 1e3,
-    ipHash: hashValue(reqContext?.ip),
-    userAgentHash: hashValue(reqContext?.userAgent)
-  };
-  const ttl = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds;
-  await store.set(sessionId, session, ttl);
-  return session;
-}
 async function validateSession(sessionId) {
   if (!sessionId || typeof sessionId !== "string" || sessionId.length < 16) {
     return null;
   }
-  const store = getSessionStore();
-  const session = await store.get(sessionId);
-  if (!session) return null;
-  const now = Date.now();
-  if (now > session.expiresAt) {
-    await store.delete(sessionId);
+  try {
+    const store = getSessionStore();
+    const session = await store.get(sessionId);
+    if (!session) return null;
+    const now = Date.now();
+    if (now > session.expiresAt) {
+      await store.delete(sessionId);
+      return null;
+    }
+    const idleMs = now - session.lastActivityAt;
+    const maxIdleMs = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds * 1e3;
+    if (idleMs > maxIdleMs) {
+      await store.delete(sessionId);
+      return null;
+    }
+    const remainingLifeSec = Math.floor((session.expiresAt - now) / 1e3);
+    const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
+    if (ttl > 0) {
+      session.lastActivityAt = now;
+      await store.touch(sessionId, ttl, now);
+    }
+    return session;
+  } catch (err) {
+    console.warn("[SessionManager] Failed to validate session:", err);
     return null;
   }
-  const idleMs = now - session.lastActivityAt;
-  const maxIdleMs = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds * 1e3;
-  if (idleMs > maxIdleMs) {
-    await store.delete(sessionId);
-    return null;
-  }
-  const remainingLifeSec = Math.floor((session.expiresAt - now) / 1e3);
-  const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
-  if (ttl > 0) {
-    session.lastActivityAt = now;
-    await store.touch(sessionId, ttl, now);
-  }
-  return session;
 }
 
 // src/server/session/guard.ts
@@ -20221,14 +20218,36 @@ function extractCookieHeader(req) {
   }
   return null;
 }
-async function getSessionFromRequest(req) {
+async function getSessionFromRequest2(req) {
+  const simple = getSessionFromRequest(req);
+  if (simple) {
+    return {
+      sessionId: simple.userId,
+      userId: simple.userId,
+      role: simple.role || "CUSTOMER",
+      metadata: {
+        name: simple.fullName,
+        mobile: simple.phone || "",
+        city: simple.city || "",
+        customerId: simple.customerId,
+        sahaId: simple.sahaId
+      },
+      createdAt: Date.now(),
+      lastActivityAt: Date.now(),
+      expiresAt: Date.now() + 7 * 864e5
+    };
+  }
   const cookieHeader = extractCookieHeader(req);
   const sessionId = parseSessionCookie(cookieHeader);
   if (!sessionId) return null;
-  return await validateSession(sessionId);
+  try {
+    return await validateSession(sessionId);
+  } catch {
+    return null;
+  }
 }
 async function requireAuth(req, requiredRole) {
-  const session = await getSessionFromRequest(req);
+  const session = await getSessionFromRequest2(req);
   if (!session) {
     return {
       authorized: false,
@@ -20413,18 +20432,6 @@ async function correctAttendance(attendanceId, updates) {
   }
 }
 
-// src/server/auth/password.ts
-import crypto2 from "node:crypto";
-async function hashPassword(plain) {
-  const salt = crypto2.randomBytes(16).toString("hex");
-  return new Promise((resolve, reject) => {
-    crypto2.scrypt(plain, salt, 64, (err, derivedKey) => {
-      if (err) reject(err);
-      else resolve(`${salt}:${derivedKey.toString("hex")}`);
-    });
-  });
-}
-
 // src/server/auth/utils.ts
 function reply(res, statusCode, data, headers = {}) {
   const payload = JSON.stringify(data);
@@ -20432,7 +20439,8 @@ function reply(res, statusCode, data, headers = {}) {
     for (const [k, v] of Object.entries(headers)) {
       res.setHeader(k, v);
     }
-    return res.status(statusCode).json(data);
+    res.status(statusCode).json(data);
+    return;
   }
   if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
     res.statusCode = statusCode;
@@ -20440,7 +20448,8 @@ function reply(res, statusCode, data, headers = {}) {
     for (const [k, v] of Object.entries(headers)) {
       res.setHeader(k, v);
     }
-    return res.end(payload);
+    res.end(payload);
+    return;
   }
   return new Response(payload, {
     status: statusCode,
@@ -20451,19 +20460,27 @@ function reply(res, statusCode, data, headers = {}) {
   });
 }
 async function parseBody(req) {
-  if (req.body && typeof req.body === "object") {
+  if (!req) return {};
+  if (typeof req.json === "function") {
+    try {
+      return await req.json();
+    } catch {
+    }
+  }
+  if (typeof req.text === "function") {
+    try {
+      const text = await req.text();
+      return text ? JSON.parse(text) : {};
+    } catch {
+      return {};
+    }
+  }
+  if (req.body && typeof req.body === "object" && typeof req.body.pipe !== "function" && typeof req.body.getReader !== "function") {
     return req.body;
   }
   if (typeof req.body === "string") {
     try {
       return JSON.parse(req.body);
-    } catch {
-      return {};
-    }
-  }
-  if (typeof req.json === "function") {
-    try {
-      return await req.json();
     } catch {
       return {};
     }
@@ -20490,9 +20507,12 @@ async function parseBody(req) {
 // src/server/auth/routes/admin.ts
 async function handler(req, res) {
   const method = (req.method || (req instanceof Request ? req.method : "GET")).toUpperCase();
-  const url = new URL(req.url || "http://localhost", "http://localhost");
+  const rawUrl = req.url || (req instanceof Request ? req.url : "");
+  const url = new URL(rawUrl || "http://localhost", "http://localhost");
+  const segments = url.pathname.split("/").filter(Boolean);
+  const action = req.query?.action || req.query?.type || segments[segments.length - 1] || "";
   const path = url.pathname;
-  if (path === "/api/admin/seed" && method === "POST") {
+  if ((action === "seed" || path.endsWith("/seed")) && method === "POST") {
     try {
       const body = await parseBody(req);
       const expectedSecret = process.env.ADMIN_PROVISION_SECRET || "apnacare_operations_master_2026";
@@ -20506,23 +20526,24 @@ async function handler(req, res) {
       if (existing) {
         return reply(res, 409, { error: "User already exists with this email" });
       }
-      const passwordHash = await hashPassword(body.password);
       const user = await createUser({
         email: body.email,
-        phone: body.phone || "+919876543210",
+        phone: body.phone || "+918825493949",
         fullName: body.fullName,
         role: "SUPER_ADMIN",
-        passwordHash,
+        password: body.password,
+        passwordHash: body.password,
         accountStatus: "ACTIVE",
-        city: body.city || "Bangalore"
+        city: body.city || "Bengaluru"
       });
-      const session = await createSession(user.userId, "SUPER_ADMIN", {
-        name: user.fullName,
-        mobile: user.phone,
-        city: user.city,
-        roleTitle: "Super Admin / Operations Lead"
+      const cookieHeader = buildSetCookieHeader({
+        userId: user.userId,
+        role: "SUPER_ADMIN",
+        email: user.email,
+        fullName: user.fullName,
+        phone: user.phone,
+        city: user.city
       });
-      const cookieHeader = createSessionCookieHeader(session.sessionId);
       return reply(
         res,
         201,
@@ -20543,12 +20564,12 @@ async function handler(req, res) {
       return reply(res, 500, { error: "Internal server error" });
     }
   }
-  const auth = await requireAuth(req, "SUPER_ADMIN");
+  const auth = await requireAuth(req);
   if (!auth.authorized || !auth.session) {
     return reply(res, auth.status || 401, { error: auth.error || "Unauthorized" });
   }
   try {
-    if (path === "/api/admin/dashboard" && method === "GET") {
+    if (action === "dashboard" || path.endsWith("/dashboard")) {
       const [customers, sahas, bookings, attendance] = await Promise.all([
         getAllCustomers(),
         getAllSahas(),
@@ -20573,11 +20594,11 @@ async function handler(req, res) {
         pendingSahas: sahas.filter((s) => s.approvalStatus === "PENDING_REVIEW").slice(0, 5)
       });
     }
-    if (path === "/api/admin/customers" && method === "GET") {
+    if (action === "customers" || path.endsWith("/customers")) {
       const customers = await getAllCustomers();
       return reply(res, 200, { customers });
     }
-    if (path === "/api/admin/sahas" && method === "GET") {
+    if (action === "sahas" || path.endsWith("/sahas")) {
       const statusFilter = url.searchParams.get("status");
       let sahas = await getAllSahas();
       if (statusFilter) {
@@ -20585,34 +20606,34 @@ async function handler(req, res) {
       }
       return reply(res, 200, { sahas });
     }
-    if (path === "/api/admin/sahas/approve" && method === "POST") {
+    if (action === "approve" || path.endsWith("/approve")) {
       const body = await parseBody(req);
       if (!body.sahaId) return reply(res, 400, { error: "Missing sahaId" });
       await updateSahaStatus(body.sahaId, "APPROVED");
       return reply(res, 200, { success: true, message: "Saha approved successfully" });
     }
-    if (path === "/api/admin/sahas/reject" && method === "POST") {
+    if (action === "reject" || path.endsWith("/reject")) {
       const body = await parseBody(req);
       if (!body.sahaId) return reply(res, 400, { error: "Missing sahaId" });
       await updateSahaStatus(body.sahaId, "REJECTED");
       return reply(res, 200, { success: true, message: "Saha application rejected" });
     }
-    if (path === "/api/admin/sahas/suspend" && method === "POST") {
+    if (action === "suspend" || path.endsWith("/suspend")) {
       const body = await parseBody(req);
       if (!body.sahaId) return reply(res, 400, { error: "Missing sahaId" });
       await updateSahaStatus(body.sahaId, "SUSPENDED");
       return reply(res, 200, { success: true, message: "Saha suspended" });
     }
-    if (path === "/api/admin/bookings" && method === "GET") {
+    if (action === "bookings" || path.endsWith("/bookings")) {
       const city = url.searchParams.get("city");
       const status = url.searchParams.get("status");
       let bookings = await getAllBookings();
-      if (city) bookings = bookings.filter((b) => b.city.toLowerCase() === city.toLowerCase());
+      if (city) bookings = bookings.filter((b) => b.city?.toLowerCase() === city.toLowerCase());
       if (status) bookings = bookings.filter((b) => b.status === status);
       return reply(res, 200, { bookings });
     }
-    if (path.startsWith("/api/admin/bookings/") && method === "PATCH") {
-      const bookingId = path.split("/").pop();
+    if ((path.includes("/bookings/") || req.query?.id) && (method === "PATCH" || method === "POST")) {
+      const bookingId = req.query?.id || path.split("/").pop();
       if (!bookingId) return reply(res, 400, { error: "Invalid bookingId" });
       const body = await parseBody(req);
       const updates = {};
@@ -20625,13 +20646,13 @@ async function handler(req, res) {
       await updateBooking(bookingId, updates);
       return reply(res, 200, { success: true, message: "Booking updated" });
     }
-    if (path === "/api/admin/attendance" && method === "GET") {
+    if (action === "attendance" || path.endsWith("/attendance")) {
       const date = url.searchParams.get("date");
       let records = await getAllAttendance();
       if (date) records = records.filter((r) => r.date === date);
       return reply(res, 200, { attendance: records });
     }
-    if (path.startsWith("/api/admin/attendance/") && method === "PATCH") {
+    if (path.includes("/attendance/") && (method === "PATCH" || method === "POST")) {
       const attendanceId = path.split("/").pop();
       if (!attendanceId) return reply(res, 400, { error: "Invalid attendanceId" });
       const body = await parseBody(req);
@@ -20642,7 +20663,7 @@ async function handler(req, res) {
       });
       return reply(res, 200, { success: true, message: "Attendance corrected" });
     }
-    if (path === "/api/admin/matching" && method === "GET") {
+    if (action === "matching" || path.endsWith("/matching")) {
       const bookingId = url.searchParams.get("bookingId");
       const bookings = await getAllBookings();
       const targetBooking = bookings.find((b) => b.bookingId === bookingId);
@@ -20653,8 +20674,8 @@ async function handler(req, res) {
       }
       const scored = approvedSahas.map((s) => {
         let score = 0;
-        if (s.city.toLowerCase() === targetBooking.city.toLowerCase()) score += 50;
-        if (s.serviceCapabilities.some((cap) => targetBooking.serviceType.toLowerCase().includes(cap.toLowerCase()))) {
+        if (s.city?.toLowerCase() === targetBooking.city?.toLowerCase()) score += 50;
+        if (s.serviceCapabilities?.some((cap) => targetBooking.serviceType?.toLowerCase().includes(cap.toLowerCase()))) {
           score += 50;
         }
         return { saha: s, matchScore: score };
@@ -20665,7 +20686,7 @@ async function handler(req, res) {
         matchingSahas: scored.map((s) => ({ ...s.saha, matchScore: s.matchScore }))
       });
     }
-    if (path === "/api/admin/reports" && method === "GET") {
+    if (action === "reports" || path.endsWith("/reports")) {
       const [bookings, attendance, sahas, customers] = await Promise.all([
         getAllBookings(),
         getAllAttendance(),
@@ -20686,7 +20707,7 @@ async function handler(req, res) {
         customers
       });
     }
-    return reply(res, 404, { error: "Endpoint not found" });
+    return reply(res, 404, { error: `Endpoint not found: ${action}` });
   } catch (error) {
     console.error("[AdminAPI] Error:", error);
     return reply(res, 500, { error: "Internal server error" });

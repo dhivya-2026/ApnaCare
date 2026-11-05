@@ -1,9 +1,5 @@
-import { requireAuth } from "../../session/guard";
-import {
-  findUserById,
-  getCustomerByUserId,
-  getSahaByUserId,
-} from "../sheets-dal";
+import { getSessionFromRequest } from "../simple-session";
+import { getCustomerByUserId, getSahaByUserId } from "../sheets-dal";
 import { reply } from "../utils";
 
 export default async function handler(req: any, res?: any) {
@@ -13,49 +9,49 @@ export default async function handler(req: any, res?: any) {
   }
 
   try {
-    const auth = await requireAuth(req);
-    if (!auth.authorized || !auth.session) {
-      return reply(res, auth.status || 401, { error: auth.error || "Unauthorized" });
-    }
-
-    const { userId, role } = auth.session;
-    const user = await findUserById(userId);
-
-    if (!user) {
-      return reply(res, 404, { error: "User not found" });
+    const session = getSessionFromRequest(req);
+    if (!session || !session.userId) {
+      return reply(res, 401, { authenticated: false, error: "Not authenticated" });
     }
 
     let customerProfile = null;
     let sahaProfile = null;
 
-    if (role === "CUSTOMER") {
-      customerProfile = await getCustomerByUserId(userId);
-    } else if (role === "SAHA" || role === "attendant") {
-      sahaProfile = await getSahaByUserId(userId);
+    if (session.role === "CUSTOMER") {
+      try {
+        customerProfile = await getCustomerByUserId(session.userId);
+      } catch (e) {
+        console.warn("[AuthMe] getCustomer error:", e);
+      }
+    } else if (session.role === "SAHA" || session.role === "attendant") {
+      try {
+        sahaProfile = await getSahaByUserId(session.userId);
+      } catch (e) {
+        console.warn("[AuthMe] getSaha error:", e);
+      }
     }
 
     return reply(res, 200, {
       authenticated: true,
       user: {
-        userId: user.userId,
-        fullName: user.fullName,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-        city: user.city,
-        accountStatus: user.accountStatus,
-        createdAt: user.createdAt,
+        userId: session.userId,
+        fullName: session.fullName,
+        email: session.email,
+        phone: session.phone || "",
+        role: session.role,
+        city: session.city || "",
+        customerId: session.customerId,
+        sahaId: session.sahaId,
       },
       customer: customerProfile,
       saha: sahaProfile,
     });
   } catch (error) {
     console.error("[AuthMe] Error:", error);
-    return reply(res, 500, { error: "Internal server error" });
+    return reply(res, 500, { authenticated: false, error: "Internal server error" });
   }
 }
 
 export async function GET(req: any, res?: any) {
   return handler(req, res);
 }
-

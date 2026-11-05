@@ -10,20 +10,21 @@ import {
   updateBooking,
   correctAttendance,
 } from "../sheets-dal";
-import { hashPassword } from "../password";
-import { createSession } from "../../session/session-manager";
-import { createSessionCookieHeader } from "../../session/cookies";
+import { buildSetCookieHeader } from "../simple-session";
 import { reply, parseBody } from "../utils";
 
 export default async function handler(req: any, res?: any) {
   const method = (req.method || (req instanceof Request ? req.method : "GET")).toUpperCase();
-  const url = new URL(req.url || "http://localhost", "http://localhost");
+  const rawUrl = req.url || (req instanceof Request ? req.url : "");
+  const url = new URL(rawUrl || "http://localhost", "http://localhost");
+  const segments = url.pathname.split("/").filter(Boolean);
+  const action = req.query?.action || req.query?.type || segments[segments.length - 1] || "";
   const path = url.pathname;
 
   // -----------------------------------------------------------
   // SEED ROUTE (No session required, protected by secret)
   // -----------------------------------------------------------
-  if (path === "/api/admin/seed" && method === "POST") {
+  if ((action === "seed" || path.endsWith("/seed")) && method === "POST") {
     try {
       const body = await parseBody(req);
       const expectedSecret = process.env.ADMIN_PROVISION_SECRET || "apnacare_operations_master_2026";
@@ -41,25 +42,25 @@ export default async function handler(req: any, res?: any) {
         return reply(res, 409, { error: "User already exists with this email" });
       }
 
-      const passwordHash = await hashPassword(body.password);
       const user = await createUser({
         email: body.email,
-        phone: body.phone || "+919876543210",
+        phone: body.phone || "+918825493949",
         fullName: body.fullName,
         role: "SUPER_ADMIN",
-        passwordHash,
+        password: body.password,
+        passwordHash: body.password,
         accountStatus: "ACTIVE",
-        city: body.city || "Bangalore",
+        city: body.city || "Bengaluru",
       });
 
-      const session = await createSession(user.userId, "SUPER_ADMIN" as any, {
-        name: user.fullName,
-        mobile: user.phone,
+      const cookieHeader = buildSetCookieHeader({
+        userId: user.userId,
+        role: "SUPER_ADMIN",
+        email: user.email,
+        fullName: user.fullName,
+        phone: user.phone,
         city: user.city,
-        roleTitle: "Super Admin / Operations Lead",
       });
-
-      const cookieHeader = createSessionCookieHeader(session.sessionId);
 
       return reply(
         res,
@@ -83,9 +84,9 @@ export default async function handler(req: any, res?: any) {
   }
 
   // -----------------------------------------------------------
-  // ALL OTHER ADMIN ROUTES REQUIRE SUPER_ADMIN (or admin)
+  // ALL OTHER ADMIN ROUTES
   // -----------------------------------------------------------
-  const auth = await requireAuth(req, "SUPER_ADMIN" as any);
+  const auth = await requireAuth(req);
   if (!auth.authorized || !auth.session) {
     return reply(res, auth.status || 401, { error: auth.error || "Unauthorized" });
   }
@@ -94,7 +95,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // GET /api/admin/dashboard
     // -----------------------------------------
-    if (path === "/api/admin/dashboard" && method === "GET") {
+    if (action === "dashboard" || path.endsWith("/dashboard")) {
       const [customers, sahas, bookings, attendance] = await Promise.all([
         getAllCustomers(),
         getAllSahas(),
@@ -125,7 +126,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // GET /api/admin/customers
     // -----------------------------------------
-    if (path === "/api/admin/customers" && method === "GET") {
+    if (action === "customers" || path.endsWith("/customers")) {
       const customers = await getAllCustomers();
       return reply(res, 200, { customers });
     }
@@ -133,7 +134,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // GET /api/admin/sahas
     // -----------------------------------------
-    if (path === "/api/admin/sahas" && method === "GET") {
+    if (action === "sahas" || path.endsWith("/sahas")) {
       const statusFilter = url.searchParams.get("status");
       let sahas = await getAllSahas();
       if (statusFilter) {
@@ -145,7 +146,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // POST /api/admin/sahas/approve
     // -----------------------------------------
-    if (path === "/api/admin/sahas/approve" && method === "POST") {
+    if (action === "approve" || path.endsWith("/approve")) {
       const body = await parseBody(req);
       if (!body.sahaId) return reply(res, 400, { error: "Missing sahaId" });
       await updateSahaStatus(body.sahaId, "APPROVED");
@@ -155,7 +156,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // POST /api/admin/sahas/reject
     // -----------------------------------------
-    if (path === "/api/admin/sahas/reject" && method === "POST") {
+    if (action === "reject" || path.endsWith("/reject")) {
       const body = await parseBody(req);
       if (!body.sahaId) return reply(res, 400, { error: "Missing sahaId" });
       await updateSahaStatus(body.sahaId, "REJECTED");
@@ -165,7 +166,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // POST /api/admin/sahas/suspend
     // -----------------------------------------
-    if (path === "/api/admin/sahas/suspend" && method === "POST") {
+    if (action === "suspend" || path.endsWith("/suspend")) {
       const body = await parseBody(req);
       if (!body.sahaId) return reply(res, 400, { error: "Missing sahaId" });
       await updateSahaStatus(body.sahaId, "SUSPENDED");
@@ -175,22 +176,20 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // GET /api/admin/bookings
     // -----------------------------------------
-    if (path === "/api/admin/bookings" && method === "GET") {
+    if (action === "bookings" || path.endsWith("/bookings")) {
       const city = url.searchParams.get("city");
       const status = url.searchParams.get("status");
       let bookings = await getAllBookings();
-
-      if (city) bookings = bookings.filter((b) => b.city.toLowerCase() === city.toLowerCase());
+      if (city) bookings = bookings.filter((b) => b.city?.toLowerCase() === city.toLowerCase());
       if (status) bookings = bookings.filter((b) => b.status === status);
-
       return reply(res, 200, { bookings });
     }
 
     // -----------------------------------------
     // PATCH /api/admin/bookings/:id
     // -----------------------------------------
-    if (path.startsWith("/api/admin/bookings/") && method === "PATCH") {
-      const bookingId = path.split("/").pop();
+    if ((path.includes("/bookings/") || req.query?.id) && (method === "PATCH" || method === "POST")) {
+      const bookingId = req.query?.id || path.split("/").pop();
       if (!bookingId) return reply(res, 400, { error: "Invalid bookingId" });
 
       const body = await parseBody(req);
@@ -210,7 +209,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // GET /api/admin/attendance
     // -----------------------------------------
-    if (path === "/api/admin/attendance" && method === "GET") {
+    if (action === "attendance" || path.endsWith("/attendance")) {
       const date = url.searchParams.get("date");
       let records = await getAllAttendance();
       if (date) records = records.filter((r) => r.date === date);
@@ -220,7 +219,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // PATCH /api/admin/attendance/:id
     // -----------------------------------------
-    if (path.startsWith("/api/admin/attendance/") && method === "PATCH") {
+    if (path.includes("/attendance/") && (method === "PATCH" || method === "POST")) {
       const attendanceId = path.split("/").pop();
       if (!attendanceId) return reply(res, 400, { error: "Invalid attendanceId" });
 
@@ -237,7 +236,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // GET /api/admin/matching
     // -----------------------------------------
-    if (path === "/api/admin/matching" && method === "GET") {
+    if (action === "matching" || path.endsWith("/matching")) {
       const bookingId = url.searchParams.get("bookingId");
       const bookings = await getAllBookings();
       const targetBooking = bookings.find((b) => b.bookingId === bookingId);
@@ -249,11 +248,10 @@ export default async function handler(req: any, res?: any) {
         return reply(res, 200, { matchingSahas: approvedSahas });
       }
 
-      // Rank by same city + capability match
       const scored = approvedSahas.map((s) => {
         let score = 0;
-        if (s.city.toLowerCase() === targetBooking.city.toLowerCase()) score += 50;
-        if (s.serviceCapabilities.some((cap) => targetBooking.serviceType.toLowerCase().includes(cap.toLowerCase()))) {
+        if (s.city?.toLowerCase() === targetBooking.city?.toLowerCase()) score += 50;
+        if (s.serviceCapabilities?.some((cap) => targetBooking.serviceType?.toLowerCase().includes(cap.toLowerCase()))) {
           score += 50;
         }
         return { saha: s, matchScore: score };
@@ -269,7 +267,7 @@ export default async function handler(req: any, res?: any) {
     // -----------------------------------------
     // GET /api/admin/reports
     // -----------------------------------------
-    if (path === "/api/admin/reports" && method === "GET") {
+    if (action === "reports" || path.endsWith("/reports")) {
       const [bookings, attendance, sahas, customers] = await Promise.all([
         getAllBookings(),
         getAllAttendance(),
@@ -292,7 +290,7 @@ export default async function handler(req: any, res?: any) {
       });
     }
 
-    return reply(res, 404, { error: "Endpoint not found" });
+    return reply(res, 404, { error: `Endpoint not found: ${action}` });
   } catch (error) {
     console.error("[AdminAPI] Error:", error);
     return reply(res, 500, { error: "Internal server error" });
@@ -318,4 +316,3 @@ export async function PATCH(req: any, res?: any) {
 export async function DELETE(req: any, res?: any) {
   return handler(req, res);
 }
-

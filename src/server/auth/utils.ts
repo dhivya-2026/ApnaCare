@@ -9,7 +9,8 @@ export function reply(
     for (const [k, v] of Object.entries(headers)) {
       res.setHeader(k, v);
     }
-    return res.status(statusCode).json(data);
+    res.status(statusCode).json(data);
+    return;
   }
   if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
     res.statusCode = statusCode;
@@ -17,7 +18,8 @@ export function reply(
     for (const [k, v] of Object.entries(headers)) {
       res.setHeader(k, v);
     }
-    return res.end(payload);
+    res.end(payload);
+    return;
   }
   return new Response(payload, {
     status: statusCode,
@@ -29,9 +31,38 @@ export function reply(
 }
 
 export async function parseBody(req: any): Promise<any> {
-  if (req.body && typeof req.body === "object") {
+  if (!req) return {};
+
+  // 1. Web Standard Request with .json() method (Vercel Web Route)
+  if (typeof req.json === "function") {
+    try {
+      return await req.json();
+    } catch {
+      // fallback to text if json() fails
+    }
+  }
+
+  // 2. Web Standard Request with .text() method
+  if (typeof req.text === "function") {
+    try {
+      const text = await req.text();
+      return text ? JSON.parse(text) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  // 3. Pre-parsed JavaScript object (Express / Vercel body-parser)
+  if (
+    req.body &&
+    typeof req.body === "object" &&
+    typeof req.body.pipe !== "function" &&
+    typeof req.body.getReader !== "function"
+  ) {
     return req.body;
   }
+
+  // 4. String body
   if (typeof req.body === "string") {
     try {
       return JSON.parse(req.body);
@@ -39,13 +70,8 @@ export async function parseBody(req: any): Promise<any> {
       return {};
     }
   }
-  if (typeof req.json === "function") {
-    try {
-      return await req.json();
-    } catch {
-      return {};
-    }
-  }
+
+  // 5. Node.js IncomingMessage stream
   if (typeof req.on === "function") {
     return new Promise((resolve) => {
       let data = "";
@@ -62,5 +88,6 @@ export async function parseBody(req: any): Promise<any> {
       req.on("error", () => resolve({}));
     });
   }
+
   return {};
 }

@@ -19678,7 +19678,8 @@ function reply(res, statusCode, data, headers = {}) {
     for (const [k, v] of Object.entries(headers)) {
       res.setHeader(k, v);
     }
-    return res.status(statusCode).json(data);
+    res.status(statusCode).json(data);
+    return;
   }
   if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
     res.statusCode = statusCode;
@@ -19686,7 +19687,8 @@ function reply(res, statusCode, data, headers = {}) {
     for (const [k, v] of Object.entries(headers)) {
       res.setHeader(k, v);
     }
-    return res.end(payload);
+    res.end(payload);
+    return;
   }
   return new Response(payload, {
     status: statusCode,

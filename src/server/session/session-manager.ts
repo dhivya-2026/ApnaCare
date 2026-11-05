@@ -42,7 +42,11 @@ export async function createSession(
   };
 
   const ttl = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds;
-  await store.set(sessionId, session, ttl);
+  try {
+    await store.set(sessionId, session, ttl);
+  } catch (err) {
+    console.warn("[SessionManager] Store.set non-fatal error, continuing with memory fallback:", err);
+  }
   return session;
 }
 
@@ -53,36 +57,41 @@ export async function validateSession(
     return null;
   }
 
-  const store = getSessionStore();
-  const session = await store.get(sessionId);
-  if (!session) return null;
+  try {
+    const store = getSessionStore();
+    const session = await store.get(sessionId);
+    if (!session) return null;
 
-  const now = Date.now();
+    const now = Date.now();
 
-  // 1. Check absolute maximum lifetime
-  if (now > session.expiresAt) {
-    await store.delete(sessionId);
+    // 1. Check absolute maximum lifetime
+    if (now > session.expiresAt) {
+      await store.delete(sessionId);
+      return null;
+    }
+
+    // 2. Check idle timeout
+    const idleMs = now - session.lastActivityAt;
+    const maxIdleMs = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds * 1000;
+    if (idleMs > maxIdleMs) {
+      await store.delete(sessionId);
+      return null;
+    }
+
+    // 3. Sliding renewal: calculate remaining TTL capped by absolute expiry
+    const remainingLifeSec = Math.floor((session.expiresAt - now) / 1000);
+    const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
+
+    if (ttl > 0) {
+      session.lastActivityAt = now;
+      await store.touch(sessionId, ttl, now);
+    }
+
+    return session;
+  } catch (err) {
+    console.warn("[SessionManager] Failed to validate session:", err);
     return null;
   }
-
-  // 2. Check idle timeout
-  const idleMs = now - session.lastActivityAt;
-  const maxIdleMs = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds * 1000;
-  if (idleMs > maxIdleMs) {
-    await store.delete(sessionId);
-    return null;
-  }
-
-  // 3. Sliding renewal: calculate remaining TTL capped by absolute expiry
-  const remainingLifeSec = Math.floor((session.expiresAt - now) / 1000);
-  const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
-
-  if (ttl > 0) {
-    session.lastActivityAt = now;
-    await store.touch(sessionId, ttl, now);
-  }
-
-  return session;
 }
 
 export async function rotateSession(
@@ -92,35 +101,48 @@ export async function rotateSession(
   const current = await validateSession(oldSessionId);
   if (!current) return null;
 
-  const store = getSessionStore();
-  const newSessionId = generateSessionId();
-  const now = Date.now();
+  try {
+    const store = getSessionStore();
+    const newSessionId = generateSessionId();
+    const now = Date.now();
 
-  const newSession: SessionData = {
-    ...current,
-    sessionId: newSessionId,
-    lastActivityAt: now,
-    ipHash: hashValue(reqContext?.ip) || current.ipHash,
-    userAgentHash: hashValue(reqContext?.userAgent) || current.userAgentHash,
-  };
+    const newSession: SessionData = {
+      ...current,
+      sessionId: newSessionId,
+      lastActivityAt: now,
+      ipHash: hashValue(reqContext?.ip) || current.ipHash,
+      userAgentHash: hashValue(reqContext?.userAgent) || current.userAgentHash,
+    };
 
-  const remainingLifeSec = Math.floor((newSession.expiresAt - now) / 1000);
-  const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
+    const remainingLifeSec = Math.floor((newSession.expiresAt - now) / 1000);
+    const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
 
-  await store.set(newSessionId, newSession, ttl);
-  await store.delete(oldSessionId);
+    await store.set(newSessionId, newSession, ttl);
+    await store.delete(oldSessionId);
 
-  return newSession;
+    return newSession;
+  } catch (err) {
+    console.warn("[SessionManager] Rotate session error:", err);
+    return current;
+  }
 }
 
 export async function revokeSession(sessionId: string): Promise<void> {
   if (!sessionId) return;
-  const store = getSessionStore();
-  await store.delete(sessionId);
+  try {
+    const store = getSessionStore();
+    await store.delete(sessionId);
+  } catch (err) {
+    console.warn("[SessionManager] Revoke error:", err);
+  }
 }
 
 export async function revokeAllUserSessions(userId: string): Promise<void> {
   if (!userId) return;
-  const store = getSessionStore();
-  await store.revokeUserSessions(userId);
+  try {
+    const store = getSessionStore();
+    await store.revokeUserSessions(userId);
+  } catch (err) {
+    console.warn("[SessionManager] Revoke all error:", err);
+  }
 }

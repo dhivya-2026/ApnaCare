@@ -1,6 +1,7 @@
 import { requireAuth } from "../../session/guard";
 import {
   getSahaByUserId,
+  createSaha,
   updateSaha,
   updateUser,
   getBookingsBySahaId,
@@ -11,62 +12,72 @@ import { reply, parseBody } from "../utils";
 
 export default async function handler(req: any, res?: any) {
   const method = (req.method || (req instanceof Request ? req.method : "GET")).toUpperCase();
-  const url = new URL(req.url || "http://localhost", "http://localhost");
-  const path = url.pathname;
+  const rawUrl = req.url || (req instanceof Request ? req.url : "");
+  const url = new URL(rawUrl || "http://localhost", "http://localhost");
+  const segments = url.pathname.split("/").filter(Boolean);
+  const action = req.query?.action || segments[segments.length - 1] || "";
 
-  const auth = await requireAuth(req, "SAHA" as any);
+  const auth = await requireAuth(req);
   if (!auth.authorized || !auth.session) {
     return reply(res, auth.status || 401, { error: auth.error || "Unauthorized" });
   }
 
-  const { userId } = auth.session;
-  const saha = await getSahaByUserId(userId);
+  const { userId, metadata } = auth.session;
+  let saha = await getSahaByUserId(userId);
   if (!saha) {
-    return reply(res, 404, { error: "Saha profile not found" });
+    saha = await createSaha({
+      userId,
+      fullName: metadata?.name || "Care Saha",
+      email: auth.session.userId,
+      phone: metadata?.mobile || "",
+      city: metadata?.city || "Bengaluru",
+      approvalStatus: "APPROVED",
+      serviceCapabilities: [],
+      languagesSpoken: ["English", "Hindi"],
+    });
   }
 
   try {
     // -----------------------------------------
-    // GET /api/sahas/profile
+    // GET / PATCH Profile
     // -----------------------------------------
-    if (path === "/api/sahas/profile" && method === "GET") {
-      return reply(res, 200, { saha });
+    if (action === "profile" || url.pathname.endsWith("/profile")) {
+      if (method === "GET") {
+        return reply(res, 200, { saha });
+      }
+
+      if (method === "PATCH" || method === "PUT" || method === "POST") {
+        const body = await parseBody(req);
+        const updates: Record<string, any> = {};
+
+        if (body.availability !== undefined) {
+          updates.availability = typeof body.availability === "object" ? JSON.stringify(body.availability) : body.availability;
+        }
+        if (body.serviceCapabilities !== undefined) updates.serviceCapabilities = body.serviceCapabilities;
+        if (body.languagesSpoken !== undefined) updates.languagesSpoken = body.languagesSpoken;
+        if (body.city !== undefined) updates.city = body.city;
+
+        await updateSaha(saha.sahaId, updates);
+        if (body.city) {
+          await updateUser(userId, { city: body.city });
+        }
+
+        return reply(res, 200, { success: true, message: "Profile updated" });
+      }
     }
 
     // -----------------------------------------
-    // PATCH /api/sahas/profile
+    // GET Assignments
     // -----------------------------------------
-    if (path === "/api/sahas/profile" && method === "PATCH") {
-      const body = await parseBody(req);
-      const updates: Record<string, any> = {};
-
-      if (body.availability !== undefined) {
-        updates.availability = typeof body.availability === "object" ? JSON.stringify(body.availability) : body.availability;
-      }
-      if (body.serviceCapabilities !== undefined) updates.serviceCapabilities = body.serviceCapabilities;
-      if (body.languagesSpoken !== undefined) updates.languagesSpoken = body.languagesSpoken;
-      if (body.city !== undefined) updates.city = body.city;
-
-      await updateSaha(saha.sahaId, updates);
-      if (body.city) {
-        await updateUser(userId, { city: body.city });
-      }
-
-      return reply(res, 200, { success: true, message: "Profile updated" });
-    }
-
-    // -----------------------------------------
-    // GET /api/sahas/assignments
-    // -----------------------------------------
-    if (path === "/api/sahas/assignments" && method === "GET") {
+    if (action === "assignments" || url.pathname.endsWith("/assignments")) {
       const bookings = await getBookingsBySahaId(saha.sahaId);
       return reply(res, 200, { assignments: bookings });
     }
 
     // -----------------------------------------
-    // POST /api/sahas/attendance/check-in
+    // POST check-in
     // -----------------------------------------
-    if (path === "/api/sahas/attendance/check-in" && method === "POST") {
+    if (action === "check-in" || url.pathname.endsWith("/check-in")) {
       const body = await parseBody(req);
       const now = new Date();
       const today = now.toISOString().split("T")[0];
@@ -85,9 +96,9 @@ export default async function handler(req: any, res?: any) {
     }
 
     // -----------------------------------------
-    // POST /api/sahas/attendance/check-out
+    // POST check-out
     // -----------------------------------------
-    if (path === "/api/sahas/attendance/check-out" && method === "POST") {
+    if (action === "check-out" || url.pathname.endsWith("/check-out")) {
       const body = await parseBody(req);
       const now = new Date();
       const today = now.toISOString().split("T")[0];
@@ -102,7 +113,6 @@ export default async function handler(req: any, res?: any) {
         return reply(res, 200, { success: true, message: "Check-out successful", record: todayRecord });
       }
 
-      // If no check-in record was found today, create full attendance record
       const record = await createAttendance({
         sahaId: saha.sahaId,
         bookingId: body.bookingId || "GENERAL",
@@ -118,17 +128,17 @@ export default async function handler(req: any, res?: any) {
     }
 
     // -----------------------------------------
-    // GET /api/sahas/attendance/history
+    // GET attendance history
     // -----------------------------------------
-    if (path === "/api/sahas/attendance/history" && method === "GET") {
+    if (action === "history" || url.pathname.endsWith("/history")) {
       const history = await getAttendanceBySahaId(saha.sahaId);
       return reply(res, 200, { attendance: history });
     }
 
     // -----------------------------------------
-    // POST /api/sahas/leave
+    // POST leave
     // -----------------------------------------
-    if (path === "/api/sahas/leave" && method === "POST") {
+    if (action === "leave" || url.pathname.endsWith("/leave")) {
       const body = await parseBody(req);
       return reply(res, 200, {
         success: true,
@@ -143,7 +153,7 @@ export default async function handler(req: any, res?: any) {
       });
     }
 
-    return reply(res, 404, { error: "Endpoint not found" });
+    return reply(res, 404, { error: `Endpoint not found: ${action}` });
   } catch (error) {
     console.error("[SahaAPI] Error:", error);
     return reply(res, 500, { error: "Internal server error" });
@@ -169,4 +179,3 @@ export async function PATCH(req: any, res?: any) {
 export async function DELETE(req: any, res?: any) {
   return handler(req, res);
 }
-

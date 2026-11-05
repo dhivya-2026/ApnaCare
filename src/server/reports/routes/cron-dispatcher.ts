@@ -47,3 +47,4 @@ export async function GET(req: any, res?: any) {
 export async function POST(req: any, res?: any) {
   return handler(req, res);
 }
+

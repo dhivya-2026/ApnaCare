@@ -27,7 +27,7 @@ function isSheetsEnabled(): boolean {
   return process.env.GOOGLE_SHEETS_ENABLED === "true" && !!getOpsUrl();
 }
 
-async function callOpsSheet<T>(action: string, payload: unknown): Promise<{ success: boolean; data?: T; error?: string }> {
+export async function callOpsSheet<T>(action: string, payload: unknown): Promise<{ success: boolean; data?: T; error?: string }> {
   const url = getOpsUrl();
   if (!url) {
     return { success: false, error: "GOOGLE_APPS_SCRIPT_OPS_URL not configured" };
