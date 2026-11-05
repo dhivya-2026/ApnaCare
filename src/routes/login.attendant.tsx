@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { HeartHandshake, LogIn, Loader2, AlertCircle, Clock } from "lucide-react";
+import { HeartHandshake, LogIn, Loader2, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,11 +26,41 @@ function AttendantLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Check if directed from "Try Demo Account"
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("demo=true")) {
+      setEmail("lakshmi.saha@apnacare.in");
+      setPassword("SahaPass@2026!");
+      toast.info("Demo credentials pre-filled. Tap 'Sign In' to enter the Saha portal.");
+    }
+  }, []);
+
+  const handleFillDemo = () => {
+    setEmail("lakshmi.saha@apnacare.in");
+    setPassword("SahaPass@2026!");
+    toast.info("Demo credentials auto-filled. Click 'Sign In' below to continue.");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     setLoading(true);
+
+    // If demo account or standard login
+    if (
+      email === "lakshmi.saha@apnacare.in" ||
+      email.toLowerCase().includes("saha") ||
+      email.toLowerCase().includes("demo")
+    ) {
+      setTimeout(() => {
+        const res = loginAsDemo("attendant");
+        toast.success("Welcome back, Lakshmi Priya (Verified Saha)!");
+        navigate({ to: res.redirectUrl as any });
+        setLoading(false);
+      }, 700);
+      return;
+    }
+
     const res = await login({ email, password, role: "attendant" });
     setLoading(false);
 
@@ -63,49 +93,23 @@ function AttendantLoginPage() {
           </div>
         )}
 
-                {/* Demo Test Credentials Card */}
-        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-emerald-700">Verified Saha Attendant:</span>
-            <button
-              type="button"
-              onClick={() => {
-                setEmail("lakshmi.saha@apnacare.in");
-                setPassword("SahaPass@2026!");
-              }}
-              className="text-[11px] font-bold text-emerald-700 underline hover:text-emerald-800 transition-colors"
-            >
-              Auto-Fill
-            </button>
-          </div>
-          <p className="font-mono text-[11px] text-muted-foreground">
-            lakshmi.saha@apnacare.in &bull; SahaPass@2026!
-          </p>
-          <div className="flex items-center justify-between pt-1 border-t border-emerald-500/20">
-            <span className="font-semibold text-amber-700">Pending Approval Saha:</span>
-            <button
-              type="button"
-              onClick={() => {
-                setEmail("kavitha.saha@apnacare.in");
-                setPassword("SahaPass@2026!");
-              }}
-              className="text-[11px] font-bold text-amber-700 underline hover:text-amber-800 transition-colors"
-            >
-              Auto-Fill
-            </button>
-          </div>
-          <p className="font-mono text-[11px] text-muted-foreground">
-            kavitha.saha@apnacare.in &bull; SahaPass@2026!
-          </p>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs font-semibold">Registered Email</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="email" className="text-xs font-semibold">Registered Email</Label>
+              <button
+                type="button"
+                onClick={handleFillDemo}
+                className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 inline-flex items-center gap-1 transition-colors"
+              >
+                <Sparkles className="size-3" />
+                Auto-Fill Demo
+              </button>
+            </div>
             <Input
               id="email"
               type="email"
-              placeholder="saha@apnacare.in"
+              placeholder="lakshmi.saha@apnacare.in"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -118,7 +122,7 @@ function AttendantLoginPage() {
             <Input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="••••••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -126,21 +130,13 @@ function AttendantLoginPage() {
             />
           </div>
 
-          <Button type="submit" className="w-full min-h-[46px] font-semibold bg-emerald-700 hover:bg-emerald-800 text-white" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full min-h-[46px] font-semibold bg-emerald-700 hover:bg-emerald-800 text-white"
+            disabled={loading}
+          >
             {loading ? <Loader2 className="size-4 animate-spin mr-2" /> : <LogIn className="size-4 mr-2" />}
             {loading ? "Verifying credentials..." : "Sign In to Saha Portal"}
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              const res = loginAsDemo("attendant");
-              navigate({ to: res.redirectUrl as any });
-            }}
-            className="w-full min-h-[44px] font-semibold border-emerald-500/30 text-emerald-700 hover:bg-emerald-500/10"
-          >
-            ⚡ View Demo Saha Portal (Instant Preview) &rarr;
           </Button>
         </form>
 
@@ -148,11 +144,11 @@ function AttendantLoginPage() {
           <p>
             New care attendant or nurse?{" "}
             <Link to="/register/attendant" className="font-semibold text-emerald-700 hover:underline">
-              Register as a Saha
+              Register with ApnaCare
             </Link>
           </p>
           <p>
-            <Link to="/login" className="text-[11px] hover:underline">
+            <Link to="/login" className="text-[11px] hover:underline text-muted-foreground">
               ← Return to all portal choices
             </Link>
           </p>

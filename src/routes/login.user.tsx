@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Users, LogIn, ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import { Users, LogIn, Loader2, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,21 @@ function UserLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Check if directed from "Try Demo Account"
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("demo=true")) {
+      setEmail("user.test@apnacare.in");
+      setPassword("UserPass@2026!");
+      toast.info("Demo credentials pre-filled. Tap 'Sign In' to enter your dashboard.");
+    }
+  }, []);
+
+  const handleFillDemo = () => {
+    setEmail("user.test@apnacare.in");
+    setPassword("UserPass@2026!");
+    toast.info("Demo credentials auto-filled. Click 'Sign In' below to continue.");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -35,6 +50,21 @@ function UserLoginPage() {
     }
 
     setLoading(true);
+
+    // If demo account or standard login
+    if (
+      email === "user.test@apnacare.in" ||
+      email.toLowerCase().includes("demo")
+    ) {
+      setTimeout(() => {
+        const res = loginAsDemo("user");
+        toast.success("Welcome back, Priya Sharma!");
+        navigate({ to: res.redirectUrl as any });
+        setLoading(false);
+      }, 700);
+      return;
+    }
+
     const res = await login({ email, password, role: "user" });
     setLoading(false);
 
@@ -67,33 +97,23 @@ function UserLoginPage() {
           </div>
         )}
 
-                {/* Demo Test Credentials Card */}
-        <div className="rounded-xl border border-primary/20 bg-primary-soft/40 p-3 text-xs space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-primary">Demo User Credentials:</span>
-            <button
-              type="button"
-              onClick={() => {
-                setEmail("user.test@apnacare.in");
-                setPassword("UserPass@2026!");
-              }}
-              className="text-[11px] font-bold text-primary underline hover:text-primary/80 transition-colors"
-            >
-              Auto-Fill
-            </button>
-          </div>
-          <p className="font-mono text-[11px] text-muted-foreground">
-            user.test@apnacare.in &bull; UserPass@2026!
-          </p>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs font-semibold">Email Address</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="email" className="text-xs font-semibold">Email Address</Label>
+              <button
+                type="button"
+                onClick={handleFillDemo}
+                className="text-[11px] font-semibold text-primary hover:text-primary/80 inline-flex items-center gap-1 transition-colors"
+              >
+                <Sparkles className="size-3" />
+                Auto-Fill Demo
+              </button>
+            </div>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="user.test@apnacare.in"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -102,13 +122,11 @@ function UserLoginPage() {
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-xs font-semibold">Password</Label>
-            </div>
+            <Label htmlFor="password" className="text-xs font-semibold">Password</Label>
             <Input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="••••••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -120,18 +138,6 @@ function UserLoginPage() {
             {loading ? <Loader2 className="size-4 animate-spin mr-2" /> : <LogIn className="size-4 mr-2" />}
             {loading ? "Signing in..." : "Sign In to User Portal"}
           </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              const res = loginAsDemo("user");
-              navigate({ to: res.redirectUrl as any });
-            }}
-            className="w-full min-h-[44px] font-semibold border-primary/30 text-primary hover:bg-primary-soft/50"
-          >
-            ⚡ View Demo Dashboard (No sign-in required) &rarr;
-          </Button>
         </form>
 
         <div className="pt-4 border-t border-border text-center space-y-2 text-xs text-muted-foreground">
@@ -142,7 +148,7 @@ function UserLoginPage() {
             </Link>
           </p>
           <p>
-            <Link to="/login" className="text-[11px] hover:underline">
+            <Link to="/login" className="text-[11px] hover:underline text-muted-foreground">
               ← Return to all portal choices
             </Link>
           </p>

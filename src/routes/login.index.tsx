@@ -66,16 +66,10 @@ function LoginPage() {
                   <UserPlus className="size-4" />
                 </Link>
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  const res = loginAsDemo("user");
-                  navigate({ to: res.redirectUrl as any });
-                }}
-                className="w-full text-xs font-semibold text-primary hover:bg-primary-soft/60 py-2 h-auto rounded-xl border border-primary/20"
-              >
-                <span>⚡ View User Demo Dashboard &rarr;</span>
+              <Button asChild variant="ghost" className="w-full text-xs font-semibold text-primary hover:bg-primary-soft/60 py-2 h-auto rounded-xl border border-primary/20">
+                <Link to="/login/user" search={{ demo: true } as any}>
+                  <span>✨ Try User Demo Account &rarr;</span>
+                </Link>
               </Button>
             </div>
           </div>
@@ -110,16 +104,10 @@ function LoginPage() {
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  const res = loginAsDemo("attendant");
-                  navigate({ to: res.redirectUrl as any });
-                }}
-                className="w-full text-xs font-semibold text-emerald-700 hover:bg-emerald-500/10 py-2 h-auto rounded-xl border border-emerald-500/20"
-              >
-                <span>⚡ View Saha Demo Dashboard &rarr;</span>
+              <Button asChild variant="ghost" className="w-full text-xs font-semibold text-emerald-700 hover:bg-emerald-500/10 py-2 h-auto rounded-xl border border-emerald-500/20">
+                <Link to="/login/attendant" search={{ demo: true } as any}>
+                  <span>✨ Try Saha Demo Account &rarr;</span>
+                </Link>
               </Button>
             </div>
           </div>
@@ -148,16 +136,10 @@ function LoginPage() {
                   <LogIn className="size-4" />
                 </Link>
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  const res = loginAsDemo("admin");
-                  navigate({ to: res.redirectUrl as any });
-                }}
-                className="w-full text-xs font-semibold text-amber-700 hover:bg-amber-500/10 py-2 h-auto rounded-xl border border-amber-600/20"
-              >
-                <span>⚡ View Admin Demo Console &rarr;</span>
+              <Button asChild variant="ghost" className="w-full text-xs font-semibold text-amber-700 hover:bg-amber-500/10 py-2 h-auto rounded-xl border border-amber-600/20">
+                <Link to="/login/admin" search={{ demo: true } as any}>
+                  <span>✨ Try Admin Demo Console &rarr;</span>
+                </Link>
               </Button>
               <p className="text-[11px] text-center text-muted-foreground">
                 Authorized credentials only. No public registration.
