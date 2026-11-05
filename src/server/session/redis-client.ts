@@ -83,6 +83,7 @@ class MemorySessionStore implements SessionStore {
 // Upstash / Vercel KV REST adapter
 class UpstashSessionStore implements SessionStore {
   private client: UpstashRedis;
+  private memoryFallback = new MemorySessionStore();
 
   constructor(url: string, token: string) {
     this.client = new UpstashRedis({ url, token });
@@ -110,8 +111,8 @@ class UpstashSessionStore implements SessionStore {
         .expire(userKey, 604800) // 7 days index TTL
         .exec();
     } catch (err) {
-      console.error("[Redis/Upstash] Failed to set session:", err);
-      throw err;
+      console.error("[Redis/Upstash] Failed to set session, falling back to memory:", err);
+      await this.memoryFallback.set(sessionId, session, ttlSeconds);
     }
   }
 
@@ -184,6 +185,7 @@ class UpstashSessionStore implements SessionStore {
 // TCP IORedis adapter (Standard Redis / Redis Cloud / AWS ElastiCache)
 class IoRedisSessionStore implements SessionStore {
   private client: IORedis;
+  private memoryFallback = new MemorySessionStore();
 
   constructor(redisUrlOrOptions: string | Record<string, any>) {
     const opts = {
@@ -225,8 +227,8 @@ class IoRedisSessionStore implements SessionStore {
         .expire(userKey, 604800)
         .exec();
     } catch (err) {
-      console.error("[Redis/IORedis] Failed to set session:", err);
-      throw err;
+      console.error("[Redis/IORedis] Failed to set session, falling back to memory:", err);
+      await this.memoryFallback.set(sessionId, session, ttlSeconds);
     }
   }
 

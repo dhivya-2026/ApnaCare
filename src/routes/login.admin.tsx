@@ -19,7 +19,7 @@ export const Route = createFileRoute("/login/admin")({
 });
 
 function AdminLoginPage() {
-  const { login } = useAuth();
+  const { login, loginAsDemo } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -113,6 +113,18 @@ function AdminLoginPage() {
           <Button type="submit" variant="warm" className="w-full min-h-[46px] font-semibold bg-amber-600 hover:bg-amber-700 text-white" disabled={loading}>
             {loading ? <Loader2 className="size-4 animate-spin mr-2" /> : <LogIn className="size-4 mr-2" />}
             {loading ? "Authenticating session..." : "Sign In to Admin Console"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              const res = loginAsDemo("admin");
+              navigate({ to: res.redirectUrl as any });
+            }}
+            className="w-full min-h-[44px] font-semibold border-amber-600/30 text-amber-800 dark:text-amber-300 hover:bg-amber-500/10"
+          >
+            ⚡ View Demo Admin Console (Instant Preview) &rarr;
           </Button>
         </form>
 

@@ -14020,49 +14020,87 @@ var require_built3 = __commonJS({
 
 // src/server/auth/entry/bridge.ts
 async function bridgeHandler(req, res, handler2) {
-  if (req instanceof Request && !res) {
-    const url2 = new URL(req.url);
-    const action2 = url2.pathname.split("/").pop() || "";
-    return await handler2(req, action2);
-  }
-  const host = req.headers?.host || "apna-care.vercel.app";
-  const protocol = req.headers?.["x-forwarded-proto"] || "https";
-  const url = new URL(req.url || "/", `${protocol}://${host}`);
-  let action = "";
-  if (req.query && req.query.action) {
-    action = Array.isArray(req.query.action) ? req.query.action[0] : req.query.action;
-  } else {
-    action = url.pathname.split("/").filter(Boolean).pop() || "";
-  }
-  let body = null;
-  const method = (req.method || "GET").toUpperCase();
-  if (method !== "GET" && method !== "HEAD") {
-    if (req.body) {
-      body = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+  try {
+    if (req instanceof Request && !res) {
+      const url2 = new URL(req.url);
+      const action2 = url2.pathname.split("/").filter(Boolean).pop() || "";
+      return await handler2(req, action2);
+    }
+    const host = req.headers?.host || "apna-care.vercel.app";
+    const protocol = req.headers?.["x-forwarded-proto"] || "https";
+    const url = new URL(req.url || "/", `${protocol}://${host}`);
+    let action = "";
+    if (req.query && req.query.action) {
+      action = Array.isArray(req.query.action) ? req.query.action[0] : req.query.action;
     } else {
-      const chunks = [];
-      for await (const chunk of req) {
-        chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+      action = url.pathname.split("/").filter(Boolean).pop() || "";
+    }
+    let body = void 0;
+    const method = (req.method || "GET").toUpperCase();
+    if (method !== "GET" && method !== "HEAD") {
+      if (req.body) {
+        body = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+      } else {
+        try {
+          const streamPromise = (async () => {
+            const chunks = [];
+            for await (const chunk of req) {
+              chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+            }
+            return Buffer.concat(chunks).toString("utf-8");
+          })();
+          const timeoutPromise = new Promise(
+            (resolve) => setTimeout(() => resolve(""), 2e3)
+          );
+          const result = await Promise.race([streamPromise, timeoutPromise]);
+          if (result) body = result;
+        } catch {
+          body = void 0;
+        }
       }
-      body = Buffer.concat(chunks).toString("utf-8");
+    }
+    const cleanHeaders = new Headers();
+    if (req.headers) {
+      for (const [k, v] of Object.entries(req.headers)) {
+        if (typeof v === "string" && !["host", "connection", "content-length", "transfer-encoding"].includes(k.toLowerCase())) {
+          cleanHeaders.set(k, v);
+        }
+      }
+    }
+    if (body) {
+      cleanHeaders.set("Content-Type", "application/json");
+      cleanHeaders.set("Content-Length", Buffer.byteLength(body, "utf-8").toString());
+    }
+    const webRequest = new Request(url.toString(), {
+      method,
+      headers: cleanHeaders,
+      body: body ? body : void 0
+    });
+    const webResponse = await handler2(webRequest, action);
+    res.statusCode = webResponse.status;
+    webResponse.headers.forEach((value, key) => {
+      if (key.toLowerCase() === "set-cookie") {
+        res.setHeader("Set-Cookie", value);
+      } else {
+        res.setHeader(key, value);
+      }
+    });
+    const text = await webResponse.text();
+    res.end(text);
+  } catch (err) {
+    console.error("[BridgeHandler Error]:", err);
+    try {
+      res.statusCode = 500;
+      res.setHeader("Content-Type", "application/json");
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: err?.message || "Internal server error in auth bridge"
+        })
+      );
+    } catch {
     }
   }
-  const webRequest = new Request(url.toString(), {
-    method,
-    headers: req.headers,
-    body: body ? body : void 0
-  });
-  const webResponse = await handler2(webRequest, action);
-  res.statusCode = webResponse.status;
-  webResponse.headers.forEach((value, key) => {
-    if (key.toLowerCase() === "set-cookie") {
-      res.setHeader("Set-Cookie", value);
-    } else {
-      res.setHeader(key, value);
-    }
-  });
-  const text = await webResponse.text();
-  res.end(text);
 }
 
 // src/server/auth/password.ts
@@ -14082,7 +14120,7 @@ async function hashPassword(password) {
 }
 
 // src/server/auth/sheets-dal.ts
-var APPS_SCRIPT_URL = process.env.APNACARE_OPERATIONS_SCRIPT_URL || process.env.VITE_OPERATIONS_SCRIPT_URL || "";
+var APPS_SCRIPT_URL = process.env.APNACARE_OPERATIONS_SCRIPT_URL || process.env.VITE_OPERATIONS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbzdI6wjqeGAgTveEXBpPAtX3g2WHOX8f8P5nwu_Zkk9HzSPV9e5Gr7aozq_xhbdxC1KAQ/exec";
 var DB_SECRET = process.env.APNACARE_DB_SECRET || "apnacare-ops-secret-2026";
 var InMemoryDb = class {
   users = /* @__PURE__ */ new Map();
@@ -20118,6 +20156,7 @@ var MemorySessionStore = class {
 };
 var UpstashSessionStore = class {
   client;
+  memoryFallback = new MemorySessionStore();
   constructor(url, token) {
     this.client = new Redis2({ url, token });
   }
@@ -20137,8 +20176,8 @@ var UpstashSessionStore = class {
       const userKey = `${USER_INDEX_PREFIX}${session.userId}`;
       await this.client.pipeline().set(key, JSON.stringify(session), { ex: ttlSeconds }).sadd(userKey, sessionId).expire(userKey, 604800).exec();
     } catch (err) {
-      console.error("[Redis/Upstash] Failed to set session:", err);
-      throw err;
+      console.error("[Redis/Upstash] Failed to set session, falling back to memory:", err);
+      await this.memoryFallback.set(sessionId, session, ttlSeconds);
     }
   }
   async touch(sessionId, ttlSeconds, lastActivityAt) {
@@ -20204,6 +20243,7 @@ var UpstashSessionStore = class {
 };
 var IoRedisSessionStore = class {
   client;
+  memoryFallback = new MemorySessionStore();
   constructor(redisUrlOrOptions) {
     const opts = {
       connectTimeout: 5e3,
@@ -20237,8 +20277,8 @@ var IoRedisSessionStore = class {
       const userKey = `${USER_INDEX_PREFIX}${session.userId}`;
       await this.client.multi().set(key, JSON.stringify(session), "EX", ttlSeconds).sadd(userKey, sessionId).expire(userKey, 604800).exec();
     } catch (err) {
-      console.error("[Redis/IORedis] Failed to set session:", err);
-      throw err;
+      console.error("[Redis/IORedis] Failed to set session, falling back to memory:", err);
+      await this.memoryFallback.set(sessionId, session, ttlSeconds);
     }
   }
   async touch(sessionId, ttlSeconds, lastActivityAt) {

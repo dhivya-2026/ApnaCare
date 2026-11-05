@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/useAuth";
 import { Users, HeartHandshake, ShieldCheck, ArrowRight, UserPlus, LogIn, Sparkle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { seo } from "@/lib/seo";
@@ -14,6 +15,8 @@ export const Route = createFileRoute("/login/")({
 });
 
 function LoginPage() {
+  const { loginAsDemo } = useAuth();
+  const navigate = useNavigate();
   return (
     <div className="relative overflow-hidden bg-background py-16 md:py-24">
       <div className="container-page max-w-5xl mx-auto space-y-12">
@@ -63,6 +66,17 @@ function LoginPage() {
                   <UserPlus className="size-4" />
                 </Link>
               </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  const res = loginAsDemo("user");
+                  navigate({ to: res.redirectUrl as any });
+                }}
+                className="w-full text-xs font-semibold text-primary hover:bg-primary-soft/60 py-2 h-auto rounded-xl border border-primary/20"
+              >
+                <span>⚡ View User Demo Dashboard &rarr;</span>
+              </Button>
             </div>
           </div>
 
@@ -96,6 +110,17 @@ function LoginPage() {
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  const res = loginAsDemo("attendant");
+                  navigate({ to: res.redirectUrl as any });
+                }}
+                className="w-full text-xs font-semibold text-emerald-700 hover:bg-emerald-500/10 py-2 h-auto rounded-xl border border-emerald-500/20"
+              >
+                <span>⚡ View Saha Demo Dashboard &rarr;</span>
+              </Button>
             </div>
           </div>
 
@@ -122,6 +147,17 @@ function LoginPage() {
                   <span>Admin Login</span>
                   <LogIn className="size-4" />
                 </Link>
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  const res = loginAsDemo("admin");
+                  navigate({ to: res.redirectUrl as any });
+                }}
+                className="w-full text-xs font-semibold text-amber-700 hover:bg-amber-500/10 py-2 h-auto rounded-xl border border-amber-600/20"
+              >
+                <span>⚡ View Admin Demo Console &rarr;</span>
               </Button>
               <p className="text-[11px] text-center text-muted-foreground">
                 Authorized credentials only. No public registration.

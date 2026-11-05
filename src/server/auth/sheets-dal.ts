@@ -14,7 +14,7 @@ import { hashPassword } from "./password";
 const APPS_SCRIPT_URL =
   process.env.APNACARE_OPERATIONS_SCRIPT_URL ||
   process.env.VITE_OPERATIONS_SCRIPT_URL ||
-  "";
+  "https://script.google.com/macros/s/AKfycbzdI6wjqeGAgTveEXBpPAtX3g2WHOX8f8P5nwu_Zkk9HzSPV9e5Gr7aozq_xhbdxC1KAQ/exec";
 
 const DB_SECRET = process.env.APNACARE_DB_SECRET || "apnacare-ops-secret-2026";
 

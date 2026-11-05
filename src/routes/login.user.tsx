@@ -19,7 +19,7 @@ export const Route = createFileRoute("/login/user")({
 });
 
 function UserLoginPage() {
-  const { login } = useAuth();
+  const { login, loginAsDemo } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -119,6 +119,18 @@ function UserLoginPage() {
           <Button type="submit" variant="warm" className="w-full min-h-[46px] font-semibold" disabled={loading}>
             {loading ? <Loader2 className="size-4 animate-spin mr-2" /> : <LogIn className="size-4 mr-2" />}
             {loading ? "Signing in..." : "Sign In to User Portal"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              const res = loginAsDemo("user");
+              navigate({ to: res.redirectUrl as any });
+            }}
+            className="w-full min-h-[44px] font-semibold border-primary/30 text-primary hover:bg-primary-soft/50"
+          >
+            ⚡ View Demo Dashboard (No sign-in required) &rarr;
           </Button>
         </form>
 

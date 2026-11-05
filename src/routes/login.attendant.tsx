@@ -19,7 +19,7 @@ export const Route = createFileRoute("/login/attendant")({
 });
 
 function AttendantLoginPage() {
-  const { login } = useAuth();
+  const { login, loginAsDemo } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -129,6 +129,18 @@ function AttendantLoginPage() {
           <Button type="submit" className="w-full min-h-[46px] font-semibold bg-emerald-700 hover:bg-emerald-800 text-white" disabled={loading}>
             {loading ? <Loader2 className="size-4 animate-spin mr-2" /> : <LogIn className="size-4 mr-2" />}
             {loading ? "Verifying credentials..." : "Sign In to Saha Portal"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              const res = loginAsDemo("attendant");
+              navigate({ to: res.redirectUrl as any });
+            }}
+            className="w-full min-h-[44px] font-semibold border-emerald-500/30 text-emerald-700 hover:bg-emerald-500/10"
+          >
+            ⚡ View Demo Saha Portal (Instant Preview) &rarr;
           </Button>
         </form>
 
