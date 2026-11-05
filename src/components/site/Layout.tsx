@@ -34,6 +34,7 @@ import {
   FileText,
   Check,
   Globe,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE, CITIES, buildWhatsAppUrl } from "@/data/site";
@@ -952,6 +953,15 @@ function Header() {
               Request Assistance
             </BookLink>
 
+            <Link
+              to="/login"
+              className="hidden sm:inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap min-h-[44px] px-4 rounded-full font-bold text-xs bg-primary text-primary-foreground hover:bg-primary/90 shadow-2xs transition-all hover:scale-[1.02]"
+              aria-label="Get Started with ApnaCare account"
+            >
+              <span>Get Started</span>
+              <ArrowRight className="size-3.5" />
+            </Link>
+
             {/* Mobile menu toggle */}
             <Button
               variant="outline"
@@ -993,6 +1003,14 @@ function Header() {
               >
                 Request Assistance
               </BookLink>
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="w-full flex items-center justify-center gap-2 min-h-[48px] rounded-xl font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-soft"
+              >
+                <span>Get Started</span>
+                <ArrowRight className="size-4" />
+              </Link>
               <a
                 href={waUrl}
                 target="_blank"

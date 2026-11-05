@@ -18,14 +18,23 @@ import { Route as CitiesRouteImport } from './routes/cities'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EcosystemPartnersRouteImport } from './routes/ecosystem-partners'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as SafetyGuidelinesRouteImport } from './routes/safety-guidelines'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
+import { Route as DashboardAdminRouteImport } from './routes/dashboard.admin'
+import { Route as DashboardAttendantRouteImport } from './routes/dashboard.attendant'
+import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
 import { Route as KnowledgeHubIndexRouteImport } from './routes/knowledge-hub.index'
 import { Route as KnowledgeHubSlugRouteImport } from './routes/knowledge-hub.$slug'
+import { Route as LoginAdminRouteImport } from './routes/login.admin'
+import { Route as LoginAttendantRouteImport } from './routes/login.attendant'
+import { Route as LoginUserRouteImport } from './routes/login.user'
+import { Route as RegisterAttendantRouteImport } from './routes/register.attendant'
+import { Route as RegisterUserRouteImport } from './routes/register.user'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as SolutionsSlugRouteImport } from './routes/solutions.$slug'
@@ -75,6 +84,11 @@ const FaqRoute = FaqRouteImport.update({
   path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -105,6 +119,21 @@ const CitiesCityRoute = CitiesCityRouteImport.update({
   path: '/$city',
   getParentRoute: () => CitiesRoute,
 } as any)
+const DashboardAdminRoute = DashboardAdminRouteImport.update({
+  id: '/dashboard/admin',
+  path: '/dashboard/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardAttendantRoute = DashboardAttendantRouteImport.update({
+  id: '/dashboard/attendant',
+  path: '/dashboard/attendant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardUserRoute = DashboardUserRouteImport.update({
+  id: '/dashboard/user',
+  path: '/dashboard/user',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KnowledgeHubIndexRoute = KnowledgeHubIndexRouteImport.update({
   id: '/knowledge-hub/',
   path: '/knowledge-hub/',
@@ -113,6 +142,31 @@ const KnowledgeHubIndexRoute = KnowledgeHubIndexRouteImport.update({
 const KnowledgeHubSlugRoute = KnowledgeHubSlugRouteImport.update({
   id: '/knowledge-hub/$slug',
   path: '/knowledge-hub/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginAdminRoute = LoginAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => LoginRoute,
+} as any)
+const LoginAttendantRoute = LoginAttendantRouteImport.update({
+  id: '/attendant',
+  path: '/attendant',
+  getParentRoute: () => LoginRoute,
+} as any)
+const LoginUserRoute = LoginUserRouteImport.update({
+  id: '/user',
+  path: '/user',
+  getParentRoute: () => LoginRoute,
+} as any)
+const RegisterAttendantRoute = RegisterAttendantRouteImport.update({
+  id: '/register/attendant',
+  path: '/register/attendant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterUserRoute = RegisterUserRouteImport.update({
+  id: '/register/user',
+  path: '/register/user',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesIndexRoute = ServicesIndexRouteImport.update({
@@ -141,13 +195,22 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
+  '/login': typeof LoginRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
   '/safety-guidelines': typeof SafetyGuidelinesRoute
   '/terms': typeof TermsRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/dashboard/admin': typeof DashboardAdminRoute
+  '/dashboard/attendant': typeof DashboardAttendantRoute
+  '/dashboard/user': typeof DashboardUserRoute
   '/knowledge-hub/$slug': typeof KnowledgeHubSlugRoute
+  '/login/admin': typeof LoginAdminRoute
+  '/login/attendant': typeof LoginAttendantRoute
+  '/login/user': typeof LoginUserRoute
+  '/register/attendant': typeof RegisterAttendantRoute
+  '/register/user': typeof RegisterUserRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub/': typeof KnowledgeHubIndexRoute
@@ -163,13 +226,22 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
+  '/login': typeof LoginRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
   '/safety-guidelines': typeof SafetyGuidelinesRoute
   '/terms': typeof TermsRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/dashboard/admin': typeof DashboardAdminRoute
+  '/dashboard/attendant': typeof DashboardAttendantRoute
+  '/dashboard/user': typeof DashboardUserRoute
   '/knowledge-hub/$slug': typeof KnowledgeHubSlugRoute
+  '/login/admin': typeof LoginAdminRoute
+  '/login/attendant': typeof LoginAttendantRoute
+  '/login/user': typeof LoginUserRoute
+  '/register/attendant': typeof RegisterAttendantRoute
+  '/register/user': typeof RegisterUserRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub': typeof KnowledgeHubIndexRoute
@@ -186,13 +258,22 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
+  '/login': typeof LoginRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
   '/safety-guidelines': typeof SafetyGuidelinesRoute
   '/terms': typeof TermsRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/dashboard/admin': typeof DashboardAdminRoute
+  '/dashboard/attendant': typeof DashboardAttendantRoute
+  '/dashboard/user': typeof DashboardUserRoute
   '/knowledge-hub/$slug': typeof KnowledgeHubSlugRoute
+  '/login/admin': typeof LoginAdminRoute
+  '/login/attendant': typeof LoginAttendantRoute
+  '/login/user': typeof LoginUserRoute
+  '/register/attendant': typeof RegisterAttendantRoute
+  '/register/user': typeof RegisterUserRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/solutions/$slug': typeof SolutionsSlugRoute
   '/knowledge-hub/': typeof KnowledgeHubIndexRoute
@@ -210,13 +291,22 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
+    | '/login'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
     | '/safety-guidelines'
     | '/terms'
     | '/cities/$city'
+    | '/dashboard/admin'
+    | '/dashboard/attendant'
+    | '/dashboard/user'
     | '/knowledge-hub/$slug'
+    | '/login/admin'
+    | '/login/attendant'
+    | '/login/user'
+    | '/register/attendant'
+    | '/register/user'
     | '/services/$slug'
     | '/solutions/$slug'
     | '/knowledge-hub/'
@@ -232,13 +322,22 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
+    | '/login'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
     | '/safety-guidelines'
     | '/terms'
     | '/cities/$city'
+    | '/dashboard/admin'
+    | '/dashboard/attendant'
+    | '/dashboard/user'
     | '/knowledge-hub/$slug'
+    | '/login/admin'
+    | '/login/attendant'
+    | '/login/user'
+    | '/register/attendant'
+    | '/register/user'
     | '/services/$slug'
     | '/solutions/$slug'
     | '/knowledge-hub'
@@ -254,13 +353,22 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
+    | '/login'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
     | '/safety-guidelines'
     | '/terms'
     | '/cities/$city'
+    | '/dashboard/admin'
+    | '/dashboard/attendant'
+    | '/dashboard/user'
     | '/knowledge-hub/$slug'
+    | '/login/admin'
+    | '/login/attendant'
+    | '/login/user'
+    | '/register/attendant'
+    | '/register/user'
     | '/services/$slug'
     | '/solutions/$slug'
     | '/knowledge-hub/'
@@ -277,12 +385,18 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   EcosystemPartnersRoute: typeof EcosystemPartnersRoute
   FaqRoute: typeof FaqRoute
+  LoginRoute: typeof LoginRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   SafetyRoute: typeof SafetyRoute
   SafetyGuidelinesRoute: typeof SafetyGuidelinesRoute
   TermsRoute: typeof TermsRoute
+  DashboardAdminRoute: typeof DashboardAdminRoute
+  DashboardAttendantRoute: typeof DashboardAttendantRoute
+  DashboardUserRoute: typeof DashboardUserRoute
   KnowledgeHubSlugRoute: typeof KnowledgeHubSlugRoute
+  RegisterAttendantRoute: typeof RegisterAttendantRoute
+  RegisterUserRoute: typeof RegisterUserRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   SolutionsSlugRoute: typeof SolutionsSlugRoute
   KnowledgeHubIndexRoute: typeof KnowledgeHubIndexRoute
@@ -354,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -396,6 +517,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CitiesCityRouteImport
       parentRoute: typeof CitiesRoute
     }
+    '/dashboard/admin': {
+      id: '/dashboard/admin'
+      path: '/dashboard/admin'
+      fullPath: '/dashboard/admin'
+      preLoaderRoute: typeof DashboardAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/attendant': {
+      id: '/dashboard/attendant'
+      path: '/dashboard/attendant'
+      fullPath: '/dashboard/attendant'
+      preLoaderRoute: typeof DashboardAttendantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/user': {
+      id: '/dashboard/user'
+      path: '/dashboard/user'
+      fullPath: '/dashboard/user'
+      preLoaderRoute: typeof DashboardUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/knowledge-hub/': {
       id: '/knowledge-hub/'
       path: '/knowledge-hub'
@@ -408,6 +550,41 @@ declare module '@tanstack/react-router' {
       path: '/knowledge-hub/$slug'
       fullPath: '/knowledge-hub/$slug'
       preLoaderRoute: typeof KnowledgeHubSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/admin': {
+      id: '/login/admin'
+      path: '/admin'
+      fullPath: '/login/admin'
+      preLoaderRoute: typeof LoginAdminRouteImport
+      parentRoute: typeof LoginRoute
+    }
+    '/login/attendant': {
+      id: '/login/attendant'
+      path: '/attendant'
+      fullPath: '/login/attendant'
+      preLoaderRoute: typeof LoginAttendantRouteImport
+      parentRoute: typeof LoginRoute
+    }
+    '/login/user': {
+      id: '/login/user'
+      path: '/user'
+      fullPath: '/login/user'
+      preLoaderRoute: typeof LoginUserRouteImport
+      parentRoute: typeof LoginRoute
+    }
+    '/register/attendant': {
+      id: '/register/attendant'
+      path: '/register/attendant'
+      fullPath: '/register/attendant'
+      preLoaderRoute: typeof RegisterAttendantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register/user': {
+      id: '/register/user'
+      path: '/register/user'
+      fullPath: '/register/user'
+      preLoaderRoute: typeof RegisterUserRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services/': {
@@ -445,6 +622,20 @@ const CitiesRouteChildren: CitiesRouteChildren = {
 const CitiesRouteWithChildren =
   CitiesRoute._addFileChildren(CitiesRouteChildren)
 
+interface LoginRouteChildren {
+  LoginAdminRoute: typeof LoginAdminRoute
+  LoginAttendantRoute: typeof LoginAttendantRoute
+  LoginUserRoute: typeof LoginUserRoute
+}
+
+const LoginRouteChildren: LoginRouteChildren = {
+  LoginAdminRoute: LoginAdminRoute,
+  LoginAttendantRoute: LoginAttendantRoute,
+  LoginUserRoute: LoginUserRoute,
+}
+
+const LoginRouteWithChildren = LoginRoute._addFileChildren(LoginRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -455,12 +646,18 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   EcosystemPartnersRoute: EcosystemPartnersRoute,
   FaqRoute: FaqRoute,
+  LoginRoute: LoginRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   SafetyRoute: SafetyRoute,
   SafetyGuidelinesRoute: SafetyGuidelinesRoute,
   TermsRoute: TermsRoute,
+  DashboardAdminRoute: DashboardAdminRoute,
+  DashboardAttendantRoute: DashboardAttendantRoute,
+  DashboardUserRoute: DashboardUserRoute,
   KnowledgeHubSlugRoute: KnowledgeHubSlugRoute,
+  RegisterAttendantRoute: RegisterAttendantRoute,
+  RegisterUserRoute: RegisterUserRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   SolutionsSlugRoute: SolutionsSlugRoute,
   KnowledgeHubIndexRoute: KnowledgeHubIndexRoute,

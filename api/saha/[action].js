@@ -12467,14 +12467,14 @@ var require_DataHandler = __commonJS({
         const typeMapping = getParserTypeMapping(parserOptions);
         const decoder = new decoder_1.Decoder({
           getTypeMapping: () => typeMapping,
-          onReply: (reply2) => {
-            this.dispatch(() => this.returnReply(reply2));
+          onReply: (reply) => {
+            this.dispatch(() => this.returnReply(reply));
           },
           onErrorReply: (err) => {
             this.dispatch(() => this.returnError(err));
           },
-          onPush: (reply2) => {
-            this.dispatch(() => this.returnPush(reply2));
+          onPush: (reply) => {
+            this.dispatch(() => this.returnPush(reply));
           }
         });
         redis.stream.prependListener("data", (data) => {
@@ -12518,42 +12518,42 @@ var require_DataHandler = __commonJS({
         }
         this.redis.handleReconnection(err, item);
       }
-      returnReply(reply2) {
-        if (this.handleMonitorReply(reply2)) {
+      returnReply(reply) {
+        if (this.handleMonitorReply(reply)) {
           return;
         }
-        if (this.redis.condition.protocol !== 3 && this.handleSubscriberReply(reply2)) {
+        if (this.redis.condition.protocol !== 3 && this.handleSubscriberReply(reply)) {
           return;
         }
-        const item = this.shiftCommand(reply2);
+        const item = this.shiftCommand(reply);
         if (!item) {
           return;
         }
         if (Command_1.default.checkFlag("ENTER_SUBSCRIBER_MODE", item.command.name)) {
           this.redis.condition.subscriber = new SubscriptionSet_1.default();
-          this.redis.condition.subscriber.add(item.command.name, reply2[1].toString());
-          if (!fillSubCommand(item.command, reply2[2])) {
+          this.redis.condition.subscriber.add(item.command.name, reply[1].toString());
+          if (!fillSubCommand(item.command, reply[2])) {
             this.redis.commandQueue.unshift(item);
           }
         } else if (Command_1.default.checkFlag("EXIT_SUBSCRIBER_MODE", item.command.name)) {
-          if (!fillUnsubCommand(item.command, reply2[2])) {
+          if (!fillUnsubCommand(item.command, reply[2])) {
             this.redis.commandQueue.unshift(item);
           }
         } else {
-          item.command.resolve(reply2);
+          item.command.resolve(reply);
         }
       }
-      returnPush(reply2) {
-        if (!Array.isArray(reply2) || reply2.length === 0) {
+      returnPush(reply) {
+        if (!Array.isArray(reply) || reply.length === 0) {
           return;
         }
-        const replyType = reply2[0].toString();
+        const replyType = reply[0].toString();
         debug('receive push "%s"', replyType);
         switch (replyType) {
           case "message":
           case "pmessage":
           case "smessage":
-            this.handleSubscriberReply(reply2);
+            this.handleSubscriberReply(reply);
             break;
           case "ssubscribe":
           case "subscribe":
@@ -12561,13 +12561,13 @@ var require_DataHandler = __commonJS({
             if (!this.redis.condition.subscriber) {
               this.redis.condition.subscriber = new SubscriptionSet_1.default();
             }
-            const channel = reply2[1].toString();
+            const channel = reply[1].toString();
             this.redis.condition.subscriber.add(replyType, channel);
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
-            if (!fillSubCommand(item.command, reply2[2])) {
+            if (!fillSubCommand(item.command, reply[2])) {
               this.redis.commandQueue.unshift(item);
             }
             break;
@@ -12576,19 +12576,19 @@ var require_DataHandler = __commonJS({
           case "unsubscribe":
           case "punsubscribe": {
             if (this.redis.condition.subscriber) {
-              const channel = reply2[1] ? reply2[1].toString() : null;
+              const channel = reply[1] ? reply[1].toString() : null;
               if (channel) {
                 this.redis.condition.subscriber.del(replyType, channel);
               }
             }
-            const count = reply2[2];
+            const count = reply[2];
             if (Number(count) === 0) {
               this.redis.condition.subscriber = false;
             }
             if (this.handleUnsolicitedUnsubscribe(replyType)) {
               return;
             }
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
@@ -12613,44 +12613,44 @@ var require_DataHandler = __commonJS({
         }
         return true;
       }
-      handleSubscriberReply(reply2) {
+      handleSubscriberReply(reply) {
         if (!this.redis.condition.subscriber) {
           return false;
         }
-        const replyType = Array.isArray(reply2) ? reply2[0].toString() : null;
+        const replyType = Array.isArray(reply) ? reply[0].toString() : null;
         debug('receive reply "%s" in subscriber mode', replyType);
         switch (replyType) {
           case "message":
             if (this.redis.listeners("message").length > 0) {
-              this.redis.emit("message", reply2[1].toString(), reply2[2] ? reply2[2].toString() : "");
+              this.redis.emit("message", reply[1].toString(), reply[2] ? reply[2].toString() : "");
             }
-            this.redis.emit("messageBuffer", reply2[1], reply2[2]);
+            this.redis.emit("messageBuffer", reply[1], reply[2]);
             break;
           case "pmessage": {
-            const pattern = reply2[1].toString();
+            const pattern = reply[1].toString();
             if (this.redis.listeners("pmessage").length > 0) {
-              this.redis.emit("pmessage", pattern, reply2[2].toString(), reply2[3].toString());
+              this.redis.emit("pmessage", pattern, reply[2].toString(), reply[3].toString());
             }
-            this.redis.emit("pmessageBuffer", pattern, reply2[2], reply2[3]);
+            this.redis.emit("pmessageBuffer", pattern, reply[2], reply[3]);
             break;
           }
           case "smessage": {
             if (this.redis.listeners("smessage").length > 0) {
-              this.redis.emit("smessage", reply2[1].toString(), reply2[2] ? reply2[2].toString() : "");
+              this.redis.emit("smessage", reply[1].toString(), reply[2] ? reply[2].toString() : "");
             }
-            this.redis.emit("smessageBuffer", reply2[1], reply2[2]);
+            this.redis.emit("smessageBuffer", reply[1], reply[2]);
             break;
           }
           case "ssubscribe":
           case "subscribe":
           case "psubscribe": {
-            const channel = reply2[1].toString();
+            const channel = reply[1].toString();
             this.redis.condition.subscriber.add(replyType, channel);
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
-            if (!fillSubCommand(item.command, reply2[2])) {
+            if (!fillSubCommand(item.command, reply[2])) {
               this.redis.commandQueue.unshift(item);
             }
             break;
@@ -12658,18 +12658,18 @@ var require_DataHandler = __commonJS({
           case "sunsubscribe":
           case "unsubscribe":
           case "punsubscribe": {
-            const channel = reply2[1] ? reply2[1].toString() : null;
+            const channel = reply[1] ? reply[1].toString() : null;
             if (channel) {
               this.redis.condition.subscriber.del(replyType, channel);
             }
-            const count = reply2[2];
+            const count = reply[2];
             if (Number(count) === 0) {
               this.redis.condition.subscriber = false;
             }
             if (this.handleUnsolicitedUnsubscribe(replyType)) {
               break;
             }
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
@@ -12679,20 +12679,20 @@ var require_DataHandler = __commonJS({
             break;
           }
           default: {
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
-            item.command.resolve(reply2);
+            item.command.resolve(reply);
           }
         }
         return true;
       }
-      handleMonitorReply(reply2) {
+      handleMonitorReply(reply) {
         if (this.redis.status !== "monitoring") {
           return false;
         }
-        const replyStr = reply2.toString();
+        const replyStr = reply.toString();
         if (replyStr === "OK") {
           return false;
         }
@@ -12704,11 +12704,11 @@ var require_DataHandler = __commonJS({
         this.redis.emit("monitor", timestamp, args, dbAndSource[1], dbAndSource[0]);
         return true;
       }
-      shiftCommand(reply2) {
+      shiftCommand(reply) {
         const item = this.redis.commandQueue.shift();
         if (!item) {
           const message = "Command queue state error. If you can reproduce this, please report it.";
-          const error = new Error(message + (reply2 instanceof Error ? ` Last error: ${reply2.message}` : ` Last reply: ${reply2.toString()}`));
+          const error = new Error(message + (reply instanceof Error ? ` Last error: ${reply.message}` : ` Last reply: ${reply.toString()}`));
           this.redis.emit("error", error);
           return null;
         }
@@ -14007,16 +14007,299 @@ var require_built3 = __commonJS({
         console.warn("ioredis v5 does not support plugging third-party Promise library anymore. Native Promise will be used.");
       }
     });
-    function print(err, reply2) {
+    function print(err, reply) {
       if (err) {
         console.log("Error: " + err);
       } else {
-        console.log("Reply: " + reply2);
+        console.log("Reply: " + reply);
       }
     }
     exports.print = print;
   }
 });
+
+// src/server/auth/entry/bridge.ts
+async function bridgeHandler(req, res, handler2) {
+  if (req instanceof Request && !res) {
+    const url2 = new URL(req.url);
+    const action2 = url2.pathname.split("/").pop() || "";
+    return await handler2(req, action2);
+  }
+  const host = req.headers?.host || "apna-care.vercel.app";
+  const protocol = req.headers?.["x-forwarded-proto"] || "https";
+  const url = new URL(req.url || "/", `${protocol}://${host}`);
+  let action = "";
+  if (req.query && req.query.action) {
+    action = Array.isArray(req.query.action) ? req.query.action[0] : req.query.action;
+  } else {
+    action = url.pathname.split("/").filter(Boolean).pop() || "";
+  }
+  let body = null;
+  const method = (req.method || "GET").toUpperCase();
+  if (method !== "GET" && method !== "HEAD") {
+    if (req.body) {
+      body = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+    } else {
+      const chunks = [];
+      for await (const chunk of req) {
+        chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+      }
+      body = Buffer.concat(chunks).toString("utf-8");
+    }
+  }
+  const webRequest = new Request(url.toString(), {
+    method,
+    headers: req.headers,
+    body: body ? body : void 0
+  });
+  const webResponse = await handler2(webRequest, action);
+  res.statusCode = webResponse.status;
+  webResponse.headers.forEach((value, key) => {
+    if (key.toLowerCase() === "set-cookie") {
+      res.setHeader("Set-Cookie", value);
+    } else {
+      res.setHeader(key, value);
+    }
+  });
+  const text = await webResponse.text();
+  res.end(text);
+}
+
+// src/server/auth/password.ts
+import { randomBytes, pbkdf2 as pbkdf2Cb, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+var pbkdf2 = promisify(pbkdf2Cb);
+var ITERATIONS = 1e5;
+var KEY_LEN = 32;
+var DIGEST = "sha256";
+async function hashPassword(password) {
+  if (!password || password.length < 6) {
+    throw new Error("Password must be at least 6 characters long");
+  }
+  const salt = randomBytes(16);
+  const derivedKey = await pbkdf2(password, salt, ITERATIONS, KEY_LEN, DIGEST);
+  return `pbkdf2:${DIGEST}:${ITERATIONS}:${salt.toString("hex")}:${derivedKey.toString("hex")}`;
+}
+
+// src/server/auth/sheets-dal.ts
+var APPS_SCRIPT_URL = process.env.APNACARE_OPERATIONS_SCRIPT_URL || process.env.VITE_OPERATIONS_SCRIPT_URL || "";
+var DB_SECRET = process.env.APNACARE_DB_SECRET || "apnacare-ops-secret-2026";
+var InMemoryDb = class {
+  users = /* @__PURE__ */ new Map();
+  attendants = /* @__PURE__ */ new Map();
+  admins = /* @__PURE__ */ new Map();
+  bookings = /* @__PURE__ */ new Map();
+  assignments = /* @__PURE__ */ new Map();
+  availability = /* @__PURE__ */ new Map();
+  attendance = /* @__PURE__ */ new Map();
+  activityLogs = [];
+  initialized = false;
+  async initDefaults() {
+    if (this.initialized) return;
+    this.initialized = true;
+    const adminHash = await hashPassword("ApnaAdmin@2026!");
+    const superAdmin = {
+      admin_id: "ADM-001",
+      full_name: "ApnaCare Super Admin",
+      email: "admin@apnacare.in",
+      password_hash: adminHash,
+      role: "super_admin",
+      account_status: "active",
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    this.admins.set(superAdmin.admin_id, superAdmin);
+    const attendantHash = await hashPassword("SahaPass@2026!");
+    const sampleAttendant1 = {
+      attendant_id: "ATT-BLR-01",
+      full_name: "Lakshmi Priya",
+      email: "lakshmi.saha@apnacare.in",
+      phone: "+91 98450 12345",
+      password_hash: attendantHash,
+      gender: "female",
+      city: "Bengaluru",
+      address: "Indiranagar, Bengaluru, Karnataka",
+      qualifications: "Certified Geriatric Attendant (B.Sc Nursing Convalescence)",
+      experience: "5 years eldercare and post-stroke recovery",
+      skills: ["Mobility Aid", "Vitals Tracking", "Hygiene Dignity", "Medication Management"],
+      languages: ["Kannada", "Tamil", "English"],
+      service_categories: ["Elderly Care", "Hospital Bedside Support", "Home Convalescence"],
+      availability_status: "available",
+      verification_status: "verified",
+      account_status: "active",
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    const sampleAttendant2 = {
+      attendant_id: "ATT-CHN-02",
+      full_name: "Ananya Sundaram",
+      email: "ananya.saha@apnacare.in",
+      phone: "+91 98401 23456",
+      password_hash: attendantHash,
+      gender: "female",
+      city: "Chennai",
+      address: "Adyar, Chennai, Tamil Nadu",
+      qualifications: "Trained Japa & Postnatal Care Specialist (GNM Diploma)",
+      experience: "4 years infant handling & post-operative bedside aid",
+      skills: ["Fourth Trimester Care", "Baby Oil Massage", "Post-Surgical Dressing"],
+      languages: ["Tamil", "Telugu", "English"],
+      service_categories: ["Post-Natal Care", "Clinical Nursing", "Hospital Bedside Support"],
+      availability_status: "available",
+      verification_status: "verified",
+      account_status: "active",
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    this.attendants.set(sampleAttendant1.attendant_id, sampleAttendant1);
+    this.attendants.set(sampleAttendant2.attendant_id, sampleAttendant2);
+  }
+};
+var memoryDb = new InMemoryDb();
+async function remoteDispatch(action, payload) {
+  if (!APPS_SCRIPT_URL) return null;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6e3);
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, secret: DB_SECRET, ...payload || {} }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.success ? json.data : null;
+  } catch {
+    return null;
+  }
+}
+async function getAttendantById(attendantId) {
+  await memoryDb.initDefaults();
+  const remote = await remoteDispatch("getAttendantById", { attendantId });
+  if (remote) return remote;
+  return memoryDb.attendants.get(attendantId) || null;
+}
+async function updateAttendant(attendantId, updates) {
+  await memoryDb.initDefaults();
+  const attendant = memoryDb.attendants.get(attendantId);
+  if (!attendant) throw new Error("Attendant not found");
+  const updated = {
+    ...attendant,
+    ...updates,
+    updated_at: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  memoryDb.attendants.set(attendantId, updated);
+  await remoteDispatch("updateAttendant", { attendantId, updates });
+  return updated;
+}
+async function getAttendantAssignments(attendantId) {
+  await memoryDb.initDefaults();
+  const results = [];
+  for (const asn of memoryDb.assignments.values()) {
+    if (asn.attendant_id === attendantId) {
+      const b = memoryDb.bookings.get(asn.booking_id);
+      if (b) results.push({ assignment: asn, booking: b });
+    }
+  }
+  return results;
+}
+async function updateAssignmentStatus(assignmentId, status, reason) {
+  await memoryDb.initDefaults();
+  const asn = memoryDb.assignments.get(assignmentId);
+  if (!asn) throw new Error("Assignment not found");
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  asn.assignment_status = status;
+  if (status === "accepted") asn.accepted_at = now;
+  if (status === "rejected") {
+    asn.rejected_at = now;
+    asn.rejection_reason = reason;
+  }
+  memoryDb.assignments.set(assignmentId, asn);
+  await remoteDispatch("updateAssignmentStatus", { assignmentId, status, reason });
+  return asn;
+}
+async function checkInAttendant(bookingId, attendantId, location) {
+  await memoryDb.initDefaults();
+  const attendanceId = `ATT-${Date.now().toString(36).toUpperCase()}`;
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const record = {
+    attendance_id: attendanceId,
+    booking_id: bookingId,
+    attendant_id: attendantId,
+    check_in_time: now,
+    check_in_location: location || "Assigned Customer Residence / Hospital Ward",
+    attendance_status: "checked_in"
+  };
+  memoryDb.attendance.set(attendanceId, record);
+  await remoteDispatch("checkInAttendant", { record });
+  return record;
+}
+async function checkOutAttendant(bookingId, attendantId, location) {
+  await memoryDb.initDefaults();
+  let target;
+  for (const rec of memoryDb.attendance.values()) {
+    if (rec.booking_id === bookingId && rec.attendant_id === attendantId && !rec.check_out_time) {
+      target = rec;
+      break;
+    }
+  }
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  if (!target) {
+    target = {
+      attendance_id: `ATT-${Date.now().toString(36).toUpperCase()}`,
+      booking_id: bookingId,
+      attendant_id: attendantId,
+      check_in_time: new Date(Date.now() - 8 * 36e5).toISOString(),
+      check_out_time: now,
+      check_out_location: location || "Assigned Customer Residence",
+      attendance_status: "checked_out",
+      working_hours: 8
+    };
+  } else {
+    target.check_out_time = now;
+    target.check_out_location = location || "Assigned Customer Residence";
+    target.attendance_status = "checked_out";
+    const hours = (new Date(now).getTime() - new Date(target.check_in_time).getTime()) / 36e5;
+    target.working_hours = Math.round(hours * 10) / 10;
+  }
+  memoryDb.attendance.set(target.attendance_id, target);
+  await remoteDispatch("checkOutAttendant", { record: target });
+  return target;
+}
+async function getAttendanceRecords(filter) {
+  await memoryDb.initDefaults();
+  const all = Array.from(memoryDb.attendance.values());
+  if (!filter) return all;
+  return all.filter((a) => {
+    if (filter.attendantId && a.attendant_id !== filter.attendantId) return false;
+    if (filter.bookingId && a.booking_id !== filter.bookingId) return false;
+    return true;
+  });
+}
+async function setAttendantAvailability(attendantId, date, status) {
+  await memoryDb.initDefaults();
+  const id = `AVL-${attendantId}-${date}`;
+  const record = {
+    availability_id: id,
+    attendant_id: attendantId,
+    available_date: date,
+    start_time: "08:00",
+    end_time: "20:00",
+    availability_status: status,
+    updated_at: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  memoryDb.availability.set(id, record);
+  return record;
+}
+async function getAttendantAvailability(attendantId) {
+  await memoryDb.initDefaults();
+  const list = [];
+  for (const av of memoryDb.availability.values()) {
+    if (av.attendant_id === attendantId) list.push(av);
+  }
+  return list;
+}
 
 // src/server/session/cookies.ts
 var DEFAULT_SESSION_CONFIG = {
@@ -14029,27 +14312,6 @@ var DEFAULT_SESSION_CONFIG = {
   sameSite: "lax",
   path: "/"
 };
-function getEffectiveCookieName(isSecure = DEFAULT_SESSION_CONFIG.secure) {
-  if (isSecure && process.env.NODE_ENV === "production") {
-    return `__Host-${DEFAULT_SESSION_CONFIG.cookieName}`;
-  }
-  return DEFAULT_SESSION_CONFIG.cookieName;
-}
-function clearSessionCookieHeader(isSecure = DEFAULT_SESSION_CONFIG.secure) {
-  const name = getEffectiveCookieName(isSecure);
-  const parts = [
-    `${name}=`,
-    `Path=${DEFAULT_SESSION_CONFIG.path}`,
-    "Max-Age=0",
-    "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
-    `SameSite=${DEFAULT_SESSION_CONFIG.sameSite.charAt(0).toUpperCase() + DEFAULT_SESSION_CONFIG.sameSite.slice(1)}`,
-    "HttpOnly"
-  ];
-  if (isSecure) {
-    parts.push("Secure");
-  }
-  return parts.join("; ");
-}
 function parseSessionCookie(cookieHeader) {
   if (!cookieHeader) return null;
   const cookies = cookieHeader.split(";").map((c) => c.trim());
@@ -20155,81 +20417,178 @@ function getSessionStore() {
 }
 
 // src/server/session/session-manager.ts
-async function revokeSession(sessionId) {
-  if (!sessionId) return;
+async function validateSession(sessionId) {
+  if (!sessionId || typeof sessionId !== "string" || sessionId.length < 16) {
+    return null;
+  }
   const store = getSessionStore();
-  await store.delete(sessionId);
+  const session = await store.get(sessionId);
+  if (!session) return null;
+  const now = Date.now();
+  if (now > session.expiresAt) {
+    await store.delete(sessionId);
+    return null;
+  }
+  const idleMs = now - session.lastActivityAt;
+  const maxIdleMs = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds * 1e3;
+  if (idleMs > maxIdleMs) {
+    await store.delete(sessionId);
+    return null;
+  }
+  const remainingLifeSec = Math.floor((session.expiresAt - now) / 1e3);
+  const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
+  if (ttl > 0) {
+    session.lastActivityAt = now;
+    await store.touch(sessionId, ttl, now);
+  }
+  return session;
 }
 
-// src/server/session/guard.ts
-function extractCookieHeader(req) {
-  if (!req) return null;
-  if (req.headers) {
-    if (typeof req.headers.get === "function") {
-      return req.headers.get("cookie");
-    }
-    return req.headers["cookie"] || req.headers["Cookie"];
-  }
-  return null;
-}
-
-// src/server/session/routes/logout.ts
-var dynamic = "force-dynamic";
-function reply(res, statusCode, data, headers = {}) {
-  const payload = JSON.stringify(data);
-  if (res && typeof res.status === "function" && typeof res.json === "function") {
-    for (const [k, v] of Object.entries(headers)) {
-      res.setHeader(k, v);
-    }
-    return res.status(statusCode).json(data);
-  }
-  if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
-    res.statusCode = statusCode;
-    res.setHeader("Content-Type", "application/json");
-    for (const [k, v] of Object.entries(headers)) {
-      res.setHeader(k, v);
-    }
-    return res.end(payload);
-  }
-  return new Response(payload, {
-    status: statusCode,
+// src/server/auth/utils.ts
+function jsonResponse(data, status = 200, headers = {}) {
+  return new Response(JSON.stringify(data), {
+    status,
     headers: {
       "Content-Type": "application/json",
       ...headers
     }
   });
 }
-async function handler(req, res) {
-  const method = (req.method || (req instanceof Request ? req.method : "GET")).toUpperCase();
-  if (method !== "POST") {
-    return reply(res, 405, { error: "Method Not Allowed" });
-  }
+function errorResponse(message, status = 400) {
+  return jsonResponse({ error: message, success: false }, status);
+}
+async function parseJsonBody(request) {
   try {
-    const cookieHeader = extractCookieHeader(req);
-    const sessionId = parseSessionCookie(cookieHeader);
-    if (sessionId) {
-      await revokeSession(sessionId);
-    }
-    const isSecure = process.env.NODE_ENV === "production";
-    const clearCookie = clearSessionCookieHeader(isSecure);
-    return reply(
-      res,
-      200,
-      {
-        success: true,
-        authenticated: false,
-        message: "Session successfully terminated"
-      },
-      {
-        "Set-Cookie": clearCookie
-      }
-    );
-  } catch (error) {
-    console.error("[Auth API] Logout error:", error);
-    return reply(res, 500, { error: "Logout service error" });
+    const text = await request.text();
+    if (!text) return null;
+    return JSON.parse(text);
+  } catch {
+    return null;
   }
 }
+async function authenticateRequest(request, allowedRoles) {
+  const cookieHeader = request.headers.get("cookie");
+  const sessionId = parseSessionCookie(cookieHeader);
+  if (!sessionId) {
+    return {
+      session: null,
+      errorResponse: errorResponse("Authentication required", 401)
+    };
+  }
+  const session = await validateSession(sessionId);
+  if (!session) {
+    return {
+      session: null,
+      errorResponse: errorResponse("Session expired or invalid", 401)
+    };
+  }
+  if (allowedRoles && allowedRoles.length > 0) {
+    const normalizedRole = session.role;
+    const isAllowed = allowedRoles.some((r) => {
+      if (r === "admin" && (normalizedRole === "admin" || normalizedRole === "super_admin")) return true;
+      if (r === "super_admin" && (normalizedRole === "admin" || normalizedRole === "super_admin")) return true;
+      if (r === "user" && (normalizedRole === "user" || normalizedRole === "customer")) return true;
+      if (r === "attendant" && (normalizedRole === "attendant" || normalizedRole === "saha")) return true;
+      return r === normalizedRole;
+    });
+    if (!isAllowed) {
+      return {
+        session,
+        errorResponse: errorResponse("Access denied: Insufficient privileges", 403)
+      };
+    }
+  }
+  return { session };
+}
+
+// src/server/auth/routes/saha-dispatcher.ts
+async function handleSahaAction(request, action) {
+  const { session, errorResponse: authErr } = await authenticateRequest(request, ["attendant", "saha", "admin"]);
+  if (authErr || !session) return authErr || errorResponse("Unauthorized", 401);
+  const attendantId = session.userId;
+  const method = request.method.toUpperCase();
+  if (action === "profile") {
+    if (method === "GET") {
+      const att = await getAttendantById(attendantId);
+      if (!att) return errorResponse("Attendant record not found", 404);
+      return jsonResponse({ attendant: att });
+    }
+    if (method === "PUT" || method === "POST") {
+      const body = await parseJsonBody(request);
+      if (!body) return errorResponse("No update data provided", 400);
+      const updated = await updateAttendant(attendantId, {
+        phone: body.phone,
+        city: body.city,
+        address: body.address,
+        availability_status: body.availability_status,
+        languages: body.languages,
+        skills: body.skills
+      });
+      return jsonResponse({ success: true, attendant: updated });
+    }
+  }
+  if (action === "assignments") {
+    const list = await getAttendantAssignments(attendantId);
+    return jsonResponse({ assignments: list });
+  }
+  if (action === "accept") {
+    const body = await parseJsonBody(request);
+    if (!body || !body.assignment_id) {
+      return errorResponse("assignment_id is required", 400);
+    }
+    const updated = await updateAssignmentStatus(body.assignment_id, "accepted");
+    return jsonResponse({ success: true, assignment: updated });
+  }
+  if (action === "reject") {
+    const body = await parseJsonBody(request);
+    if (!body || !body.assignment_id) {
+      return errorResponse("assignment_id is required", 400);
+    }
+    const updated = await updateAssignmentStatus(body.assignment_id, "rejected", body.reason || "Scheduling conflict");
+    return jsonResponse({ success: true, assignment: updated });
+  }
+  if (action === "attendance") {
+    if (method === "GET") {
+      const records = await getAttendanceRecords({ attendantId });
+      return jsonResponse({ records });
+    }
+    if (method === "POST") {
+      const body = await parseJsonBody(request);
+      if (!body || !body.booking_id || !body.type) {
+        return errorResponse("booking_id and type (check_in or check_out) are required", 400);
+      }
+      if (body.type === "check_in") {
+        const record = await checkInAttendant(body.booking_id, attendantId, body.location);
+        return jsonResponse({ success: true, message: "Checked in successfully", record });
+      }
+      if (body.type === "check_out") {
+        const record = await checkOutAttendant(body.booking_id, attendantId, body.location);
+        return jsonResponse({ success: true, message: "Checked out successfully", record });
+      }
+      return errorResponse("Invalid attendance type: " + body.type, 400);
+    }
+  }
+  if (action === "availability") {
+    if (method === "GET") {
+      const records = await getAttendantAvailability(attendantId);
+      return jsonResponse({ availability: records });
+    }
+    if (method === "POST") {
+      const body = await parseJsonBody(request);
+      if (!body || !body.date) {
+        return errorResponse("date is required", 400);
+      }
+      const record = await setAttendantAvailability(attendantId, body.date, body.status || "available");
+      return jsonResponse({ success: true, record });
+    }
+  }
+  return errorResponse("Unknown saha action: " + action, 404);
+}
+
+// src/server/auth/entry/saha-fn.ts
+async function handler(req, res) {
+  return await bridgeHandler(req, res, handleSahaAction);
+}
 export {
-  handler as default,
-  dynamic
+  handler as default
 };

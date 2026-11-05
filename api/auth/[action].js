@@ -12467,14 +12467,14 @@ var require_DataHandler = __commonJS({
         const typeMapping = getParserTypeMapping(parserOptions);
         const decoder = new decoder_1.Decoder({
           getTypeMapping: () => typeMapping,
-          onReply: (reply2) => {
-            this.dispatch(() => this.returnReply(reply2));
+          onReply: (reply) => {
+            this.dispatch(() => this.returnReply(reply));
           },
           onErrorReply: (err) => {
             this.dispatch(() => this.returnError(err));
           },
-          onPush: (reply2) => {
-            this.dispatch(() => this.returnPush(reply2));
+          onPush: (reply) => {
+            this.dispatch(() => this.returnPush(reply));
           }
         });
         redis.stream.prependListener("data", (data) => {
@@ -12518,42 +12518,42 @@ var require_DataHandler = __commonJS({
         }
         this.redis.handleReconnection(err, item);
       }
-      returnReply(reply2) {
-        if (this.handleMonitorReply(reply2)) {
+      returnReply(reply) {
+        if (this.handleMonitorReply(reply)) {
           return;
         }
-        if (this.redis.condition.protocol !== 3 && this.handleSubscriberReply(reply2)) {
+        if (this.redis.condition.protocol !== 3 && this.handleSubscriberReply(reply)) {
           return;
         }
-        const item = this.shiftCommand(reply2);
+        const item = this.shiftCommand(reply);
         if (!item) {
           return;
         }
         if (Command_1.default.checkFlag("ENTER_SUBSCRIBER_MODE", item.command.name)) {
           this.redis.condition.subscriber = new SubscriptionSet_1.default();
-          this.redis.condition.subscriber.add(item.command.name, reply2[1].toString());
-          if (!fillSubCommand(item.command, reply2[2])) {
+          this.redis.condition.subscriber.add(item.command.name, reply[1].toString());
+          if (!fillSubCommand(item.command, reply[2])) {
             this.redis.commandQueue.unshift(item);
           }
         } else if (Command_1.default.checkFlag("EXIT_SUBSCRIBER_MODE", item.command.name)) {
-          if (!fillUnsubCommand(item.command, reply2[2])) {
+          if (!fillUnsubCommand(item.command, reply[2])) {
             this.redis.commandQueue.unshift(item);
           }
         } else {
-          item.command.resolve(reply2);
+          item.command.resolve(reply);
         }
       }
-      returnPush(reply2) {
-        if (!Array.isArray(reply2) || reply2.length === 0) {
+      returnPush(reply) {
+        if (!Array.isArray(reply) || reply.length === 0) {
           return;
         }
-        const replyType = reply2[0].toString();
+        const replyType = reply[0].toString();
         debug('receive push "%s"', replyType);
         switch (replyType) {
           case "message":
           case "pmessage":
           case "smessage":
-            this.handleSubscriberReply(reply2);
+            this.handleSubscriberReply(reply);
             break;
           case "ssubscribe":
           case "subscribe":
@@ -12561,13 +12561,13 @@ var require_DataHandler = __commonJS({
             if (!this.redis.condition.subscriber) {
               this.redis.condition.subscriber = new SubscriptionSet_1.default();
             }
-            const channel = reply2[1].toString();
+            const channel = reply[1].toString();
             this.redis.condition.subscriber.add(replyType, channel);
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
-            if (!fillSubCommand(item.command, reply2[2])) {
+            if (!fillSubCommand(item.command, reply[2])) {
               this.redis.commandQueue.unshift(item);
             }
             break;
@@ -12576,19 +12576,19 @@ var require_DataHandler = __commonJS({
           case "unsubscribe":
           case "punsubscribe": {
             if (this.redis.condition.subscriber) {
-              const channel = reply2[1] ? reply2[1].toString() : null;
+              const channel = reply[1] ? reply[1].toString() : null;
               if (channel) {
                 this.redis.condition.subscriber.del(replyType, channel);
               }
             }
-            const count = reply2[2];
+            const count = reply[2];
             if (Number(count) === 0) {
               this.redis.condition.subscriber = false;
             }
             if (this.handleUnsolicitedUnsubscribe(replyType)) {
               return;
             }
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
@@ -12613,44 +12613,44 @@ var require_DataHandler = __commonJS({
         }
         return true;
       }
-      handleSubscriberReply(reply2) {
+      handleSubscriberReply(reply) {
         if (!this.redis.condition.subscriber) {
           return false;
         }
-        const replyType = Array.isArray(reply2) ? reply2[0].toString() : null;
+        const replyType = Array.isArray(reply) ? reply[0].toString() : null;
         debug('receive reply "%s" in subscriber mode', replyType);
         switch (replyType) {
           case "message":
             if (this.redis.listeners("message").length > 0) {
-              this.redis.emit("message", reply2[1].toString(), reply2[2] ? reply2[2].toString() : "");
+              this.redis.emit("message", reply[1].toString(), reply[2] ? reply[2].toString() : "");
             }
-            this.redis.emit("messageBuffer", reply2[1], reply2[2]);
+            this.redis.emit("messageBuffer", reply[1], reply[2]);
             break;
           case "pmessage": {
-            const pattern = reply2[1].toString();
+            const pattern = reply[1].toString();
             if (this.redis.listeners("pmessage").length > 0) {
-              this.redis.emit("pmessage", pattern, reply2[2].toString(), reply2[3].toString());
+              this.redis.emit("pmessage", pattern, reply[2].toString(), reply[3].toString());
             }
-            this.redis.emit("pmessageBuffer", pattern, reply2[2], reply2[3]);
+            this.redis.emit("pmessageBuffer", pattern, reply[2], reply[3]);
             break;
           }
           case "smessage": {
             if (this.redis.listeners("smessage").length > 0) {
-              this.redis.emit("smessage", reply2[1].toString(), reply2[2] ? reply2[2].toString() : "");
+              this.redis.emit("smessage", reply[1].toString(), reply[2] ? reply[2].toString() : "");
             }
-            this.redis.emit("smessageBuffer", reply2[1], reply2[2]);
+            this.redis.emit("smessageBuffer", reply[1], reply[2]);
             break;
           }
           case "ssubscribe":
           case "subscribe":
           case "psubscribe": {
-            const channel = reply2[1].toString();
+            const channel = reply[1].toString();
             this.redis.condition.subscriber.add(replyType, channel);
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
-            if (!fillSubCommand(item.command, reply2[2])) {
+            if (!fillSubCommand(item.command, reply[2])) {
               this.redis.commandQueue.unshift(item);
             }
             break;
@@ -12658,18 +12658,18 @@ var require_DataHandler = __commonJS({
           case "sunsubscribe":
           case "unsubscribe":
           case "punsubscribe": {
-            const channel = reply2[1] ? reply2[1].toString() : null;
+            const channel = reply[1] ? reply[1].toString() : null;
             if (channel) {
               this.redis.condition.subscriber.del(replyType, channel);
             }
-            const count = reply2[2];
+            const count = reply[2];
             if (Number(count) === 0) {
               this.redis.condition.subscriber = false;
             }
             if (this.handleUnsolicitedUnsubscribe(replyType)) {
               break;
             }
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
@@ -12679,20 +12679,20 @@ var require_DataHandler = __commonJS({
             break;
           }
           default: {
-            const item = this.shiftCommand(reply2);
+            const item = this.shiftCommand(reply);
             if (!item) {
               return;
             }
-            item.command.resolve(reply2);
+            item.command.resolve(reply);
           }
         }
         return true;
       }
-      handleMonitorReply(reply2) {
+      handleMonitorReply(reply) {
         if (this.redis.status !== "monitoring") {
           return false;
         }
-        const replyStr = reply2.toString();
+        const replyStr = reply.toString();
         if (replyStr === "OK") {
           return false;
         }
@@ -12704,11 +12704,11 @@ var require_DataHandler = __commonJS({
         this.redis.emit("monitor", timestamp, args, dbAndSource[1], dbAndSource[0]);
         return true;
       }
-      shiftCommand(reply2) {
+      shiftCommand(reply) {
         const item = this.redis.commandQueue.shift();
         if (!item) {
           const message = "Command queue state error. If you can reproduce this, please report it.";
-          const error = new Error(message + (reply2 instanceof Error ? ` Last error: ${reply2.message}` : ` Last reply: ${reply2.toString()}`));
+          const error = new Error(message + (reply instanceof Error ? ` Last error: ${reply.message}` : ` Last reply: ${reply.toString()}`));
           this.redis.emit("error", error);
           return null;
         }
@@ -14007,19 +14007,300 @@ var require_built3 = __commonJS({
         console.warn("ioredis v5 does not support plugging third-party Promise library anymore. Native Promise will be used.");
       }
     });
-    function print(err, reply2) {
+    function print(err, reply) {
       if (err) {
         console.log("Error: " + err);
       } else {
-        console.log("Reply: " + reply2);
+        console.log("Reply: " + reply);
       }
     }
     exports.print = print;
   }
 });
 
+// src/server/auth/entry/bridge.ts
+async function bridgeHandler(req, res, handler2) {
+  if (req instanceof Request && !res) {
+    const url2 = new URL(req.url);
+    const action2 = url2.pathname.split("/").pop() || "";
+    return await handler2(req, action2);
+  }
+  const host = req.headers?.host || "apna-care.vercel.app";
+  const protocol = req.headers?.["x-forwarded-proto"] || "https";
+  const url = new URL(req.url || "/", `${protocol}://${host}`);
+  let action = "";
+  if (req.query && req.query.action) {
+    action = Array.isArray(req.query.action) ? req.query.action[0] : req.query.action;
+  } else {
+    action = url.pathname.split("/").filter(Boolean).pop() || "";
+  }
+  let body = null;
+  const method = (req.method || "GET").toUpperCase();
+  if (method !== "GET" && method !== "HEAD") {
+    if (req.body) {
+      body = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+    } else {
+      const chunks = [];
+      for await (const chunk of req) {
+        chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+      }
+      body = Buffer.concat(chunks).toString("utf-8");
+    }
+  }
+  const webRequest = new Request(url.toString(), {
+    method,
+    headers: req.headers,
+    body: body ? body : void 0
+  });
+  const webResponse = await handler2(webRequest, action);
+  res.statusCode = webResponse.status;
+  webResponse.headers.forEach((value, key) => {
+    if (key.toLowerCase() === "set-cookie") {
+      res.setHeader("Set-Cookie", value);
+    } else {
+      res.setHeader(key, value);
+    }
+  });
+  const text = await webResponse.text();
+  res.end(text);
+}
+
+// src/server/auth/password.ts
+import { randomBytes, pbkdf2 as pbkdf2Cb, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+var pbkdf2 = promisify(pbkdf2Cb);
+var ITERATIONS = 1e5;
+var KEY_LEN = 32;
+var DIGEST = "sha256";
+async function hashPassword(password) {
+  if (!password || password.length < 6) {
+    throw new Error("Password must be at least 6 characters long");
+  }
+  const salt = randomBytes(16);
+  const derivedKey = await pbkdf2(password, salt, ITERATIONS, KEY_LEN, DIGEST);
+  return `pbkdf2:${DIGEST}:${ITERATIONS}:${salt.toString("hex")}:${derivedKey.toString("hex")}`;
+}
+async function verifyPassword(password, storedHash) {
+  if (!password || !storedHash) return false;
+  const parts = storedHash.split(":");
+  if (parts.length === 5 && parts[0] === "pbkdf2") {
+    const [, digest, iterStr, saltHex, hashHex] = parts;
+    const iterations = parseInt(iterStr, 10);
+    const salt = Buffer.from(saltHex, "hex");
+    const originalHash = Buffer.from(hashHex, "hex");
+    const derivedKey = await pbkdf2(
+      password,
+      salt,
+      iterations,
+      originalHash.length,
+      digest
+    );
+    if (derivedKey.length !== originalHash.length) return false;
+    return timingSafeEqual(derivedKey, originalHash);
+  }
+  return false;
+}
+function validatePasswordStrength(password) {
+  if (!password || password.length < 8) {
+    return {
+      valid: false,
+      message: "Password must be at least 8 characters long"
+    };
+  }
+  if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+    return {
+      valid: false,
+      message: "Password must contain both letters and numbers"
+    };
+  }
+  return { valid: true };
+}
+
+// src/server/auth/sheets-dal.ts
+var APPS_SCRIPT_URL = process.env.APNACARE_OPERATIONS_SCRIPT_URL || process.env.VITE_OPERATIONS_SCRIPT_URL || "";
+var DB_SECRET = process.env.APNACARE_DB_SECRET || "apnacare-ops-secret-2026";
+var InMemoryDb = class {
+  users = /* @__PURE__ */ new Map();
+  attendants = /* @__PURE__ */ new Map();
+  admins = /* @__PURE__ */ new Map();
+  bookings = /* @__PURE__ */ new Map();
+  assignments = /* @__PURE__ */ new Map();
+  availability = /* @__PURE__ */ new Map();
+  attendance = /* @__PURE__ */ new Map();
+  activityLogs = [];
+  initialized = false;
+  async initDefaults() {
+    if (this.initialized) return;
+    this.initialized = true;
+    const adminHash = await hashPassword("ApnaAdmin@2026!");
+    const superAdmin = {
+      admin_id: "ADM-001",
+      full_name: "ApnaCare Super Admin",
+      email: "admin@apnacare.in",
+      password_hash: adminHash,
+      role: "super_admin",
+      account_status: "active",
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    this.admins.set(superAdmin.admin_id, superAdmin);
+    const attendantHash = await hashPassword("SahaPass@2026!");
+    const sampleAttendant1 = {
+      attendant_id: "ATT-BLR-01",
+      full_name: "Lakshmi Priya",
+      email: "lakshmi.saha@apnacare.in",
+      phone: "+91 98450 12345",
+      password_hash: attendantHash,
+      gender: "female",
+      city: "Bengaluru",
+      address: "Indiranagar, Bengaluru, Karnataka",
+      qualifications: "Certified Geriatric Attendant (B.Sc Nursing Convalescence)",
+      experience: "5 years eldercare and post-stroke recovery",
+      skills: ["Mobility Aid", "Vitals Tracking", "Hygiene Dignity", "Medication Management"],
+      languages: ["Kannada", "Tamil", "English"],
+      service_categories: ["Elderly Care", "Hospital Bedside Support", "Home Convalescence"],
+      availability_status: "available",
+      verification_status: "verified",
+      account_status: "active",
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    const sampleAttendant2 = {
+      attendant_id: "ATT-CHN-02",
+      full_name: "Ananya Sundaram",
+      email: "ananya.saha@apnacare.in",
+      phone: "+91 98401 23456",
+      password_hash: attendantHash,
+      gender: "female",
+      city: "Chennai",
+      address: "Adyar, Chennai, Tamil Nadu",
+      qualifications: "Trained Japa & Postnatal Care Specialist (GNM Diploma)",
+      experience: "4 years infant handling & post-operative bedside aid",
+      skills: ["Fourth Trimester Care", "Baby Oil Massage", "Post-Surgical Dressing"],
+      languages: ["Tamil", "Telugu", "English"],
+      service_categories: ["Post-Natal Care", "Clinical Nursing", "Hospital Bedside Support"],
+      availability_status: "available",
+      verification_status: "verified",
+      account_status: "active",
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    this.attendants.set(sampleAttendant1.attendant_id, sampleAttendant1);
+    this.attendants.set(sampleAttendant2.attendant_id, sampleAttendant2);
+  }
+};
+var memoryDb = new InMemoryDb();
+async function remoteDispatch(action, payload) {
+  if (!APPS_SCRIPT_URL) return null;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6e3);
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, secret: DB_SECRET, ...payload || {} }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.success ? json.data : null;
+  } catch {
+    return null;
+  }
+}
+async function findUserByEmail(email) {
+  await memoryDb.initDefaults();
+  const normalized = email.trim().toLowerCase();
+  const remote = await remoteDispatch("findUserByEmail", { email: normalized });
+  if (remote) return remote;
+  for (const user of memoryDb.users.values()) {
+    if (user.email.toLowerCase() === normalized) return user;
+  }
+  return null;
+}
+async function getUserById(userId) {
+  await memoryDb.initDefaults();
+  const remote = await remoteDispatch("getUserById", { userId });
+  if (remote) return remote;
+  return memoryDb.users.get(userId) || null;
+}
+async function createUser(data) {
+  await memoryDb.initDefaults();
+  const existing = await findUserByEmail(data.email);
+  if (existing) {
+    throw new Error("An account with this email address already exists.");
+  }
+  const userId = `USR-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1e3)}`;
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const user = {
+    ...data,
+    user_id: userId,
+    email: data.email.trim().toLowerCase(),
+    account_status: data.account_status || "active",
+    email_verified: data.email_verified ?? true,
+    created_at: now,
+    updated_at: now
+  };
+  memoryDb.users.set(user.user_id, user);
+  await remoteDispatch("createUser", { user });
+  return user;
+}
+async function findAttendantByEmail(email) {
+  await memoryDb.initDefaults();
+  const normalized = email.trim().toLowerCase();
+  const remote = await remoteDispatch("findAttendantByEmail", { email: normalized });
+  if (remote) return remote;
+  for (const att of memoryDb.attendants.values()) {
+    if (att.email.toLowerCase() === normalized) return att;
+  }
+  return null;
+}
+async function getAttendantById(attendantId) {
+  await memoryDb.initDefaults();
+  const remote = await remoteDispatch("getAttendantById", { attendantId });
+  if (remote) return remote;
+  return memoryDb.attendants.get(attendantId) || null;
+}
+async function createAttendant(data) {
+  await memoryDb.initDefaults();
+  const existing = await findAttendantByEmail(data.email);
+  if (existing) {
+    throw new Error("An attendant with this email address already exists.");
+  }
+  const attendantId = `ATT-${data.city.slice(0, 3).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const attendant = {
+    ...data,
+    attendant_id: attendantId,
+    email: data.email.trim().toLowerCase(),
+    availability_status: "available",
+    verification_status: "pending",
+    account_status: "pending_approval",
+    created_at: now,
+    updated_at: now
+  };
+  memoryDb.attendants.set(attendant.attendant_id, attendant);
+  await remoteDispatch("createAttendant", { attendant });
+  return attendant;
+}
+async function findAdminByEmail(email) {
+  await memoryDb.initDefaults();
+  const normalized = email.trim().toLowerCase();
+  const remote = await remoteDispatch("findAdminByEmail", { email: normalized });
+  if (remote) return remote;
+  for (const admin of memoryDb.admins.values()) {
+    if (admin.email.toLowerCase() === normalized) return admin;
+  }
+  return null;
+}
+async function getAdminById(adminId) {
+  await memoryDb.initDefaults();
+  return memoryDb.admins.get(adminId) || null;
+}
+
 // src/server/session/session-manager.ts
-import { randomBytes, createHash } from "crypto";
+import { randomBytes as randomBytes2, createHash } from "crypto";
 
 // node_modules/uncrypto/dist/crypto.node.mjs
 import nodeCrypto from "node:crypto";
@@ -20138,10 +20419,42 @@ function createSessionCookieHeader(sessionId, maxAgeSeconds = DEFAULT_SESSION_CO
   }
   return parts.join("; ");
 }
+function clearSessionCookieHeader(isSecure = DEFAULT_SESSION_CONFIG.secure) {
+  const name = getEffectiveCookieName(isSecure);
+  const parts = [
+    `${name}=`,
+    `Path=${DEFAULT_SESSION_CONFIG.path}`,
+    "Max-Age=0",
+    "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+    `SameSite=${DEFAULT_SESSION_CONFIG.sameSite.charAt(0).toUpperCase() + DEFAULT_SESSION_CONFIG.sameSite.slice(1)}`,
+    "HttpOnly"
+  ];
+  if (isSecure) {
+    parts.push("Secure");
+  }
+  return parts.join("; ");
+}
+function parseSessionCookie(cookieHeader) {
+  if (!cookieHeader) return null;
+  const cookies = cookieHeader.split(";").map((c) => c.trim());
+  const names = [
+    `__Host-${DEFAULT_SESSION_CONFIG.cookieName}`,
+    DEFAULT_SESSION_CONFIG.cookieName
+  ];
+  for (const cookie of cookies) {
+    for (const name of names) {
+      if (cookie.startsWith(`${name}=`)) {
+        const value = cookie.slice(name.length + 1).trim();
+        return value || null;
+      }
+    }
+  }
+  return null;
+}
 
 // src/server/session/session-manager.ts
 function generateSessionId() {
-  return randomBytes(32).toString("base64url");
+  return randomBytes2(32).toString("base64url");
 }
 function hashValue(val) {
   if (!val) return void 0;
@@ -20166,103 +20479,341 @@ async function createSession(userId, role, metadata, reqContext) {
   await store.set(sessionId, session, ttl);
   return session;
 }
+async function validateSession(sessionId) {
+  if (!sessionId || typeof sessionId !== "string" || sessionId.length < 16) {
+    return null;
+  }
+  const store = getSessionStore();
+  const session = await store.get(sessionId);
+  if (!session) return null;
+  const now = Date.now();
+  if (now > session.expiresAt) {
+    await store.delete(sessionId);
+    return null;
+  }
+  const idleMs = now - session.lastActivityAt;
+  const maxIdleMs = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds * 1e3;
+  if (idleMs > maxIdleMs) {
+    await store.delete(sessionId);
+    return null;
+  }
+  const remainingLifeSec = Math.floor((session.expiresAt - now) / 1e3);
+  const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
+  if (ttl > 0) {
+    session.lastActivityAt = now;
+    await store.touch(sessionId, ttl, now);
+  }
+  return session;
+}
+async function revokeSession(sessionId) {
+  if (!sessionId) return;
+  const store = getSessionStore();
+  await store.delete(sessionId);
+}
 
-// src/server/session/routes/login.ts
-var dynamic = "force-dynamic";
-function reply(res, statusCode, data, headers = {}) {
-  const payload = JSON.stringify(data);
-  if (res && typeof res.status === "function" && typeof res.json === "function") {
-    for (const [k, v] of Object.entries(headers)) {
-      res.setHeader(k, v);
-    }
-    return res.status(statusCode).json(data);
-  }
-  if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
-    res.statusCode = statusCode;
-    res.setHeader("Content-Type", "application/json");
-    for (const [k, v] of Object.entries(headers)) {
-      res.setHeader(k, v);
-    }
-    return res.end(payload);
-  }
-  return new Response(payload, {
-    status: statusCode,
+// src/server/auth/utils.ts
+function jsonResponse(data, status = 200, headers = {}) {
+  return new Response(JSON.stringify(data), {
+    status,
     headers: {
       "Content-Type": "application/json",
       ...headers
     }
   });
 }
-async function handler(req, res) {
-  const method = (req.method || (req instanceof Request ? req.method : "GET")).toUpperCase();
-  if (method !== "POST") {
-    return reply(res, 405, { error: "Method Not Allowed" });
-  }
+function errorResponse(message, status = 400) {
+  return jsonResponse({ error: message, success: false }, status);
+}
+async function parseJsonBody(request) {
   try {
-    let body = {};
-    if (req.body && typeof req.body === "object") {
-      body = req.body;
-    } else if (typeof req.body === "string") {
-      try {
-        body = JSON.parse(req.body);
-      } catch {
-        body = {};
-      }
-    } else if (typeof req.json === "function") {
-      try {
-        body = await req.json();
-      } catch {
-        body = {};
-      }
-    }
-    const { mobile, passcode, isDemo } = body;
-    const isSunitha = isDemo || mobile && mobile.replace(/\s+/g, "").includes("9840123456");
-    const userId = isSunitha ? "ATT-SK-01" : `ATT-${mobile ? mobile.replace(/\D/g, "").slice(-4) : "GEN"}`;
-    const attendantName = isSunitha ? "Sunitha Krishnan" : "Verified Attendant";
-    const attendantCity = isSunitha ? "Chennai" : "Bengaluru";
-    const attendantRole = "Senior Elderly Care Specialist";
-    const session = await createSession(
-      userId,
-      "attendant",
-      {
-        name: attendantName,
-        mobile: mobile || "98401 23456",
-        city: attendantCity,
-        roleTitle: attendantRole,
-        attendantId: userId
-      },
-      {
-        ip: req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"]),
-        userAgent: req.headers && (req.headers["user-agent"] || req.headers["User-Agent"])
-      }
-    );
-    const isSecure = process.env.NODE_ENV === "production";
-    const cookieHeader = createSessionCookieHeader(session.sessionId, 7200, isSecure);
-    return reply(
-      res,
-      200,
-      {
-        success: true,
-        authenticated: true,
-        user: {
-          id: session.userId,
-          role: session.role,
-          name: session.metadata?.name,
-          city: session.metadata?.city,
-          roleTitle: session.metadata?.roleTitle,
-          attendantId: session.metadata?.attendantId
-        }
-      },
-      {
-        "Set-Cookie": cookieHeader
-      }
-    );
-  } catch (error) {
-    console.error("[Auth API] Login error:", error);
-    return reply(res, 500, { error: "Authentication service temporarily unavailable" });
+    const text = await request.text();
+    if (!text) return null;
+    return JSON.parse(text);
+  } catch {
+    return null;
   }
 }
+async function authenticateRequest(request, allowedRoles) {
+  const cookieHeader = request.headers.get("cookie");
+  const sessionId = parseSessionCookie(cookieHeader);
+  if (!sessionId) {
+    return {
+      session: null,
+      errorResponse: errorResponse("Authentication required", 401)
+    };
+  }
+  const session = await validateSession(sessionId);
+  if (!session) {
+    return {
+      session: null,
+      errorResponse: errorResponse("Session expired or invalid", 401)
+    };
+  }
+  if (allowedRoles && allowedRoles.length > 0) {
+    const normalizedRole = session.role;
+    const isAllowed = allowedRoles.some((r) => {
+      if (r === "admin" && (normalizedRole === "admin" || normalizedRole === "super_admin")) return true;
+      if (r === "super_admin" && (normalizedRole === "admin" || normalizedRole === "super_admin")) return true;
+      if (r === "user" && (normalizedRole === "user" || normalizedRole === "customer")) return true;
+      if (r === "attendant" && (normalizedRole === "attendant" || normalizedRole === "saha")) return true;
+      return r === normalizedRole;
+    });
+    if (!isAllowed) {
+      return {
+        session,
+        errorResponse: errorResponse("Access denied: Insufficient privileges", 403)
+      };
+    }
+  }
+  return { session };
+}
+
+// src/server/auth/routes/auth-dispatcher.ts
+async function handleAuthAction(request, action) {
+  const method = request.method.toUpperCase();
+  if (action === "session" || action === "me" && method === "GET") {
+    const { session, errorResponse: err } = await authenticateRequest(request);
+    if (err || !session) return err || errorResponse("Unauthenticated", 401);
+    let profile = null;
+    if (session.role === "admin" || session.role === "super_admin") {
+      profile = await getAdminById(session.userId);
+    } else if (session.role === "attendant" || session.role === "saha") {
+      profile = await getAttendantById(session.userId);
+    } else {
+      profile = await getUserById(session.userId);
+    }
+    return jsonResponse({
+      authenticated: true,
+      user: {
+        id: session.userId,
+        role: session.role,
+        name: profile?.full_name || session.metadata?.name || "ApnaCare Member",
+        email: profile?.email || "",
+        phone: profile?.phone || session.metadata?.mobile || "",
+        city: profile?.city || session.metadata?.city || "",
+        status: profile?.account_status || "active",
+        verificationStatus: profile?.verification_status
+      }
+    });
+  }
+  if (action === "logout") {
+    const cookieHeader = request.headers.get("cookie");
+    const sessionId = parseSessionCookie(cookieHeader);
+    if (sessionId) {
+      await revokeSession(sessionId);
+    }
+    const clearCookie = clearSessionCookieHeader();
+    return jsonResponse({ success: true, message: "Logged out successfully" }, 200, {
+      "Set-Cookie": clearCookie
+    });
+  }
+  if (action === "login") {
+    if (method !== "POST") return errorResponse("Method not allowed", 405);
+    const body = await parseJsonBody(request);
+    if (!body || !body.email || !body.password) {
+      return errorResponse("Email and password are required", 400);
+    }
+    const email = String(body.email).trim().toLowerCase();
+    const password = String(body.password);
+    const requestedRole = body.role;
+    if (requestedRole === "admin" || requestedRole === "super_admin") {
+      const admin = await findAdminByEmail(email);
+      if (!admin) return errorResponse("Invalid email or password", 401);
+      const valid2 = await verifyPassword(password, admin.password_hash);
+      if (!valid2) return errorResponse("Invalid email or password", 401);
+      if (admin.account_status !== "active") {
+        return errorResponse("Admin account is suspended or inactive", 403);
+      }
+      const session2 = await createSession(admin.admin_id, "admin", {
+        name: admin.full_name,
+        mobile: "",
+        city: "Central Command"
+      });
+      const cookieHeader2 = createSessionCookieHeader(session2.sessionId);
+      return jsonResponse(
+        {
+          success: true,
+          role: "admin",
+          redirectUrl: "/dashboard/admin",
+          user: { id: admin.admin_id, name: admin.full_name, email: admin.email, role: "admin" }
+        },
+        200,
+        { "Set-Cookie": cookieHeader2 }
+      );
+    }
+    if (requestedRole === "attendant" || requestedRole === "saha") {
+      const attendant = await findAttendantByEmail(email);
+      if (!attendant) return errorResponse("Invalid credentials or unregistered Saha account", 401);
+      const valid2 = await verifyPassword(password, attendant.password_hash);
+      if (!valid2) return errorResponse("Invalid credentials", 401);
+      if (attendant.account_status === "pending_approval" || attendant.verification_status === "pending") {
+        return errorResponse(
+          "Your attendant application is pending clinical verification by ApnaCare. You will receive an SMS and email once approved.",
+          403
+        );
+      }
+      if (attendant.account_status !== "active") {
+        return errorResponse("Your attendant account is inactive or suspended. Contact support.", 403);
+      }
+      const session2 = await createSession(attendant.attendant_id, "attendant", {
+        name: attendant.full_name,
+        mobile: attendant.phone,
+        city: attendant.city,
+        roleTitle: attendant.qualifications
+      });
+      const cookieHeader2 = createSessionCookieHeader(session2.sessionId);
+      return jsonResponse(
+        {
+          success: true,
+          role: "attendant",
+          redirectUrl: "/dashboard/attendant",
+          user: {
+            id: attendant.attendant_id,
+            name: attendant.full_name,
+            email: attendant.email,
+            phone: attendant.phone,
+            city: attendant.city,
+            role: "attendant"
+          }
+        },
+        200,
+        { "Set-Cookie": cookieHeader2 }
+      );
+    }
+    const user = await findUserByEmail(email);
+    if (!user) {
+      const maybeAdmin = await findAdminByEmail(email);
+      if (maybeAdmin && await verifyPassword(password, maybeAdmin.password_hash)) {
+        const session2 = await createSession(maybeAdmin.admin_id, "admin");
+        const cookie = createSessionCookieHeader(session2.sessionId);
+        return jsonResponse(
+          { success: true, role: "admin", redirectUrl: "/dashboard/admin" },
+          200,
+          { "Set-Cookie": cookie }
+        );
+      }
+      return errorResponse("Invalid email or password", 401);
+    }
+    const valid = await verifyPassword(password, user.password_hash);
+    if (!valid) return errorResponse("Invalid email or password", 401);
+    if (user.account_status !== "active") {
+      return errorResponse("Account is suspended or deactivated", 403);
+    }
+    const session = await createSession(user.user_id, "user", {
+      name: user.full_name,
+      mobile: user.phone,
+      city: user.city
+    });
+    const cookieHeader = createSessionCookieHeader(session.sessionId);
+    return jsonResponse(
+      {
+        success: true,
+        role: "user",
+        redirectUrl: "/dashboard/user",
+        user: {
+          id: user.user_id,
+          name: user.full_name,
+          email: user.email,
+          phone: user.phone,
+          city: user.city,
+          role: "user"
+        }
+      },
+      200,
+      { "Set-Cookie": cookieHeader }
+    );
+  }
+  if (action === "register-user" || action === "register") {
+    if (method !== "POST") return errorResponse("Method not allowed", 405);
+    const body = await parseJsonBody(request);
+    if (!body || !body.full_name || !body.email || !body.password || !body.phone) {
+      return errorResponse("Full name, email, phone, and password are required", 400);
+    }
+    const pwCheck = validatePasswordStrength(body.password);
+    if (!pwCheck.valid) {
+      return errorResponse(pwCheck.message || "Password is not strong enough", 400);
+    }
+    const existing = await findUserByEmail(body.email);
+    if (existing) {
+      return errorResponse("An account with this email address already exists. Please log in.", 409);
+    }
+    const password_hash = await hashPassword(body.password);
+    const user = await createUser({
+      full_name: String(body.full_name).trim(),
+      email: String(body.email).trim().toLowerCase(),
+      phone: String(body.phone).trim(),
+      password_hash,
+      city: body.city || "Bengaluru",
+      address: body.address || "",
+      account_status: "active",
+      email_verified: true
+    });
+    const session = await createSession(user.user_id, "user", {
+      name: user.full_name,
+      mobile: user.phone,
+      city: user.city
+    });
+    const cookieHeader = createSessionCookieHeader(session.sessionId);
+    return jsonResponse(
+      {
+        success: true,
+        role: "user",
+        redirectUrl: "/dashboard/user",
+        user: { id: user.user_id, name: user.full_name, email: user.email, role: "user" }
+      },
+      201,
+      { "Set-Cookie": cookieHeader }
+    );
+  }
+  if (action === "register-attendant") {
+    if (method !== "POST") return errorResponse("Method not allowed", 405);
+    const body = await parseJsonBody(request);
+    if (!body || !body.full_name || !body.email || !body.password || !body.phone) {
+      return errorResponse("Required registration fields missing", 400);
+    }
+    const pwCheck = validatePasswordStrength(body.password);
+    if (!pwCheck.valid) {
+      return errorResponse(pwCheck.message || "Password is not strong enough", 400);
+    }
+    const existing = await findAttendantByEmail(body.email);
+    if (existing) {
+      return errorResponse("An attendant account with this email already exists.", 409);
+    }
+    const password_hash = await hashPassword(body.password);
+    const attendant = await createAttendant({
+      full_name: String(body.full_name).trim(),
+      email: String(body.email).trim().toLowerCase(),
+      phone: String(body.phone).trim(),
+      password_hash,
+      gender: body.gender || "female",
+      city: body.city || "Bengaluru",
+      address: body.address || "",
+      qualifications: body.qualifications || "Trained Caregiver",
+      experience: body.experience || "2+ years family support",
+      skills: Array.isArray(body.skills) ? body.skills : ["Elderly Care", "Mobility Assistance"],
+      languages: Array.isArray(body.languages) ? body.languages : ["Kannada", "English"],
+      service_categories: Array.isArray(body.service_categories) ? body.service_categories : ["Elderly Care"],
+      availability_status: "available",
+      verification_status: "pending",
+      account_status: "pending_approval"
+    });
+    return jsonResponse(
+      {
+        success: true,
+        pendingApproval: true,
+        message: "Your Saha attendant registration has been submitted. Our clinical coordinator team will review your application and contact you.",
+        attendantId: attendant.attendant_id
+      },
+      201
+    );
+  }
+  return errorResponse("Unknown auth action: " + action, 404);
+}
+
+// src/server/auth/entry/auth-fn.ts
+async function handler(req, res) {
+  return await bridgeHandler(req, res, handleAuthAction);
+}
 export {
-  handler as default,
-  dynamic
+  handler as default
 };

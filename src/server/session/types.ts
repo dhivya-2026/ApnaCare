@@ -2,7 +2,14 @@
  * Enterprise Redis Session Management Types — ApnaCare
  */
 
-export type UserRole = "attendant" | "coordinator" | "admin";
+export type UserRole =
+  | "user"
+  | "customer"
+  | "attendant"
+  | "saha"
+  | "coordinator"
+  | "admin"
+  | "super_admin";
 
 export interface AttendantMetadata {
   name: string;

@@ -68,6 +68,26 @@ export default {
         const { GET } = await import("./server/reports/routes/history");
         return await GET(request);
       }
+      if (url.pathname.startsWith("/api/auth/")) {
+        const action = url.pathname.replace(/^\/api\/auth\//, "").split("/")[0];
+        const { handleAuthAction } = await import("./server/auth/routes/auth-dispatcher");
+        return await handleAuthAction(request, action);
+      }
+      if (url.pathname.startsWith("/api/user/")) {
+        const action = url.pathname.replace(/^\/api\/user\//, "").split("/")[0];
+        const { handleUserAction } = await import("./server/auth/routes/user-dispatcher");
+        return await handleUserAction(request, action);
+      }
+      if (url.pathname.startsWith("/api/saha/")) {
+        const action = url.pathname.replace(/^\/api\/saha\//, "").split("/")[0];
+        const { handleSahaAction } = await import("./server/auth/routes/saha-dispatcher");
+        return await handleSahaAction(request, action);
+      }
+      if (url.pathname.startsWith("/api/admin/")) {
+        const action = url.pathname.replace(/^\/api\/admin\//, "").split("/")[0];
+        const { handleAdminAction } = await import("./server/auth/routes/admin-dispatcher");
+        return await handleAdminAction(request, action);
+      }
 
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
