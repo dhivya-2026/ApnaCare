@@ -48,8 +48,6 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const url = new URL(request.url);
-
-      // Report & Cron Routes
       if (url.pathname === "/api/cron/daily-report") {
         const { GET } = await import("./server/reports/routes/daily-report");
         return await GET(request);
@@ -69,46 +67,6 @@ export default {
       if (url.pathname === "/api/reports/history") {
         const { GET } = await import("./server/reports/routes/history");
         return await GET(request);
-      }
-
-      // Enterprise Operations & Multi-role Authentication Routes
-      if (url.pathname === "/api/auth/register") {
-        const { default: handler } = await import("./server/auth/routes/register");
-        return await handler(request);
-      }
-      if (url.pathname === "/api/auth/login-v2") {
-        const { default: handler } = await import("./server/auth/routes/login-v2");
-        return await handler(request);
-      }
-      if (url.pathname === "/api/auth/me") {
-        const { default: handler } = await import("./server/auth/routes/me");
-        return await handler(request);
-      }
-      if (url.pathname.startsWith("/api/customers")) {
-        const { default: handler } = await import("./server/auth/routes/customers");
-        return await handler(request);
-      }
-      if (url.pathname.startsWith("/api/sahas")) {
-        const { default: handler } = await import("./server/auth/routes/sahas");
-        return await handler(request);
-      }
-      if (url.pathname.startsWith("/api/admin")) {
-        const { default: handler } = await import("./server/auth/routes/admin");
-        return await handler(request);
-      }
-
-      // Session & Login Handlers
-      if (url.pathname === "/api/auth/login") {
-        const { default: handler } = await import("./server/session/routes/login");
-        return await handler(request);
-      }
-      if (url.pathname === "/api/auth/session") {
-        const { default: handler } = await import("./server/session/routes/session");
-        return await handler(request);
-      }
-      if (url.pathname === "/api/auth/logout") {
-        const { default: handler } = await import("./server/session/routes/logout");
-        return await handler(request);
       }
 
       const handler = await getServerEntry();

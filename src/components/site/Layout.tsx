@@ -948,7 +948,6 @@ function Header() {
               <span>WhatsApp</span>
             </a>
 
-            <Link to="/login" className="hidden md:inline-flex items-center justify-center rounded-full bg-[#2D5016] px-4 py-2 text-xs font-bold text-white shadow-soft hover:bg-[#233f11] transition-colors shrink-0 min-h-[44px]">Get Started</Link>
             <BookLink className="hidden sm:inline-flex shrink-0 whitespace-nowrap min-h-[44px] rounded-full font-bold" size="sm" variant="warm">
               Request Assistance
             </BookLink>
@@ -987,7 +986,6 @@ function Header() {
               <MobileNavItem key={item.label} item={item} onClose={() => setMobileOpen(false)} />
             ))}
             <div className="mt-3 pt-3 border-t border-border grid gap-2.5">
-              <Link to="/login" onClick={() => setMobileOpen(false)} className="flex items-center justify-center rounded-xl bg-[#2D5016] px-4 py-3 text-base font-bold text-white shadow-soft hover:bg-[#233f11]">Get Started</Link>
               <BookLink
                 onClick={() => setMobileOpen(false)}
                 className="w-full justify-center min-h-[48px] rounded-xl font-bold shadow-soft"

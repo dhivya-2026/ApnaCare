@@ -14018,47 +14018,6 @@ var require_built3 = __commonJS({
   }
 });
 
-// src/server/auth/simple-session.ts
-var COOKIE_NAME = "apnacare_session";
-var COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-function encodeSession(session) {
-  const payload = JSON.stringify(session);
-  return Buffer.from(payload).toString("base64");
-}
-function decodeSession(token) {
-  try {
-    const payload = Buffer.from(token, "base64").toString("utf-8");
-    const parsed = JSON.parse(payload);
-    if (!parsed.userId) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-function buildSetCookieHeader(session) {
-  const value = encodeSession(session);
-  return `${COOKIE_NAME}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${COOKIE_MAX_AGE}`;
-}
-function getSessionFromRequest(req) {
-  let cookieHeader = "";
-  if (req.headers && typeof req.headers === "object") {
-    cookieHeader = req.headers.cookie || req.headers.Cookie || "";
-  }
-  if (!cookieHeader && typeof req.headers?.get === "function") {
-    cookieHeader = req.headers.get("cookie") || "";
-  }
-  if (!cookieHeader) return null;
-  const cookies = Object.fromEntries(
-    cookieHeader.split(";").map((c) => {
-      const eq = c.indexOf("=");
-      return [c.slice(0, eq).trim(), c.slice(eq + 1).trim()];
-    })
-  );
-  const token = cookies[COOKIE_NAME];
-  if (!token) return null;
-  return decodeSession(token);
-}
-
 // src/server/session/cookies.ts
 var DEFAULT_SESSION_CONFIG = {
   cookieName: "apnacare_session",
@@ -20179,32 +20138,27 @@ async function validateSession(sessionId) {
   if (!sessionId || typeof sessionId !== "string" || sessionId.length < 16) {
     return null;
   }
-  try {
-    const store = getSessionStore();
-    const session = await store.get(sessionId);
-    if (!session) return null;
-    const now = Date.now();
-    if (now > session.expiresAt) {
-      await store.delete(sessionId);
-      return null;
-    }
-    const idleMs = now - session.lastActivityAt;
-    const maxIdleMs = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds * 1e3;
-    if (idleMs > maxIdleMs) {
-      await store.delete(sessionId);
-      return null;
-    }
-    const remainingLifeSec = Math.floor((session.expiresAt - now) / 1e3);
-    const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
-    if (ttl > 0) {
-      session.lastActivityAt = now;
-      await store.touch(sessionId, ttl, now);
-    }
-    return session;
-  } catch (err) {
-    console.warn("[SessionManager] Failed to validate session:", err);
+  const store = getSessionStore();
+  const session = await store.get(sessionId);
+  if (!session) return null;
+  const now = Date.now();
+  if (now > session.expiresAt) {
+    await store.delete(sessionId);
     return null;
   }
+  const idleMs = now - session.lastActivityAt;
+  const maxIdleMs = DEFAULT_SESSION_CONFIG.idleTimeoutSeconds * 1e3;
+  if (idleMs > maxIdleMs) {
+    await store.delete(sessionId);
+    return null;
+  }
+  const remainingLifeSec = Math.floor((session.expiresAt - now) / 1e3);
+  const ttl = Math.min(DEFAULT_SESSION_CONFIG.idleTimeoutSeconds, remainingLifeSec);
+  if (ttl > 0) {
+    session.lastActivityAt = now;
+    await store.touch(sessionId, ttl, now);
+  }
+  return session;
 }
 
 // src/server/session/guard.ts
@@ -20218,531 +20172,62 @@ function extractCookieHeader(req) {
   }
   return null;
 }
-async function getSessionFromRequest2(req) {
-  const simple = getSessionFromRequest(req);
-  if (simple) {
-    return {
-      sessionId: simple.userId,
-      userId: simple.userId,
-      role: simple.role || "CUSTOMER",
-      metadata: {
-        name: simple.fullName,
-        mobile: simple.phone || "",
-        city: simple.city || "",
-        customerId: simple.customerId,
-        sahaId: simple.sahaId
-      },
-      createdAt: Date.now(),
-      lastActivityAt: Date.now(),
-      expiresAt: Date.now() + 7 * 864e5
-    };
-  }
+async function getSessionFromRequest(req) {
   const cookieHeader = extractCookieHeader(req);
   const sessionId = parseSessionCookie(cookieHeader);
   if (!sessionId) return null;
-  try {
-    return await validateSession(sessionId);
-  } catch {
-    return null;
-  }
-}
-async function requireAuth(req, requiredRole) {
-  const session = await getSessionFromRequest2(req);
-  if (!session) {
-    return {
-      authorized: false,
-      error: "Authentication required",
-      status: 401
-    };
-  }
-  if (requiredRole && session.role !== requiredRole && session.role !== "admin" && session.role !== "SUPER_ADMIN") {
-    return {
-      authorized: false,
-      error: "Forbidden: insufficient permissions",
-      status: 403
-    };
-  }
-  return {
-    authorized: true,
-    session,
-    status: 200
-  };
+  return await validateSession(sessionId);
 }
 
-// src/server/auth/sheets-dal.ts
-import crypto from "node:crypto";
-var memoryStore = {
-  users: /* @__PURE__ */ new Map(),
-  usersByEmail: /* @__PURE__ */ new Map(),
-  // email -> userId
-  customers: /* @__PURE__ */ new Map(),
-  customersByUserId: /* @__PURE__ */ new Map(),
-  // userId -> customerId
-  sahas: /* @__PURE__ */ new Map(),
-  sahasByUserId: /* @__PURE__ */ new Map(),
-  // userId -> sahaId
-  bookings: /* @__PURE__ */ new Map(),
-  attendance: /* @__PURE__ */ new Map()
-};
-var DEFAULT_OPS_URL = "https://script.google.com/macros/s/AKfycbxKdzTONWfrma5IorgffqozoxoAz36k2BOqT-Tf_wfi06y6ttU353QCSa8tt0r4cbjFew/exec";
-function getOpsUrl() {
-  return process.env.GOOGLE_APPS_SCRIPT_OPS_URL || process.env.VITE_GOOGLE_APPS_SCRIPT_OPS_URL || DEFAULT_OPS_URL;
-}
-function isSheetsEnabled() {
-  return true;
-}
-async function callOpsSheet(action, payload) {
-  const url = getOpsUrl();
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action,
-        payload,
-        secret: process.env.ADMIN_PROVISION_SECRET || "apnacare_operations_master_2026"
-      }),
-      redirect: "follow"
-    });
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      return { success: false, error: `Invalid JSON from sheet: ${text.slice(0, 100)}` };
-    }
-    return data;
-  } catch (err) {
-    console.warn(`[SheetsDAL] Request failed for action ${action}:`, err);
-    return { success: false, error: err instanceof Error ? err.message : String(err) };
-  }
-}
-async function findUserByEmail(email) {
-  const normalized = email.trim().toLowerCase();
-  if (isSheetsEnabled()) {
-    const res = await callOpsSheet("GET_USER_BY_EMAIL", { email: normalized });
-    if (res.success && res.data) {
-      memoryStore.users.set(res.data.userId, res.data);
-      memoryStore.usersByEmail.set(normalized, res.data.userId);
-      return res.data;
-    }
-  }
-  const userId = memoryStore.usersByEmail.get(normalized);
-  if (!userId) return null;
-  return memoryStore.users.get(userId) || null;
-}
-async function createUser(data) {
-  const now = (/* @__PURE__ */ new Date()).toISOString();
-  const userId = `usr_${crypto.randomUUID().slice(0, 8)}`;
-  const record = {
-    ...data,
-    userId,
-    email: data.email.trim().toLowerCase(),
-    createdAt: now,
-    updatedAt: now
-  };
-  memoryStore.users.set(userId, record);
-  memoryStore.usersByEmail.set(record.email, userId);
-  if (isSheetsEnabled()) {
-    await callOpsSheet("CREATE_USER", record);
-  }
-  return record;
-}
-async function getAllCustomers() {
-  if (isSheetsEnabled()) {
-    const res = await callOpsSheet("GET_ALL_CUSTOMERS", {});
-    if (res.success && Array.isArray(res.data)) {
-      for (const c of res.data) {
-        memoryStore.customers.set(c.customerId, c);
-        memoryStore.customersByUserId.set(c.userId, c.customerId);
-      }
-      return res.data;
-    }
-  }
-  return Array.from(memoryStore.customers.values());
-}
-async function updateSahaStatus(sahaId, status) {
-  const existing = memoryStore.sahas.get(sahaId);
-  if (existing) {
-    memoryStore.sahas.set(sahaId, {
-      ...existing,
-      approvalStatus: status,
-      updatedAt: (/* @__PURE__ */ new Date()).toISOString()
-    });
-  }
-  if (isSheetsEnabled()) {
-    await callOpsSheet("UPDATE_SAHA_STATUS", { sahaId, status });
-  }
-}
-async function getAllSahas() {
-  if (isSheetsEnabled()) {
-    const res = await callOpsSheet("GET_ALL_SAHAS", {});
-    if (res.success && Array.isArray(res.data)) {
-      for (const s of res.data) {
-        memoryStore.sahas.set(s.sahaId, s);
-        memoryStore.sahasByUserId.set(s.userId, s.sahaId);
-      }
-      return res.data;
-    }
-  }
-  return Array.from(memoryStore.sahas.values());
-}
-async function getAllBookings() {
-  if (isSheetsEnabled()) {
-    const res = await callOpsSheet("GET_ALL_BOOKINGS", {});
-    if (res.success && Array.isArray(res.data)) {
-      for (const b of res.data) {
-        memoryStore.bookings.set(b.bookingId, b);
-      }
-      return res.data;
-    }
-  }
-  return Array.from(memoryStore.bookings.values());
-}
-async function updateBooking(bookingId, updates) {
-  const existing = memoryStore.bookings.get(bookingId);
-  if (existing) {
-    memoryStore.bookings.set(bookingId, {
-      ...existing,
-      ...updates,
-      updatedAt: (/* @__PURE__ */ new Date()).toISOString()
-    });
-  }
-  if (isSheetsEnabled()) {
-    await callOpsSheet("UPDATE_BOOKING", { bookingId, updates });
-  }
-}
-async function getAllAttendance() {
-  if (isSheetsEnabled()) {
-    const res = await callOpsSheet("GET_ALL_ATTENDANCE", {});
-    if (res.success && Array.isArray(res.data)) {
-      for (const a of res.data) {
-        memoryStore.attendance.set(a.attendanceId, a);
-      }
-      return res.data;
-    }
-  }
-  return Array.from(memoryStore.attendance.values());
-}
-async function correctAttendance(attendanceId, updates) {
-  const existing = memoryStore.attendance.get(attendanceId);
-  if (existing) {
-    memoryStore.attendance.set(attendanceId, { ...existing, ...updates });
-  }
-  if (isSheetsEnabled()) {
-    await callOpsSheet("CORRECT_ATTENDANCE", { attendanceId, updates });
-  }
-}
-
-// src/server/auth/utils.ts
-function reply(res, statusCode, data, headers = {}) {
+// src/server/session/routes/session.ts
+var dynamic = "force-dynamic";
+function reply(res, statusCode, data) {
   const payload = JSON.stringify(data);
   if (res && typeof res.status === "function" && typeof res.json === "function") {
-    for (const [k, v] of Object.entries(headers)) {
-      res.setHeader(k, v);
-    }
-    res.status(statusCode).json(data);
-    return;
+    return res.status(statusCode).json(data);
   }
   if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
     res.statusCode = statusCode;
     res.setHeader("Content-Type", "application/json");
-    for (const [k, v] of Object.entries(headers)) {
-      res.setHeader(k, v);
-    }
-    res.end(payload);
-    return;
+    return res.end(payload);
   }
   return new Response(payload, {
     status: statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      ...headers
-    }
+    headers: { "Content-Type": "application/json" }
   });
 }
-async function parseBody(req) {
-  if (!req) return {};
-  if (req.body && typeof req.body === "object" && typeof req.body.pipe !== "function" && typeof req.body.getReader !== "function") {
-    return req.body;
-  }
-  if (typeof req.body === "string") {
-    try {
-      return JSON.parse(req.body);
-    } catch {
-      return {};
-    }
-  }
-  if (typeof req.json === "function") {
-    try {
-      return await req.json();
-    } catch {
-    }
-  }
-  if (typeof req.text === "function") {
-    try {
-      const text = await req.text();
-      return text ? JSON.parse(text) : {};
-    } catch {
-      return {};
-    }
-  }
-  if (req.readableEnded || req.complete) {
-    return {};
-  }
-  if (typeof req.on === "function") {
-    return new Promise((resolve) => {
-      let data = "";
-      const timer = setTimeout(() => resolve({}), 2e3);
-      req.on("data", (chunk) => {
-        data += chunk;
-      });
-      req.on("end", () => {
-        clearTimeout(timer);
-        try {
-          resolve(data ? JSON.parse(data) : {});
-        } catch {
-          resolve({});
-        }
-      });
-      req.on("error", () => {
-        clearTimeout(timer);
-        resolve({});
-      });
-    });
-  }
-  return {};
-}
-
-// src/server/auth/routes/admin.ts
 async function handler(req, res) {
   const method = (req.method || (req instanceof Request ? req.method : "GET")).toUpperCase();
-  const rawUrl = req.url || (req instanceof Request ? req.url : "");
-  const url = new URL(rawUrl || "http://localhost", "http://localhost");
-  const segments = url.pathname.split("/").filter(Boolean);
-  const action = req.query?.action || req.query?.type || segments[segments.length - 1] || "";
-  const path = url.pathname;
-  if ((action === "seed" || path.endsWith("/seed")) && method === "POST") {
-    try {
-      const body = await parseBody(req);
-      const expectedSecret = process.env.ADMIN_PROVISION_SECRET || "apnacare_operations_master_2026";
-      if (!body.secret || body.secret !== expectedSecret) {
-        return reply(res, 403, { error: "Invalid provisioning secret" });
-      }
-      if (!body.email || !body.password || !body.fullName) {
-        return reply(res, 400, { error: "Missing required admin fields (email, password, fullName)" });
-      }
-      const existing = await findUserByEmail(body.email);
-      if (existing) {
-        return reply(res, 409, { error: "User already exists with this email" });
-      }
-      const user = await createUser({
-        email: body.email,
-        phone: body.phone || "+918825493949",
-        fullName: body.fullName,
-        role: "SUPER_ADMIN",
-        password: body.password,
-        passwordHash: body.password,
-        accountStatus: "ACTIVE",
-        city: body.city || "Bengaluru"
-      });
-      const cookieHeader = buildSetCookieHeader({
-        userId: user.userId,
-        role: "SUPER_ADMIN",
-        email: user.email,
-        fullName: user.fullName,
-        phone: user.phone,
-        city: user.city
-      });
-      return reply(
-        res,
-        201,
-        {
-          success: true,
-          message: "Super admin provisioned successfully",
-          user: {
-            userId: user.userId,
-            email: user.email,
-            fullName: user.fullName,
-            role: user.role
-          }
-        },
-        { "Set-Cookie": cookieHeader }
-      );
-    } catch (err) {
-      console.error("[AdminSeed] Error:", err);
-      return reply(res, 500, { error: "Internal server error" });
-    }
-  }
-  const auth = await requireAuth(req);
-  if (!auth.authorized || !auth.session) {
-    return reply(res, auth.status || 401, { error: auth.error || "Unauthorized" });
+  if (method !== "GET") {
+    return reply(res, 405, { error: "Method Not Allowed" });
   }
   try {
-    if (action === "dashboard" || path.endsWith("/dashboard")) {
-      const [customers, sahas, bookings, attendance] = await Promise.all([
-        getAllCustomers(),
-        getAllSahas(),
-        getAllBookings(),
-        getAllAttendance()
-      ]);
-      const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-      const todayAttendance = attendance.filter((a) => a.date === today);
-      return reply(res, 200, {
-        kpis: {
-          totalCustomers: customers.length,
-          totalSahas: sahas.length,
-          pendingApprovals: sahas.filter((s) => s.approvalStatus === "PENDING_REVIEW").length,
-          activeSahas: sahas.filter((s) => s.approvalStatus === "APPROVED").length,
-          totalBookings: bookings.length,
-          activeBookings: bookings.filter((b) => ["CONFIRMED", "SAHA_ASSIGNED", "IN_PROGRESS"].includes(b.status)).length,
-          todayCheckIns: todayAttendance.length,
-          completedBookings: bookings.filter((b) => b.status === "COMPLETED").length,
-          cancelledBookings: bookings.filter((b) => b.status === "CANCELLED").length
-        },
-        recentBookings: bookings.slice(-5).reverse(),
-        pendingSahas: sahas.filter((s) => s.approvalStatus === "PENDING_REVIEW").slice(0, 5)
+    const session = await getSessionFromRequest(req);
+    if (!session) {
+      return reply(res, 401, {
+        authenticated: false,
+        error: "No active or valid session found"
       });
     }
-    if (action === "customers" || path.endsWith("/customers")) {
-      const customers = await getAllCustomers();
-      return reply(res, 200, { customers });
-    }
-    if (action === "sahas" || path.endsWith("/sahas")) {
-      const statusFilter = url.searchParams.get("status");
-      let sahas = await getAllSahas();
-      if (statusFilter) {
-        sahas = sahas.filter((s) => s.approvalStatus === statusFilter);
-      }
-      return reply(res, 200, { sahas });
-    }
-    if (action === "approve" || path.endsWith("/approve")) {
-      const body = await parseBody(req);
-      if (!body.sahaId) return reply(res, 400, { error: "Missing sahaId" });
-      await updateSahaStatus(body.sahaId, "APPROVED");
-      return reply(res, 200, { success: true, message: "Saha approved successfully" });
-    }
-    if (action === "reject" || path.endsWith("/reject")) {
-      const body = await parseBody(req);
-      if (!body.sahaId) return reply(res, 400, { error: "Missing sahaId" });
-      await updateSahaStatus(body.sahaId, "REJECTED");
-      return reply(res, 200, { success: true, message: "Saha application rejected" });
-    }
-    if (action === "suspend" || path.endsWith("/suspend")) {
-      const body = await parseBody(req);
-      if (!body.sahaId) return reply(res, 400, { error: "Missing sahaId" });
-      await updateSahaStatus(body.sahaId, "SUSPENDED");
-      return reply(res, 200, { success: true, message: "Saha suspended" });
-    }
-    if (action === "bookings" || path.endsWith("/bookings")) {
-      const city = url.searchParams.get("city");
-      const status = url.searchParams.get("status");
-      let bookings = await getAllBookings();
-      if (city) bookings = bookings.filter((b) => b.city?.toLowerCase() === city.toLowerCase());
-      if (status) bookings = bookings.filter((b) => b.status === status);
-      return reply(res, 200, { bookings });
-    }
-    if ((path.includes("/bookings/") || req.query?.id) && (method === "PATCH" || method === "POST")) {
-      const bookingId = req.query?.id || path.split("/").pop();
-      if (!bookingId) return reply(res, 400, { error: "Invalid bookingId" });
-      const body = await parseBody(req);
-      const updates = {};
-      if (body.status !== void 0) updates.status = body.status;
-      if (body.assignedSahaId !== void 0) {
-        updates.assignedSahaId = body.assignedSahaId;
-        if (!body.status) updates.status = "SAHA_ASSIGNED";
-      }
-      if (body.notes !== void 0) updates.notes = body.notes;
-      await updateBooking(bookingId, updates);
-      return reply(res, 200, { success: true, message: "Booking updated" });
-    }
-    if (action === "attendance" || path.endsWith("/attendance")) {
-      const date = url.searchParams.get("date");
-      let records = await getAllAttendance();
-      if (date) records = records.filter((r) => r.date === date);
-      return reply(res, 200, { attendance: records });
-    }
-    if (path.includes("/attendance/") && (method === "PATCH" || method === "POST")) {
-      const attendanceId = path.split("/").pop();
-      if (!attendanceId) return reply(res, 400, { error: "Invalid attendanceId" });
-      const body = await parseBody(req);
-      await correctAttendance(attendanceId, {
-        ...body,
-        correctedBy: auth.session.userId,
-        correctionReason: body.reason || "Manual admin correction"
-      });
-      return reply(res, 200, { success: true, message: "Attendance corrected" });
-    }
-    if (action === "matching" || path.endsWith("/matching")) {
-      const bookingId = url.searchParams.get("bookingId");
-      const bookings = await getAllBookings();
-      const targetBooking = bookings.find((b) => b.bookingId === bookingId);
-      const sahas = await getAllSahas();
-      const approvedSahas = sahas.filter((s) => s.approvalStatus === "APPROVED");
-      if (!targetBooking) {
-        return reply(res, 200, { matchingSahas: approvedSahas });
-      }
-      const scored = approvedSahas.map((s) => {
-        let score = 0;
-        if (s.city?.toLowerCase() === targetBooking.city?.toLowerCase()) score += 50;
-        if (s.serviceCapabilities?.some((cap) => targetBooking.serviceType?.toLowerCase().includes(cap.toLowerCase()))) {
-          score += 50;
-        }
-        return { saha: s, matchScore: score };
-      });
-      scored.sort((a, b) => b.matchScore - a.matchScore);
-      return reply(res, 200, {
-        booking: targetBooking,
-        matchingSahas: scored.map((s) => ({ ...s.saha, matchScore: s.matchScore }))
-      });
-    }
-    if (action === "reports" || path.endsWith("/reports")) {
-      const [bookings, attendance, sahas, customers] = await Promise.all([
-        getAllBookings(),
-        getAllAttendance(),
-        getAllSahas(),
-        getAllCustomers()
-      ]);
-      return reply(res, 200, {
-        generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-        summary: {
-          totalBookings: bookings.length,
-          totalAttendanceRecords: attendance.length,
-          totalSahas: sahas.length,
-          totalCustomers: customers.length
-        },
-        bookings,
-        attendance,
-        sahas,
-        customers
-      });
-    }
-    return reply(res, 404, { error: `Endpoint not found: ${action}` });
+    return reply(res, 200, {
+      authenticated: true,
+      user: {
+        id: session.userId,
+        role: session.role,
+        name: session.metadata?.name,
+        city: session.metadata?.city,
+        roleTitle: session.metadata?.roleTitle,
+        attendantId: session.metadata?.attendantId
+      },
+      lastActivityAt: session.lastActivityAt,
+      expiresAt: session.expiresAt
+    });
   } catch (error) {
-    console.error("[AdminAPI] Error:", error);
-    return reply(res, 500, { error: "Internal server error" });
+    console.error("[Auth API] Session check error:", error);
+    return reply(res, 500, { error: "Session validation service error" });
   }
 }
-async function GET(req, res) {
-  return handler(req, res);
-}
-async function POST(req, res) {
-  return handler(req, res);
-}
-async function PUT(req, res) {
-  return handler(req, res);
-}
-async function PATCH(req, res) {
-  return handler(req, res);
-}
-async function DELETE(req, res) {
-  return handler(req, res);
-}
 export {
-  DELETE,
-  GET,
-  PATCH,
-  POST,
-  PUT,
-  handler as default
+  handler as default,
+  dynamic
 };

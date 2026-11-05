@@ -7686,7 +7686,7 @@ function nmfetch(url, options) {
   let finished3 = false;
   let cookies;
   let body;
-  const handler4 = parsed.protocol === "https:" ? https : http;
+  const handler2 = parsed.protocol === "https:" ? https : http;
   const headers = {
     "accept-encoding": "gzip,deflate",
     "user-agent": "nodemailer/" + version2
@@ -7770,7 +7770,7 @@ function nmfetch(url, options) {
     reqOptions.servername = parsed.hostname;
   }
   try {
-    req = handler4.request(reqOptions);
+    req = handler2.request(reqOptions);
   } catch (E) {
     finished3 = true;
     setImmediate(() => {
@@ -15360,7 +15360,7 @@ var SMTPConnection = class extends EventEmitter2 {
       }
     }
     if (this.customAuth.has(this._authMethod)) {
-      const handler4 = this.customAuth.get(this._authMethod);
+      const handler2 = this.customAuth.get(this._authMethod);
       let lastResponse;
       let returned = false;
       const resolve3 = () => {
@@ -15413,7 +15413,7 @@ var SMTPConnection = class extends EventEmitter2 {
         setImmediate(() => this._sendCommand(cmd));
         return promise;
       };
-      const handlerResponse = handler4({
+      const handlerResponse = handler2({
         auth: this._auth,
         method: this._authMethod,
         extensions: [].concat(this._supportedExtensions),
@@ -16538,8 +16538,8 @@ var SMTPConnection = class extends EventEmitter2 {
     }
     const deferred = envelope.rejectedErrors.find((rejectedErr) => rejectedErr.responseCode && rejectedErr.responseCode < 500);
     const lastRejected = envelope.rejectedErrors[envelope.rejectedErrors.length - 1];
-    const reply4 = deferred?.response ?? (envelope.pipelined && lastRejected ? lastRejected.response : str);
-    const err = this._formatError("Can't send mail - all recipients were rejected", "EENVELOPE", reply4, "RCPT TO");
+    const reply2 = deferred?.response ?? (envelope.pipelined && lastRejected ? lastRejected.response : str);
+    const err = this._formatError("Can't send mail - all recipients were rejected", "EENVELOPE", reply2, "RCPT TO");
     err.rejected = envelope.rejected;
     err.rejectedErrors = envelope.rejectedErrors;
     return err;
@@ -19715,7 +19715,8 @@ async function runReport(options) {
   };
 }
 
-// src/server/reports/routes/send.ts
+// src/server/reports/routes/daily-report.ts
+var dynamic = "force-dynamic";
 function reply(res, statusCode, data) {
   const payload = JSON.stringify(data);
   if (res && typeof res.status === "function" && typeof res.json === "function") {
@@ -19738,7 +19739,6 @@ function reply(res, statusCode, data) {
 async function handler(req, res) {
   try {
     const config = getServerReportConfig();
-    const method = (req.method || (req instanceof Request ? req.method : "GET")).toUpperCase();
     let query = {};
     if (req.query && typeof req.query === "object") {
       for (const [k, v] of Object.entries(req.query)) {
@@ -19754,56 +19754,33 @@ async function handler(req, res) {
         query = {};
       }
     }
-    let body = {};
-    if (method === "POST") {
-      if (req.body && typeof req.body === "object") {
-        body = req.body;
-      } else if (typeof req.body === "string") {
-        try {
-          body = JSON.parse(req.body);
-        } catch {
-          body = {};
-        }
-      } else if (typeof req.json === "function") {
-        try {
-          body = await req.json();
-        } catch {
-          body = {};
-        }
-      }
-    }
-    if (body.secret && !query.secret) {
-      query.secret = body.secret;
-    }
     const authReq = {
       headers: req.headers,
       query,
-      url: req.url || "/api/reports/send"
+      url: req.url || "/api/cron/daily-report"
     };
     const auth = validateCronAuth(authReq, config);
     if (!auth.authorized) {
       return reply(res, 401, {
         status: "error",
         code: "UNAUTHORIZED",
-        message: auth.reason || "Unauthorized. Supply Bearer <CRON_SECRET> or ?secret=..."
+        message: auth.reason || "Unauthorized"
       });
     }
-    const rawType = body.type || query.type || "daily";
-    const type = rawType === "weekly" || rawType === "monthly" ? rawType : "daily";
-    const period = body.period || query.period || void 0;
-    const force = body.force !== void 0 ? Boolean(body.force) : query.force === "true";
-    const isTest = body.isTest !== void 0 ? Boolean(body.isTest) : query.test !== "false";
+    const force = query.force === "true";
+    const period = query.period || void 0;
+    const isTest = query.test === "true";
     const result = await runReport({
-      type,
-      periodKey: period,
+      type: "daily",
       force,
+      periodKey: period,
       isTest
     });
     const statusCode = 200;
     return reply(res, statusCode, result);
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error("[ReportsSend] Unhandled error:", err);
+    console.error("[DailyReportCron] Unhandled error:", err);
     return reply(res, 500, {
       status: "error",
       code: "INTERNAL_ERROR",
@@ -19811,147 +19788,11 @@ async function handler(req, res) {
     });
   }
 }
-
-// src/server/reports/routes/history.ts
-function reply2(res, statusCode, data) {
-  const payload = JSON.stringify(data);
-  if (res && typeof res.status === "function" && typeof res.json === "function") {
-    return res.status(statusCode).json(data);
-  }
-  if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
-    res.statusCode = statusCode;
-    res.setHeader("Content-Type", "application/json");
-    return res.end(payload);
-  }
-  if (res && typeof res.writeHead === "function" && typeof res.end === "function") {
-    res.writeHead(statusCode, { "Content-Type": "application/json" });
-    return res.end(payload);
-  }
-  return new Response(payload, {
-    status: statusCode,
-    headers: { "Content-Type": "application/json" }
-  });
-}
-async function handler2(req, res) {
-  try {
-    const config = getServerReportConfig();
-    let query = {};
-    if (req.query && typeof req.query === "object") {
-      for (const [k, v] of Object.entries(req.query)) {
-        query[k] = Array.isArray(v) ? v[0] : String(v || "");
-      }
-    } else if (req.url) {
-      try {
-        const parsed = new URL(req.url, "https://apna-care.vercel.app");
-        parsed.searchParams.forEach((val, key) => {
-          query[key] = val;
-        });
-      } catch {
-        query = {};
-      }
-    }
-    const authReq = {
-      headers: req.headers,
-      query,
-      url: req.url || "/api/reports/history"
-    };
-    const auth = validateCronAuth(authReq, config);
-    if (!auth.authorized) {
-      return reply2(res, 401, {
-        status: "error",
-        code: "UNAUTHORIZED",
-        message: auth.reason || "Unauthorized"
-      });
-    }
-    if (config.googleAppsScriptUrl) {
-      try {
-        const url = new URL(config.googleAppsScriptUrl);
-        url.searchParams.set("action", "get_delivery_history");
-        const response = await fetch(url.toString(), {
-          headers: { Accept: "application/json" },
-          redirect: "follow"
-        });
-        if (response.ok) {
-          const data = await response.json();
-          return reply2(res, 200, data);
-        }
-      } catch (fetchErr) {
-        console.warn("[ReportHistory] Remote fetch failed, returning fallback:", fetchErr);
-      }
-    }
-    return reply2(res, 200, {
-      status: "success",
-      history: [],
-      message: "No delivery logs found or remote sheet not configured."
-    });
-  } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error("[ReportHistory] Unhandled error:", err);
-    return reply2(res, 500, {
-      status: "error",
-      message: errorMsg
-    });
-  }
-}
 async function GET(req, res) {
-  return handler2(req, res);
-}
-
-// src/server/auth/utils.ts
-function reply3(res, statusCode, data, headers = {}) {
-  const payload = JSON.stringify(data);
-  if (res && typeof res.status === "function" && typeof res.json === "function") {
-    for (const [k, v] of Object.entries(headers)) {
-      res.setHeader(k, v);
-    }
-    res.status(statusCode).json(data);
-    return;
-  }
-  if (res && typeof res.setHeader === "function" && typeof res.end === "function") {
-    res.statusCode = statusCode;
-    res.setHeader("Content-Type", "application/json");
-    for (const [k, v] of Object.entries(headers)) {
-      res.setHeader(k, v);
-    }
-    res.end(payload);
-    return;
-  }
-  return new Response(payload, {
-    status: statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      ...headers
-    }
-  });
-}
-
-// src/server/reports/routes/reports-dispatcher.ts
-async function handler3(req, res) {
-  try {
-    const rawUrl = req.url || "";
-    const parsed = new URL(rawUrl, "http://localhost");
-    const segments = parsed.pathname.split("/").filter(Boolean);
-    const action = req.query?.action || segments[segments.length - 1] || "";
-    if (action === "send") {
-      return await handler(req, res);
-    }
-    if (action === "history") {
-      return await GET(req, res);
-    }
-    return reply3(res, 404, { error: `Report endpoint not found: ${action}` });
-  } catch (error2) {
-    console.error("[ReportsDispatcher] Error:", error2);
-    return reply3(res, 500, { error: "Internal server error" });
-  }
-}
-async function GET2(req, res) {
-  return handler3(req, res);
-}
-async function POST(req, res) {
-  return handler3(req, res);
+  return handler(req, res);
 }
 export {
-  GET2 as GET,
-  POST,
-  handler3 as default
+  GET,
+  handler as default,
+  dynamic
 };
