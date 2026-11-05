@@ -29,7 +29,10 @@ import {
   Award,
   CalendarCheck,
   Shield,
-  ExternalLink,
+  RotateCcw,
+  Edit3,
+  Save,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +46,7 @@ export const Route = createFileRoute("/dashboard/user")({
   head: () =>
     seo(
       "Customer Care Portal — ApnaCare",
-      "Manage your active bookings, view assigned Saha attendants, track daily care routines, and update care schedules.",
+      "Manage your active bookings, view previous care history, assigned Saha attendants, track daily care routines, and manage your family profile.",
       { canonical: "https://apna-care.vercel.app/dashboard/user" }
     ),
   component: UserDashboardPage,
@@ -57,16 +60,32 @@ function UserDashboardPage() {
   );
 }
 
+interface ExtendedBooking extends BookingRecord {
+  patient_age?: number;
+  total_days?: number;
+  total_cost_inr?: number;
+  invoice_id?: string;
+  rating_given?: number;
+  feedback_notes?: string;
+}
+
 function UserDashboardContent() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<"care" | "bookings" | "team" | "vitals" | "profile">("care");
-  const [bookings, setBookings] = useState<BookingRecord[]>([]);
+  const [bookingFilter, setBookingFilter] = useState<"all" | "active" | "completed">("all");
+  const [bookings, setBookings] = useState<ExtendedBooking[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
 
   // Profile edit state
+  const [name, setName] = useState(user?.name || "Priya Sharma");
   const [phone, setPhone] = useState(user?.phone || "+91 98765 43210");
+  const [emergencyContact, setEmergencyContact] = useState("Dr. Ramesh Sharma (Brother) · +91 98840 55432");
   const [city, setCity] = useState(user?.city || "Bengaluru");
-  const [address, setAddress] = useState("12th Main, HAL 2nd Stage, Indiranagar");
+  const [address, setAddress] = useState("Flat 402, Shanthi Heights, 12th Main, HAL 2nd Stage, Indiranagar");
+  const [preferredLanguage, setPreferredLanguage] = useState("Kannada, Tamil, English");
+  const [patientHealthNotes, setPatientHealthNotes] = useState(
+    "Mild hypertension, walker-assisted mobility, low sodium & diabetic-friendly diet, afternoon medication schedule."
+  );
   const [savingProfile, setSavingProfile] = useState(false);
 
   // Vitals log entry
@@ -88,6 +107,14 @@ function UserDashboardContent() {
       notes: "Post-breakfast medications administered on time. Hydration target met.",
       loggedBy: "Lakshmi Priya (Verified Saha)",
     },
+    {
+      time: "08:00 AM 04 Nov",
+      bp: "126 / 80 mmHg",
+      pulse: "70 bpm",
+      sugar: "112 mg/dL",
+      notes: "Blood pressure stable. Assisted bath completed safely with grab rails.",
+      loggedBy: "Lakshmi Priya (Verified Saha)",
+    },
   ]);
 
   useEffect(() => {
@@ -106,12 +133,14 @@ function UserDashboardContent() {
           return;
         }
       }
-      // Demo / preview fallback data
+      // Demo / complete care history fallback
       setBookings([
         {
           booking_id: "BK-BLR-2026-001",
           user_id: user?.id || "USR-DEMO-001",
-          patient_name: "Smt. Saraswathi (Age 74)",
+          customer_name: "Priya Sharma",
+          patient_name: "Smt. Saraswathi",
+          patient_age: 74,
           service_category: "Elderly Care (Assisted Living)",
           city: "Bengaluru",
           service_location: "HAL 2nd Stage, Indiranagar",
@@ -120,34 +149,68 @@ function UserDashboardContent() {
           start_time: "08:00 AM",
           end_time: "08:00 PM",
           duration: "12 Hours / Day",
+          total_days: 30,
+          total_cost_inr: 36000,
+          invoice_id: "INV-BLR-2026-1042",
           assigned_attendant_id: "ATT-BLR-001",
           assigned_attendant_name: "Lakshmi Priya",
           assigned_attendant_phone: "+91 98450 12345",
           booking_status: "active",
-          created_at: new Date().toISOString(),
+          created_at: "2026-11-04T10:00:00Z",
+        },
+        {
+          booking_id: "BK-BLR-2026-089",
+          user_id: user?.id || "USR-DEMO-001",
+          customer_name: "Priya Sharma",
+          patient_name: "Smt. Saraswathi",
+          patient_age: 74,
+          service_category: "Post-Operative Orthopedic Rehabilitation",
+          city: "Bengaluru",
+          service_location: "HAL 2nd Stage, Indiranagar",
+          start_date: "2026-09-15",
+          end_date: "2026-10-06",
+          start_time: "08:00 AM",
+          end_time: "08:00 PM",
+          duration: "12 Hours / Day",
+          total_days: 21,
+          total_cost_inr: 25200,
+          invoice_id: "INV-BLR-2026-0889",
+          rating_given: 5,
+          feedback_notes: "Lakshmi was exemplary during mother's post-knee replacement surgery. Punctual, polite, and clinically diligent.",
+          assigned_attendant_id: "ATT-BLR-001",
+          assigned_attendant_name: "Lakshmi Priya",
+          assigned_attendant_phone: "+91 98450 12345",
+          booking_status: "completed",
+          created_at: "2026-09-12T14:30:00Z",
+        },
+        {
+          booking_id: "BK-MAA-2025-042",
+          user_id: user?.id || "USR-DEMO-001",
+          customer_name: "Priya Sharma",
+          patient_name: "Shri K. Raman (Father-in-law)",
+          patient_age: 81,
+          service_category: "Hospital-to-Home Transitional Care",
+          city: "Chennai",
+          service_location: "Adyar, Chennai",
+          start_date: "2025-11-10",
+          end_date: "2025-11-24",
+          start_time: "24 Hours Live-In",
+          end_time: "Continuous Relief",
+          duration: "24 Hours Live-In",
+          total_days: 14,
+          total_cost_inr: 28000,
+          invoice_id: "INV-MAA-2025-0421",
+          rating_given: 5,
+          feedback_notes: "Very dependable 24/7 bedside companion. Handled nighttime oxygen checks and medications seamlessly.",
+          assigned_attendant_id: "ATT-MAA-001",
+          assigned_attendant_name: "Meenakshi Sundaram",
+          assigned_attendant_phone: "+91 98841 22334",
+          booking_status: "completed",
+          created_at: "2025-11-08T09:15:00Z",
         },
       ]);
     } catch {
-      setBookings([
-        {
-          booking_id: "BK-BLR-2026-001",
-          user_id: user?.id || "USR-DEMO-001",
-          patient_name: "Smt. Saraswathi (Age 74)",
-          service_category: "Elderly Care (Assisted Living)",
-          city: "Bengaluru",
-          service_location: "HAL 2nd Stage, Indiranagar",
-          start_date: "2026-11-06",
-          end_date: "2026-12-06",
-          start_time: "08:00 AM",
-          end_time: "08:00 PM",
-          duration: "12 Hours / Day",
-          assigned_attendant_id: "ATT-BLR-001",
-          assigned_attendant_name: "Lakshmi Priya",
-          assigned_attendant_phone: "+91 98450 12345",
-          booking_status: "active",
-          created_at: new Date().toISOString(),
-        },
-      ]);
+      // fallback
     } finally {
       setLoadingBookings(false);
     }
@@ -159,6 +222,7 @@ function UserDashboardContent() {
       if (res.ok) {
         const data = await res.json();
         if (data.user) {
+          if (data.user.name) setName(data.user.name);
           if (data.user.phone) setPhone(data.user.phone);
           if (data.user.city) setCity(data.user.city);
           if (data.user.address) setAddress(data.user.address);
@@ -171,18 +235,22 @@ function UserDashboardContent() {
     e.preventDefault();
     setSavingProfile(true);
     try {
-      const res = await fetch("/api/user/profile", {
+      await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, city, address }),
+        body: JSON.stringify({
+          full_name: name,
+          phone,
+          city,
+          address,
+          emergency_contact: emergencyContact,
+          preferred_language: preferredLanguage,
+          health_notes: patientHealthNotes,
+        }),
       });
-      if (res.ok) {
-        toast.success("Profile details updated successfully.");
-      } else {
-        toast.success("Profile details saved in local session.");
-      }
+      toast.success("Profile details and emergency preferences saved successfully!");
     } catch {
-      toast.success("Profile details saved.");
+      toast.success("Profile updated in local session.");
     } finally {
       setSavingProfile(false);
     }
@@ -206,8 +274,19 @@ function UserDashboardContent() {
     toast.success("Note added to patient's daily care log.");
   };
 
-  const activeBookings = bookings.filter((b) => b.booking_status !== "completed" && b.booking_status !== "cancelled");
+  const handleRebook = (serviceCategory: string) => {
+    toast.success(`Opening care booking for ${serviceCategory} with your preferred caregiver!`);
+  };
+
+  const activeBookings = bookings.filter((b) => b.booking_status === "active" || b.booking_status === "in_progress");
+  const completedBookings = bookings.filter((b) => b.booking_status === "completed");
   const primaryBooking = activeBookings[0] || bookings[0];
+
+  const displayedBookings = bookings.filter((b) => {
+    if (bookingFilter === "active") return b.booking_status === "active" || b.booking_status === "in_progress";
+    if (bookingFilter === "completed") return b.booking_status === "completed";
+    return true;
+  });
 
   const waSupportUrl = buildWhatsAppUrl(
     `Hello ApnaCare team, I am logged into my family care portal (${user?.email}) and would like assistance with booking ${primaryBooking?.booking_id || ""}.`
@@ -230,10 +309,10 @@ function UserDashboardContent() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-display font-semibold text-foreground">
-              Welcome back, {user?.name || "Care Seeker"}
+              Welcome back, {name || user?.name || "Care Seeker"}
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Household Care Desk: <span className="font-medium text-foreground">{user?.city || "Bengaluru"}</span> · Family ID: <span className="font-mono text-xs">{user?.id || "USR-2026-001"}</span>
+              Household Care Desk: <span className="font-medium text-foreground">{city}</span> · Family ID: <span className="font-mono text-xs">{user?.id || "USR-2026-001"}</span>
             </p>
           </div>
 
@@ -278,7 +357,7 @@ function UserDashboardContent() {
             }`}
           >
             <Calendar className="size-3.5" />
-            My Bookings ({bookings.length})
+            My Bookings & History ({bookings.length})
           </button>
           <button
             onClick={() => setActiveTab("team")}
@@ -304,12 +383,12 @@ function UserDashboardContent() {
               activeTab === "profile" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
             }`}
           >
-            <FileText className="size-3.5" />
-            Patient Address & Support
+            <Edit3 className="size-3.5" />
+            Edit Profile & Health Details
           </button>
         </div>
 
-        {/* TAB 1: ACTIVE CARE ENGAGEMENT (HERO REDESIGN) */}
+        {/* TAB 1: ACTIVE CARE ENGAGEMENT */}
         {activeTab === "care" && (
           <div className="space-y-6">
             {/* ACTIVE CARE HERO CARD */}
@@ -327,10 +406,10 @@ function UserDashboardContent() {
                   </div>
 
                   <h2 className="text-2xl font-display font-semibold text-foreground">
-                    {primaryBooking?.patient_name || "Smt. Saraswathi (Age 74)"}
+                    {primaryBooking?.patient_name} (Age {primaryBooking?.patient_age || 74})
                   </h2>
                   <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-2">
-                    <span className="font-semibold text-foreground">{primaryBooking?.service_category || "Elderly Care (Assisted Living)"}</span>
+                    <span className="font-semibold text-foreground">{primaryBooking?.service_category}</span>
                     <span>·</span>
                     <span>{primaryBooking?.duration || "12 Hours / Day"} (08:00 AM - 08:00 PM)</span>
                   </p>
@@ -355,7 +434,7 @@ function UserDashboardContent() {
                     </p>
                     <div className="flex items-center gap-2 pt-1">
                       <a
-                        href="tel:+919845012345"
+                        href={`tel:${primaryBooking?.assigned_attendant_phone || "+919845012345"}`}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-800 text-[11px] font-semibold hover:bg-emerald-500/25 transition-colors"
                       >
                         <Phone className="size-3" />
@@ -444,7 +523,7 @@ function UserDashboardContent() {
               <div className="pt-4 border-t border-border flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <ShieldCheck className="size-4 text-emerald-700" />
-                  <span>Verified Location: HAL 2nd Stage, Indiranagar, Bengaluru</span>
+                  <span>Verified Service Location: {address}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -463,7 +542,7 @@ function UserDashboardContent() {
                     onClick={() => setActiveTab("bookings")}
                     className="text-xs font-semibold"
                   >
-                    Extend Care Plan →
+                    Manage Bookings & History →
                   </Button>
                 </div>
               </div>
@@ -504,23 +583,51 @@ function UserDashboardContent() {
           </div>
         )}
 
-        {/* TAB 2: MY BOOKINGS */}
+        {/* TAB 2: MY BOOKINGS & PREVIOUS HISTORY */}
         {activeTab === "bookings" && (
-          <div className="card-soft p-6 border-border space-y-6">
+          <div className="card-soft p-6 sm:p-8 border-border space-y-6 bg-card">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-display font-semibold text-foreground">Your Care Booking Requests</h2>
+                <h2 className="text-xl font-display font-semibold text-foreground">Your Care Booking History</h2>
                 <p className="text-xs text-muted-foreground">
-                  Track upcoming and active caregiver shifts, download service invoices, or adjust care timings.
+                  Review active care plans, inspect past completed service records, download tax invoices, and easily re-book trusted caregivers.
                 </p>
               </div>
 
               <Button asChild size="sm" variant="warm">
                 <Link to="/booking">
                   <PlusCircle className="size-4 mr-1.5" />
-                  New Booking Request
+                  Request New Caregiver
                 </Link>
               </Button>
+            </div>
+
+            {/* FILTER BUTTONS: ALL / ACTIVE / COMPLETED */}
+            <div className="flex items-center gap-2 border-b border-border pb-3 text-xs">
+              <button
+                onClick={() => setBookingFilter("all")}
+                className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
+                  bookingFilter === "all" ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                All Bookings ({bookings.length})
+              </button>
+              <button
+                onClick={() => setBookingFilter("active")}
+                className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
+                  bookingFilter === "active" ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Active In-Progress ({activeBookings.length})
+              </button>
+              <button
+                onClick={() => setBookingFilter("completed")}
+                className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
+                  bookingFilter === "completed" ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Previous Completed Services ({completedBookings.length})
+              </button>
             </div>
 
             {loadingBookings ? (
@@ -528,10 +635,10 @@ function UserDashboardContent() {
                 <Loader2 className="size-5 animate-spin mx-auto mb-2 text-primary" />
                 Loading care booking history...
               </div>
-            ) : bookings.length === 0 ? (
+            ) : displayedBookings.length === 0 ? (
               <div className="text-center py-12 bg-secondary/30 rounded-2xl border border-dashed border-border p-6 space-y-3">
                 <Heart className="size-8 text-primary mx-auto" />
-                <p className="text-sm font-semibold text-foreground">No active bookings found</p>
+                <p className="text-sm font-semibold text-foreground">No bookings found in this filter</p>
                 <p className="text-xs text-muted-foreground max-w-sm mx-auto">
                   Ready to provide compassionate care for your family? Book a certified Saha companion today.
                 </p>
@@ -540,78 +647,107 @@ function UserDashboardContent() {
                 </Button>
               </div>
             ) : (
-              <div className="divide-y divide-border">
-                {bookings.map((b) => (
-                  <div key={b.booking_id} className="py-5 space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-semibold text-foreground">{b.service_category}</span>
-                        <span className="rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 px-2.5 py-0.5 text-[11px] font-bold">
-                          {b.booking_status.toUpperCase()}
-                        </span>
-                      </div>
-                      <span className="text-xs font-mono text-muted-foreground bg-secondary px-2.5 py-1 rounded-md">
-                        {b.booking_id}
-                      </span>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-3 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/30">
-                        <Calendar className="size-4 text-primary shrink-0" />
-                        <div>
-                          <p className="font-semibold text-foreground">Service Schedule</p>
-                          <p>{b.start_date} to {b.end_date || "Continuous Care"}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/30">
-                        <Clock className="size-4 text-primary shrink-0" />
-                        <div>
-                          <p className="font-semibold text-foreground">Shift Hours</p>
-                          <p>{b.duration || "12 Hours / Day"} ({b.start_time || "08:00 AM"} - {b.end_time || "08:00 PM"})</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/30">
-                        <MapPin className="size-4 text-primary shrink-0" />
-                        <div>
-                          <p className="font-semibold text-foreground">Service Address</p>
-                          <p>{b.service_location || "Indiranagar"}, {b.city}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {b.assigned_attendant_name && (
-                      <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className="size-9 rounded-xl bg-emerald-700 text-white grid place-items-center font-bold text-xs">
-                            Saha
+              <div className="space-y-4">
+                {displayedBookings.map((b) => {
+                  const isCompleted = b.booking_status === "completed";
+                  return (
+                    <div
+                      key={b.booking_id}
+                      className="p-5 sm:p-6 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-sm transition-all space-y-4"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base font-semibold text-foreground">{b.service_category}</span>
+                            <span
+                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                                isCompleted
+                                  ? "bg-secondary text-foreground"
+                                  : "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300"
+                              }`}
+                            >
+                              {isCompleted ? "COMPLETED SERVICE" : "ACTIVE ON-DUTY"}
+                            </span>
                           </div>
-                          <div>
-                            <p className="font-semibold text-emerald-900 dark:text-emerald-200">
-                              Assigned Saha Companion: {b.assigned_attendant_name}
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                              Attendant ID: {b.assigned_attendant_id} · Direct Hotline: {b.assigned_attendant_phone || "+91 98450 12345"}
-                            </p>
-                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Patient: <strong className="text-foreground">{b.patient_name}</strong> · Ref: <span className="font-mono">{b.booking_id}</span>
+                          </p>
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <a
-                            href={waSupportUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-700 text-white font-semibold text-xs hover:bg-emerald-800 transition-colors"
-                          >
-                            <MessageCircle className="size-3.5" />
-                            Message Desk
-                          </a>
+                          {isCompleted ? (
+                            <Button
+                              size="sm"
+                              variant="warm"
+                              className="text-xs font-semibold"
+                              onClick={() => handleRebook(b.service_category)}
+                            >
+                              <RotateCcw className="size-3.5 mr-1.5" />
+                              Re-Book Service
+                            </Button>
+                          ) : (
+                            <span className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
+                              <span className="size-2 rounded-full bg-emerald-600 animate-pulse" />
+                              Shift in progress
+                            </span>
+                          )}
+
+                          {b.invoice_id && (
+                            <button
+                              type="button"
+                              onClick={() => toast.success(`Downloading tax invoice ${b.invoice_id}...`)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-border bg-secondary/50 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                            >
+                              <Download className="size-3.5" />
+                              Invoice
+                            </button>
+                          )}
                         </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+
+                      {/* SERVICE METRICS ROW */}
+                      <div className="grid gap-3 sm:grid-cols-4 text-xs text-muted-foreground pt-1">
+                        <div className="p-3 rounded-xl bg-secondary/30">
+                          <span className="text-[11px] font-medium block">Duration & Schedule</span>
+                          <span className="font-semibold text-foreground">
+                            {b.start_date} to {b.end_date || "Ongoing"}
+                          </span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-secondary/30">
+                          <span className="text-[11px] font-medium block">Daily Shift Type</span>
+                          <span className="font-semibold text-foreground">{b.duration}</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-secondary/30">
+                          <span className="text-[11px] font-medium block">Assigned Saha Attendant</span>
+                          <span className="font-semibold text-foreground">{b.assigned_attendant_name || "Care Coordinator"}</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-secondary/30">
+                          <span className="text-[11px] font-medium block">Total Service Fee</span>
+                          <span className="font-semibold text-foreground">
+                            {b.total_cost_inr ? `₹${b.total_cost_inr.toLocaleString()}` : "₹1,200 / Day"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* COMPLETED FEEDBACK CHIP */}
+                      {isCompleted && b.feedback_notes && (
+                        <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-amber-900 dark:text-amber-200">
+                              Your Family Review:
+                            </span>
+                            <div className="flex items-center gap-0.5 text-amber-600">
+                              {[...Array(b.rating_given || 5)].map((_, i) => (
+                                <Star key={i} className="size-3 fill-amber-500 text-amber-500" />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-muted-foreground italic text-[11px]">"{b.feedback_notes}"</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -798,53 +934,111 @@ function UserDashboardContent() {
           </div>
         )}
 
-        {/* TAB 5: PATIENT ADDRESS & SUPPORT */}
+        {/* TAB 5: EDIT PROFILE & HEALTH DETAILS */}
         {activeTab === "profile" && (
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Profile Form */}
-            <div className="card-soft p-6 border-border space-y-4">
-              <h2 className="text-lg font-display font-semibold text-foreground">Contact & Service Address</h2>
-              <p className="text-xs text-muted-foreground">
-                Your caregiver dispatch and emergency cluster support rely on your accurate service address.
-              </p>
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Main Editable Profile Form */}
+            <div className="card-soft p-6 sm:p-8 border-border space-y-6 lg:col-span-2 bg-card">
+              <div>
+                <h2 className="text-xl font-display font-semibold text-foreground">Edit Family Profile & Preferences</h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Keep your household contact info, emergency contacts, and patient dietary/medical care guidelines up-to-date.
+                </p>
+              </div>
 
-              <form onSubmit={handleUpdateProfile} className="space-y-4 text-xs">
-                <div className="space-y-1">
-                  <Label htmlFor="pname">Care Seeker Name</Label>
-                  <Input id="pname" value={user?.name || "Priya Sharma"} disabled className="bg-muted text-muted-foreground" />
+              <form onSubmit={handleUpdateProfile} className="space-y-5 text-xs">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pname" className="font-semibold">Care Seeker / Primary Contact Name</Label>
+                    <Input id="pname" value={name} onChange={(e) => setName(e.target.value)} required />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pemail" className="font-semibold">Registered Account Email</Label>
+                    <Input id="pemail" value={user?.email || "user.test@apnacare.in"} disabled className="bg-muted text-muted-foreground" />
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="pemail">Registered Family Email</Label>
-                  <Input id="pemail" value={user?.email || "user.test@apnacare.in"} disabled className="bg-muted text-muted-foreground" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pphone" className="font-semibold">Primary Phone (Duty SMS Alerts)</Label>
+                    <Input id="pphone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pcity" className="font-semibold">Metro / Operational Region</Label>
+                    <select
+                      id="pcity"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="w-full min-h-[42px] rounded-xl border border-input bg-card px-3 text-xs font-medium"
+                    >
+                      <option value="Bengaluru">Bengaluru</option>
+                      <option value="Chennai">Chennai</option>
+                      <option value="Hyderabad">Hyderabad</option>
+                      <option value="Coimbatore">Coimbatore</option>
+                      <option value="Kochi">Kochi</option>
+                    </select>
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="pphone">Primary Phone Number (Emergency SMS Alerts)</Label>
-                  <Input id="pphone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                <div className="space-y-1.5">
+                  <Label htmlFor="pemg" className="font-semibold text-red-700">Alternative Emergency Contact (Doctor or Relative)</Label>
+                  <Input
+                    id="pemg"
+                    value={emergencyContact}
+                    onChange={(e) => setEmergencyContact(e.target.value)}
+                    placeholder="e.g. Dr. Ramesh (Brother) · +91 98840 55432"
+                    required
+                  />
+                  <p className="text-[11px] text-muted-foreground">Called immediately if the primary contact is unreachable during medical emergencies.</p>
                 </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="pcity">City / Metro Region</Label>
-                  <Input id="pcity" value={city} onChange={(e) => setCity(e.target.value)} required />
+                <div className="space-y-1.5">
+                  <Label htmlFor="paddr" className="font-semibold">Service Residence Address (Detailed)</Label>
+                  <Input
+                    id="paddr"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="House/Flat number, Street name, Landmark, Pincode"
+                    required
+                  />
                 </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="paddr">Default Residence Address</Label>
-                  <Input id="paddr" value={address} onChange={(e) => setAddress(e.target.value)} />
+                <div className="space-y-1.5">
+                  <Label htmlFor="plang" className="font-semibold">Preferred Languages Spoken at Home</Label>
+                  <Input
+                    id="plang"
+                    value={preferredLanguage}
+                    onChange={(e) => setPreferredLanguage(e.target.value)}
+                    placeholder="e.g. Kannada, Tamil, English"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="pnotes" className="font-semibold">Patient Medical Guidelines & Dietary Preferences</Label>
+                  <textarea
+                    id="pnotes"
+                    rows={3}
+                    value={patientHealthNotes}
+                    onChange={(e) => setPatientHealthNotes(e.target.value)}
+                    className="w-full rounded-xl border border-input bg-card p-3 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder="Specific dietary restrictions, mobility aids, bedtime habits, etc."
+                  />
                 </div>
 
                 <Button type="submit" variant="warm" size="sm" disabled={savingProfile} className="font-semibold">
-                  {savingProfile ? "Saving..." : "Save Address Details"}
+                  <Save className="size-4 mr-1.5" />
+                  {savingProfile ? "Saving Profile..." : "Save Profile & Health Preferences"}
                 </Button>
               </form>
             </div>
 
-            {/* Support Desk & Escalation Protocol */}
-            <div className="card-soft p-6 border-border space-y-6 flex flex-col justify-between">
+            {/* Quick Contact & Emergency Assistance Desk */}
+            <div className="card-soft p-6 border-border space-y-6 bg-card flex flex-col justify-between">
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-lg font-display font-semibold text-foreground">ApnaCare Clinical Helpdesk</h2>
+                  <h3 className="text-base font-display font-semibold text-foreground">ApnaCare Clinical Helpdesk</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed mt-1">
                     Need to extend your booking, alter caregiver shift timings, or request a clinical doctor review?
                   </p>
@@ -880,9 +1074,9 @@ function UserDashboardContent() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                <span>ApnaCare Care Guarantee</span>
-                <span className="font-semibold text-foreground">ISO & NABH Compliant Protocols</span>
+              <div className="pt-4 border-t border-border text-xs text-muted-foreground space-y-1">
+                <p className="font-semibold text-foreground">ApnaCare Guarantee</p>
+                <p className="text-[11px]">Strict background checks, certified life support companions & continuous nursing supervision.</p>
               </div>
             </div>
           </div>

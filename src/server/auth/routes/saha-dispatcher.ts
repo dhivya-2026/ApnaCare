@@ -31,12 +31,14 @@ export async function handleSahaAction(request: Request, action: string): Promis
       if (!body) return errorResponse("No update data provided", 400);
 
       const updated = await updateAttendant(attendantId, {
+        full_name: body.full_name,
         phone: body.phone,
         city: body.city,
         address: body.address,
         availability_status: body.availability_status,
         languages: body.languages,
         skills: body.skills,
+        experience: body.experience,
       });
 
       return jsonResponse({ success: true, attendant: updated });
