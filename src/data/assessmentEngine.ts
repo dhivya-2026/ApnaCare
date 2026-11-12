@@ -1,5 +1,5 @@
 /**
- * ApnaCare Dynamic Conditional Question & Triage Engine
+ * LifeSakthi Dynamic Conditional Question & Triage Engine
  * ──────────────────────────────────────────────────────
  * Generates situation-aware assessment questions based on selected care tasks and recipient conditions.
  * Evaluates clinical risk flags, staffing requirements, and triage status without diagnostic claims.
@@ -47,7 +47,7 @@ export const ASSESSMENT_QUESTIONS_CATALOGUE: ConditionalQuestion[] = [
       active_emergency: {
         label: "Acute Medical Emergency Indicated",
         severity: "CRITICAL",
-        mitigation: "Advise immediate 108 / 112 emergency medical services or urgent hospital emergency room transfer. ApnaCare home assistance is not an emergency response service.",
+        mitigation: "Advise immediate 108 / 112 emergency medical services or urgent hospital emergency room transfer. LifeSakthi home assistance is not an emergency response service.",
       },
     },
   },
@@ -117,7 +117,7 @@ export const ASSESSMENT_QUESTIONS_CATALOGUE: ConditionalQuestion[] = [
     id: "q_clin_prescription_status",
     category: "CLINICAL",
     question: "Is there an active written prescription from a registered medical practitioner for the requested clinical procedure?",
-    description: "ApnaCare strictly follows regulatory guidelines: clinical nursing procedures require valid physician orders.",
+    description: "LifeSakthi strictly follows regulatory guidelines: clinical nursing procedures require valid physician orders.",
     inputType: "single_choice",
     clinicalReviewTrigger: true,
     triggerTaskIds: ["task-proc-injections", "task-proc-wound", "task-proc-catheter", "task-proc-feeding-tube", "task-proc-iv-infusion", "task-post-surg-vitals"],

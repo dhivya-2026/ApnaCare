@@ -358,7 +358,7 @@ export function EnterpriseOfferingsShowcase() {
                   {/* Care Solution Summary */}
                   <div className="mt-3.5">
                     <span className="font-bold text-primary uppercase tracking-wider block text-[10px] mb-1">
-                      The ApnaCare Verified Solution:
+                      The LifeSakthi Verified Solution:
                     </span>
                     <p className="text-sm text-foreground/90 leading-relaxed font-medium">
                       {activeOffering.careSolution}

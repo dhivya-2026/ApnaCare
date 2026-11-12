@@ -122,12 +122,35 @@ export function BookLink({
 
 export function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2" aria-label="ApnaCare home">
+    <Link to="/" className="flex items-center gap-2.5" aria-label="LifeSakthi home">
       <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-2xs">
-        <HeartHandshake className="size-5" />
+        <svg
+          viewBox="0 0 32 32"
+          fill="none"
+          className="size-6"
+          aria-hidden="true"
+        >
+          {/* Outer protective generational arc */}
+          <path
+            d="M16 4C9.925 4 5 8.925 5 15c0 4.918 3.226 9.08 7.674 10.483"
+            stroke="currentColor"
+            strokeWidth="2.1"
+            strokeLinecap="round"
+            opacity="0.7"
+          />
+          {/* Rising Sakthi flame / lotus petal */}
+          <path
+            d="M16 6.5C19.5 11 22 14.5 22 18.25C22 21.702 19.314 24.5 16 24.5C12.686 24.5 10 21.702 10 18.25C10 14.5 12.5 11 16 6.5Z"
+            stroke="currentColor"
+            strokeWidth="2.1"
+            strokeLinejoin="round"
+          />
+          {/* Inner seed of strength */}
+          <circle cx="16" cy="18.5" r="2.2" fill="currentColor" />
+        </svg>
       </span>
       <span className="font-display text-xl font-semibold tracking-tight">
-        Apna<span className="text-primary">Care</span>
+        Life<span className="text-primary">Sakthi</span>
       </span>
     </Link>
   );
@@ -159,75 +182,75 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", to: "/" },
+  { label: "About LifeSakthi", to: "/about" },
   {
-    label: "Who We Serve",
-    twoColumn: {
-      col1Title: "Family & Clinical Support",
-      col1Items: [
-        {
-          label: "Ageing Parents & Families",
-          to: "/solutions/families-elderly",
-          description: "Dignified in-home companionship & daily living support",
-          badge: "Daily Living",
-          icon: Heart,
-        },
-        {
-          label: "Post-Hospital Recovery",
-          to: "/solutions/post-hospitalization",
-          description: "Bedside assistance, surgical recovery & smooth transition",
-          badge: "Post-Surgical",
-          icon: Activity,
-        },
-        {
-          label: "New Mothers & Newborns",
-          to: "/solutions/new-mothers",
-          description: "Fourth-trimester care, infant handling & maternal healing",
-          badge: "4th Trimester",
-          icon: Baby,
-        },
-        {
-          label: "Women Balancing Caregiving",
-          to: "/solutions/women-caregivers",
-          description: "Equitable care support, dignity, and restorative time for women",
-          badge: "Respite",
-          icon: HeartHandshake,
-        },
-      ],
-      col2Title: "Workplace & Mobility Logistics",
-      col2Items: [
-        {
-          label: "Urban Professionals",
-          to: "/solutions/urban-professionals",
-          description: "Balancing intense careers with eldercare & hospital vigils",
-          badge: "Dual Career",
-          icon: Briefcase,
-        },
-        {
-          label: "Women Commuters",
-          to: "/solutions/women-commuters",
-          description: "Verified chauffeuses, station/airport assistance & late-night transit",
-          badge: "Safe Transit",
-          icon: Car,
-        },
-        {
-          label: "Safety-Focused Partners",
-          to: "/solutions/safety-partners",
-          description: "Corporate transport compliance, hospital bedside vigils & assisted travel",
-          badge: "B2B Assisted Travel",
-          icon: ShieldCheck,
-        },
-        {
-          label: "Community & Family Initiatives",
-          to: "/solutions/community-initiatives",
-          description: "Educational child safety guides & forthcoming community partnerships",
-          badge: "Community",
-          icon: Users,
-        },
-      ],
-    },
+    label: "Life Stages",
+    children: [
+      {
+        label: "Every Stage of Her Life",
+        to: "/life-stages",
+        description: "Interactive journey across all 6 stages of development & dignity",
+        badge: "6 Stages",
+        icon: Sparkles,
+      },
+      {
+        label: "Birth, Childhood & Adolescence",
+        to: "/life-stages#early-stages",
+        description: "Nurturing early health, education, safety & life skills",
+        badge: "Early Years",
+        icon: Baby,
+      },
+      {
+        label: "Young Adulthood & Motherhood",
+        to: "/life-stages#adulthood",
+        description: "Vocational skills, SHG employment, maternal & family support",
+        badge: "Agency",
+        icon: HeartHandshake,
+      },
+      {
+        label: "Ageing & Elderhood",
+        to: "/life-stages#elderhood",
+        description: "Dignified home companionship, mobility & clinical care",
+        badge: "Dignity",
+        icon: Heart,
+      },
+    ],
   },
   {
-    label: "Services",
+    label: "Our Pillars",
+    children: [
+      {
+        label: "All 6 Strategic Pillars",
+        to: "/pillars",
+        description: "Our holistic women & child development ecosystem",
+        badge: "Overview",
+        icon: Layers,
+      },
+      {
+        label: "Care & Assistance",
+        to: "/services",
+        description: "Operational home care, bedside support, nursing & travel",
+        badge: "Operational",
+        icon: Stethoscope,
+      },
+      {
+        label: "Women Empowerment & SHGs",
+        to: "/become-an-attendant",
+        description: "Grassroots SHG outreach, Saha careers & financial agency",
+        badge: "Active",
+        icon: Users,
+      },
+      {
+        label: "Child & Community Initiatives",
+        to: "/solutions/community-initiatives",
+        description: "Safety guides, community outreach & upcoming programmes",
+        badge: "Expanding",
+        icon: Building2,
+      },
+    ],
+  },
+  {
+    label: "Care & Services",
     twoColumn: {
       col1Title: "In-Home & Clinical Care",
       col1Items: [
@@ -267,14 +290,14 @@ const NAV_ITEMS: NavItem[] = [
           icon: Home,
         },
         {
-          label: "Lifestyle & Concierge",
-          to: "/services/lifestyle-support",
-          description: "Daily family errands & home management support",
-          badge: "Family Help",
-          icon: Sparkles,
+          label: "View All Services",
+          to: "/services",
+          description: "Complete catalogue with transparent pricing & SLAs",
+          badge: "Full Catalogue",
+          icon: Layers,
         },
       ],
-      col2Title: "Mobility, Travel & Specialized Care",
+      col2Title: "Mobility, Safety & Solutions",
       col2Items: [
         {
           label: "Women Drivers & Chauffeuses",
@@ -291,45 +314,52 @@ const NAV_ITEMS: NavItem[] = [
           icon: Plane,
         },
         {
-          label: "Airport Meet & Greet",
+          label: "Airport & Railway Assistance",
           to: "/services/airport-pickup",
-          description: "Arrival meet, luggage trolley & terminal assisted travel",
-          badge: "Airport Assisted Travel",
-          icon: Plane,
-        },
-        {
-          label: "Railway Station Assistance",
-          to: "/services/railway-assistance",
-          description: "Platform assisted travel, coach boarding & luggage support",
-          badge: "Station Assisted Travel",
+          description: "Arrival meet, platform & terminal assisted travel",
+          badge: "Transit Help",
           icon: Train,
         },
         {
-          label: "Security & Safety Support",
-          to: "/services/security-support",
-          description: "Verified residential & transit safety assisted travel",
-          badge: "Security",
+          label: "Safety & Verification Standards",
+          to: "/safety",
+          description: "5-stage verification & clinical vs attendant limits",
+          badge: "100% Vetted",
           icon: ShieldCheck,
         },
         {
-          label: "View All Services",
-          to: "/services",
-          description: "Complete catalogue with transparent pricing & SLAs",
-          badge: "Full Catalogue",
-          icon: Layers,
+          label: "Knowledge Hub & FAQs",
+          to: "/knowledge-hub",
+          description: "Care guides, safety resources & common answers",
+          badge: "Resources",
+          icon: BookOpen,
         },
       ],
     },
   },
   {
-    label: "Saha Team",
+    label: "Get Involved",
     children: [
       {
-        label: "Meet Our Saha Team",
-        to: "/#attendants",
-        description: "Meet the people behind your peace of mind",
-        badge: "Directory",
+        label: "Get Involved Hub",
+        to: "/get-involved",
+        description: "Join as a Saha, volunteer, or institutional collaborator",
+        badge: "Participate",
+        icon: Sparkles,
+      },
+      {
+        label: "Become a Saha (Careers)",
+        to: "/become-an-attendant",
+        description: "Training & dignified care careers for women",
+        badge: "Join Us",
         icon: Users,
+      },
+      {
+        label: "Partner With Us",
+        to: "/ecosystem-partners",
+        description: "NGOs, hospitals, SHGs & institutional alliances",
+        badge: "Partners",
+        icon: Network,
       },
       {
         label: "Saha Portal Login",
@@ -339,92 +369,13 @@ const NAV_ITEMS: NavItem[] = [
         icon: KeyRound,
       },
       {
-        label: "Become a Saha",
-        to: "/become-an-attendant",
-        description: "Join the Saha team — vetted care for South Indian families",
-        badge: "Join Us",
-        icon: Sparkles,
-      },
-    ],
-  },
-  {
-    label: "About",
-    children: [
-      {
-        label: "About ApnaCare",
-        to: "/about",
-        description: "Our story, founding mission & compassionate care values",
-        badge: "Mission",
-        icon: Building2,
-      },
-      {
-        label: "Ecosystem Partners",
-        to: "/ecosystem-partners",
-        description: "Hospitals, NGOs & healthcare skill development centers",
-        badge: "Network",
-        icon: Network,
-      },
-      {
         label: "Contact Us",
         to: "/contact",
-        description: "24/7 command center & regional care coordination desks",
+        description: "24/7 coordination desk across South India",
         badge: "24/7 Desk",
         icon: PhoneCall,
       },
     ],
-  },
-  {
-    label: "More",
-    twoColumn: {
-      col1Title: "Trust & Transparency",
-      col1Items: [
-        {
-          label: "How ApnaCare Works",
-          to: "/#how-it-works",
-          description: "5-step transparent journey to dependable care",
-          badge: "Process",
-          icon: CheckCircle2,
-        },
-        {
-          label: "Trust & Verification Standards",
-          to: "/safety",
-          description: "Police clearance & clinical vs attendant limits",
-          badge: "100% Vetted",
-          icon: ShieldCheck,
-        },
-        {
-          label: "Transparent Pricing",
-          to: "/#pricing",
-          description: "Clear daytime, overnight & live-in rates with GST",
-          badge: "Zero Hidden Fees",
-          icon: BadgePercent,
-        },
-      ],
-      col2Title: "Resources & Answers",
-      col2Items: [
-        {
-          label: "Knowledge Hub",
-          to: "/knowledge-hub",
-          description: "Problem-first care guides & health resources",
-          badge: "Guides",
-          icon: BookOpen,
-        },
-        {
-          label: "Frequently Asked Questions",
-          to: "/faq",
-          description: "Answers to common family care questions",
-          badge: "Help Desk",
-          icon: HelpCircle,
-        },
-        {
-          label: "Safety Guidelines & Boundaries",
-          to: "/safety-guidelines",
-          description: "Clear clinical protocols and attendant limits",
-          badge: "Protocols",
-          icon: FileText,
-        },
-      ],
-    },
   },
 ];
 
@@ -667,7 +618,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
                     <Phone className="size-3" /> Call {SITE.SUPPORT_PHONE}
                   </a>
                   <span className="text-muted-foreground">•</span>
-                  <a href={buildWhatsAppUrl("Hi ApnaCare! I need guidance choosing the right care plan.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#128C7E] hover:underline flex items-center gap-1">
+                  <a href={buildWhatsAppUrl("Hi LifeSakthi! I need guidance choosing the right care plan.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#128C7E] hover:underline flex items-center gap-1">
                     <MessageCircle className="size-3" /> WhatsApp Coordinator
                   </a>
                 </div>
@@ -877,7 +828,7 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const waUrl = buildWhatsAppUrl("Hi ApnaCare! I'd like to enquire about your services.");
+  const waUrl = buildWhatsAppUrl("Hi LifeSakthi! I'd like to enquire about your programmes and care services.");
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur w-full">
@@ -956,7 +907,7 @@ function Header() {
             <Link
               to="/login"
               className="hidden sm:inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap min-h-[44px] px-4 rounded-full font-bold text-xs bg-primary text-primary-foreground hover:bg-primary/90 shadow-2xs transition-all hover:scale-[1.02]"
-              aria-label="Get Started with ApnaCare account"
+              aria-label="Get Started with LifeSakthi account"
             >
               <span>Get Started</span>
               <ArrowRight className="size-3.5" />
@@ -1049,7 +1000,7 @@ function Footer() {
         <div className="sm:col-span-2 max-w-sm">
           <Logo />
           <p className="mt-4 text-sm leading-relaxed text-ink-foreground/85">
-            Care that feels closer to home. Safe, police-verified women attendants and licensed nurses for every stage of family care across South India.
+            Empowering Women. Enriching Lives. LifeSakthi stands beside women and children through every stage of life—uniting community empowerment with trusted Saha care across South India.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <BookLink variant="warm" size="sm" className="min-h-[44px]" />
@@ -1112,7 +1063,22 @@ function Footer() {
           <ul className="mt-4 space-y-2.5 text-sm text-ink-foreground/80">
             <li>
               <Link to="/about" className="hover:text-white transition-colors">
-                About ApnaCare
+                About LifeSakthi
+              </Link>
+            </li>
+            <li>
+              <Link to="/life-stages" className="hover:text-white transition-colors">
+                Life Stages Journey
+              </Link>
+            </li>
+            <li>
+              <Link to="/pillars" className="hover:text-white transition-colors">
+                Our 6 Pillars
+              </Link>
+            </li>
+            <li>
+              <Link to="/get-involved" className="hover:text-white transition-colors">
+                Get Involved
               </Link>
             </li>
             <li>
@@ -1165,7 +1131,7 @@ function Footer() {
             </li>
             <li>
               <a
-                href={buildWhatsAppUrl("Hello ApnaCare, I need assistance.")}
+                href={buildWhatsAppUrl("Hello LifeSakthi, I need assistance.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => track("whatsapp_footer_click")}
@@ -1200,7 +1166,7 @@ function Footer() {
       <div className="border-t border-ink-foreground/15 py-6">
         <div className="container-page flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-ink-foreground/75">
           <p>
-            © {new Date().getFullYear()} {SITE.legalName}. All rights reserved. GST compliant
+            © {new Date().getFullYear()} LifeSakthi (Operated by {SITE.legalName}). All rights reserved. GST compliant
             invoicing.
           </p>
           <div className="flex flex-wrap items-center gap-4">
@@ -1240,7 +1206,7 @@ function Footer() {
 // ─── Mobile Bottom Bar ────────────────────────────────────────────────────────
 
 function MobileBar() {
-  const waUrl = buildWhatsAppUrl("Hi ApnaCare! I'd like to book a service.");
+  const waUrl = buildWhatsAppUrl("Hi LifeSakthi! I'd like to enquire about care & support.");
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-2 border-t border-border bg-background/95 p-3 backdrop-blur md:hidden shadow-lift" role="toolbar" aria-label="Quick actions">
       <CallLink className="flex-1 text-sm min-h-[44px]" size="sm">
@@ -1271,14 +1237,14 @@ function MobileBar() {
 
 function FloatingWhatsApp() {
   const waUrl = buildWhatsAppUrl(
-    "Hi ApnaCare! I'd like to know more about your women attendant services.",
+    "Hi LifeSakthi! I'd like to know more about your programmes and Saha care services.",
   );
   return (
     <a
       href={waUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat with ApnaCare on WhatsApp"
+      aria-label="Chat with LifeSakthi on WhatsApp"
       onClick={() => {
         track("whatsapp_contact_clicked", { source_location: "floating_fab" });
         track("whatsapp_floating_click");

@@ -1,5 +1,5 @@
 /**
- * ApnaCare Complete Care-Needs Taxonomy
+ * LifeSakthi Complete Care-Needs Taxonomy
  * ───────────────────────────────────────
  * Structured, expandable catalogue featuring 12 Primary Categories of Care,
  * Subcategories, Individual Selectable Tasks, Clinical Scope Classifications,
@@ -781,7 +781,7 @@ export const CARE_CATEGORIES: CareCategory[] = [
         helpText: "We recommend a coordinator review for high-dependency cases",
         options: [
           { id: "assess_yes", label: "Yes, medical assessment is up to date" },
-          { id: "assess_needed", label: "Need ApnaCare care coordinator to evaluate home needs" },
+          { id: "assess_needed", label: "Need LifeSakthi care coordinator to evaluate home needs" },
         ],
       },
     ],

@@ -13,7 +13,7 @@ import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/ecosystem-partners")({
-  head: () => seo("Ecosystem Partners — ApnaCare", "Partner with ApnaCare to empower women through verified services, professional training and community collaboration."),
+  head: () => seo("Ecosystem Partners — LifeSakthi", "Partner with LifeSakthi to empower women through verified services, professional training and community collaboration."),
   component: Partners,
 });
 
@@ -48,7 +48,7 @@ function Partners() {
             </ul>
           </div>
           <div>
-            <SectionHeading title="Why partner with ApnaCare" />
+            <SectionHeading title="Why partner with LifeSakthi" />
             <div className="mt-8 grid grid-cols-2 gap-3">{PARTNER_BENEFITS.map((b) => <div key={b} className="rounded-2xl bg-card p-4 text-sm font-semibold shadow-soft">{b}</div>)}</div>
             <p className="mt-6 text-sm text-muted-foreground">Partner types: {PARTNER_TYPES.join(" · ")}</p>
           </div>

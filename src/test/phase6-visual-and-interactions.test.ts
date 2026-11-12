@@ -212,10 +212,10 @@ describe("Phase 6 Visual, Typography & Interaction System", () => {
     const indexPath = path.resolve(__dirname, "../routes/index.tsx");
     const indexContent = fs.readFileSync(indexPath, "utf-8");
 
-    it("mounts HeroCareShowcase, CareSituationSlider, CareCoordinationExplorer, and CareRecoveryStory on Homepage", () => {
-      expect(indexContent).toContain("<HeroCareShowcase");
-      expect(indexContent).toContain("<CareSituationSlider");
-      expect(indexContent).toContain("<CareCoordinationExplorer");
+    it("mounts LifeStagesJourney, PillarsGrid, UniversalCareConfigurator, and CareRecoveryStory on Homepage", () => {
+      expect(indexContent).toContain("<LifeStagesJourney");
+      expect(indexContent).toContain("<PillarsGrid");
+      expect(indexContent).toContain("<UniversalCareConfigurator");
       expect(indexContent).toContain("<CareRecoveryStory");
     });
 

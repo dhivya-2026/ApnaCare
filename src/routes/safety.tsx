@@ -25,7 +25,7 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/safety")({
   head: () =>
     seo(
-      "Safety & Saha Team Verification Architecture — ApnaCare",
+      "Safety & Saha Team Verification Architecture — LifeSakthi",
       "Our 5-stage vetting protocol: Government photo ID authentication, state police background screening, practical care evaluations, check-in tracking, and regional supervisor backup coordination."
     ),
   component: Safety,
@@ -55,7 +55,7 @@ const VETTING_STAGES = [
   {
     step: "05",
     title: "Cluster Coordination & Check-In Onboarding",
-    desc: "Onboarding into ApnaCare's regional coordination roster with scheduled shift check-ins and standby replacement protocols.",
+    desc: "Onboarding into LifeSakthi's regional coordination roster with scheduled shift check-ins and standby replacement protocols.",
   },
 ];
 
@@ -113,7 +113,7 @@ function Safety() {
       <PageHero
         eyebrow="Our Safety Covenant"
         title="Our Standard is Uncompromising Trust"
-        sub="We treat your family's safety as a personal sacred duty. Every ApnaCare Saha team member passes our multi-tier background screening, clinical evaluations, and 24/7 command center monitoring."
+        sub="We treat your family's safety as a personal sacred duty. Every LifeSakthi Saha team member passes our multi-tier background screening, clinical evaluations, and 24/7 command center monitoring."
       >
         <BookLink size="lg" variant="warm">
           Find Your Saha

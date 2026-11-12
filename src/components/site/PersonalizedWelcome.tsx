@@ -379,7 +379,7 @@ export function PersonalizedWelcome() {
       id="personalized-welcome-card"
       ref={cardRef}
       role="complementary"
-      aria-label="Welcome back to ApnaCare"
+      aria-label="Welcome back to LifeSakthi"
       aria-live="polite"
       style={{
         position: "fixed",

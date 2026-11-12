@@ -11,8 +11,8 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/login/user")({
   head: () =>
     seo(
-      "Customer Login — ApnaCare",
-      "Sign in to your ApnaCare customer account to view your bookings, care team, and service schedules.",
+      "Customer Login — LifeSakthi",
+      "Sign in to your LifeSakthi customer account to view your bookings, care team, and service schedules.",
       { canonical: "https://apna-care.vercel.app/login/user" }
     ),
   component: UserLoginPage,

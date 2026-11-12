@@ -31,11 +31,11 @@ export const Route = createFileRoute("/solutions/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return seo("Solution Not Found — ApnaCare", "The requested solution profile could not be found.", { noindex: true });
+      return seo("Solution Not Found — LifeSakthi", "The requested solution profile could not be found.", { noindex: true });
     }
     const { icp } = loaderData;
     return seo(
-      `${icp.name} Solutions — Verified Care & Transit | ApnaCare`,
+      `${icp.name} Solutions — Verified Care & Transit | LifeSakthi`,
       icp.subtitle,
       {
         canonical: `https://apna-care.vercel.app/solutions/${icp.slug}`,
@@ -58,7 +58,7 @@ function ICPSolutionPage() {
     .map((slug) => getService(slug))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
-  const waUrl = buildWhatsAppUrl(`Hi ApnaCare! I'm interested in care solutions for ${icp.name}.`);
+  const waUrl = buildWhatsAppUrl(`Hi LifeSakthi! I'm interested in care solutions for ${icp.name}.`);
 
   return (
     <>
@@ -259,7 +259,7 @@ function ICPSolutionPage() {
               </div>
               <div className="mt-6 pt-5 border-t border-border/80 bg-primary-soft/30 -mx-7 -mb-7 p-6">
                 <p className="text-xs font-bold uppercase tracking-wider text-primary mb-1.5 flex items-center gap-1.5">
-                  <CheckCircle2 className="size-4" /> How ApnaCare Helps
+                  <CheckCircle2 className="size-4" /> How LifeSakthi Helps
                 </p>
                 <p className="text-sm text-foreground/90 leading-relaxed font-normal">
                   {item.solution}
@@ -277,7 +277,7 @@ function ICPSolutionPage() {
             <SectionHeading
               center
               eyebrow="Situation · Challenge · Solution"
-              title="How ApnaCare Tailors Care to Your Family"
+              title="How LifeSakthi Tailors Care to Your Family"
               sub="Real-life situations, the specific difficulties families face, and the practical support we provide."
             />
 
@@ -328,7 +328,7 @@ function ICPSolutionPage() {
                     {/* Solution */}
                     <div className="pt-2 border-t border-border/60">
                       <p className="text-xs font-bold uppercase tracking-wider text-primary mb-1">
-                        How ApnaCare helps
+                        How LifeSakthi helps
                       </p>
                       <p className="text-sm text-foreground leading-relaxed">
                         {svc.solution}

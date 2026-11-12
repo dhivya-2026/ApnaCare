@@ -26,6 +26,10 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-terracotta: var(--terracotta);
   --color-terracotta-foreground: var(--terracotta-foreground);
+  --color-plum: var(--plum);
+  --color-plum-foreground: var(--plum-foreground);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
   --color-turmeric: var(--turmeric);
   --color-turmeric-foreground: var(--turmeric-foreground);
   --color-muted: var(--muted);
@@ -61,24 +65,30 @@
 
 :root {
   --radius: 1rem;
-  /* #F8F5EF warm ivory */
-  --background: oklch(0.973 0.008 85);
-  /* #26312E charcoal */
-  --foreground: oklch(0.29 0.017 170);
+  /* #FAF7F2 warm ivory */
+  --background: oklch(0.976 0.008 80);
+  /* #1F2B28 deep charcoal */
+  --foreground: oklch(0.26 0.018 170);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.29 0.017 170);
+  --card-foreground: oklch(0.26 0.018 170);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.29 0.017 170);
-  /* #285C52 deep sage */
-  --primary: oklch(0.435 0.06 175);
+  --popover-foreground: oklch(0.26 0.018 170);
+  /* #1F4E46 deep forest sage (LifeSakthi primary) */
+  --primary: oklch(0.385 0.065 175);
   --primary-foreground: oklch(0.985 0.006 85);
-  --primary-soft: oklch(0.93 0.025 170);
-  /* #E9D8C8 warm beige */
-  --secondary: oklch(0.89 0.028 65);
-  --secondary-foreground: oklch(0.29 0.017 170);
-  /* #D9A78B soft terracotta */
-  --terracotta: oklch(0.77 0.072 50);
-  --terracotta-foreground: oklch(0.26 0.03 45);
+  --primary-soft: oklch(0.935 0.024 170);
+  /* #EDE0D4 warm sand */
+  --secondary: oklch(0.905 0.022 65);
+  --secondary-foreground: oklch(0.26 0.018 170);
+  /* #C46A4E warm terracotta */
+  --terracotta: oklch(0.62 0.115 36);
+  --terracotta-foreground: oklch(0.985 0.006 85);
+  /* #5B3758 sophisticated plum */
+  --plum: oklch(0.38 0.075 332);
+  --plum-foreground: oklch(0.985 0.006 85);
+  /* #D4A853 subtle gold accent */
+  --gold: oklch(0.76 0.115 82);
+  --gold-foreground: oklch(0.24 0.035 70);
   /* #E5C477 muted turmeric */
   --turmeric: oklch(0.82 0.11 85);
   --turmeric-foreground: oklch(0.28 0.04 75);

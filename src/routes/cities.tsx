@@ -10,8 +10,8 @@ import { getPlannedExpansionCities } from "@/data/cityAvailability";
 export const Route = createFileRoute("/cities")({
   head: () =>
     seo(
-      "Cities We Serve Across South India — ApnaCare",
-      "ApnaCare verified women attendants across Bengaluru, Chennai, Hyderabad and Coimbatore, with regional expansion underway for Kochi, Mysuru, and Pune. Background screening and priority cluster backup protocol."
+      "Cities We Serve Across South India — LifeSakthi",
+      "LifeSakthi verified women attendants across Bengaluru, Chennai, Hyderabad and Coimbatore, with regional expansion underway for Kochi, Mysuru, and Pune. Background screening and priority cluster backup protocol."
     ),
   component: CitiesPage,
 });

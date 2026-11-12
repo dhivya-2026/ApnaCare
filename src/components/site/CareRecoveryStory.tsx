@@ -24,7 +24,7 @@ export function CareRecoveryStory({
   sourceContext = "homepage",
 }: CareRecoveryStoryProps) {
   const waUrl = buildWhatsAppUrl(
-    "Hello ApnaCare team, I need help arranging post-hospital recovery support for a family member. Could you guide me through attendant vs nursing availability and timelines?"
+    "Hello LifeSakthi team, I need help arranging post-hospital recovery support for a family member. Could you guide me through attendant vs nursing availability and timelines?"
   );
 
   return (
@@ -90,7 +90,7 @@ export function CareRecoveryStory({
 
                 {/* Situation Description */}
                 <p className="mt-3 text-fluid-body text-readable-muted">
-                  Hospital discharge day is overwhelming. Between discharge summaries, medicine schedules, surgical wound dressing, and bedside comfort, family caregivers face immediate exhaustion. ApnaCare steps in with verified support so your family can focus on healing.
+                  Hospital discharge day is overwhelming. Between discharge summaries, medicine schedules, surgical wound dressing, and bedside comfort, family caregivers face immediate exhaustion. LifeSakthi steps in with verified support so your family can focus on healing.
                 </p>
 
                 {/* Three Simple Coordination Steps */}

@@ -1,5 +1,5 @@
 /**
- * City-by-Service Availability & Regional Expansion Architecture — ApnaCare Phase 2
+ * City-by-Service Availability & Regional Expansion Architecture — LifeSakthi Phase 2
  *
  * Implements explicit operational readiness checking across active delivery clusters
  * and planned expansion cities, ensuring visitors receive honest availability without false claims.
@@ -334,7 +334,7 @@ export function checkCityServiceAvailability(
       requiresAssessment: true,
       isPlannedOnly: false,
       backupSLA: null,
-      message: `ApnaCare does not currently operate in ${citySlug}. We can discuss custom arrangements or refer trusted regional resources.`,
+      message: `LifeSakthi does not currently operate in ${citySlug}. We can discuss custom arrangements or refer trusted regional resources.`,
       nextStepLabel: "Contact Coordinator",
       nextStepHref: "/contact",
     };
@@ -385,7 +385,7 @@ export function checkCityServiceAvailability(
       requiresAssessment: false,
       isPlannedOnly: true,
       backupSLA: null,
-      message: `ApnaCare is currently setting up caregiver clusters in ${city.name}. Express interest to be notified when bookings open in your neighborhood.`,
+      message: `LifeSakthi is currently setting up caregiver clusters in ${city.name}. Express interest to be notified when bookings open in your neighborhood.`,
       nextStepLabel: `Express Interest in ${city.name}`,
       nextStepHref: `/contact?intent=city_interest&city=${city.name}&service=${serviceSlug}`,
     };

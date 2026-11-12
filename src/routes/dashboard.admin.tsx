@@ -45,7 +45,7 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/dashboard/admin")({
   head: () =>
     seo(
-      "Operations Command Console — ApnaCare",
+      "Operations Command Console — LifeSakthi",
       "Pan-India clinical coordination dashboard: Total bookings across India, State-wise & City-wise breakdown, Service trends, and Daily/Weekly/Monthly reports.",
       { canonical: "https://apna-care.vercel.app/dashboard/admin" }
     ),

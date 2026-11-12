@@ -2,7 +2,7 @@
  * Universal Care Modules & Configurator Taxonomy
  *
  * Implements the reusable care modules, situation definitions,
- * combination compatibility rules, and preset packages for ApnaCare.
+ * combination compatibility rules, and preset packages for LifeSakthi.
  */
 
 export interface CareModule {
@@ -298,7 +298,7 @@ export const CARE_MODULES: CareModule[] = [
     requiredStaffRole: "General Duty Attendant",
     allowedTasks: ["Daily routine summary", "WhatsApp check-in with designated family"],
     excludedTasks: ["Medical diagnoses"],
-    baseDailyRate: 0, // Included as ApnaCare standard
+    baseDailyRate: 0, // Included as LifeSakthi standard
     unit: "day",
     compatibleWith: [
       "mod-daily-living",

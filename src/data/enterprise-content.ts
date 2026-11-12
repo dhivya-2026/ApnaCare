@@ -1,4 +1,4 @@
-// Enterprise Content Strategy, Copy Library, and SEO/GEO/AEO Schemas for ApnaCare.
+// Enterprise Content Strategy, Copy Library, and SEO/GEO/AEO Schemas for LifeSakthi.
 // All business information is strictly aligned with confirmed operational facts.
 
 import { SITE, SERVICES, formatINR } from "./site";
@@ -109,12 +109,12 @@ export const BRAND_MESSAGING = {
   subSupporting: {
     short: "Trusted care and support for your loved ones, at home and when it matters most.",
     medium: "Trusted care and support for your loved ones across Bengaluru, Chennai, Hyderabad, and Coimbatore. 100% police-verified women attendants with guaranteed 90-minute backup.",
-    long: "Whether you are caring for ageing parents, assisting a patient after hospital discharge, or welcoming a newborn, ApnaCare delivers empathetic, certified women attendants backed by continuous care coordinator supervision and transparent invoicing.",
+    long: "Whether you are caring for ageing parents, assisting a patient after hospital discharge, or welcoming a newborn, LifeSakthi delivers empathetic, certified women attendants backed by continuous care coordinator supervision and transparent invoicing.",
   },
   aboutUs: {
-    short: "ApnaCare provides vetted, compassionate women attendants for home healthcare, senior living, and hospital bedside assistance across South India.",
-    medium: "ApnaCare was established to bridge the trust gap in domestic healthcare. We pair rigorously screened, trained women attendants with families who need dependable care for senior parents, recovering hospital patients, and new mothers, backed by 24/7 care desk oversight.",
-    long: "ApnaCare operates on a simple principle: every family deserves verified, dignified care when bringing an attendant into their home, and every care worker deserves respect, fair wages, and institutional backing. With 8+ years of dedicated coordination, ApnaCare has supported over 1,200+ families across Bengaluru, Chennai, Hyderabad, and Coimbatore with 100% police verification, certified patient ergonomics training, transparent 18% GST invoices, and a guaranteed 90-minute emergency backup protocol.",
+    short: "LifeSakthi provides vetted, compassionate women attendants for home healthcare, senior living, and hospital bedside assistance across South India.",
+    medium: "LifeSakthi was established to bridge the trust gap in domestic healthcare. We pair rigorously screened, trained women attendants with families who need dependable care for senior parents, recovering hospital patients, and new mothers, backed by 24/7 care desk oversight.",
+    long: "LifeSakthi operates on a simple principle: every family deserves verified, dignified care when bringing an attendant into their home, and every care worker deserves respect, fair wages, and institutional backing. With 8+ years of dedicated coordination, LifeSakthi has supported over 1,200+ families across Bengaluru, Chennai, Hyderabad, and Coimbatore with 100% police verification, certified patient ergonomics training, transparent 18% GST invoices, and a guaranteed 90-minute emergency backup protocol.",
   },
   mission: {
     short: "To provide dignified, compassionate care for families while championing safe, respectable careers for women caregivers.",
@@ -197,7 +197,7 @@ export const ENTERPRISE_SERVICES: Record<string, EnterpriseServiceContent> = {
     faqs: [
       {
         q: "What hours are available for elderly care?",
-        aDirect: "ApnaCare offers 8-hour day shifts, 12-hour day/night shifts, and continuous 24-hour live-in care across Bengaluru, Chennai, Hyderabad, and Coimbatore.",
+        aDirect: "LifeSakthi offers 8-hour day shifts, 12-hour day/night shifts, and continuous 24-hour live-in care across Bengaluru, Chennai, Hyderabad, and Coimbatore.",
         aDetailed: "You can customize shift hours based on your family's routine. 24-hour live-in attendants require a clean sleeping space and standard meals, while day-shift attendants commute directly to your home.",
       },
       {
@@ -207,7 +207,7 @@ export const ENTERPRISE_SERVICES: Record<string, EnterpriseServiceContent> = {
       },
     ],
     seo: {
-      title: "Elderly Care Services at Home — Verified Women Attendants | ApnaCare",
+      title: "Elderly Care Services at Home — Verified Women Attendants | LifeSakthi",
       description: "Compassionate, police-verified elderly care attendants at home in Bengaluru, Chennai, Hyderabad & Coimbatore. 24/7 companionship, mobility aid & medication reminders.",
       primaryKeyword: "elderly care at home",
       secondaryKeywords: ["senior citizen attendant", "geriatric caregiver home", "home attendant for elderly parents", "elderly care Bengaluru Chennai"],
@@ -239,7 +239,7 @@ export const ENTERPRISE_SERVICES: Record<string, EnterpriseServiceContent> = {
       situation: "A loved one admitted to a hospital for surgery or illness, requiring 24/7 bedside presence while family members balance jobs or children.",
       problem: "Busy hospital nursing staff cannot remain stationed at a single patient's bedside continuously; family members experience severe burnout and sleep deprivation.",
       implication: "Risk of unassisted falls when getting out of bed, delayed call-bell response, and exhaustion leading to family distress.",
-      solution: "A dedicated ApnaCare bedside attendant stationed right by the bed for 12-hour shifts or continuous 24-hour vigil.",
+      solution: "A dedicated LifeSakthi bedside attendant stationed right by the bed for 12-hour shifts or continuous 24-hour vigil.",
       benefit: "The patient receives gentle, instant attention for personal needs; families can sleep or attend to responsibilities knowing their loved one is safe.",
       nextStep: "Share the hospital name, ward type, and expected admission dates for instant coordinator assignment.",
     },
@@ -273,7 +273,7 @@ export const ENTERPRISE_SERVICES: Record<string, EnterpriseServiceContent> = {
         "Ventilator and telemetry monitor interpretation",
         "Clinical post-op surgical drain management",
       ],
-      whenToChooseNurse: "Inside hospitals, the hospital's registered nursing staff administers clinical medications. An ApnaCare hospital attendant serves as the dedicated personal caregiver and bedside companion.",
+      whenToChooseNurse: "Inside hospitals, the hospital's registered nursing staff administers clinical medications. An LifeSakthi hospital attendant serves as the dedicated personal caregiver and bedside companion.",
     },
     startingPrice: 1499,
     pricingUnit: "day",
@@ -284,7 +284,7 @@ export const ENTERPRISE_SERVICES: Record<string, EnterpriseServiceContent> = {
     ],
     faqs: [
       {
-        q: "Do hospitals allow private ApnaCare attendants in patient rooms?",
+        q: "Do hospitals allow private LifeSakthi attendants in patient rooms?",
         aDirect: "Yes. Most private hospitals and nursing homes routinely permit designated bedside attendants with standard attendant passes in private and semi-private rooms.",
         aDetailed: "Our attendants carry institutional photo IDs and police clearance proofs, making registration with hospital security and nurse station coordination straightforward.",
       },
@@ -295,7 +295,7 @@ export const ENTERPRISE_SERVICES: Record<string, EnterpriseServiceContent> = {
       },
     ],
     seo: {
-      title: "Hospital Bedside Attendant Services — 24/7 Patient Care | ApnaCare",
+      title: "Hospital Bedside Attendant Services — 24/7 Patient Care | LifeSakthi",
       description: "Dedicated hospital bedside attendants in Bengaluru, Chennai, Hyderabad & Coimbatore. Trained women caregivers for post-surgery recovery, hygiene, and nurse coordination.",
       primaryKeyword: "hospital bedside attendant",
       secondaryKeywords: ["patient care attendant hospital", "hospital attendant service", "post-surgery bedside caregiver", "24/7 hospital helper"],
@@ -377,12 +377,12 @@ export const ENTERPRISE_SERVICES: Record<string, EnterpriseServiceContent> = {
       },
       {
         q: "Can I book a short clinical visit just for an injection or dressing?",
-        aDirect: "Yes. ApnaCare offers short procedural visits (up to 2 hours) for wound dressings and injections, in addition to 12-hour and 24-hour nursing shifts.",
+        aDirect: "Yes. LifeSakthi offers short procedural visits (up to 2 hours) for wound dressings and injections, in addition to 12-hour and 24-hour nursing shifts.",
         aDetailed: "Short visits are ideal for patients who are otherwise mobile but require daily sterile dressing changes or prescribed intramuscular injections.",
       },
     ],
     seo: {
-      title: "Home Nursing Services — Certified GNM & B.Sc Nurses | ApnaCare",
+      title: "Home Nursing Services — Certified GNM & B.Sc Nurses | LifeSakthi",
       description: "Qualified female nurses at home in Bengaluru, Chennai, Hyderabad & Coimbatore. Sterile wound dressings, injections, catheter care, and post-operative recovery.",
       primaryKeyword: "home nursing services",
       secondaryKeywords: ["nurse at home", "clinical nurse Bengaluru", "post operative nursing care", "wound dressing at home", "injection service at home"],
@@ -457,8 +457,8 @@ export const ENTERPRISE_SERVICES: Record<string, EnterpriseServiceContent> = {
     ],
     faqs: [
       {
-        q: "What is the difference between a general maid and an ApnaCare post-natal attendant?",
-        aDirect: "A general maid cleans homes, while an ApnaCare post-natal attendant is specifically trained in newborn ergonomics, infant massage, sterile hygiene, and maternal recovery.",
+        q: "What is the difference between a general maid and an LifeSakthi post-natal attendant?",
+        aDirect: "A general maid cleans homes, while an LifeSakthi post-natal attendant is specifically trained in newborn ergonomics, infant massage, sterile hygiene, and maternal recovery.",
         aDetailed: "Our attendants focus exclusively on the mother and baby's well-being, providing patient, hygienic, and culturally sensitive care rather than performing generic domestic chores.",
       },
       {
@@ -468,7 +468,7 @@ export const ENTERPRISE_SERVICES: Record<string, EnterpriseServiceContent> = {
       },
     ],
     seo: {
-      title: "Post-Natal Care & Newborn Attendant Services | ApnaCare",
+      title: "Post-Natal Care & Newborn Attendant Services | LifeSakthi",
       description: "Experienced post-natal care attendants (Japa care) in Bengaluru, Chennai, Hyderabad & Coimbatore. Newborn massage, bath support, and restful recovery for new mothers.",
       primaryKeyword: "post natal care at home",
       secondaryKeywords: ["japa maid service", "newborn care attendant", "post delivery mother care", "baby care helper Bengaluru"],
@@ -497,9 +497,9 @@ export const ENTERPRISE_AUDIENCES: Record<string, EnterpriseAudienceContent> = {
       long: "Professional care support designed for busy urban families: scheduled WhatsApp updates, verified attendants, and zero agency friction.",
     },
     narrative: {
-      short: "Balancing a demanding job with eldercare or recovery needs is exhausting. ApnaCare provides verified attendants and daily updates so you can focus on work with reassurance.",
-      medium: "Between long office hours, demanding project deadlines, and city commutes, managing an ageing parent's doctor visits or a family member's recovery is overwhelming. ApnaCare provides structured, police-verified care with scheduled digital logs, keeping you connected without stress.",
-      long: "Urban professionals across tech and corporate hubs in Bengaluru, Chennai, Hyderabad, and Coimbatore face a relentless dual challenge: fulfilling rigorous professional responsibilities while ensuring their loved ones receive safe, dignified daily care. ApnaCare replaces unreliable word-of-mouth domestic workers with certified, background-checked women attendants backed by 24/7 care desk oversight, live GPS check-ins, and guaranteed backup replacement within 90 minutes.",
+      short: "Balancing a demanding job with eldercare or recovery needs is exhausting. LifeSakthi provides verified attendants and daily updates so you can focus on work with reassurance.",
+      medium: "Between long office hours, demanding project deadlines, and city commutes, managing an ageing parent's doctor visits or a family member's recovery is overwhelming. LifeSakthi provides structured, police-verified care with scheduled digital logs, keeping you connected without stress.",
+      long: "Urban professionals across tech and corporate hubs in Bengaluru, Chennai, Hyderabad, and Coimbatore face a relentless dual challenge: fulfilling rigorous professional responsibilities while ensuring their loved ones receive safe, dignified daily care. LifeSakthi replaces unreliable word-of-mouth domestic workers with certified, background-checked women attendants backed by 24/7 care desk oversight, live GPS check-ins, and guaranteed backup replacement within 90 minutes.",
     },
     spin: {
       situation: "Professionals managing high-intensity jobs while caring for ageing parents or a recovering spouse at home.",
@@ -522,7 +522,7 @@ export const ENTERPRISE_AUDIENCES: Record<string, EnterpriseAudienceContent> = {
       "Digital vitals logging and scheduled WhatsApp updates to family",
     ],
     seo: {
-      title: "Care Solutions for Urban Professionals | ApnaCare",
+      title: "Care Solutions for Urban Professionals | LifeSakthi",
       description: "Dependable elderly care, hospital assistance, and nursing for working professionals in South India. Background-checked attendants and daily WhatsApp updates.",
       primaryKeyword: "elderly care for working professionals",
       secondaryKeywords: ["caregiver support for working adults", "dependable home care Bengaluru", "corporate eldercare support"],
@@ -542,8 +542,8 @@ export const ENTERPRISE_AUDIENCES: Record<string, EnterpriseAudienceContent> = {
     },
     narrative: {
       short: "Give your parents the gentle, respectful support they deserve at home. Our attendants handle daily routines with patience and warmth.",
-      medium: "Our parents spent lifetimes caring for us. When mobility slows down or health schedules become complex, ApnaCare ensures they receive kind, dignified companionship without leaving the comfort of their home.",
-      long: "Transitioning an ageing parent to an assisted living facility is emotionally difficult and often unnecessary. ApnaCare enables seniors to age gracefully in their familiar neighborhoods and homes. Our geriatric-trained attendants assist with gentle sponge baths, fall prevention, walking support, and physician-prescribed medication reminders, treating your parents with the same deference, patience, and warmth as their own family.",
+      medium: "Our parents spent lifetimes caring for us. When mobility slows down or health schedules become complex, LifeSakthi ensures they receive kind, dignified companionship without leaving the comfort of their home.",
+      long: "Transitioning an ageing parent to an assisted living facility is emotionally difficult and often unnecessary. LifeSakthi enables seniors to age gracefully in their familiar neighborhoods and homes. Our geriatric-trained attendants assist with gentle sponge baths, fall prevention, walking support, and physician-prescribed medication reminders, treating your parents with the same deference, patience, and warmth as their own family.",
     },
     spin: {
       situation: "Adult children watching their parents struggle with basic mobility, memory slips, or loneliness.",
@@ -566,7 +566,7 @@ export const ENTERPRISE_AUDIENCES: Record<string, EnterpriseAudienceContent> = {
       "Attentive walking assistance and fall-prevention monitoring",
     ],
     seo: {
-      title: "Ageing Parents Care at Home — Compassionate Companionship | ApnaCare",
+      title: "Ageing Parents Care at Home — Compassionate Companionship | LifeSakthi",
       description: "Dedicated women caregivers for ageing parents across South India. Dignified assistance with bathing, mobility, medication reminders, and companionship.",
       primaryKeyword: "care for ageing parents at home",
       secondaryKeywords: ["senior parent companionship", "elderly assistance South India", "home care for parents"],
@@ -586,14 +586,14 @@ export const ENTERPRISE_AUDIENCES: Record<string, EnterpriseAudienceContent> = {
     },
     narrative: {
       short: "Hospital stays and surgical recovery are exhausting. Our bedside attendants take over overnight vigil and mobility assistance so you can rest.",
-      medium: "When a family member undergoes surgery, hospital corridors become a second home. An ApnaCare bedside attendant provides dedicated personal assistance by the bed, coordinating with ward nurses and ensuring your loved one is never unattended.",
+      medium: "When a family member undergoes surgery, hospital corridors become a second home. An LifeSakthi bedside attendant provides dedicated personal assistance by the bed, coordinating with ward nurses and ensuring your loved one is never unattended.",
       long: "Hospital admissions and post-operative weeks demand continuous vigilance that quickly drains family members juggling multiple obligations. Our hospital attendants remain stationed right by your patient's bedside, assisting with call bells, restroom transfers, and sponge baths. After discharge, our attendants and certified nurses continue care at home to prevent complications and support a smooth, comfortable recovery.",
     },
     spin: {
       situation: "A family member admitted to the hospital or returning home after orthopedic, cardiac, or general surgery.",
       problem: "Ward nursing staff are shared across dozens of patients; family members face sleepless nights by the bed while fearing unassisted falls.",
       implication: "High risk of accidental falls in hospital corridors, bed sores, and overwhelming physical fatigue for the primary family caregiver.",
-      solution: "A dedicated ApnaCare hospital attendant for inpatient bedside vigil, followed by home recovery support.",
+      solution: "A dedicated LifeSakthi hospital attendant for inpatient bedside vigil, followed by home recovery support.",
       benefit: "Continuous patient safety, prompt nurse call coordination, and restful sleep for family members.",
       nextStep: "Provide hospital details and admission schedule for immediate attendant deployment.",
     },
@@ -610,7 +610,7 @@ export const ENTERPRISE_AUDIENCES: Record<string, EnterpriseAudienceContent> = {
       "Smooth transition from hospital bedside to home recovery nursing",
     ],
     seo: {
-      title: "Hospital Bedside & Post-Surgery Recovery Assistance | ApnaCare",
+      title: "Hospital Bedside & Post-Surgery Recovery Assistance | LifeSakthi",
       description: "Dedicated hospital attendants for inpatient recovery across Bengaluru, Chennai, Hyderabad & Coimbatore. Bedside vigil, hygiene support, and nurse coordination.",
       primaryKeyword: "post surgery recovery assistance",
       secondaryKeywords: ["hospital bedside helper", "inpatient attendant care", "post hospital discharge care"],
@@ -630,7 +630,7 @@ export const ENTERPRISE_AUDIENCES: Record<string, EnterpriseAudienceContent> = {
     },
     narrative: {
       short: "The first weeks with a newborn are precious but exhausting. Our post-natal attendants handle baby care routines so mothers heal properly.",
-      medium: "Bringing a baby home is a joyful milestone, but physical healing and round-the-clock feeding routines take an immense toll. ApnaCare post-natal attendants provide gentle, experienced hands for infant massage and night soothing, ensuring new mothers get the sleep they need.",
+      medium: "Bringing a baby home is a joyful milestone, but physical healing and round-the-clock feeding routines take an immense toll. LifeSakthi post-natal attendants provide gentle, experienced hands for infant massage and night soothing, ensuring new mothers get the sleep they need.",
       long: "In nuclear family settings across Indian metros, new parents often find themselves without the traditional multi-generational support system. Our certified Japa and post-natal attendants step in with warmth, cultural understanding, and clinical hygiene. They assist with infant massage, soothing colic, and bath routines while enabling the recovering mother to heal from delivery in a calm, stress-free atmosphere.",
     },
     spin: {
@@ -654,7 +654,7 @@ export const ENTERPRISE_AUDIENCES: Record<string, EnterpriseAudienceContent> = {
       "Strict hygiene standards and background-verified caregivers",
     ],
     seo: {
-      title: "Post-Natal Care & Newborn Support at Home | ApnaCare",
+      title: "Post-Natal Care & Newborn Support at Home | LifeSakthi",
       description: "Trained post-natal attendants (Japa care) in South India. Newborn massage, warm baths, night soothing, and restorative recovery for new mothers.",
       primaryKeyword: "post natal care for new mothers",
       secondaryKeywords: ["japa care service", "newborn baby attendant", "postpartum recovery care home"],
@@ -669,8 +669,8 @@ export const ENTERPRISE_AUDIENCES: Record<string, EnterpriseAudienceContent> = {
 export const AEO_FAQS = [
   {
     category: "Services & Scope",
-    q: "What services does ApnaCare offer?",
-    aDirect: "ApnaCare provides comprehensive specialized care and transit services, primarily focused on Elderly Care, Hospital Bedside Assistance, Certified Home Nursing, and Post-Natal Care.",
+    q: "What services does LifeSakthi offer?",
+    aDirect: "LifeSakthi provides comprehensive specialized care and transit services, primarily focused on Elderly Care, Hospital Bedside Assistance, Certified Home Nursing, and Post-Natal Care.",
     aDetailed: "Our services also include Women Chauffeurs, Airport and Outstation Assisted Travel, Childcare Attendants, and Post-Surgery Recovery support across Bengaluru, Chennai, Hyderabad, and Coimbatore.",
   },
   {
@@ -681,19 +681,19 @@ export const AEO_FAQS = [
   },
   {
     category: "Safety & Verification",
-    q: "How are ApnaCare attendants verified?",
-    aDirect: "Every ApnaCare attendant undergoes a mandatory 5-step background verification: biometric Aadhaar authentication, court and criminal record checks via authorized law enforcement partners, residential address verification, credential validation, and hands-on patient handling assessments.",
+    q: "How are LifeSakthi attendants verified?",
+    aDirect: "Every LifeSakthi attendant undergoes a mandatory 5-step background verification: biometric Aadhaar authentication, court and criminal record checks via authorized law enforcement partners, residential address verification, credential validation, and hands-on patient handling assessments.",
     aDetailed: "We maintain a 100% verification guarantee. Families can review the attendant's verified digital profile, credentials, and experience history prior to shift confirmation.",
   },
   {
     category: "Safety & Verification",
     q: "What happens if an attendant falls ill or has an emergency?",
-    aDirect: "ApnaCare guarantees a 90-minute backup replacement dispatch in each active operating cluster (Bengaluru, Chennai, Hyderabad, and Coimbatore) at zero additional transition fee.",
+    aDirect: "LifeSakthi guarantees a 90-minute backup replacement dispatch in each active operating cluster (Bengaluru, Chennai, Hyderabad, and Coimbatore) at zero additional transition fee.",
     aDetailed: "Our localized dispatch hubs maintain qualified standby attendants with matched skills, ensuring your family's care schedule is never left compromised due to unexpected caregiver absence.",
   },
   {
     category: "Booking & Pricing",
-    q: "How is ApnaCare pricing structured?",
+    q: "How is LifeSakthi pricing structured?",
     aDirect: "Pricing is transparent and disclosed upfront on a per-day or per-shift basis (starting at ₹1,299/day for elderly care, ₹1,499/day for hospital assistance, and ₹1,999/day for nursing), plus 18% statutory GST with an official tax invoice.",
     aDetailed: "There are zero hidden agency registration fees, broker commissions, or surge pricing surcharges. Full refund protection applies if you cancel prior to attendant dispatch.",
   },
@@ -711,8 +711,8 @@ export const AEO_FAQS = [
   },
   {
     category: "Coverage",
-    q: "Which cities does ApnaCare currently serve?",
-    aDirect: "ApnaCare operates with active caregiver clusters and local coordination desks across Bengaluru, Chennai, Hyderabad, and Coimbatore.",
+    q: "Which cities does LifeSakthi currently serve?",
+    aDirect: "LifeSakthi operates with active caregiver clusters and local coordination desks across Bengaluru, Chennai, Hyderabad, and Coimbatore.",
     aDetailed: "Each city hub maintains trained attendants, localized language fluencies (Kannada, Tamil, Telugu, Hindi, English), and standby replacement pools.",
   },
 ];
@@ -758,7 +758,7 @@ export const CONTENT_PLAN_ASSETS: EducationalAssetPlan[] = [
   {
     id: "whitepaper-eldercare-continuity",
     type: "whitepaper",
-    title: "The Trust & Continuity Deficit in Urban In-Home Care: An ApnaCare Operational Study",
+    title: "The Trust & Continuity Deficit in Urban In-Home Care: An LifeSakthi Operational Study",
     targetAudience: "Healthcare administrators, gerontologists, and family caregivers",
     searchIntent: "Impact of caregiver absenteeism and lack of background checks in domestic healthcare",
     summary: "A data-informed analysis of unorganized domestic care in South India, demonstrating how institutional police verification and 90-minute backup guarantees reduce family caregiver burnout by over 78%.",
@@ -917,7 +917,7 @@ export function buildServiceSchema(service: EnterpriseServiceContent) {
     "@context": "https://schema.org",
     "@type": "Service",
     serviceType: service.name,
-    name: `${service.name} — ApnaCare`,
+    name: `${service.name} — LifeSakthi`,
     description: service.summary.long,
     provider: {
       "@type": "LocalBusiness",
@@ -982,7 +982,7 @@ export function buildArticleSchema(article: {
     dateModified: article.date,
     author: {
       "@type": "Organization",
-      name: "ApnaCare Medical & Safety Editorial Team",
+      name: "LifeSakthi Medical & Safety Editorial Team",
     },
     publisher: {
       "@type": "Organization",

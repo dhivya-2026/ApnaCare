@@ -137,7 +137,7 @@ export function CareNeedsCalculator() {
     : 0;
 
   const waUrl = buildWhatsAppUrl(
-    `Hello ApnaCare! I used the Care Needs Calculator for ${selectedTier.name} (${shiftTiming} shifts, ${durationDays} days). Estimated total: ${formatINR(
+    `Hello LifeSakthi! I used the Care Needs Calculator for ${selectedTier.name} (${shiftTiming} shifts, ${durationDays} days). Estimated total: ${formatINR(
       totalEstimatedCost
     )}. Could you confirm availability and caregiver profiles in our city?`
   );
@@ -472,7 +472,7 @@ export function CareNeedsCalculator() {
               </div>
             )}
 
-            {/* Metric 3: Itemized ApnaCare Service Cost */}
+            {/* Metric 3: Itemized LifeSakthi Service Cost */}
             <div className="mt-5 space-y-2 text-xs border-t border-border/80 pt-4">
               <div className="flex items-center justify-between text-muted-foreground">
                 <span>Daily Caregiver Fee ({shiftTiming})</span>

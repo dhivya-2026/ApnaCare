@@ -16,7 +16,7 @@ export const Route = createFileRoute("/cities/$city")({
     const city = loaderData?.city;
     const name = city?.name || "City Coverage";
     return seo(
-      `Women Attendants in ${name} — ApnaCare`,
+      `Women Attendants in ${name} — LifeSakthi`,
       `Verified women attendants for elderly care, hospital assistance and recovery support across ${name}. Verified 90-minute regional backup coverage protocol.`
     );
   },
@@ -32,7 +32,7 @@ function CityDetailPage() {
     <>
       <PageHero
         eyebrow={`Local Coverage · ${city.state}`}
-        title={`ApnaCare Saha Care Team in ${city.name}`}
+        title={`LifeSakthi Saha Care Team in ${city.name}`}
         sub={city.description}
       >
         <BookLink size="lg" variant="warm" city={city.name}>

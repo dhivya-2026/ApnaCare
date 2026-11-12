@@ -12,8 +12,8 @@ import { CITIES } from "@/data/site";
 export const Route = createFileRoute("/register/user")({
   head: () =>
     seo(
-      "Create User Account — ApnaCare",
-      "Register for an ApnaCare customer account to book and manage personalized in-home and hospital care.",
+      "Create User Account — LifeSakthi",
+      "Register for an LifeSakthi customer account to book and manage personalized in-home and hospital care.",
       { canonical: "https://apna-care.vercel.app/register/user" }
     ),
   component: UserRegisterPage,
@@ -77,7 +77,7 @@ function UserRegisterPage() {
       }
 
       await refreshSession();
-      toast.success("Account created successfully! Welcome to ApnaCare.");
+      toast.success("Account created successfully! Welcome to LifeSakthi.");
       navigate({ to: "/dashboard/user" as any });
     } catch (err: any) {
       setLoading(false);
@@ -213,7 +213,7 @@ function UserRegisterPage() {
               required
             />
             <label htmlFor="terms" className="text-muted-foreground leading-snug">
-              I accept ApnaCare's{" "}
+              I accept LifeSakthi's{" "}
               <Link to="/terms" target="_blank" className="text-primary underline">
                 Terms of Service
               </Link>{" "}

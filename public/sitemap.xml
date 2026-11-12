@@ -3,9 +3,27 @@
   <!-- Core Public Routes -->
   <url>
     <loc>https://apna-care.vercel.app/</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-11-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://apna-care.vercel.app/life-stages</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://apna-care.vercel.app/pillars</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://apna-care.vercel.app/get-involved</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://apna-care.vercel.app/services</loc>

@@ -28,8 +28,8 @@ import { sendToGoogleSheet } from "@/lib/analytics";
 export const Route = createFileRoute("/attendant-login")({
   head: () =>
     seo(
-      "Saha Portal — ApnaCare Care Team Hub",
-      "Official portal for verified ApnaCare Saha care companions and specialists. Shift check-in, real-time assignment telemetry, and 24/7 command center escalation.",
+      "Saha Portal — LifeSakthi Care Team Hub",
+      "Official portal for verified LifeSakthi Saha care companions and specialists. Shift check-in, real-time assignment telemetry, and 24/7 command center escalation.",
       { noindex: true }
     ),
   component: AttendantPortal,
@@ -156,8 +156,8 @@ function AttendantPortal() {
     <>
       <PageHero
         eyebrow="Saha Care Team Operations"
-        title="ApnaCare Saha & Specialist Portal"
-        sub="Authorized workspace for registered ApnaCare Saha team members to manage shift check-ins, record daily vitals, view safety guidelines, and connect with the 24/7 Command Center."
+        title="LifeSakthi Saha & Specialist Portal"
+        sub="Authorized workspace for registered LifeSakthi Saha team members to manage shift check-ins, record daily vitals, view safety guidelines, and connect with the 24/7 Command Center."
       />
 
       <section className="container-page py-12 md:py-16">

@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/knowledge-hub/")({
   head: () =>
     seo(
-      "Knowledge Hub — ApnaCare Family Care Guides & Research",
+      "Knowledge Hub — LifeSakthi Family Care Guides & Research",
       "Educational articles, practical eldercare guides, hospital bedside protocols, and research whitepapers for families across South India.",
       {
         canonical: "https://apna-care.vercel.app/knowledge-hub",
@@ -220,7 +220,7 @@ function Hub() {
               <div className="text-xs leading-relaxed text-muted-foreground">
                 <p className="font-semibold text-foreground">Content Governance & Integrity Standard</p>
                 <p className="mt-1">
-                  ApnaCare strictly distinguishes verified operational facts from illustrative planning models. Case studies with fictionalized names are labeled as illustrative care paths, and statistical citations reference confirmed operational records.
+                  LifeSakthi strictly distinguishes verified operational facts from illustrative planning models. Case studies with fictionalized names are labeled as illustrative care paths, and statistical citations reference confirmed operational records.
                 </p>
               </div>
             </div>

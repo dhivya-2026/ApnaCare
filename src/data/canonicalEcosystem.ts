@@ -1,5 +1,5 @@
 /**
- * Canonical Care Ecosystem & Service Family Architecture — ApnaCare Phase 2
+ * Canonical Care Ecosystem & Service Family Architecture — LifeSakthi Phase 2
  *
  * Implements the comprehensive care families, explicit operational readiness states,
  * and clinical/non-clinical governance boundaries.

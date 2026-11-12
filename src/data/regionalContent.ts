@@ -1,4 +1,4 @@
-// Regional language dictionary and localization infrastructure for ApnaCare
+// Regional language dictionary and localization infrastructure for LifeSakthi
 // South India-first support: English, Tamil (தமிழ்), Telugu (తెలుగు), Kannada (ಕನ್ನಡ), Malayalam (മലയാളം)
 
 export type SupportedLanguage = "en" | "ta" | "te" | "kn" | "ml";

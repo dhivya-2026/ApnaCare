@@ -9,7 +9,7 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/refund-policy")({
   head: () =>
     seo(
-      "Refund & Cancellation Policy — ApnaCare",
+      "Refund & Cancellation Policy — LifeSakthi",
       "Full refund protection, 100% money-back terms before dispatch, emergency credit policies, and GST credit note processing."
     ),
   component: RefundPolicyPage,
@@ -74,12 +74,12 @@ function RefundPolicyPage() {
                     </tr>
                     <tr>
                       <td className="p-4 font-medium text-foreground">Within 4–12 Hours (Regular)</td>
-                      <td className="p-4 font-semibold text-foreground">80% Refund or 100% ApnaCare Credit</td>
+                      <td className="p-4 font-semibold text-foreground">80% Refund or 100% LifeSakthi Credit</td>
                       <td className="p-4">20% covers attendant travel stipend</td>
                     </tr>
                     <tr>
                       <td className="p-4 font-medium text-foreground">Medical Emergency / ICU Admission</td>
-                      <td className="p-4 text-primary font-semibold">100% ApnaCare Credit</td>
+                      <td className="p-4 text-primary font-semibold">100% LifeSakthi Credit</td>
                       <td className="p-4">Usable anytime within 12 months</td>
                     </tr>
                     <tr>

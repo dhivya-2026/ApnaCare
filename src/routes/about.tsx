@@ -40,18 +40,18 @@ import trustgridLogo from "@/assets/trustgrid-logo.png";
 export const Route = createFileRoute("/about")({
   head: () =>
     seo(
-      "About ApnaCare — Women Leadership & Compassionate Family Care Across South India",
-      "Learn how ApnaCare empowers families with verified women caregivers and hospital bedside assistance across Bengaluru, Chennai, Hyderabad, and Coimbatore.",
+      "About LifeSakthi — Women Leadership & Compassionate Family Care Across South India",
+      "Learn how LifeSakthi empowers families with verified women caregivers and hospital bedside assistance across Bengaluru, Chennai, Hyderabad, and Coimbatore.",
       {
         canonical: "https://apna-care.vercel.app/about",
         keywords: [
-          "about ApnaCare",
+          "about LifeSakthi",
           "women leadership healthcare India",
           "women self-help group caregivers",
           "elderly care brand South India",
           "verified home attendants",
-          "Rohini Sankaranarayanan COO ApnaCare",
-          "Prof Shoba T Women SHG ApnaCare",
+          "Rohini Sankaranarayanan COO LifeSakthi",
+          "Prof Shoba T Women SHG LifeSakthi",
           "family care coordination Bengaluru Chennai Hyderabad Coimbatore",
           "TRUSTGRID.AI strategic investor partner",
         ],
@@ -99,7 +99,7 @@ export const WOMEN_LEADERSHIP: WomanLeader[] = [
     category: "Executive Leadership",
     initials: "RS",
     roleDescription:
-      "Directs ApnaCare's regional care operations, caregiver quality assurance, and hospital bedside dispatch frameworks across South India. Rohini focuses on creating seamless, patient-first care experiences while instituting rigorous safety and verification benchmarks.",
+      "Directs LifeSakthi's regional care operations, caregiver quality assurance, and hospital bedside dispatch frameworks across South India. Rohini focuses on creating seamless, patient-first care experiences while instituting rigorous safety and verification benchmarks.",
     focusAreas: [
       "Operational Excellence & Care Quality",
       "Hospital & Bedside Support Networks",
@@ -152,9 +152,9 @@ export const STRATEGIC_INVESTOR_PARTNER: StrategicPartner = {
   sectionEyebrow: "INVESTOR & STRATEGIC PARTNERS",
   heading: "Building a Stronger Future of Care, Together.",
   summary:
-    "ApnaCare is strengthened by strategic partnerships that support our vision of making dependable, accessible and compassionate care more accessible to families.",
+    "LifeSakthi is strengthened by strategic partnerships that support our vision of making dependable, accessible and compassionate care more accessible to families.",
   partnershipStatement:
-    "We are proud to recognize TRUSTGRID.AI as a strategic investor and partner in ApnaCare's journey. This strategic relationship supports our ambition to build a scalable, technology-enabled care ecosystem focused on making care coordination simpler, more accessible and more dependable for families.",
+    "We are proud to recognize TRUSTGRID.AI as a strategic investor and partner in LifeSakthi's journey. This strategic relationship supports our ambition to build a scalable, technology-enabled care ecosystem focused on making care coordination simpler, more accessible and more dependable for families.",
 };
 
 /* ── What We Do: Core Care Services & Family Outcomes ────────────── */
@@ -390,7 +390,7 @@ function AboutPage() {
   const activeStep = APPROACH_STEPS[activeStepIndex];
 
   const waUrl = buildWhatsAppUrl(
-    "Hello ApnaCare team! I am learning about your care philosophy and women leadership. I would like to discuss care options for my family.",
+    "Hello LifeSakthi team! I am learning about your care philosophy and women leadership. I would like to discuss care options for my family.",
   );
 
   return (
@@ -431,7 +431,7 @@ function AboutPage() {
       </nav>
 
       {/* ─────────────────────────────────────────────────────────────
-          SECTION 1 — HERO / ABOUT APNACARE
+          SECTION 1 — HERO / ABOUT LifeSakthi
           Eyebrow: OUR PURPOSE & PEOPLE
           Headline: Care That Empowers Families. Opportunities That Empower Women.
           Supporting text: South India care ecosystem & dignified livelihoods.
@@ -450,16 +450,14 @@ function AboutPage() {
               </div>
 
               <h1 className="text-fluid-hero font-display font-semibold text-foreground tracking-tight leading-[1.12]">
-                Care That Empowers Families.{" "}
+                Empowering Women.{" "}
                 <span className="text-primary italic block sm:inline">
-                  Opportunities That Empower Women.
+                  Enriching Lives Across Every Stage.
                 </span>
               </h1>
 
               <p className="text-fluid-card text-muted-foreground font-normal max-w-xl leading-relaxed">
-                ApnaCare is building a more dependable and compassionate care ecosystem across South
-                India, connecting families with trusted women caregivers and professional healthcare
-                support while creating dignified livelihood opportunities for women.
+                LifeSakthi is a women and child development and lifelong wellbeing organisation across South India—combining grassroots Self-Help Group empowerment with verified Saha care and professional healthcare support for families.
               </p>
 
               {/* Action Buttons */}
@@ -665,7 +663,7 @@ function AboutPage() {
             Care Rooted in Real Family Outcomes
           </h2>
           <p className="mt-3 text-muted-foreground text-fluid-body leading-relaxed">
-            Rather than generic agency staffing, ApnaCare provides situation-aware care modules
+            Rather than generic agency staffing, LifeSakthi provides situation-aware care modules
             tailored to each loved one's specific stage, mobility, and emotional comfort.
           </p>
         </div>
@@ -797,7 +795,7 @@ function AboutPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-4 right-4 text-white flex items-center justify-between text-xs font-medium">
-                  <span>ApnaCare Coordination Pathway</span>
+                  <span>LifeSakthi Coordination Pathway</span>
                   <span className="rounded-full bg-black/40 backdrop-blur-md px-2.5 py-0.5 text-[11px]">
                     Step 0{activeStep.id} of 03
                   </span>
@@ -874,13 +872,13 @@ function AboutPage() {
         <div className="max-w-2xl space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-primary">
             <Users className="size-3.5" />
-            THE PEOPLE BEHIND APNACARE
+            THE PEOPLE BEHIND LifeSakthi
           </div>
           <h2 className="text-fluid-section font-display font-semibold text-foreground">
             Meet the Women Leading Our Mission
           </h2>
           <p className="text-muted-foreground text-fluid-body leading-relaxed">
-            ApnaCare is led by women executives and community champions dedicated to reshaping care
+            LifeSakthi is led by women executives and community champions dedicated to reshaping care
             delivery across South India through compassionate operations and grassroots women's
             empowerment.
           </p>
@@ -954,7 +952,7 @@ function AboutPage() {
               <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                   <BadgeCheck className="size-4 text-primary" />
-                  ApnaCare Women Leadership Team
+                  LifeSakthi Women Leadership Team
                 </span>
                 <span className="text-[11px] font-medium text-foreground/75">
                   South India Desk
@@ -980,7 +978,7 @@ function AboutPage() {
             </h2>
             <p className="text-fluid-body text-muted-foreground leading-relaxed">
               True healthcare resilience starts in the community. Through grassroots partnerships
-              with women's Self-Help Groups (SHGs), ApnaCare bridges compassionate care for families
+              with women's Self-Help Groups (SHGs), LifeSakthi bridges compassionate care for families
               with sustainable, dignified livelihoods for women.
             </p>
 

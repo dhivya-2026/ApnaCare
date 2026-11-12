@@ -6,8 +6,8 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/privacy")({
   head: () =>
     seo(
-      "Privacy Policy — ApnaCare",
-      "How ApnaCare collects, processes, and protects customer, patient, and attendant personal data under India's Digital Personal Data Protection Act 2023."
+      "Privacy Policy — LifeSakthi",
+      "How LifeSakthi collects, processes, and protects customer, patient, and attendant personal data under India's Digital Personal Data Protection Act 2023."
     ),
   component: PrivacyPage,
 });
@@ -30,7 +30,7 @@ function PrivacyPage() {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-foreground">1. Introduction & Scope</h2>
             <p>
-              This Privacy Policy explains how {SITE.legalName} ("ApnaCare", "we", "us", or "our") collects, uses, stores, discloses, and protects your information when you use our website, mobile interfaces, telephone booking lines, and attendant dispatch services.
+              This Privacy Policy explains how {SITE.legalName} ("LifeSakthi", "we", "us", or "our") collects, uses, stores, discloses, and protects your information when you use our website, mobile interfaces, telephone booking lines, and attendant dispatch services.
             </p>
             <p>
               We operate in compliance with India's <strong>Digital Personal Data Protection Act, 2023 (DPDP Act)</strong> and the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011.
@@ -85,7 +85,7 @@ function PrivacyPage() {
             <h2 className="text-2xl font-semibold text-foreground">6. Your Rights Under the DPDP Act, 2023</h2>
             <p>You possess the following rights regarding your personal data:</p>
             <ul className="list-disc space-y-2 pl-6">
-              <li>Right to access a summary of personal data processed by ApnaCare.</li>
+              <li>Right to access a summary of personal data processed by LifeSakthi.</li>
               <li>Right to correction and completion of inaccurate or misleading data.</li>
               <li>Right to erasure of personal data once the care engagement has concluded and statutory tax retention periods (7 years for GST audits) have expired.</li>
               <li>Right to nominate an individual to exercise rights in the event of incapacity.</li>

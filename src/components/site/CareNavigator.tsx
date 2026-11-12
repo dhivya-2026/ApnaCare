@@ -41,7 +41,7 @@ export function CareNavigator() {
   }, [selectedCity, currentNeed.suggestedServiceSlug]);
 
   const waUrl = buildWhatsAppUrl(
-    `Hi ApnaCare team! I checked the Care Navigator for: "${currentNeed.triggerPhrase}" in ${availability.cityName}. Could you guide my family?`
+    `Hi LifeSakthi team! I checked the Care Navigator for: "${currentNeed.triggerPhrase}" in ${availability.cityName}. Could you guide my family?`
   );
 
   return (

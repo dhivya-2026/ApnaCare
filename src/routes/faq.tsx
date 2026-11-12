@@ -12,12 +12,12 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/faq")({
   head: () =>
     seo(
-      "Frequently Asked Questions — ApnaCare Care & Safety Knowledge Base",
-      "Direct, authoritative answers about ApnaCare attendant police verification, shift options, nurse vs attendant scope, pricing, and guaranteed 90-minute backup.",
+      "Frequently Asked Questions — LifeSakthi Care & Safety Knowledge Base",
+      "Direct, authoritative answers about LifeSakthi attendant police verification, shift options, nurse vs attendant scope, pricing, and guaranteed 90-minute backup.",
       {
         canonical: "https://apna-care.vercel.app/faq",
         keywords: [
-          "ApnaCare FAQ",
+          "LifeSakthi FAQ",
           "caregiver verification questions",
           "nurse vs attendant scope",
           "elderly care cost Bengaluru",
@@ -58,7 +58,7 @@ function FAQPage() {
     return matchesCat && matchesQuery;
   });
 
-  const waUrl = buildWhatsAppUrl("Hello ApnaCare team! I have a question about care arrangements for my family.");
+  const waUrl = buildWhatsAppUrl("Hello LifeSakthi team! I have a question about care arrangements for my family.");
 
   return (
     <>

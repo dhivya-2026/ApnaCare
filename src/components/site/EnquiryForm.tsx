@@ -128,7 +128,7 @@ export function EnquiryForm({
         <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button asChild variant="warm" size="sm" className="gap-2">
             <a
-              href={buildWhatsAppUrl(`*ApnaCare Consultation Request (${consultationId})*\n\nHello, I requested a callback regarding ${f.service} in ${f.city}.`)}
+              href={buildWhatsAppUrl(`*LifeSakthi Consultation Request (${consultationId})*\n\nHello, I requested a callback regarding ${f.service} in ${f.city}.`)}
               target="_blank"
               rel="noopener noreferrer"
             >

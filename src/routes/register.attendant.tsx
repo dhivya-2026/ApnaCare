@@ -11,8 +11,8 @@ import { CITIES } from "@/data/site";
 export const Route = createFileRoute("/register/attendant")({
   head: () =>
     seo(
-      "Join ApnaCare as a Saha Care Attendant — Dignified Livelihoods",
-      "Apply to become a verified ApnaCare Saha care companion or clinical nurse with fair daily wages and professional supervision across South India.",
+      "Join LifeSakthi as a Saha Care Attendant — Dignified Livelihoods",
+      "Apply to become a verified LifeSakthi Saha care companion or clinical nurse with fair daily wages and professional supervision across South India.",
       { canonical: "https://apna-care.vercel.app/register/attendant" }
     ),
   component: AttendantRegisterPage,
@@ -134,7 +134,7 @@ function AttendantRegisterPage() {
               Status: Awaiting Verification
             </div>
             <p className="leading-relaxed">
-              Thank you for applying to join ApnaCare as a Saha care attendant. In accordance with
+              Thank you for applying to join LifeSakthi as a Saha care attendant. In accordance with
               clinical safety standards, all attendant profiles undergo Aadhaar and background
               verification before receiving assignment dispatch permissions.
             </p>

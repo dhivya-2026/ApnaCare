@@ -61,7 +61,7 @@ export const COORDINATION_AREAS: CoordinationArea[] = [
     },
     apnaCare: {
       headline: "Pre-Screened Caregiver Clusters",
-      badge: "With ApnaCare Coordination",
+      badge: "With LifeSakthi Coordination",
       solutions: [
         "Direct matching from vetted caregiver clusters based on assessed mobility needs",
         "Standardized review: Government photo ID authentication & police verification filings",
@@ -90,7 +90,7 @@ export const COORDINATION_AREAS: CoordinationArea[] = [
     },
     apnaCare: {
       headline: "Rigorous 4-Step Verification Dossier",
-      badge: "With ApnaCare Coordination",
+      badge: "With LifeSakthi Coordination",
       solutions: [
         "100% government photo ID authentication and police verification records",
         "State Nursing Council credentials verified for all licensed GNM/B.Sc clinical nurses",
@@ -119,7 +119,7 @@ export const COORDINATION_AREAS: CoordinationArea[] = [
     },
     apnaCare: {
       headline: "Strict Attendant vs. Licensed Nurse Boundary",
-      badge: "With ApnaCare Coordination",
+      badge: "With LifeSakthi Coordination",
       solutions: [
         "Non-clinical attendants support bathing, personal hygiene, and assisted walking",
         "Injections, catheter changes, and sterile dressings performed strictly by licensed nurses",
@@ -148,7 +148,7 @@ export const COORDINATION_AREAS: CoordinationArea[] = [
     },
     apnaCare: {
       headline: "Cluster-Based Standby & Fast Replacement",
-      badge: "With ApnaCare Coordination",
+      badge: "With LifeSakthi Coordination",
       solutions: [
         "Cluster-based standby network across Bengaluru, Chennai, Hyderabad, & Coimbatore",
         "Priority replacement caregiver reassignment with zero onboarding fee penalty",
@@ -177,7 +177,7 @@ export const COORDINATION_AREAS: CoordinationArea[] = [
     },
     apnaCare: {
       headline: "Scheduled WhatsApp Summaries & Care Logs",
-      badge: "With ApnaCare Coordination",
+      badge: "With LifeSakthi Coordination",
       solutions: [
         "Daily digital wellness logs recording meals, mobility routines, and hydration",
         "Direct contact with a dedicated regional care coordinator at all times",
@@ -206,7 +206,7 @@ export const COORDINATION_AREAS: CoordinationArea[] = [
     },
     apnaCare: {
       headline: "All-Inclusive Clear Rates with GST Invoicing",
-      badge: "With ApnaCare Coordination",
+      badge: "With LifeSakthi Coordination",
       solutions: [
         "Transparent daily rates starting from ₹1,099/day with itemized GST documentation",
         "Legitimate tax invoices for health accounts, employer claims, or insurance filings",
@@ -285,7 +285,7 @@ export function CareCoordinationExplorer() {
               id="coordination-heading"
               className="mt-3 text-fluid-section font-display font-semibold text-foreground tracking-tight"
             >
-              How ApnaCare Lightens the Burden on Families
+              How LifeSakthi Lightens the Burden on Families
             </h2>
             <p className="mt-3 text-fluid-body text-readable-muted">
               Arranging care is rarely just finding a person. It is background vetting, emergency replacements, medical boundaries, and daily peace of mind.
@@ -441,7 +441,7 @@ export function CareCoordinationExplorer() {
                   </div>
                 </div>
 
-                {/* Right: ApnaCare Coordinated Solution */}
+                {/* Right: LifeSakthi Coordinated Solution */}
                 <div className="rounded-2xl border border-primary/30 bg-primary-soft/35 p-5 sm:p-6 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-3">
@@ -547,7 +547,7 @@ export function CareCoordinationExplorer() {
 
                   <div className="rounded-2xl border border-primary/30 bg-primary-soft/30 p-4">
                     <p className="text-xs font-bold text-primary mb-1">
-                      ApnaCare: {area.apnaCare.headline}
+                      LifeSakthi: {area.apnaCare.headline}
                     </p>
                     <ul className="space-y-1 text-xs text-foreground">
                       {area.apnaCare.solutions.map((s, i) => (

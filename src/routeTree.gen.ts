@@ -18,6 +18,9 @@ import { Route as CitiesRouteImport } from './routes/cities'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EcosystemPartnersRouteImport } from './routes/ecosystem-partners'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as GetInvolvedRouteImport } from './routes/get-involved'
+import { Route as LifeStagesRouteImport } from './routes/life-stages'
+import { Route as PillarsRouteImport } from './routes/pillars'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as SafetyRouteImport } from './routes/safety'
@@ -82,6 +85,21 @@ const EcosystemPartnersRoute = EcosystemPartnersRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GetInvolvedRoute = GetInvolvedRouteImport.update({
+  id: '/get-involved',
+  path: '/get-involved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LifeStagesRoute = LifeStagesRouteImport.update({
+  id: '/life-stages',
+  path: '/life-stages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PillarsRoute = PillarsRouteImport.update({
+  id: '/pillars',
+  path: '/pillars',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -195,6 +213,9 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
+  '/get-involved': typeof GetInvolvedRoute
+  '/life-stages': typeof LifeStagesRoute
+  '/pillars': typeof PillarsRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
@@ -226,6 +247,9 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
+  '/get-involved': typeof GetInvolvedRoute
+  '/life-stages': typeof LifeStagesRoute
+  '/pillars': typeof PillarsRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
@@ -258,6 +282,9 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/ecosystem-partners': typeof EcosystemPartnersRoute
   '/faq': typeof FaqRoute
+  '/get-involved': typeof GetInvolvedRoute
+  '/life-stages': typeof LifeStagesRoute
+  '/pillars': typeof PillarsRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/safety': typeof SafetyRoute
@@ -291,6 +318,9 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
+    | '/get-involved'
+    | '/life-stages'
+    | '/pillars'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
@@ -322,6 +352,9 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
+    | '/get-involved'
+    | '/life-stages'
+    | '/pillars'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
@@ -353,6 +386,9 @@ export interface FileRouteTypes {
     | '/contact'
     | '/ecosystem-partners'
     | '/faq'
+    | '/get-involved'
+    | '/life-stages'
+    | '/pillars'
     | '/privacy'
     | '/refund-policy'
     | '/safety'
@@ -385,6 +421,9 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   EcosystemPartnersRoute: typeof EcosystemPartnersRoute
   FaqRoute: typeof FaqRoute
+  GetInvolvedRoute: typeof GetInvolvedRoute
+  LifeStagesRoute: typeof LifeStagesRoute
+  PillarsRoute: typeof PillarsRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   SafetyRoute: typeof SafetyRoute
@@ -469,6 +508,27 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/get-involved': {
+      id: '/get-involved'
+      path: '/get-involved'
+      fullPath: '/get-involved'
+      preLoaderRoute: typeof GetInvolvedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/life-stages': {
+      id: '/life-stages'
+      path: '/life-stages'
+      fullPath: '/life-stages'
+      preLoaderRoute: typeof LifeStagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pillars': {
+      id: '/pillars'
+      path: '/pillars'
+      fullPath: '/pillars'
+      preLoaderRoute: typeof PillarsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -635,6 +695,9 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   EcosystemPartnersRoute: EcosystemPartnersRoute,
   FaqRoute: FaqRoute,
+  GetInvolvedRoute: GetInvolvedRoute,
+  LifeStagesRoute: LifeStagesRoute,
+  PillarsRoute: PillarsRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   SafetyRoute: SafetyRoute,
