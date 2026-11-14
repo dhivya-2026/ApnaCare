@@ -138,7 +138,7 @@ export function Logo() {
             strokeLinecap="round"
             opacity="0.7"
           />
-          {/* Rising Sakthi flame / lotus petal */}
+          {/* Rising Sakhi flame / lotus petal */}
           <path
             d="M16 6.5C19.5 11 22 14.5 22 18.25C22 21.702 19.314 24.5 16 24.5C12.686 24.5 10 21.702 10 18.25C10 14.5 12.5 11 16 6.5Z"
             stroke="currentColor"
@@ -150,7 +150,7 @@ export function Logo() {
         </svg>
       </span>
       <span className="font-display text-xl font-semibold tracking-tight">
-        Life<span className="text-primary">Sakthi</span>
+        Life<span className="text-primary">Sakhi</span>
       </span>
     </Link>
   );
