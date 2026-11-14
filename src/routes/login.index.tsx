@@ -7,8 +7,8 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/login/")({
   head: () =>
     seo(
-      "Welcome to LifeSakthi — Unified Authentication Portal",
-      "Sign in to your LifeSakthi account. Access dedicated portals for families, Saha care attendants, and administrative operations.",
+      "Welcome to LifeSakhi — Unified Authentication Portal",
+      "Sign in to your LifeSakhi account. Access dedicated portals for families, Saha care attendants, and administrative operations.",
       { canonical: "https://apna-care.vercel.app/login" }
     ),
   component: LoginPage,
@@ -27,10 +27,10 @@ function LoginPage() {
             ACCESS YOUR PORTAL
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-semibold text-foreground tracking-tight">
-            Welcome to LifeSakthi
+            Welcome to LifeSakhi
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-            Your care journey starts here. Sign in to access your personalized LifeSakthi account.
+            Your care journey starts here. Sign in to access your personalized LifeSakhi account.
           </p>
         </div>
 
@@ -124,7 +124,7 @@ function LoginPage() {
                 </span>
                 <h2 className="text-2xl font-display font-semibold text-foreground">Admin Login</h2>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Access LifeSakthi's operational dashboard to manage users, attendants, assignments, and bookings.
+                  Access LifeSakhi's operational dashboard to manage users, attendants, assignments, and bookings.
                 </p>
               </div>
             </div>

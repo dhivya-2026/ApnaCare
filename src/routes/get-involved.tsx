@@ -7,15 +7,15 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/get-involved")({
   head: () =>
     seo(
-      "Get Involved — Partner, Volunteer, or Join LifeSakthi",
-      "Participate in LifeSakthi's mission across South India: become a verified Saha care professional, collaborate as an NGO or institutional partner, volunteer, or request family support.",
+      "Get Involved — Partner, Volunteer, or Join LifeSakhi",
+      "Participate in LifeSakhi's mission across South India: become a verified Saha care professional, collaborate as an NGO or institutional partner, volunteer, or request family support.",
       {
         canonical: "https://apna-care.vercel.app/get-involved",
         keywords: [
           "volunteer women empowerment India",
           "become a Saha caregiver",
           "NGO partnership South India",
-          "LifeSakthi careers",
+          "LifeSakhi careers",
         ],
       }
     ),
@@ -28,7 +28,7 @@ const PATHWAYS = [
     title: "Women Seeking Training & Employment",
     badge: "Active Hiring & SHG Onboarding",
     description:
-      "Join LifeSakthi as a trained, police-verified Saha Care Companion. Earn dignified income with structured training and respectful working conditions.",
+      "Join LifeSakhi as a trained, police-verified Saha Care Companion. Earn dignified income with structured training and respectful working conditions.",
     ctaLabel: "Apply as a Saha",
     ctaTo: "/become-an-attendant",
   },
@@ -66,12 +66,12 @@ function GetInvolvedPage() {
     <div className="bg-background">
       <section className="border-b border-border bg-primary-soft/35 section-spacing">
         <div className="container-page max-w-4xl">
-          <p className="eyebrow">Participate in LifeSakthi</p>
+          <p className="eyebrow">Participate in LifeSakhi</p>
           <h1 className="mt-3 font-display text-fluid-hero font-semibold text-foreground">
             Together, We Can Build Stronger Futures.
           </h1>
           <p className="mt-4 text-fluid-body text-muted-foreground">
-            Whether you are a woman looking for dignified skill-based employment, an organisation seeking community impact partnerships, a volunteer, or a family seeking care—there is a clear path for you at LifeSakthi.
+            Whether you are a woman looking for dignified skill-based employment, an organisation seeking community impact partnerships, a volunteer, or a family seeking care—there is a clear path for you at LifeSakhi.
           </p>
         </div>
       </section>
@@ -135,7 +135,7 @@ function GetInvolvedPage() {
               Volunteer, Partner, or Share an Enquiry
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Tell us how you would like to collaborate with LifeSakthi and our regional coordinator will respond promptly.
+              Tell us how you would like to collaborate with LifeSakhi and our regional coordinator will respond promptly.
             </p>
           </div>
           <EnquiryForm />
@@ -144,3 +144,4 @@ function GetInvolvedPage() {
     </div>
   );
 }
+

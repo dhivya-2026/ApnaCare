@@ -33,7 +33,7 @@ export const Route = createFileRoute("/booking")({
   }),
   head: () =>
     seo(
-      "Find Your Saha — LifeSakthi",
+      "Find Your Saha — LifeSakhi",
       "Reserve verified Saha companions and healthcare professionals for elderly care, hospital assistance, nursing, post-natal recovery, and travel mobility across South India."
     ),
   component: BookingPage,
@@ -636,7 +636,7 @@ function BookingPage() {
                     <MapPin className="size-4 shrink-0 text-primary mt-0.5" />
                     <div>
                       <strong className="block font-semibold text-primary">Assisted Travel Boundary:</strong>
-                      LifeSakthi provides physical accompaniment and safety supervision during transit. Flight tickets, rail fares, and passenger transit tickets are booked and paid directly by the client.
+                      LifeSakhi provides physical accompaniment and safety supervision during transit. Flight tickets, rail fares, and passenger transit tickets are booked and paid directly by the client.
                     </div>
                   </div>
                 )}

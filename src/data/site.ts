@@ -1,11 +1,11 @@
-// Central, config-driven content and data models for LifeSakthi.
+// Central, config-driven content and data models for LifeSakhi.
 // Edit here — never hardcode content in individual components.
 
 import { SAHA_BRAND } from "./sahaBrand";
 export { SAHA_BRAND };
 
 export const SITE = {
-  name: "LifeSakthi",
+  name: "LifeSakhi",
   legalName: "ApnaCare Health & Mobility Support Services Pvt. Ltd.",
   url: "https://apna-care.vercel.app",
   tagline: "Empowering Women. Enriching Lives.",
@@ -13,7 +13,7 @@ export const SITE = {
   SUPPORT_PHONE: "+91 88254 93949",
   SUPPORT_PHONE_TEL: "+918825493949",
   WHATSAPP: "918825493949",
-  EMAIL: "care@apnacare.in",
+  EMAIL: "poojasri@trustgrid.ai",
   EMERGENCY_LINE: "+91 88254 93949",
   GST_RATE: 0.18,
   yearsOfService: "8+",
@@ -94,7 +94,7 @@ const COMMON_LANGS = ["English", "Hindi", "Tamil", "Kannada", "Telugu"];
 
 const commonFaq = [
   {
-    q: "How are LifeSakthi attendants verified?",
+    q: "How are LifeSakhi attendants verified?",
     a: "Every attendant undergoes a structured 5-stage background verification: government photo ID authentication, police verification documentation filing, residential address checks, reference reviews, and practical caregiving skills assessment.",
   },
   {
@@ -475,7 +475,7 @@ export const SERVICES: Service[] = [
       "Close personal assisted travel during public appearances or legal hearings",
       "Security supervision at weddings, conferences, and private functions",
       "Assisted travel for high-value transits (jewelry, cash, sensitive documents)",
-      "Instant SOS beacon directly linked to LifeSakthi Command Center",
+      "Instant SOS beacon directly linked to LifeSakhi Command Center",
       "Detailed route and venue security reconnaissance",
     ],
     whoFor: [
@@ -948,7 +948,7 @@ export const ARTICLES: Article[] = [
     title: "How Working Professionals Can Coordinate Care for Ageing Parents",
     category: "Caregiver Guidance",
     readTime: "5 min read",
-    author: "LifeSakthi Family Support Team",
+    author: "LifeSakhi Family Support Team",
     date: "October 2026",
     excerpt:
       "Practical ways urban professionals can balance demanding careers with elderly care, establish daily communication routines, and avoid burnout.",
@@ -1011,7 +1011,7 @@ export const ARTICLES: Article[] = [
     title: "Understanding the Difference Between a Caregiver and a Qualified Nurse",
     category: "Health Awareness",
     readTime: "5 min read",
-    author: "LifeSakthi Clinical Board",
+    author: "LifeSakhi Clinical Board",
     date: "September 2026",
     excerpt:
       "Clarifying credentials, clinical responsibilities, and non-clinical care so families choose the right level of support for their loved one.",
@@ -1074,7 +1074,7 @@ export const ARTICLES: Article[] = [
     title: "Understanding Safety Rights & Travel Mandates for Women in India",
     category: "Women Safety",
     readTime: "4 min read",
-    author: "LifeSakthi Safety Cell",
+    author: "LifeSakhi Safety Cell",
     date: "October 2026",
     excerpt:
       "A practical, verified overview of travel safety provisions, 112 emergency integration, and reserved facilities every woman traveler should know.",
@@ -1095,7 +1095,7 @@ export const ARTICLES: Article[] = [
     title: "Senior Citizen Support Schemes & Pension Benefits in India (2026 Guide)",
     category: "Government Schemes",
     readTime: "6 min read",
-    author: "LifeSakthi Social Support Desk",
+    author: "LifeSakhi Social Support Desk",
     date: "September 2026",
     excerpt:
       "An actionable introduction to Ayushman Bharat senior coverage, Indira Gandhi pension benefits, and state welfare provisions for elders.",
@@ -1124,7 +1124,7 @@ export const ARTICLES: Article[] = [
       "Early detection of subtle vital changes is the most powerful tool in geriatric home care. When caregivers track basic metrics daily, doctors can adjust dosages before a minor irregularity triggers an emergency ICU admission.",
       "The core vital checklist: Blood Pressure (measured seated after 5 minutes of rest), Heart Rate / Pulse, Blood Oxygen Saturation (SpO2), Morning Fasting Glucose (for diabetics), and Daily Fluid Intake vs. Output.",
       "Beyond numbers, watch for behavioral red flags: sudden confusion or disorientation (often an early sign of a urinary tract infection in seniors), loss of appetite, reluctance to walk, or unsteady gait.",
-      "LifeSakthi attendants log these readings twice daily in digital wellness reports accessible directly by family members and attending physicians.",
+      "LifeSakhi attendants log these readings twice daily in digital wellness reports accessible directly by family members and attending physicians.",
     ],
     keyTakeaways: [
       "Sudden confusion or disorientation in seniors frequently signals a treatable UTI or dehydration.",
@@ -1166,12 +1166,12 @@ export const ARTICLES: Article[] = [
       "Long-distance travel does not have to be stressful for elderly family members. With strategic advance planning, airlines and railways provide comprehensive accessibility services.",
       "When booking airline tickets, always select the 'WCHR' (Wheelchair for distance to ramp) or 'WCHS' (Wheelchair for stairs) code during reservation. Arrive at least 2.5 hours prior to domestic flights to ensure dedicated ground assisted travel staff are assigned.",
       "For railway journeys, opt for lower berths and look for battery-operated buggy services available on Platform 1 of major junction stations. Book licensed Coolie services via official IRCTC portals where available.",
-      "LifeSakthi's Airport and Railway companions meet elderly parents right at their vehicle curb, manage all baggage, navigate security check counters, and remain by their side until departure.",
+      "LifeSakhi's Airport and Railway companions meet elderly parents right at their vehicle curb, manage all baggage, navigate security check counters, and remain by their side until departure.",
     ],
     keyTakeaways: [
       "Request airline wheelchair codes (WCHR) at the time of ticket booking, not at the check-in desk.",
       "Keep digital and laminated paper copies of photo ID and prescription medicines in hand luggage.",
-      "Arrange an LifeSakthi gate attendant for arrival meet-and-greet in unfamiliar terminals.",
+      "Arrange an LifeSakhi gate attendant for arrival meet-and-greet in unfamiliar terminals.",
     ],
   },
 ];
@@ -1236,7 +1236,7 @@ export const REVIEWS: Review[] = [
     service: "Airport Assistance",
     verified: true,
     testimonial:
-      "I had to travel alone from Coimbatore to Delhi for an eye treatment. LifeSakthi arranged an airport companion who helped me with my heavy luggage, check-in, and wheelchair transfer. Extremely polite, dignified, and safety-focused service.",
+      "I had to travel alone from Coimbatore to Delhi for an eye treatment. LifeSakhi arranged an airport companion who helped me with my heavy luggage, check-in, and wheelchair transfer. Extremely polite, dignified, and safety-focused service.",
     date: "2 months ago",
   },
 ];
@@ -1306,7 +1306,7 @@ export const PARTNER_BENEFITS = [
 ];
 
 export const PARTNER_JOURNEY = [
-  ["01 Identify Need", "Organization discovers partnership alignment with LifeSakthi's mission."],
+  ["01 Identify Need", "Organization discovers partnership alignment with LifeSakhi's mission."],
   [
     "02 Submit Request",
     "Complete the comprehensive digital partnership enquiry form with institutional details.",
@@ -1329,7 +1329,7 @@ export const PARTNER_JOURNEY = [
   ],
   [
     "07 Onboarding & Training",
-    "Candidates undergo LifeSakthi safety curriculum, soft-skill training, and biometric verification.",
+    "Candidates undergo LifeSakhi safety curriculum, soft-skill training, and biometric verification.",
   ],
   [
     "08 Active Impact",
@@ -1402,7 +1402,7 @@ export interface FAQItem {
 export const FAQS: FAQItem[] = [
   {
     category: "Safety & Verification",
-    q: "How does LifeSakthi ensure attendant safety and trustworthiness?",
+    q: "How does LifeSakhi ensure attendant safety and trustworthiness?",
     a: "Every attendant undergoes a multi-layer verification process before assignment: 1) Aadhaar biometric identity check, 2) Formal police verification report via state police wings, 3) Prior employment reference validation, 4) Court record background screening, and 5) Rigorous in-person safety and behavioral assessment.",
   },
   {
@@ -1423,7 +1423,7 @@ export const FAQS: FAQItem[] = [
   {
     category: "Pricing & GST",
     q: "Are there any hidden dispatcher charges or surge fees?",
-    a: "Zero hidden charges. LifeSakthi operates on strict price transparency. All charges include base wages, coordinator support, backup guarantees, and an official 18% GST tax invoice for medical insurance or tax filing.",
+    a: "Zero hidden charges. LifeSakhi operates on strict price transparency. All charges include base wages, coordinator support, backup guarantees, and an official 18% GST tax invoice for medical insurance or tax filing.",
   },
   {
     category: "Pricing & GST",
@@ -1447,7 +1447,7 @@ export const FAQS: FAQItem[] = [
   },
   {
     category: "Partnerships",
-    q: "How can nursing colleges, NGOs, or Self-Help Groups (SHGs) partner with LifeSakthi?",
+    q: "How can nursing colleges, NGOs, or Self-Help Groups (SHGs) partner with LifeSakhi?",
     a: "Institutions can visit our Ecosystem Partners page and submit an online partnership enquiry. Our partnership directors will arrange a formal credential review and MoU discussion within 48 hours.",
   },
 ];
@@ -1538,7 +1538,7 @@ export const ICPS: ICPInfo[] = [
     subtitle:
       "Compassionate home care, bedside assistance, and qualified nursing support so working executives can balance intense careers with family care.",
     summary:
-      "Managing demanding professional commitments while coordinating reliable care for ageing parents, post-surgical recovery, or a newborn can feel overwhelming. LifeSakthi helps urban professionals arrange vetted, dependable support tailored to their family's realistic schedule and specific care needs.",
+      "Managing demanding professional commitments while coordinating reliable care for ageing parents, post-surgical recovery, or a newborn can feel overwhelming. LifeSakhi helps urban professionals arrange vetted, dependable support tailored to their family's realistic schedule and specific care needs.",
     challengesContext:
       "Does this sound familiar? You're in back-to-back meetings while worrying whether your parents took their afternoon medication, or you are struggling to arrange bedside shifts after a parent's sudden hospitalization. Balancing work with family care shouldn't mean carrying everything alone.",
     painPoints: [
@@ -1570,7 +1570,7 @@ export const ICPS: ICPInfo[] = [
         implication:
           "Caregiving responsibilities can increase stress, create family coordination difficulties, and make it harder to respond promptly when support is needed.",
         solution:
-          "LifeSakthi's available elderly care services assist with daily activities, companionship, mobility support, and agreed care routines. Attendants log daily care observations so you stay connected with your parents' well-being throughout your working day.",
+          "LifeSakhi's available elderly care services assist with daily activities, companionship, mobility support, and agreed care routines. Attendants log daily care observations so you stay connected with your parents' well-being throughout your working day.",
         benefits: [
           "Assistance with daily living activities & mobility",
           "Timely medication schedule reminders",
@@ -1614,7 +1614,7 @@ export const ICPS: ICPInfo[] = [
         implication:
           "Unclear care arrangements can increase family stress and make it harder to coordinate recovery and follow-up care.",
         solution:
-          "LifeSakthi connects families with registered GNM and B.Sc nurses equipped to provide clinician-prescribed procedures including wound dressing, catheter management, injections, and vital monitoring under authorized medical instructions.",
+          "LifeSakhi connects families with registered GNM and B.Sc nurses equipped to provide clinician-prescribed procedures including wound dressing, catheter management, injections, and vital monitoring under authorized medical instructions.",
         benefits: [
           "Delivered by registered GNM / B.Sc nurses",
           "Strict adherence to physician care prescriptions",
@@ -1636,7 +1636,7 @@ export const ICPS: ICPInfo[] = [
         implication:
           "Exhaustion and competing responsibilities can make the early weeks more stressful for the entire family.",
         solution:
-          "LifeSakthi offers post-natal care assistance with gentle newborn handling, maternal recovery comfort, and everyday practical support. We clearly distinguish non-clinical home assistance from medical lactation or paediatric clinical care.",
+          "LifeSakhi offers post-natal care assistance with gentle newborn handling, maternal recovery comfort, and everyday practical support. We clearly distinguish non-clinical home assistance from medical lactation or paediatric clinical care.",
         benefits: [
           "Gentle newborn care & soothing assistance",
           "Support for maternal physical rest & recuperation",
@@ -1651,7 +1651,7 @@ export const ICPS: ICPInfo[] = [
     featuredServices: ["elderly-care", "hospital-attendants", "nursing-services", "post-natal-care"],
     stat: { value: "1,200+", label: "Urban families actively supported" },
     quote: {
-      text: "As a product director managing long work hours, having an LifeSakthi attendant for my mother during her hip surgery recovery was an immense relief. The daily WhatsApp updates gave us peace of mind every single afternoon.",
+      text: "As a product director managing long work hours, having an LifeSakhi attendant for my mother during her hip surgery recovery was an immense relief. The daily WhatsApp updates gave us peace of mind every single afternoon.",
       author: "Rahul Sunder",
       role: "Product Director",
       city: "Chennai",
@@ -1722,7 +1722,7 @@ export const ICPS: ICPInfo[] = [
     subtitle:
       "Seamless bedside care and home recovery assistance to protect patient comfort and help families transition smoothly after discharge.",
     summary:
-      "Returning home from a hospital stay or surgical procedure requires attentive care. LifeSakthi provides trained bedside attendants and qualified clinical nurses to assist during the critical first weeks of recuperation.",
+      "Returning home from a hospital stay or surgical procedure requires attentive care. LifeSakhi provides trained bedside attendants and qualified clinical nurses to assist during the critical first weeks of recuperation.",
     painPoints: [
       {
         problem: "Uncertainty about safe transfers between bed, chair, and bathroom at home",
@@ -1810,7 +1810,7 @@ export const ICPS: ICPInfo[] = [
     subtitle:
       "Practical care support for women managing careers, household responsibilities, and family care without having to carry everything alone.",
     summary:
-      "Women frequently shoulder the unspoken mental and physical weight of family caregiving. LifeSakthi provides reliable, verified in-home support that enables families to share the caregiving responsibility equitably and protect personal well-being.",
+      "Women frequently shoulder the unspoken mental and physical weight of family caregiving. LifeSakhi provides reliable, verified in-home support that enables families to share the caregiving responsibility equitably and protect personal well-being.",
     painPoints: [
       {
         problem: "Physical and emotional burnout from managing work and dual caregiving roles",
@@ -1831,7 +1831,7 @@ export const ICPS: ICPInfo[] = [
     featuredServices: ["elderly-care", "home-personal-care", "lifestyle-support"],
     stat: { value: "100%", label: "Biometric & police verified caregivers" },
     quote: {
-      text: "Between my managerial role and looking after my mother-in-law, I was heading straight for burnout. Bringing in LifeSakthi was the best decision for our whole family.",
+      text: "Between my managerial role and looking after my mother-in-law, I was heading straight for burnout. Bringing in LifeSakhi was the best decision for our whole family.",
       author: "Deepa Menon",
       role: "Marketing Director",
       city: "Bengaluru",
@@ -1850,7 +1850,7 @@ export const ICPS: ICPInfo[] = [
     subtitle:
       "Educational guidance, child safety resources, and forthcoming community partnerships supporting family well-being.",
     summary:
-      "LifeSakthi's active commercial services are focused on eldercare, hospital assistance, clinical nursing, post-natal recovery, and women mobility. As part of our social mission, we share educational safety resources and explore future community initiatives for broader family support.",
+      "LifeSakhi's active commercial services are focused on eldercare, hospital assistance, clinical nursing, post-natal recovery, and women mobility. As part of our social mission, we share educational safety resources and explore future community initiatives for broader family support.",
     painPoints: [
       {
         problem: "Understanding safe domestic environments for growing children",
@@ -1860,21 +1860,21 @@ export const ICPS: ICPInfo[] = [
       {
         problem: "Availability of specialized child or paediatric services",
         solution:
-          "LifeSakthi does NOT offer commercial childcare or education services. We provide transparent educational resources and collaborate with community healthcare partners.",
+          "LifeSakhi does NOT offer commercial childcare or education services. We provide transparent educational resources and collaborate with community healthcare partners.",
       },
     ],
     featuredServices: ["home-personal-care", "travel-assistance"],
     stat: { value: "6+", label: "Educational family guidance guides published" },
     quote: {
-      text: "We appreciate LifeSakthi's honesty in focusing on what they genuinely do best in adult care and nursing, while offering helpful educational resources for wider family safety.",
+      text: "We appreciate LifeSakhi's honesty in focusing on what they genuinely do best in adult care and nursing, while offering helpful educational resources for wider family safety.",
       author: "Advisory Board",
       role: "Community Health Initiative",
       city: "Bengaluru",
     },
     faqs: [
       {
-        q: "Does LifeSakthi provide commercial childcare, day-care, or tutoring services?",
-        a: "No. LifeSakthi does not provide commercial childcare, education, or nutrition services. Any forthcoming child wellness collaborations will be clearly announced as distinct community initiatives.",
+        q: "Does LifeSakhi provide commercial childcare, day-care, or tutoring services?",
+        a: "No. LifeSakhi does not provide commercial childcare, education, or nutrition services. Any forthcoming child wellness collaborations will be clearly announced as distinct community initiatives.",
       },
       {
         q: "Where can I find family safety and first-aid guides?",
@@ -1910,7 +1910,7 @@ export const ICPS: ICPInfo[] = [
     featuredServices: ["women-drivers", "airport-pickup", "travel-assistance"],
     stat: { value: "10,000+", label: "Safe night commutes & transits completed" },
     quote: {
-      text: "Booking an LifeSakthi woman driver for my 11 PM tech park commute changed my routine completely. Knowing there is a verified professional driver with real-time GPS sharing took all the fear out of late shifts.",
+      text: "Booking an LifeSakhi woman driver for my 11 PM tech park commute changed my routine completely. Knowing there is a verified professional driver with real-time GPS sharing took all the fear out of late shifts.",
       author: "Pooja Hegde",
       role: "Senior Software Engineer",
       city: "Bengaluru",
@@ -1954,14 +1954,14 @@ export const ICPS: ICPInfo[] = [
     featuredServices: ["women-drivers", "hospital-attendants", "travel-assistance"],
     stat: { value: "100%", label: "Police & biometric compliance clearance" },
     quote: {
-      text: "LifeSakthi helped us establish a completely safe late-night assisted travel protocol for our hospital's nursing and lab staff. Their background checks and telemetry tracking set the benchmark for employee safety.",
+      text: "LifeSakhi helped us establish a completely safe late-night assisted travel protocol for our hospital's nursing and lab staff. Their background checks and telemetry tracking set the benchmark for employee safety.",
       author: "Dr. Meenakshi Sundaram",
       role: "Head of Hospital Operations",
       city: "Hyderabad",
     },
     faqs: [
       {
-        q: "Can LifeSakthi provide customized institutional contracts and GST invoicing?",
+        q: "Can LifeSakhi provide customized institutional contracts and GST invoicing?",
         a: "Yes, we provide corporate MSAs, monthly consolidated GST billing, dedicated account managers, and custom SLA agreements.",
       },
       {
@@ -2069,7 +2069,7 @@ export const AUDIENCE_CHALLENGES: AudienceChallenge[] = [
     badge: "Educational Guidance · Future Initiative",
     situation: "Parents looking for trusted guidance on child home safety, emergency preparedness, and family wellness routines.",
     difficulty: "Finding verified, non-commercial child safety information and reliable family support ecosystems.",
-    whyItMatters: "LifeSakthi focuses on adult care, eldercare, and maternal recovery. We provide free educational safety resources while community initiatives develop.",
+    whyItMatters: "LifeSakhi focuses on adult care, eldercare, and maternal recovery. We provide free educational safety resources while community initiatives develop.",
     relevantServiceSlug: null,
     serviceName: "Educational Community Hub",
     ctaText: "Browse Educational Guides",
@@ -2103,7 +2103,7 @@ export const REAL_LIFE_STORIES: RealLifeStory[] = [
     situation: "Karthik manages long workdays at an IT corridor office while his 78-year-old father, who has mild arthritis and unsteady balance, lives across the city.",
     difficulty: "Why this becomes difficult: A missed phone call at 2 PM causes instant dread of a bathroom slip or missed lunch, but Karthik cannot leave his workstation in the middle of office deliverables.",
     implication: "What can happen without support: Unmonitored days lead to irregular meals, missed blood pressure medications, progressive loneliness, and severe anxiety for the working son.",
-    solution: "How LifeSakthi helps: A verified woman eldercare attendant arrives by 9 AM, prepares warm meals, assists with mobility exercises, and sends an agreed midday WhatsApp update confirming vitals and meals.",
+    solution: "How LifeSakhi helps: A verified woman eldercare attendant arrives by 9 AM, prepares warm meals, assists with mobility exercises, and sends an agreed midday WhatsApp update confirming vitals and meals.",
     relatedServiceSlug: "elderly-care",
     relatedServiceName: "Elderly Care",
     ctaLink: "/services/elderly-care",
@@ -2116,7 +2116,7 @@ export const REAL_LIFE_STORIES: RealLifeStory[] = [
     situation: "Their 72-year-old mother underwent emergency orthopedic surgery at a central hospital, requiring continuous non-clinical bedside vigilance.",
     difficulty: "Why this becomes difficult: Both siblings have demanding jobs and children at home; coordinating 24-hour hospital bedside shifts between them was leading to physical exhaustion.",
     implication: "What can happen without support: An unattended patient may attempt to reach the washroom unassisted, risking a fresh surgical site injury, while the family suffers severe sleep deprivation.",
-    solution: "How LifeSakthi helps: A trained bedside attendant takes over the daytime and overnight bedside vigils, assisting with hygiene, sipping water, and calling nurses, while sharing shift handover notes with the family.",
+    solution: "How LifeSakhi helps: A trained bedside attendant takes over the daytime and overnight bedside vigils, assisting with hygiene, sipping water, and calling nurses, while sharing shift handover notes with the family.",
     relatedServiceSlug: "hospital-attendants",
     relatedServiceName: "Hospital Bedside Care",
     ctaLink: "/services/hospital-attendants",
@@ -2129,7 +2129,7 @@ export const REAL_LIFE_STORIES: RealLifeStory[] = [
     situation: "Priyanka returned home following a Caesarean delivery with her first child, while her spouse had to return to work after 10 days of leave.",
     difficulty: "Why this becomes difficult: Incision pain made lifting and soothing the baby agonizing, and severe sleep deprivation triggered deep emotional and physical exhaustion.",
     implication: "What can happen without support: Inadequate maternal rest slows tissue recovery, compounds postpartum stress, and turns a joyful family milestone into an overwhelming struggle.",
-    solution: "How LifeSakthi helps: A dedicated post-natal attendant assists with newborn soothing, gentle infant sponge baths, and practical comfort care, allowing Priyanka to achieve 3-hour unbroken sleep blocks to heal.",
+    solution: "How LifeSakhi helps: A dedicated post-natal attendant assists with newborn soothing, gentle infant sponge baths, and practical comfort care, allowing Priyanka to achieve 3-hour unbroken sleep blocks to heal.",
     relatedServiceSlug: "post-natal-care",
     relatedServiceName: "Post-Natal Care",
     ctaLink: "/services/post-natal-care",
@@ -2142,7 +2142,7 @@ export const REAL_LIFE_STORIES: RealLifeStory[] = [
     situation: "His 74-year-old father was cleared for discharge after hip replacement surgery, but could not safely navigate the bedroom or bathroom without two-person support.",
     difficulty: "Why this becomes difficult: The family home has standard tile flooring, low seating, and bathroom steps; family members were terrified of causing a hip dislocation during transfers.",
     implication: "What can happen without support: Secondary falls during home recovery are the leading cause of emergency orthopedic readmissions within 30 days of discharge.",
-    solution: "How LifeSakthi helps: LifeSakthi arranged a patient-transfer trained attendant to assist with walking frame guidance and personal hygiene, ensuring strict adherence to the surgeon's movement protocol.",
+    solution: "How LifeSakhi helps: LifeSakhi arranged a patient-transfer trained attendant to assist with walking frame guidance and personal hygiene, ensuring strict adherence to the surgeon's movement protocol.",
     relatedServiceSlug: "hospital-attendants",
     relatedServiceName: "Bedside & Recovery Care",
     ctaLink: "/services/hospital-attendants",
@@ -2155,7 +2155,7 @@ export const REAL_LIFE_STORIES: RealLifeStory[] = [
     situation: "Meera was splitting evenings and weekends between managing her own teenagers and visiting her widowed mother to prepare meals and check medicines.",
     difficulty: "Why this becomes difficult: Constantly rushing between two homes left Meera chronically exhausted and feeling guilty that she wasn't doing enough for either household.",
     implication: "What can happen without support: Caregiver burnout strains marital relationships, harms mental well-being, and turns visits to an ageing parent into rushed transactional chores.",
-    solution: "How LifeSakthi helps: Dependable daytime home care gives her mother warm, respectful company and wholesome daily routines, transforming Meera's evening visits into relaxed, loving family time.",
+    solution: "How LifeSakhi helps: Dependable daytime home care gives her mother warm, respectful company and wholesome daily routines, transforming Meera's evening visits into relaxed, loving family time.",
     relatedServiceSlug: "elderly-care",
     relatedServiceName: "Elderly Care",
     ctaLink: "/services/elderly-care",

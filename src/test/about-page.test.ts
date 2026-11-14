@@ -113,10 +113,10 @@ describe("About Us Page — Leadership, Architecture & Purpose", () => {
 
     it("includes the verified supporting copy and partnership narrative without invented figures", () => {
       expect(STRATEGIC_INVESTOR_PARTNER.summary).toBe(
-        "LifeSakthi is strengthened by strategic partnerships that support our vision of making dependable, accessible and compassionate care more accessible to families."
+        "LifeSakhi is strengthened by strategic partnerships that support our vision of making dependable, accessible and compassionate care more accessible to families."
       );
       expect(STRATEGIC_INVESTOR_PARTNER.partnershipStatement).toContain(
-        "We are proud to recognize TRUSTGRID.AI as a strategic investor and partner in LifeSakthi's journey."
+        "We are proud to recognize TRUSTGRID.AI as a strategic investor and partner in LifeSakhi's journey."
       );
       expect(STRATEGIC_INVESTOR_PARTNER.partnershipStatement).toContain(
         "technology-enabled care ecosystem focused on making care coordination simpler, more accessible and more dependable for families."

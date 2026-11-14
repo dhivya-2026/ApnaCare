@@ -44,7 +44,7 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/dashboard/attendant")({
   head: () =>
     seo(
-      "Saha Care Companion Portal — LifeSakthi",
+      "Saha Care Companion Portal — LifeSakhi",
       "Saha attendant operational workspace for shift assignments, attendance verification, past duty history, and earnings.",
       { canonical: "https://apna-care.vercel.app/dashboard/attendant" }
     ),
@@ -99,7 +99,7 @@ function AttendantDashboardContent() {
   const [skills, setSkills] = useState("Geriatric First-Aid, Bedside Transfer, Blood Sugar Testing, Post-Op Hygiene, Dignified Bathing Support");
   const [payoutUpi, setPayoutUpi] = useState("lakshmi.saha@okhdfcbank");
   const [emergencyContact, setEmergencyContact] = useState("Suresh K (Husband) · +91 98450 77665");
-  const [bio, setBio] = useState("Dedicated certified senior care companion with LifeSakthi since 2024. Committed to providing empathetic, dignified, and patient-centered daily living assistance.");
+  const [bio, setBio] = useState("Dedicated certified senior care companion with LifeSakhi since 2024. Committed to providing empathetic, dignified, and patient-centered daily living assistance.");
   const [savingProfile, setSavingProfile] = useState(false);
 
   // Past completed services history

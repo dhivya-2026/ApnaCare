@@ -45,7 +45,7 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/dashboard/user")({
   head: () =>
     seo(
-      "Customer Care Portal — LifeSakthi",
+      "Customer Care Portal — LifeSakhi",
       "Manage your active bookings, view previous care history, assigned Saha attendants, track daily care routines, and manage your family profile.",
       { canonical: "https://apna-care.vercel.app/dashboard/user" }
     ),
@@ -289,7 +289,7 @@ function UserDashboardContent() {
   });
 
   const waSupportUrl = buildWhatsAppUrl(
-    `Hello LifeSakthi team, I am logged into my family care portal (${user?.email}) and would like assistance with booking ${primaryBooking?.booking_id || ""}.`
+    `Hello LifeSakhi team, I am logged into my family care portal (${user?.email}) and would like assistance with booking ${primaryBooking?.booking_id || ""}.`
   );
 
   return (
@@ -839,7 +839,7 @@ function UserDashboardContent() {
                     Indiranagar Cluster Backup: Kavitha R
                   </h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    LifeSakthi maintains 2 standby caregivers within a 5 km radius of your household. If Lakshmi Priya is ever unwell or takes leave, Kavitha is briefed on Smt. Saraswathi's care chart and dispatched seamlessly.
+                    LifeSakhi maintains 2 standby caregivers within a 5 km radius of your household. If Lakshmi Priya is ever unwell or takes leave, Kavitha is briefed on Smt. Saraswathi's care chart and dispatched seamlessly.
                   </p>
                 </div>
 
@@ -860,7 +860,7 @@ function UserDashboardContent() {
                 <div>
                   <h2 className="text-lg font-display font-semibold text-foreground">Daily Health & Vitals Chart</h2>
                   <p className="text-xs text-muted-foreground">
-                    Recorded twice daily by your Saha attendant. Regularly monitored by LifeSakthi clinical nurse supervisors.
+                    Recorded twice daily by your Saha attendant. Regularly monitored by LifeSakhi clinical nurse supervisors.
                   </p>
                 </div>
 
@@ -1038,7 +1038,7 @@ function UserDashboardContent() {
             <div className="card-soft p-6 border-border space-y-6 bg-card flex flex-col justify-between">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-base font-display font-semibold text-foreground">LifeSakthi Clinical Helpdesk</h3>
+                  <h3 className="text-base font-display font-semibold text-foreground">LifeSakhi Clinical Helpdesk</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed mt-1">
                     Need to extend your booking, alter caregiver shift timings, or request a clinical doctor review?
                   </p>
@@ -1075,7 +1075,7 @@ function UserDashboardContent() {
               </div>
 
               <div className="pt-4 border-t border-border text-xs text-muted-foreground space-y-1">
-                <p className="font-semibold text-foreground">LifeSakthi Guarantee</p>
+                <p className="font-semibold text-foreground">LifeSakhi Guarantee</p>
                 <p className="text-[11px]">Strict background checks, certified life support companions & continuous nursing supervision.</p>
               </div>
             </div>

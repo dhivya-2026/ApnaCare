@@ -19,11 +19,11 @@ export const Route = createFileRoute("/knowledge-hub/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return seo("Article not found — LifeSakthi", "The requested guide could not be found.", { noindex: true });
+      return seo("Article not found — LifeSakhi", "The requested guide could not be found.", { noindex: true });
     }
     const { a } = loaderData;
     return seo(
-      `${a.title} — LifeSakthi Knowledge Hub`,
+      `${a.title} — LifeSakhi Knowledge Hub`,
       a.excerpt,
       {
         canonical: `https://apna-care.vercel.app/knowledge-hub/${a.slug}`,
@@ -117,7 +117,7 @@ function ArticleDetailPage() {
       <div className="mt-12 rounded-2xl bg-secondary/50 p-5 text-xs text-muted-foreground leading-relaxed flex items-start gap-3">
         <ShieldCheck className="size-5 shrink-0 text-primary mt-0.5" />
         <span>
-          <strong>Informational Notice:</strong> This article is published by LifeSakthi's safety and medical editorial desk for community awareness. It is not intended as a substitute for professional clinical diagnosis or legal counsel. Always consult registered physicians for specific medical concerns.
+          <strong>Informational Notice:</strong> This article is published by LifeSakhi's safety and medical editorial desk for community awareness. It is not intended as a substitute for professional clinical diagnosis or legal counsel. Always consult registered physicians for specific medical concerns.
         </span>
       </div>
 

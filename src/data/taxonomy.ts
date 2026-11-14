@@ -1,5 +1,5 @@
 /**
- * Master Enterprise Taxonomy & Relationship Engine — LifeSakthi
+ * Master Enterprise Taxonomy & Relationship Engine — LifeSakhi
  *
  * Implements the multidomain mapping connecting:
  * Customer Segment → Customer Problem → Solution → Service → Capability → Page Route → CTA → Outcome Metric

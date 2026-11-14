@@ -562,7 +562,7 @@ export function UniversalCareConfigurator() {
           plan_id: generatedPlan.id,
           customer_name: customerName,
           customer_phone: customerPhone,
-          customer_email: customerEmail || "unspecified@apnacare.in",
+          customer_email: customerEmail || "poojasri@trustgrid.ai",
           customer_relationship: customerRelationship,
           emergency_contact_name: emergencyName,
           emergency_contact_phone: emergencyPhone,
@@ -644,7 +644,7 @@ export function UniversalCareConfigurator() {
             Personalise Support for Your Family's Needs
           </h2>
           <p className="mt-3 text-sm md:text-base text-muted-foreground leading-relaxed">
-            No rigid packages or guesswork. Tell us who needs care, choose the exact daily assistance required, and let LifeSakthi organise verified Saha companions and healthcare professionals around you.
+            No rigid packages or guesswork. Tell us who needs care, choose the exact daily assistance required, and let LifeSakhi organise verified Saha companions and healthcare professionals around you.
           </p>
 
           {/* Interactive Stepper Indicator */}
@@ -1287,7 +1287,7 @@ export function UniversalCareConfigurator() {
                   Immediate Medical Attention Advised
                 </div>
                 <p className="text-xs leading-relaxed">
-                  You indicated that an acute medical emergency is present. LifeSakthi provides planned daily living support and hospital accompaniment, <strong>not emergency medical resuscitation</strong>. Please immediately call <strong>108 (Ambulance)</strong> or <strong>112 (National Emergency)</strong> or go to the nearest hospital casualty.
+                  You indicated that an acute medical emergency is present. LifeSakhi provides planned daily living support and hospital accompaniment, <strong>not emergency medical resuscitation</strong>. Please immediately call <strong>108 (Ambulance)</strong> or <strong>112 (National Emergency)</strong> or go to the nearest hospital casualty.
                 </p>
               </div>
             )}
@@ -1956,7 +1956,7 @@ export function UniversalCareConfigurator() {
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-primary">Request Successfully Received</span>
                   <h3 className="text-2xl font-bold text-foreground mt-1">
-                    Your LifeSakthi Request is Registered!
+                    Your LifeSakhi Request is Registered!
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
                     Booking Reference: <strong className="font-mono text-foreground text-sm">{confirmedBookingRef}</strong> · Care Plan: <strong className="font-mono text-foreground">{generatedPlan.id}</strong>
@@ -1975,7 +1975,7 @@ export function UniversalCareConfigurator() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center pt-3 max-w-md mx-auto">
                   <Button asChild className="h-12 text-sm font-semibold gap-2" variant="warm">
                     <a
-                      href={buildWhatsAppUrl(`*LifeSakthi Booking Confirmation (${confirmedBookingRef})*\n\nHello, I have submitted my care plan for ${recipientTitle}. Please verify the match and assignment.`)}
+                      href={buildWhatsAppUrl(`*LifeSakhi Booking Confirmation (${confirmedBookingRef})*\n\nHello, I have submitted my care plan for ${recipientTitle}. Please verify the match and assignment.`)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -2118,7 +2118,7 @@ export function UniversalCareConfigurator() {
                       className="mt-0.5 rounded text-primary"
                     />
                     <span className="text-muted-foreground leading-snug">
-                      I authorize LifeSakthi to process this care assessment solely to coordinate background-verified Saha companion matching and healthcare oversight under Indian DPDP privacy standards.
+                      I authorize LifeSakhi to process this care assessment solely to coordinate background-verified Saha companion matching and healthcare oversight under Indian DPDP privacy standards.
                     </span>
                   </label>
 

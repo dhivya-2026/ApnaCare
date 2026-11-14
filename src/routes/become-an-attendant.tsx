@@ -41,8 +41,8 @@ import hero1 from "@/assets/hero-1.jpg";
 export const Route = createFileRoute("/become-an-attendant")({
   head: () =>
     seo(
-      "Become a Saha — Join the LifeSakthi Care Team",
-      "Apply to join the LifeSakthi Saha care team as a non-clinical care companion or healthcare professional. Meet the people behind your peace of mind across South India."
+      "Become a Saha — Join the LifeSakhi Care Team",
+      "Apply to join the LifeSakhi Saha care team as a non-clinical care companion or healthcare professional. Meet the people behind your peace of mind across South India."
     ),
   component: BecomeAnAttendant,
 });
@@ -142,7 +142,7 @@ function BecomeAnAttendant() {
             </h1>
 
             <p className="mt-5 max-w-xl text-lg text-primary-foreground/85 leading-relaxed">
-              Meet the people behind your peace of mind. Join the LifeSakthi Saha team — people who support families through everyday care needs, hospital visits, and important moments at home.
+              Meet the people behind your peace of mind. Join the LifeSakhi Saha team — people who support families through everyday care needs, hospital visits, and important moments at home.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">

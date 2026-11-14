@@ -117,7 +117,7 @@ export function BusinessEnquiryModal({
             Business Care & Staffing Enquiry
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-            Partner with LifeSakthi for hospital ward attendants, corporate employee caregiving benefits, or safe workforce transit with dedicated SLAs.
+            Partner with LifeSakhi for hospital ward attendants, corporate employee caregiving benefits, or safe workforce transit with dedicated SLAs.
           </DialogDescription>
         </DialogHeader>
 

@@ -1,8 +1,8 @@
 /**
  * Centralized Brand Terminology: Saha
  *
- * Saha — LifeSakthi's signature name for its trusted care and support team
- * under the LifeSakthi Care & Assistance vertical.
+ * Saha — LifeSakhi's signature name for its trusted care and support team
+ * under the LifeSakhi Care & Assistance vertical.
  * "Meet the people behind your peace of mind."
  *
  * Core Concept:
@@ -14,7 +14,7 @@
  * - Portal: Saha Portal Login
  *
  * Clinical Boundary Notice:
- * Saha is LifeSakthi's brand term for non-clinical care companions and support staff.
+ * Saha is LifeSakhi's brand term for non-clinical care companions and support staff.
  * It is NOT a clinical medical qualification. Nurses (GNM / B.Sc) and medical specialists
  * retain their distinct statutory credentials and professional titles.
  */

@@ -2,18 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LifeStagesJourney } from "@/components/site/LifeStagesJourney";
-import { LIFESAKTHI_BRAND, LIFE_STAGES } from "@/data/lifesakthi";
+import { LIFESAKHI_BRAND, LIFE_STAGES } from "@/data/lifesakhi";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/life-stages")({
   head: () =>
     seo(
-      "Every Stage of Her Life — LifeSakthi",
-      "Explore how LifeSakthi supports girls and women across six life stages: birth and early childhood, childhood, adolescence, young adulthood, motherhood, and elderhood.",
+      "Every Stage of Her Life — LifeSakhi",
+      "Explore how LifeSakhi supports girls and women across six life stages: birth and early childhood, childhood, adolescence, young adulthood, motherhood, and elderhood.",
       {
         canonical: "https://apna-care.vercel.app/life-stages",
         keywords: [
-          "LifeSakthi life stages",
+          "LifeSakhi life stages",
           "women and child development India",
           "girl child development",
           "maternal wellbeing South India",
@@ -30,12 +30,12 @@ function LifeStagesPage() {
       {/* Header */}
       <section className="border-b border-border bg-primary-soft/35 section-spacing">
         <div className="container-page max-w-4xl">
-          <p className="eyebrow">{LIFESAKTHI_BRAND.supportingMessage}</p>
+          <p className="eyebrow">{LIFESAKHI_BRAND.supportingMessage}</p>
           <h1 className="mt-3 font-display text-fluid-hero font-semibold text-foreground">
             A Lifelong Commitment — Not Just a Single Service
           </h1>
           <p className="mt-4 text-fluid-body text-muted-foreground">
-            {LIFESAKTHI_BRAND.heroDescription} Select any stage below to see the challenges women and children face, the support needed, and how LifeSakthi contributes today and as we grow.
+            {LIFESAKHI_BRAND.heroDescription} Select any stage below to see the challenges women and children face, the support needed, and how LifeSakhi contributes today and as we grow.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild size="lg" className="rounded-full">
@@ -89,7 +89,7 @@ function LifeStagesPage() {
                     {stage.stageName}
                   </h3>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    {stage.howLifeSakthiContributes}
+                    {stage.howLifeSakhiContributes}
                   </p>
                 </div>
 
@@ -110,3 +110,4 @@ function LifeStagesPage() {
     </div>
   );
 }
+

@@ -190,6 +190,6 @@ describe("Phase 4 — Downstream Integration & Webhook Contract Integrity", () =
     expect(SITE.SUPPORT_PHONE).toBe("+91 88254 93949");
     expect(SITE.SUPPORT_PHONE_TEL).toBe("+918825493949");
     expect(SITE.WHATSAPP).toBe("918825493949");
-    expect(SITE.EMAIL).toBe("care@apnacare.in");
+    expect(SITE.EMAIL).toBe("poojasri@trustgrid.ai");
   });
 });

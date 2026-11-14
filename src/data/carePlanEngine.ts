@@ -1,5 +1,5 @@
 /**
- * LifeSakthi Service Compatibility & Care-Plan Engine
+ * LifeSakhi Service Compatibility & Care-Plan Engine
  * ────────────────────────────────────────────────
  * Converts arbitrary customer task selections across 12 care categories
  * into recommended service modules, professional qualifications, clinical boundary
@@ -475,7 +475,7 @@ export function generateCarePlan(
     : "";
 
   const whatsAppSummary = encodeURIComponent(
-    `*LifeSakthi Custom Care Plan (${planId})*\n\n` +
+    `*LifeSakhi Custom Care Plan (${planId})*\n\n` +
       `*Recipient:* ${recipient.label} (${recipientGenderTag}${recipient.ageGroup || "Age specified in consultation"})\n` +
       `*City & Area:* ${schedule.city}, ${schedule.area || "Area to confirm"}\n` +
       `*Schedule:* ${schedule.scheduleType.toUpperCase()} · ${schedule.duration} (${totalShifts} billable shifts)\n` +

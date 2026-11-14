@@ -314,7 +314,7 @@ export const GLOBAL_MENU: QuickReply[] = [
     label: "🧭 Explore All Services",
     action: {
       type: "message",
-      text: "LifeSakthi offers comprehensive specialized care services across South India:\n• **Elderly Care**: Companionship & daily living\n• **Hospital Bedside**: 12h/24h ward vigil\n• **Clinical Nursing**: Registered GNM/B.Sc nurses\n• **Post-Natal**: Fourth trimester infant & maternal healing\n• **Mobility & Travel**: Station assisted travel & women chauffeuses\n\nWhich care pathway would you like to explore?",
+      text: "LifeSakhi offers comprehensive specialized care services across South India:\n• **Elderly Care**: Companionship & daily living\n• **Hospital Bedside**: 12h/24h ward vigil\n• **Clinical Nursing**: Registered GNM/B.Sc nurses\n• **Post-Natal**: Fourth trimester infant & maternal healing\n• **Mobility & Travel**: Station assisted travel & women chauffeuses\n\nWhich care pathway would you like to explore?",
       nextReplies: [
         { label: "🏠 Elder Care", action: { type: "start_booking", service: "elderly-care" } },
         { label: "🏥 Hospital Assistance", action: { type: "start_booking", service: "hospital-attendants" } },
@@ -326,10 +326,10 @@ export const GLOBAL_MENU: QuickReply[] = [
     label: "💰 Pricing & GST Rates",
     action: {
       type: "message",
-      text: "LifeSakthi pricing is transparent with statutory 18% GST invoices and zero agency broker fees:\n• **Elderly Care**: From ₹1,200/day (Day / Night / Live-in)\n• **Hospital Bedside**: From ₹1,400/shift (12h/24h)\n• **Clinical Nursing**: From ₹1,800/shift (GNM/B.Sc)\n• **Post-Natal Care**: From ₹1,500/day\n• **Women Drivers**: From ₹800/trip\n\nWould you like to book one of these services now in this chat?",
+      text: "LifeSakhi pricing is transparent with statutory 18% GST invoices and zero agency broker fees:\n• **Elderly Care**: From ₹1,200/day (Day / Night / Live-in)\n• **Hospital Bedside**: From ₹1,400/shift (12h/24h)\n• **Clinical Nursing**: From ₹1,800/shift (GNM/B.Sc)\n• **Post-Natal Care**: From ₹1,500/day\n• **Women Drivers**: From ₹800/trip\n\nWould you like to book one of these services now in this chat?",
       nextReplies: [
         { label: "⚡ Book an Attendant Now", action: { type: "start_booking" } },
-        { label: "💬 WhatsApp Inquiries", action: { type: "whatsapp", msg: "Hi LifeSakthi! I have questions on pricing and packages." } },
+        { label: "💬 WhatsApp Inquiries", action: { type: "whatsapp", msg: "Hi LifeSakhi! I have questions on pricing and packages." } },
         { label: "📞 Call Coordinator", action: { type: "call" } },
       ],
     },
@@ -338,7 +338,7 @@ export const GLOBAL_MENU: QuickReply[] = [
     label: "🛡️ Police & Background Checks",
     action: {
       type: "message",
-      text: "Every LifeSakthi Saha team member undergoes:\n1. Station-level local police verification\n2. Aadhaar biometric authentication\n3. In-person residential address verification\n4. Hospital clinical & eldercare bedside drills\n5. 90-minute regional backup standby\n\nReady to book verified care for your family?",
+      text: "Every LifeSakhi Saha team member undergoes:\n1. Station-level local police verification\n2. Aadhaar biometric authentication\n3. In-person residential address verification\n4. Hospital clinical & eldercare bedside drills\n5. 90-minute regional backup standby\n\nReady to book verified care for your family?",
       nextReplies: [
         { label: "⚡ Find Your Saha Now", action: { type: "start_booking" } },
         { label: "📞 Speak to Coordinator", action: { type: "call" } },
@@ -350,7 +350,7 @@ export const GLOBAL_MENU: QuickReply[] = [
     label: "💬 WhatsApp Care Desk",
     action: {
       type: "whatsapp",
-      msg: "Hi LifeSakthi! I would like more information about your care services.",
+      msg: "Hi LifeSakhi! I would like more information about your care services.",
     },
   },
 ];
@@ -379,7 +379,7 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
   switch (step) {
     case "ask_recipient":
       return {
-        text: "👋 Welcome to **LifeSakthi Conversational Care Concierge**!\n\nLet's start by understanding your family's needs: **Who are you booking care for?**\n\n*(You can pick an option below or describe your family's situation in your own words)*",
+        text: "👋 Welcome to **LifeSakhi Conversational Care Concierge**!\n\nLet's start by understanding your family's needs: **Who are you booking care for?**\n\n*(You can pick an option below or describe your family's situation in your own words)*",
         replies: [
           { label: "👴 My Elderly Father", action: { type: "booking_answer", field: "recipient", value: "My Elderly Father" } },
           { label: "👵 My Elderly Mother", action: { type: "booking_answer", field: "recipient", value: "My Elderly Mother" } },
@@ -463,7 +463,7 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
               displayLabel: `Selected: ${p.name}`,
             },
           })),
-          { label: "💬 Speak to Coordinator for Custom Plan", action: { type: "whatsapp" as const, msg: `Hi LifeSakthi! I need a custom care plan for ${draft.recipient} (${draft.situation}).` } },
+          { label: "💬 Speak to Coordinator for Custom Plan", action: { type: "whatsapp" as const, msg: `Hi LifeSakhi! I need a custom care plan for ${draft.recipient} (${draft.situation}).` } },
           { label: "❌ Cancel", action: { type: "booking_answer" as const, field: "cancel", value: "cancel" } },
         ],
         placeholder: "Select a pack above or ask a question...",
@@ -534,7 +534,7 @@ function getStepQuestion(step: BookingStep, draft: BookingDraft): { text: string
         });
       }
       replies.push(
-        { label: "💬 Share Details on WhatsApp", action: { type: "whatsapp", msg: `Hi LifeSakthi! I want to complete booking for ${draft.selectedPackName || draft.serviceName} in ${draft.city}.` } },
+        { label: "💬 Share Details on WhatsApp", action: { type: "whatsapp", msg: `Hi LifeSakhi! I want to complete booking for ${draft.selectedPackName || draft.serviceName} in ${draft.city}.` } },
         { label: "📞 Call Coordinator Line", action: { type: "call" } },
         { label: "❌ Cancel Booking", action: { type: "booking_answer", field: "cancel", value: "cancel" } }
       );
@@ -574,7 +574,7 @@ function getPageContext(pathname: string): PageContextInfo {
       return {
         badge: icp.name,
         greeting: `Welcome! Looking for verified care solutions for **${icp.name}**?\n${icp.summary}\n\nI can facilitate an instant attendant booking right here in this chat, answer pricing questions, or connect you with our coordinator.`,
-        whatsappMessage: `Hi LifeSakthi! I'm viewing care solutions for ${icp.name} (${pathname}) and would like assistance.`,
+        whatsappMessage: `Hi LifeSakhi! I'm viewing care solutions for ${icp.name} (${pathname}) and would like assistance.`,
         initialReplies: [
           {
             label: `⚡ Book Care in Chat (${sObj?.name || icp.name})`,
@@ -603,7 +603,7 @@ function getPageContext(pathname: string): PageContextInfo {
             label: `💬 WhatsApp ${icp.name} Desk`,
             action: {
               type: "whatsapp",
-              msg: `Hi LifeSakthi! I'm interested in booking care solutions for ${icp.name}.`,
+              msg: `Hi LifeSakhi! I'm interested in booking care solutions for ${icp.name}.`,
             },
           },
           {
@@ -625,7 +625,7 @@ function getPageContext(pathname: string): PageContextInfo {
         badge: service.name,
         service,
         greeting: `Hello! Interested in **${service.name}**?\n${service.shortDesc}\n\nI can book this service for you directly in chat, answer inclusion specs, or explain our police verification standards.`,
-        whatsappMessage: `Hi LifeSakthi! I'm viewing the ${service.name} service (${pathname}) and have a question.`,
+        whatsappMessage: `Hi LifeSakhi! I'm viewing the ${service.name} service (${pathname}) and have a question.`,
         initialReplies: [
           {
             label: `⚡ Book ${service.name} in Chat`,
@@ -656,7 +656,7 @@ function getPageContext(pathname: string): PageContextInfo {
             label: "💬 WhatsApp Coordinator",
             action: {
               type: "whatsapp",
-              msg: `Hi LifeSakthi! I would like to book or ask about ${service.name}.`,
+              msg: `Hi LifeSakhi! I would like to book or ask about ${service.name}.`,
             },
           },
           {
@@ -672,8 +672,8 @@ function getPageContext(pathname: string): PageContextInfo {
   return {
     badge: "General Care Desk",
     greeting:
-      "Hello! Welcome to LifeSakthi. I am your automated care assistant.\nWhat kind of assistance are you looking for today? I can help you explore verified care, check pricing, or initiate an enquiry directly in this chat.",
-    whatsappMessage: "Hi LifeSakthi! I would like to enquire about your care services.",
+      "Hello! Welcome to LifeSakhi. I am your automated care assistant.\nWhat kind of assistance are you looking for today? I can help you explore verified care, check pricing, or initiate an enquiry directly in this chat.",
+    whatsappMessage: "Hi LifeSakhi! I would like to enquire about your care services.",
     initialReplies: GLOBAL_MENU,
   };
 }
@@ -1007,7 +1007,7 @@ export function Assistant() {
           label: "💬 Confirm on WhatsApp",
           action: {
             type: "whatsapp",
-            msg: `Hi LifeSakthi! I just registered booking reference ${ref} for ${finalDraft.serviceName} in ${finalDraft.city}. Please confirm attendant dispatch.`,
+            msg: `Hi LifeSakhi! I just registered booking reference ${ref} for ${finalDraft.serviceName} in ${finalDraft.city}. Please confirm attendant dispatch.`,
           },
         },
         {
@@ -1128,7 +1128,7 @@ export function Assistant() {
             from: "bot",
             text: "⚠️ Please provide a valid **10-digit Indian mobile number** (e.g., 9876543210) so our regional care coordinator can reach you to confirm attendant dispatch.",
             replies: [
-              { label: "💬 Share via WhatsApp", action: { type: "whatsapp", msg: `Hi LifeSakthi! I want to confirm my booking: ${text}` } },
+              { label: "💬 Share via WhatsApp", action: { type: "whatsapp", msg: `Hi LifeSakhi! I want to confirm my booking: ${text}` } },
               { label: "📞 Call Coordinator Line", action: { type: "call" } },
               { label: "❌ Cancel Booking", action: { type: "booking_answer", field: "cancel", value: "cancel" } },
             ],
@@ -1264,10 +1264,10 @@ export function Assistant() {
         userMsg,
         {
           from: "bot",
-          text: "LifeSakthi transparent pricing starts from:\n• **Elderly Care**: ₹1,200/day (Day / Night / 24h Live-in)\n• **Hospital Bedside**: ₹1,400/shift (12h/24h)\n• **Clinical Nursing**: ₹1,800/shift (GNM/B.Sc)\n• **Post-Natal Care**: ₹1,500/day\n• **Women Drivers**: ₹800/trip\n\nAll rates include statutory 18% GST invoices and zero agency broker fees. Would you like to book now?",
+          text: "LifeSakhi transparent pricing starts from:\n• **Elderly Care**: ₹1,200/day (Day / Night / 24h Live-in)\n• **Hospital Bedside**: ₹1,400/shift (12h/24h)\n• **Clinical Nursing**: ₹1,800/shift (GNM/B.Sc)\n• **Post-Natal Care**: ₹1,500/day\n• **Women Drivers**: ₹800/trip\n\nAll rates include statutory 18% GST invoices and zero agency broker fees. Would you like to book now?",
           replies: [
             { label: "⚡ Book in Chat Now", action: { type: "start_booking" } },
-            { label: "💬 Inquire on WhatsApp", action: { type: "whatsapp", msg: `Hi LifeSakthi! I'm inquiring about pricing: "${text}"` } },
+            { label: "💬 Inquire on WhatsApp", action: { type: "whatsapp", msg: `Hi LifeSakhi! I'm inquiring about pricing: "${text}"` } },
             { label: "📞 Call Coordinator", action: { type: "call" } },
           ],
         },
@@ -1282,7 +1282,7 @@ export function Assistant() {
         userMsg,
         {
           from: "bot",
-          text: "Safety & verification are fundamental to LifeSakthi:\n• 100% Station-level police background certificates\n• Aadhaar biometric authentication\n• Residential address verification\n• 90-minute emergency regional backup standby\n\nWould you like to reserve a verified attendant?",
+          text: "Safety & verification are fundamental to LifeSakhi:\n• 100% Station-level police background certificates\n• Aadhaar biometric authentication\n• Residential address verification\n• 90-minute emergency regional backup standby\n\nWould you like to reserve a verified attendant?",
           replies: [
             { label: "⚡ Book an Attendant Now", action: { type: "start_booking" } },
             { label: "📞 Speak to Coordinator", action: { type: "call" } },
@@ -1301,7 +1301,7 @@ export function Assistant() {
         text: `Thank you for reaching out! Regarding "${text}", our care coordinators can assist you immediately. You can book an attendant directly in this chat or connect with us on WhatsApp.`,
         replies: [
           { label: "⚡ Book Care Attendant Now", action: { type: "start_booking" } },
-          { label: "💬 WhatsApp Coordinator", action: { type: "whatsapp", msg: `Hi LifeSakthi! Regarding: "${text}"` } },
+          { label: "💬 WhatsApp Coordinator", action: { type: "whatsapp", msg: `Hi LifeSakhi! Regarding: "${text}"` } },
           { label: "📞 Call 24/7 Desk", action: { type: "call" } },
         ],
       },
@@ -1344,7 +1344,7 @@ export function Assistant() {
             if (!open) track("assistant_open", { context: pageContext.badge });
           }}
           aria-label={
-            open ? "Close LifeSakthi Assistant" : `Open LifeSakthi Assistant for ${pageContext.badge}`
+            open ? "Close LifeSakhi Assistant" : `Open LifeSakhi Assistant for ${pageContext.badge}`
           }
           aria-expanded={open}
           className="grid size-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-lift transition-transform hover:scale-105 active:scale-95"
@@ -1357,7 +1357,7 @@ export function Assistant() {
       {open && (
         <div
           role="dialog"
-          aria-label="LifeSakthi Conversational Booking Assistant"
+          aria-label="LifeSakhi Conversational Booking Assistant"
           aria-modal="true"
           style={{ backgroundColor: "#ffffff" }}
           className="fixed bottom-40 right-4 z-50 flex h-[620px] max-h-[85vh] w-[min(440px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-3xl border border-border/90 shadow-2xl md:bottom-24 animate-fade-in text-card-foreground"
@@ -1367,7 +1367,7 @@ export function Assistant() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-display text-base font-semibold flex items-center gap-1.5">
-                  LifeSakthi Care Desk
+                  LifeSakhi Care Desk
                   <Sparkles className="size-3.5 text-terracotta" />
                 </p>
                 <p className="text-xs text-primary-foreground/80 flex items-center gap-1.5">
@@ -1558,7 +1558,7 @@ export function Assistant() {
 
                     <div className="mt-3 flex flex-wrap gap-2 pt-2 border-t border-border/70">
                       <a
-                        href={buildWhatsAppUrl(`Hi LifeSakthi! I just registered booking reference ${m.bookingCard.ref} for ${m.bookingCard.serviceName} in ${m.bookingCard.city}. Please confirm attendant dispatch.`)}
+                        href={buildWhatsAppUrl(`Hi LifeSakhi! I just registered booking reference ${m.bookingCard.ref} for ${m.bookingCard.serviceName} in ${m.bookingCard.city}. Please confirm attendant dispatch.`)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#25D366] bg-[#25D366]/15 py-2 text-xs font-semibold text-[#128C7E] hover:bg-[#25D366]/25 transition-colors"

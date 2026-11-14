@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
-import { LIFE_STAGES, type LifeStage } from "@/data/lifesakthi";
+import { LIFE_STAGES, type LifeStage } from "@/data/lifesakhi";
 import { Button } from "@/components/ui/button";
 
 function getBadgeClasses(status: LifeStage["status"]) {
@@ -23,7 +23,7 @@ export function LifeStagesJourney({ compact = false }: { compact?: boolean }) {
       {/* Horizontal 6-stage timeline selector */}
       <div
         role="tablist"
-        aria-label="Life stages supported by LifeSakthi"
+        aria-label="Life stages supported by LifeSakhi"
         className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6"
       >
         {LIFE_STAGES.map((stage) => {
@@ -113,10 +113,10 @@ export function LifeStagesJourney({ compact = false }: { compact?: boolean }) {
 
           <div className="rounded-2xl bg-primary-soft/50 p-4">
             <p className="text-xs font-bold uppercase tracking-wider text-primary">
-              How LifeSakthi Contributes
+              How LifeSakhi Contributes
             </p>
             <p className="mt-2 text-sm leading-relaxed text-foreground">
-              {activeStage.howLifeSakthiContributes}
+              {activeStage.howLifeSakhiContributes}
             </p>
           </div>
 
@@ -157,3 +157,4 @@ export function LifeStagesJourney({ compact = false }: { compact?: boolean }) {
     </div>
   );
 }
+

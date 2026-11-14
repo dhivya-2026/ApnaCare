@@ -1,5 +1,5 @@
 /**
- * Central Register of Trust, Safety & Operational Claims — LifeSakthi Phase 4 Audit
+ * Central Register of Trust, Safety & Operational Claims — LifeSakhi Phase 4 Audit
  *
  * Implements the rigorous public-claims verification audit required by Phase 4:
  * tracking every trust statement, verification assertion, replacement SLA, insurance claim,
@@ -88,7 +88,7 @@ export const CENTRAL_CLAIMS_REGISTER: TrustClaimRecord[] = [
       "Establish realistic transit windows by city sector (e.g. 90 mins for core clusters, 120–180 mins for peripheral zones) and document clear client contract terms.",
     lastReviewDate: "2026-10-24",
     notes:
-      "A generic '<15 min emergency dispatch' claim creates dangerous expectations during real medical emergencies. LifeSakthi attendants provide scheduled care, backed by a 90-minute cluster replacement protocol if the primary attendant falls ill.",
+      "A generic '<15 min emergency dispatch' claim creates dangerous expectations during real medical emergencies. LifeSakhi attendants provide scheduled care, backed by a 90-minute cluster replacement protocol if the primary attendant falls ill.",
   },
   {
     id: "CLM-002",

@@ -11,8 +11,8 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/login/attendant")({
   head: () =>
     seo(
-      "Saha Attendant Login — LifeSakthi",
-      "Sign in to your LifeSakthi Saha attendant portal to view care assignments, check in for shifts, and update availability.",
+      "Saha Attendant Login — LifeSakhi",
+      "Sign in to your LifeSakhi Saha attendant portal to view care assignments, check in for shifts, and update availability.",
       { canonical: "https://apna-care.vercel.app/login/attendant" }
     ),
   component: AttendantLoginPage,
@@ -144,7 +144,7 @@ function AttendantLoginPage() {
           <p>
             New care attendant or nurse?{" "}
             <Link to="/register/attendant" className="font-semibold text-emerald-700 hover:underline">
-              Register with LifeSakthi
+              Register with LifeSakhi
             </Link>
           </p>
           <p>

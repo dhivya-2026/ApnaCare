@@ -44,7 +44,7 @@ export const Route = createFileRoute("/services/")({
   validateSearch: searchSchema,
   head: () =>
     seo(
-      "Service Catalogue & Care Portfolios — LifeSakthi",
+      "Service Catalogue & Care Portfolios — LifeSakhi",
       "Explore comprehensive care services across Care at Home, Hospital Assistance, Travel Assistance, Women's Mobility, Family Support, and Business Partnerships."
     ),
   component: ServicesPage,
@@ -405,7 +405,7 @@ function ServicesPage() {
               Clear Boundaries, Thorough Verification
             </h2>
             <p className="mt-3 text-base text-muted-foreground leading-relaxed">
-              LifeSakthi serves people in delicate moments. We maintain transparent operational standards and explicit healthcare distinctions.
+              LifeSakhi serves people in delicate moments. We maintain transparent operational standards and explicit healthcare distinctions.
             </p>
           </div>
 

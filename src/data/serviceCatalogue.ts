@@ -1,8 +1,8 @@
 /**
- * LifeSakthi Comprehensive Service Catalogue & Customer Segments
+ * LifeSakhi Comprehensive Service Catalogue & Customer Segments
  *
  * Implements the 6 primary categories and verified services based on
- * LifeSakthi's customer segments and Ideal Customer Profiles (ICPs).
+ * LifeSakhi's customer segments and Ideal Customer Profiles (ICPs).
  */
 
 import { type ServiceCategory, SERVICES } from "./site";
@@ -357,7 +357,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
       "Continuous exit-door observation to prevent wandering outside",
     ],
     whatNotIncluded: [
-      "Physical restraints of any kind (strictly forbidden by LifeSakthi ethics)",
+      "Physical restraints of any kind (strictly forbidden by LifeSakhi ethics)",
       "Psychiatric medical management without physician oversight",
     ],
     availability: "Available for 12-hour shifts and 24-hour residential placement",
@@ -1006,7 +1006,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     keyBenefits: [
       "Zero gaps in safety or companionship from start to finish",
       "Family never worries about intermediate transfer confusion",
-      "End-to-end trip verification logged by LifeSakthi coordinators",
+      "End-to-end trip verification logged by LifeSakhi coordinators",
     ],
     whatIncluded: [
       "Home departure assistance and packing verification",
@@ -1184,7 +1184,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     keyBenefits: [
       "Heightened situational awareness and perimeter observation",
       "Discreet and professional presence without drawing unwanted attention",
-      "Direct link to LifeSakthi emergency command center",
+      "Direct link to LifeSakhi emergency command center",
     ],
     whatIncluded: [
       "Continuous close assisted travel during event or transit",
@@ -1295,7 +1295,7 @@ export const CATALOGUE_SERVICES: CatalogueService[] = [
     categoryId: "womens-mobility",
     shortDesc: "On-demand booking of 100% police-verified and ID-authenticated women companions.",
     description:
-      "Transparent booking system connecting women with verified female companions whose Aadhaar, police records, address proof, and credentials have been verified by LifeSakthi.",
+      "Transparent booking system connecting women with verified female companions whose Aadhaar, police records, address proof, and credentials have been verified by LifeSakhi.",
     intendedCustomer: "Women seeking authentic, verified companion support without agency ambiguity.",
     keyBenefits: [
       "100% biometric and police background verification",

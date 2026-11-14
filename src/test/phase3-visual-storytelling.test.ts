@@ -2,12 +2,12 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-describe("Phase 3 — LifeSakthi Brand Storytelling, Life Stages & Value Communication", () => {
+describe("Phase 3 — LifeSakhi Brand Storytelling, Life Stages & Value Communication", () => {
   const indexPath = resolve(__dirname, "../routes/index.tsx");
   const indexContent = readFileSync(indexPath, "utf-8");
 
-  const lifesakthiPath = resolve(__dirname, "../data/lifesakthi.ts");
-  const lifesakthiContent = readFileSync(lifesakthiPath, "utf-8");
+  const lifesakhiPath = resolve(__dirname, "../data/lifesakhi.ts");
+  const lifesakhiContent = readFileSync(lifesakhiPath, "utf-8");
 
   const calculatorPath = resolve(__dirname, "../components/site/CareNeedsCalculator.tsx");
   const calculatorContent = readFileSync(calculatorPath, "utf-8");
@@ -15,24 +15,24 @@ describe("Phase 3 — LifeSakthi Brand Storytelling, Life Stages & Value Communi
   const stylesPath = resolve(__dirname, "../styles.css");
   const stylesContent = readFileSync(stylesPath, "utf-8");
 
-  it("defines six distinct life stages for women and children in LifeSakthi data", () => {
-    expect(lifesakthiContent).toContain('id: "birth-early-childhood"');
-    expect(lifesakthiContent).toContain('id: "childhood-development"');
-    expect(lifesakthiContent).toContain('id: "adolescence-growing-up"');
-    expect(lifesakthiContent).toContain('id: "young-adulthood-independence"');
-    expect(lifesakthiContent).toContain('id: "womanhood-motherhood"');
-    expect(lifesakthiContent).toContain('id: "ageing-elderhood"');
+  it("defines six distinct life stages for women and children in LifeSakhi data", () => {
+    expect(lifesakhiContent).toContain('id: "birth-early-childhood"');
+    expect(lifesakhiContent).toContain('id: "childhood-development"');
+    expect(lifesakhiContent).toContain('id: "adolescence-growing-up"');
+    expect(lifesakhiContent).toContain('id: "young-adulthood-independence"');
+    expect(lifesakhiContent).toContain('id: "womanhood-motherhood"');
+    expect(lifesakhiContent).toContain('id: "ageing-elderhood"');
   });
 
   it("defines six interconnected strategic pillars with transparent readiness badges", () => {
-    expect(lifesakthiContent).toContain('id: "care-and-assistance"');
-    expect(lifesakthiContent).toContain('id: "women-empowerment"');
-    expect(lifesakthiContent).toContain('id: "health-and-wellbeing"');
-    expect(lifesakthiContent).toContain('id: "child-development"');
-    expect(lifesakthiContent).toContain('id: "community-development"');
-    expect(lifesakthiContent).toContain('id: "learning-and-development"');
-    expect(lifesakthiContent).toContain("Operational Now");
-    expect(lifesakthiContent).toContain("Proposed Programme");
+    expect(lifesakhiContent).toContain('id: "care-and-assistance"');
+    expect(lifesakhiContent).toContain('id: "women-empowerment"');
+    expect(lifesakhiContent).toContain('id: "health-and-wellbeing"');
+    expect(lifesakhiContent).toContain('id: "child-development"');
+    expect(lifesakhiContent).toContain('id: "community-development"');
+    expect(lifesakhiContent).toContain('id: "learning-and-development"');
+    expect(lifesakhiContent).toContain("Operational Now");
+    expect(lifesakhiContent).toContain("Proposed Programme");
   });
 
   it("mounts the LifeStagesJourney, PillarsGrid, and CareRecoveryStory on the homepage", () => {
@@ -42,8 +42,8 @@ describe("Phase 3 — LifeSakthi Brand Storytelling, Life Stages & Value Communi
     expect(indexContent).toContain("<UniversalCareConfigurator");
   });
 
-  it("communicates LifeSakthi positioning and leadership", () => {
-    expect(indexContent).toContain("LIFESAKTHI_BRAND.tagline");
+  it("communicates LifeSakhi positioning and leadership", () => {
+    expect(indexContent).toContain("LIFESAKHI_BRAND.tagline");
     expect(indexContent).toContain("WOMEN_LEADERSHIP");
     expect(indexContent).toContain("STRATEGIC_INVESTOR_PARTNER");
   });

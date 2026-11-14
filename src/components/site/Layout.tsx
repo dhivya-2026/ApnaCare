@@ -122,7 +122,7 @@ export function BookLink({
 
 export function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2.5" aria-label="LifeSakthi home">
+    <Link to="/" className="flex items-center gap-2.5" aria-label="LifeSakhi home">
       <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-2xs">
         <svg
           viewBox="0 0 32 32"
@@ -182,7 +182,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", to: "/" },
-  { label: "About LifeSakthi", to: "/about" },
+  { label: "About LifeSakhi", to: "/about" },
   {
     label: "Life Stages",
     children: [
@@ -618,7 +618,7 @@ function DesktopDropdown({ item }: { item: NavItem }) {
                     <Phone className="size-3" /> Call {SITE.SUPPORT_PHONE}
                   </a>
                   <span className="text-muted-foreground">•</span>
-                  <a href={buildWhatsAppUrl("Hi LifeSakthi! I need guidance choosing the right care plan.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#128C7E] hover:underline flex items-center gap-1">
+                  <a href={buildWhatsAppUrl("Hi LifeSakhi! I need guidance choosing the right care plan.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#128C7E] hover:underline flex items-center gap-1">
                     <MessageCircle className="size-3" /> WhatsApp Coordinator
                   </a>
                 </div>
@@ -828,7 +828,7 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const waUrl = buildWhatsAppUrl("Hi LifeSakthi! I'd like to enquire about your programmes and care services.");
+  const waUrl = buildWhatsAppUrl("Hi LifeSakhi! I'd like to enquire about your programmes and care services.");
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur w-full">
@@ -907,7 +907,7 @@ function Header() {
             <Link
               to="/login"
               className="hidden sm:inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap min-h-[44px] px-4 rounded-full font-bold text-xs bg-primary text-primary-foreground hover:bg-primary/90 shadow-2xs transition-all hover:scale-[1.02]"
-              aria-label="Get Started with LifeSakthi account"
+              aria-label="Get Started with LifeSakhi account"
             >
               <span>Get Started</span>
               <ArrowRight className="size-3.5" />
@@ -1000,7 +1000,7 @@ function Footer() {
         <div className="sm:col-span-2 max-w-sm">
           <Logo />
           <p className="mt-4 text-sm leading-relaxed text-ink-foreground/85">
-            Empowering Women. Enriching Lives. LifeSakthi stands beside women and children through every stage of life—uniting community empowerment with trusted Saha care across South India.
+            Empowering Women. Enriching Lives. LifeSakhi stands beside women and children through every stage of life—uniting community empowerment with trusted Saha care across South India.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <BookLink variant="warm" size="sm" className="min-h-[44px]" />
@@ -1063,7 +1063,7 @@ function Footer() {
           <ul className="mt-4 space-y-2.5 text-sm text-ink-foreground/80">
             <li>
               <Link to="/about" className="hover:text-white transition-colors">
-                About LifeSakthi
+                About LifeSakhi
               </Link>
             </li>
             <li>
@@ -1131,7 +1131,7 @@ function Footer() {
             </li>
             <li>
               <a
-                href={buildWhatsAppUrl("Hello LifeSakthi, I need assistance.")}
+                href={buildWhatsAppUrl("Hello LifeSakhi, I need assistance.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => track("whatsapp_footer_click")}
@@ -1166,7 +1166,7 @@ function Footer() {
       <div className="border-t border-ink-foreground/15 py-6">
         <div className="container-page flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-ink-foreground/75">
           <p>
-            © {new Date().getFullYear()} LifeSakthi (Operated by {SITE.legalName}). All rights reserved. GST compliant
+            © {new Date().getFullYear()} LifeSakhi (Operated by {SITE.legalName}). All rights reserved. GST compliant
             invoicing.
           </p>
           <div className="flex flex-wrap items-center gap-4">
@@ -1206,7 +1206,7 @@ function Footer() {
 // ─── Mobile Bottom Bar ────────────────────────────────────────────────────────
 
 function MobileBar() {
-  const waUrl = buildWhatsAppUrl("Hi LifeSakthi! I'd like to enquire about care & support.");
+  const waUrl = buildWhatsAppUrl("Hi LifeSakhi! I'd like to enquire about care & support.");
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-2 border-t border-border bg-background/95 p-3 backdrop-blur md:hidden shadow-lift" role="toolbar" aria-label="Quick actions">
       <CallLink className="flex-1 text-sm min-h-[44px]" size="sm">
@@ -1237,14 +1237,14 @@ function MobileBar() {
 
 function FloatingWhatsApp() {
   const waUrl = buildWhatsAppUrl(
-    "Hi LifeSakthi! I'd like to know more about your programmes and Saha care services.",
+    "Hi LifeSakhi! I'd like to know more about your programmes and Saha care services.",
   );
   return (
     <a
       href={waUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat with LifeSakthi on WhatsApp"
+      aria-label="Chat with LifeSakhi on WhatsApp"
       onClick={() => {
         track("whatsapp_contact_clicked", { source_location: "floating_fab" });
         track("whatsapp_floating_click");

@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { LIFESAKTHI_PILLARS, type LifeSakthiPillar } from "@/data/lifesakthi";
+import { LIFESAKHI_PILLARS, type LifeSakhiPillar } from "@/data/lifesakhi";
 
-function readinessStyle(readiness: LifeSakthiPillar["readiness"]) {
+function readinessStyle(readiness: LifeSakhiPillar["readiness"]) {
   if (readiness === "Operational Now") {
     return "bg-primary text-primary-foreground";
   }
@@ -15,7 +15,7 @@ function readinessStyle(readiness: LifeSakthiPillar["readiness"]) {
 export function PillarsGrid() {
   return (
     <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {LIFESAKTHI_PILLARS.map((pillar) => (
+      {LIFESAKHI_PILLARS.map((pillar) => (
         <article
           key={pillar.id}
           className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-xs transition-shadow hover:shadow-md"
@@ -65,3 +65,4 @@ export function PillarsGrid() {
     </div>
   );
 }
+

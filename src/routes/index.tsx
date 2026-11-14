@@ -32,7 +32,7 @@ import {
   buildWhatsAppUrl,
   formatINR,
 } from "@/data/site";
-import { LIFESAKTHI_BRAND } from "@/data/lifesakthi";
+import { LIFESAKHI_BRAND } from "@/data/lifesakhi";
 import { WOMEN_LEADERSHIP, STRATEGIC_INVESTOR_PARTNER } from "@/routes/about";
 import { seo } from "@/lib/seo";
 import { buildOrganizationSchema, buildFaqPageSchema } from "@/data/enterprise-content";
@@ -44,11 +44,11 @@ import hero5 from "@/assets/hero-5.jpg";
 
 const FAQS = [
   {
-    q: "What is LifeSakthi and how does it relate to LifeSakthi?",
-    a: "LifeSakthi is our expanded women and child development, empowerment, and lifelong wellbeing brand—uniting women's community empowerment with all verified Care & Assistance operations (elderly care, hospital bedside support, nursing, and postnatal care) previously operated under LifeSakthi.",
+    q: "What is LifeSakhi and how does it relate to LifeSakhi?",
+    a: "LifeSakhi is our expanded women and child development, empowerment, and lifelong wellbeing brand—uniting women's community empowerment with all verified Care & Assistance operations (elderly care, hospital bedside support, nursing, and postnatal care) previously operated under LifeSakhi.",
   },
   {
-    q: "How are LifeSakthi Saha care companions verified and vetted?",
+    q: "How are LifeSakhi Saha care companions verified and vetted?",
     a: "Every Saha care companion undergoes a structured 5-stage background verification: government photo ID authentication, police verification documentation filing, residential address checks, reference reviews, and practical caregiving skills assessment before assignment.",
   },
   {
@@ -68,12 +68,12 @@ const FAQS = [
 export const Route = createFileRoute("/")({
   head: () =>
     seo(
-      "LifeSakthi — Empowering Women. Enriching Lives.",
-      "Every Girl. Every Woman. Every Stage. LifeSakthi stands for women and child development, SHG empowerment, dignity, wellbeing, and trusted Saha care across South India.",
+      "LifeSakhi — Empowering Women. Enriching Lives.",
+      "Every Girl. Every Woman. Every Stage. LifeSakhi stands for women and child development, SHG empowerment, dignity, wellbeing, and trusted Saha care across South India.",
       {
         canonical: "https://apna-care.vercel.app",
         keywords: [
-          "LifeSakthi",
+          "LifeSakhi",
           "women empowerment South India",
           "women and child development India",
           "elderly care at home Bengaluru Chennai Hyderabad Coimbatore",
@@ -89,7 +89,7 @@ export const Route = createFileRoute("/")({
 
 export function HomePage() {
   const [homeBizOpen, setHomeBizOpen] = useState(false);
-  const waUrl = buildWhatsAppUrl("Hi LifeSakthi! I would like to learn more or request support.");
+  const waUrl = buildWhatsAppUrl("Hi LifeSakhi! I would like to learn more or request support.");
   const featuredServices = SERVICES.filter((s) => s.featured).slice(0, 4);
 
   return (
@@ -100,15 +100,15 @@ export function HomePage() {
           <div className="lg:col-span-7">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-card px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-primary shadow-2xs">
               <Sparkles className="size-3.5 text-terracotta" />
-              {LIFESAKTHI_BRAND.supportingMessage}
+              {LIFESAKHI_BRAND.supportingMessage}
             </span>
 
             <h1 className="mt-5 font-display text-fluid-hero font-semibold text-foreground">
-              {LIFESAKTHI_BRAND.tagline}
+              {LIFESAKHI_BRAND.tagline}
             </h1>
 
             <p className="mt-4 max-w-2xl text-fluid-body text-muted-foreground">
-              {LIFESAKTHI_BRAND.heroDescription}
+              {LIFESAKHI_BRAND.heroDescription}
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3.5">
@@ -144,7 +144,7 @@ export function HomePage() {
               <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
                 <img
                   src={hero4}
-                  alt="Mother and newborn supported by a trained LifeSakthi care companion"
+                  alt="Mother and newborn supported by a trained LifeSakhi care companion"
                   className="aspect-[4/5] w-full object-cover"
                 />
               </div>
@@ -161,7 +161,7 @@ export function HomePage() {
               <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
                 <img
                   src={hero1}
-                  alt="Elderly woman cared for with dignity and warmth by a LifeSakthi Saha companion"
+                  alt="Elderly woman cared for with dignity and warmth by a LifeSakhi Saha companion"
                   className="aspect-[4/5] w-full object-cover"
                 />
               </div>
@@ -182,10 +182,10 @@ export function HomePage() {
         <div className="container-page max-w-5xl text-center">
           <p className="eyebrow">Our Philosophy</p>
           <h2 className="mt-3 font-display text-fluid-section font-semibold text-foreground">
-            {LIFESAKTHI_BRAND.philosophyStatement}
+            {LIFESAKHI_BRAND.philosophyStatement}
           </h2>
           <p className="mx-auto mt-4 max-w-3xl text-fluid-body text-muted-foreground">
-            {LIFESAKTHI_BRAND.philosophySummary}
+            {LIFESAKHI_BRAND.philosophySummary}
           </p>
         </div>
       </section>
@@ -200,7 +200,7 @@ export function HomePage() {
                 Every Stage of Her Life
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Select any life stage to explore the challenges, support needed, and how LifeSakthi contributes across a lifetime.
+                Select any life stage to explore the challenges, support needed, and how LifeSakhi contributes across a lifetime.
               </p>
             </div>
             <Button asChild variant="outline" className="rounded-full">
@@ -244,7 +244,7 @@ export function HomePage() {
             <div className="max-w-2xl">
               <p className="eyebrow">Operational Today · South India</p>
               <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
-                LifeSakthi Care &amp; Assistance in Action
+                LifeSakhi Care &amp; Assistance in Action
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 Need immediate support for an ageing parent, hospital admission, new mother, or family transit? Our verified Saha companions and registered nurses are active across Bengaluru, Chennai, Hyderabad, and Coimbatore.
@@ -303,7 +303,7 @@ export function HomePage() {
             <div className="overflow-hidden rounded-3xl border border-border shadow-soft">
               <img
                 src={hero2}
-                alt="LifeSakthi Saha care companion supporting patient recovery with professionalism"
+                alt="LifeSakhi Saha care companion supporting patient recovery with professionalism"
                 className="aspect-[16/10] w-full object-cover"
               />
             </div>
@@ -314,7 +314,7 @@ export function HomePage() {
               From Grassroots Self-Help Groups to Dignified Care Careers
             </h2>
             <p className="mt-4 text-fluid-body text-muted-foreground">
-              Led by Women Self-Help Group Outreach Manager <strong>Prof. Shoba T</strong>, LifeSakthi partners with community networks across South India to train women in practical caregiving, safety protocols, and professional communication—enabling financial independence as verified <strong>Saha</strong> companions.
+              Led by Women Self-Help Group Outreach Manager <strong>Prof. Shoba T</strong>, LifeSakhi partners with community networks across South India to train women in practical caregiving, safety protocols, and professional communication—enabling financial independence as verified <strong>Saha</strong> companions.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full">
@@ -510,7 +510,7 @@ export function HomePage() {
         <div className="rounded-[2.5rem] bg-ink p-8 text-ink-foreground md:p-14 shadow-lift">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
-              <span className="eyebrow text-terracotta">LifeSakthi · South India</span>
+              <span className="eyebrow text-terracotta">LifeSakhi · South India</span>
               <h2 className="mt-3 max-w-lg text-balance font-display text-3xl font-semibold md:text-4xl lg:text-5xl text-white leading-tight">
                 Together, We Can Build Stronger Futures.
               </h2>
@@ -562,7 +562,7 @@ export function HomePage() {
 
             <div className="rounded-2xl bg-background p-6 text-foreground shadow-lift">
               <EnquiryForm
-                title="Connect With LifeSakthi"
+                title="Connect With LifeSakhi"
                 subtitle="Share your care requirement, Saha career interest, or partnership enquiry."
                 className="bg-transparent"
               />

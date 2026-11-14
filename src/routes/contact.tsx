@@ -22,8 +22,8 @@ export const Route = createFileRoute("/contact")({
   }),
   head: () =>
     seo(
-      "Contact LifeSakthi — 24/7 Care Coordination & Support",
-      "Speak directly with an LifeSakthi care coordinator. 24/7 emergency desk, regional offices in Bengaluru, Chennai, Hyderabad, and Coimbatore."
+      "Contact LifeSakhi — 24/7 Care Coordination & Support",
+      "Speak directly with an LifeSakhi care coordinator. 24/7 emergency desk, regional offices in Bengaluru, Chennai, Hyderabad, and Coimbatore."
     ),
   component: Contact,
 });

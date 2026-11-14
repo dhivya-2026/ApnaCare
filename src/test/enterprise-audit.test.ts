@@ -52,7 +52,7 @@ describe("Enterprise Audit Verification", () => {
   it("preserves authentic business facts and contact channels", () => {
     expect(SITE.SUPPORT_PHONE).toBe("+91 88254 93949");
     expect(SITE.SUPPORT_PHONE_TEL).toBe("+918825493949");
-    expect(SITE.EMAIL).toBe("care@apnacare.in");
+    expect(SITE.EMAIL).toBe("poojasri@trustgrid.ai");
     expect(SITE.WHATSAPP).toBe("918825493949");
     expect(CITIES.length).toBe(4);
     expect(ATTENDANTS.length).toBe(6);

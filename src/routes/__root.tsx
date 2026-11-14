@@ -56,12 +56,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "LifeSakthi — Empowering Women. Enriching Lives." },
-      { name: "description", content: "Every Girl. Every Woman. Every Stage. LifeSakthi stands for women & child development, dignity, wellbeing, and trusted Saha care across South India." },
+      { title: "LifeSakhi — Empowering Women. Enriching Lives." },
+      { name: "description", content: "Every Girl. Every Woman. Every Stage. LifeSakhi stands for women & child development, dignity, wellbeing, and trusted Saha care across South India." },
       { name: "theme-color", content: "#1F4E46" },
       { name: "mobile-web-app-capable", content: "yes" },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "LifeSakthi" },
+      { property: "og:site_name", content: "LifeSakhi" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -97,7 +97,7 @@ function RootShell({ children }: { children: ReactNode }) {
               legalName: SITE.legalName,
               url: "https://apna-care.vercel.app",
               description:
-                "LifeSakthi — Empowering Women. Enriching Lives. Women and child development, SHG empowerment, and verified Saha care across South India.",
+                "LifeSakhi — Empowering Women. Enriching Lives. Women and child development, SHG empowerment, and verified Saha care across South India.",
               telephone: SITE.SUPPORT_PHONE_TEL,
               email: SITE.EMAIL,
               priceRange: "₹₹",

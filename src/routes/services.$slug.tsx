@@ -96,10 +96,10 @@ export const Route = createFileRoute("/services/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return seo("Service Not Found — LifeSakthi", "The requested service could not be found.", { noindex: true });
+      return seo("Service Not Found — LifeSakhi", "The requested service could not be found.", { noindex: true });
     }
     const { s, enterprise } = loaderData;
-    const title = enterprise?.seo.title ?? `${s.name} — Verified Women Attendants | LifeSakthi`;
+    const title = enterprise?.seo.title ?? `${s.name} — Verified Women Attendants | LifeSakhi`;
     const description = enterprise?.seo.description ?? s.description;
     const primaryKeyword = enterprise?.seo.primaryKeyword ?? s.name;
     const secondaryKeywords = enterprise?.seo.secondaryKeywords ?? [s.category, "care attendant", "home care South India"];
@@ -141,7 +141,7 @@ const SERVICE_CTA_LABELS: Record<string, string> = {
 
 function Detail() {
   const { s, enterprise, canonicalPricing, canonicalService } = Route.useLoaderData();
-  const waUrl = buildWhatsAppUrl(`Hello LifeSakthi! I would like to inquire about ${s.name} for my family.`);
+  const waUrl = buildWhatsAppUrl(`Hello LifeSakhi! I would like to inquire about ${s.name} for my family.`);
   const ctaLabel = SERVICE_CTA_LABELS[s.slug] ?? `Enquire About ${s.name}`;
 
   useEffect(() => {
@@ -341,7 +341,7 @@ function Detail() {
                   <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted border border-border shadow-lift">
                     <img
                       src={SERVICE_STORY_IMAGES[s.slug]?.img ?? hero1}
-                      alt={SERVICE_STORY_IMAGES[s.slug]?.alt ?? `${s.name} provided by LifeSakthi`}
+                      alt={SERVICE_STORY_IMAGES[s.slug]?.alt ?? `${s.name} provided by LifeSakhi`}
                       width={800}
                       height={600}
                       loading="lazy"
@@ -379,7 +379,7 @@ function Detail() {
 
                       <div className="rounded-2xl border border-primary/25 bg-primary-soft/40 p-4">
                         <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
-                          How LifeSakthi Solves It
+                          How LifeSakhi Solves It
                         </p>
                         <p className="mt-1 text-xs font-semibold text-foreground leading-snug">
                           {enterprise.spin.solution}

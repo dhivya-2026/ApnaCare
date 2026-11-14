@@ -9,7 +9,7 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/safety-guidelines")({
   head: () =>
     seo(
-      "Safety Guidelines & Attendant Protocols — LifeSakthi",
+      "Safety Guidelines & Attendant Protocols — LifeSakhi",
       "Operational safety rules, attendant codes of conduct, household guidelines for host families, and emergency escalation protocols."
     ),
   component: SafetyGuidelinesPage,
@@ -34,7 +34,7 @@ const HOUSEHOLD_RULES = [
   },
   {
     title: "Emergency Beacon & Check-Ins",
-    desc: "Both attendants and family members have direct access to the 24/7 LifeSakthi Command Desk and instant SOS button. Any safety concern triggers immediate senior coordinator intervention.",
+    desc: "Both attendants and family members have direct access to the 24/7 LifeSakhi Command Desk and instant SOS button. Any safety concern triggers immediate senior coordinator intervention.",
   },
 ];
 
@@ -49,7 +49,7 @@ const ATTENDANT_STANDARDS = [
   },
   {
     title: "Uniform, Identity Badge & Hygiene",
-    desc: "All attendants wear clean clinical scrubs or professional attire, display their verified LifeSakthi photo badge, and adhere to hospital-grade hand sanitization standards.",
+    desc: "All attendants wear clean clinical scrubs or professional attire, display their verified LifeSakhi photo badge, and adhere to hospital-grade hand sanitization standards.",
   },
   {
     title: "Punctuality & Relief Handover",
@@ -63,7 +63,7 @@ function SafetyGuidelinesPage() {
       <PageHero
         eyebrow="Safety Protocols & Code of Conduct"
         title="Safety Guidelines for Families and Attendants"
-        sub="Trust is built on mutual respect, transparent guidelines, and strict institutional oversight. Review the operational standards that govern every LifeSakthi shift."
+        sub="Trust is built on mutual respect, transparent guidelines, and strict institutional oversight. Review the operational standards that govern every LifeSakhi shift."
       >
         <BookLink size="lg" variant="warm">
           Book an Attendant
@@ -79,7 +79,7 @@ function SafetyGuidelinesPage() {
             <div>
               <h2 className="text-2xl font-semibold text-foreground">Our Mutual Safety Covenant</h2>
               <p className="mt-2 text-base text-muted-foreground leading-relaxed">
-                LifeSakthi operates with a dual duty of care: safeguarding vulnerable patients and elders in the home, while ensuring female caregivers work in an environment characterized by dignity, physical security, and legal protections.
+                LifeSakhi operates with a dual duty of care: safeguarding vulnerable patients and elders in the home, while ensuring female caregivers work in an environment characterized by dignity, physical security, and legal protections.
               </p>
             </div>
           </div>
@@ -167,7 +167,7 @@ function SafetyGuidelinesPage() {
               <p className="text-xs font-bold uppercase tracking-wider text-terracotta">Insurance & Liability Protection</p>
               <h2 className="mt-2 text-3xl font-semibold">Institutional Safety Backing</h2>
               <p className="mt-4 text-sm leading-relaxed text-ink-foreground/80">
-                All registered LifeSakthi attendants are covered under our group accidental insurance and third-party professional liability framework. We partner with licensed risk underwriters to ensure complete coverage during hospital transits, home shifts, and chauffeuse assignments.
+                All registered LifeSakhi attendants are covered under our group accidental insurance and third-party professional liability framework. We partner with licensed risk underwriters to ensure complete coverage during hospital transits, home shifts, and chauffeuse assignments.
               </p>
             </div>
             <div className="space-y-4">

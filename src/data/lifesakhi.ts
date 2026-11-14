@@ -1,5 +1,5 @@
 /**
- * Central Brand Strategy, Life-Stage Experience & Vertical Architecture for LifeSakthi.
+ * Central Brand Strategy, Life-Stage Experience & Vertical Architecture for LifeSakhi.
  *
  * Strictly distinguishes verified operational services (under Care & Assistance and
  * active SHG outreach) from proposed/expanding strategic verticals.
@@ -18,7 +18,7 @@ export interface LifeStage {
   headline: string;
   challenges: string;
   supportNeeded: string;
-  howLifeSakthiContributes: string;
+  howLifeSakhiContributes: string;
   programmesOrServices: string[];
   status: VerticalReadiness;
   ctaLabel: string;
@@ -26,7 +26,7 @@ export interface LifeStage {
   accentColor: "primary" | "terracotta" | "plum";
 }
 
-export interface LifeSakthiPillar {
+export interface LifeSakhiPillar {
   id: string;
   code: string;
   title: string;
@@ -38,16 +38,16 @@ export interface LifeSakthiPillar {
   accent: "primary" | "terracotta" | "plum";
 }
 
-export const LIFESAKTHI_BRAND = {
-  name: "LifeSakthi",
+export const LIFESAKHI_BRAND = {
+  name: "LifeSakhi",
   tagline: "Empowering Women. Enriching Lives.",
   supportingMessage: "Every Girl. Every Woman. Every Stage.",
   heroDescription:
-    "From the beginning of a girl's journey to the golden years of a woman's life, LifeSakthi stands for development, dignity, wellbeing and opportunity.",
+    "From the beginning of a girl's journey to the golden years of a woman's life, LifeSakhi stands for development, dignity, wellbeing and opportunity.",
   philosophyStatement:
     "Women empowered → Families strengthened → Children supported → Communities developed → Future generations empowered.",
   philosophySummary:
-    "LifeSakthi brings together two reinforcing commitments: supporting women and children through every chapter of life, while creating dignified training, employment, and leadership pathways for women across South India.",
+    "LifeSakhi brings together two reinforcing commitments: supporting women and children through every chapter of life, while creating dignified training, employment, and leadership pathways for women across South India.",
 } as const;
 
 export const LIFE_STAGES: LifeStage[] = [
@@ -61,7 +61,7 @@ export const LIFE_STAGES: LifeStage[] = [
       "Maternal recovery fatigue, newborn care anxiety, and early nutrition or safety gaps in nuclear and working families.",
     supportNeeded:
       "Trained newborn care support, safe early-childhood environments, and maternal rest during the crucial early months.",
-    howLifeSakthiContributes:
+    howLifeSakhiContributes:
       "Operational postnatal and newborn support through vetted caregivers today, alongside proposed early-childhood development initiatives.",
     programmesOrServices: [
       "Postnatal & Newborn Care Support (Operational)",
@@ -83,8 +83,8 @@ export const LIFE_STAGES: LifeStage[] = [
       "Unequal access to foundational learning, personal safety awareness, and consistent nutritional and emotional support.",
     supportNeeded:
       "Safe community spaces, foundational education support, child safety guidance, and family encouragement.",
-    howLifeSakthiContributes:
-      "LifeSakthi is designing community-led child development and safety education initiatives in collaboration with local partners.",
+    howLifeSakhiContributes:
+      "LifeSakhi is designing community-led child development and safety education initiatives in collaboration with local partners.",
     programmesOrServices: [
       "Educational Child Safety Guides (Active Resource)",
       "Girl Child Learning & Nutrition Support (Proposed)",
@@ -105,7 +105,7 @@ export const LIFE_STAGES: LifeStage[] = [
       "Menstrual and preventive health stigma, digital and physical safety concerns, and limited guidance on future career pathways.",
     supportNeeded:
       "Preventive health awareness, life-skills mentoring, safe mobility, and exposure to vocational and educational opportunities.",
-    howLifeSakthiContributes:
+    howLifeSakhiContributes:
       "Building adolescent health awareness and life-skills modules to help girls transition into adulthood with confidence.",
     programmesOrServices: [
       "Adolescent Health & Hygiene Awareness (Proposed)",
@@ -127,7 +127,7 @@ export const LIFE_STAGES: LifeStage[] = [
       "Barriers to formal employment, lack of structured vocational training, and unsafe or informal working conditions.",
     supportNeeded:
       "Structured skill development, police-verified professional credentials, fair compensation, and women-led community networks.",
-    howLifeSakthiContributes:
+    howLifeSakhiContributes:
       "Through Women Self-Help Group (SHG) outreach led by Prof. Shoba T, women gain vocational caregiving training and dignified employment as Saha professionals.",
     programmesOrServices: [
       "Become a Verified Saha Care Companion (Operational)",
@@ -149,7 +149,7 @@ export const LIFE_STAGES: LifeStage[] = [
       "Women disproportionately shoulder simultaneous responsibilities—career, motherhood, hospital vigils, and ageing parents—often without respite.",
     supportNeeded:
       "Reliable postnatal support, hospital bedside assistance, safe commute options, and trustworthy home care respite.",
-    howLifeSakthiContributes:
+    howLifeSakhiContributes:
       "Operational Care & Assistance services step in beside working women and mothers so they never have to sacrifice their own health or livelihood.",
     programmesOrServices: [
       "Postnatal & Fourth-Trimester Support (Operational)",
@@ -171,7 +171,7 @@ export const LIFE_STAGES: LifeStage[] = [
       "Loneliness, mobility decline, post-surgical recovery, and chronic care needs—especially when children live in other cities or abroad.",
     supportNeeded:
       "Consistent, empathetic daily companionship, mobility transfer assistance, medication routines, and licensed home nursing when prescribed.",
-    howLifeSakthiContributes:
+    howLifeSakhiContributes:
       "Police-verified Saha companions and registered GNM/B.Sc. nurses deliver structured in-home elderly care across South India.",
     programmesOrServices: [
       "Elderly Care & Daily Companionship (Operational)",
@@ -185,11 +185,11 @@ export const LIFE_STAGES: LifeStage[] = [
   },
 ];
 
-export const LIFESAKTHI_PILLARS: LifeSakthiPillar[] = [
+export const LIFESAKHI_PILLARS: LifeSakhiPillar[] = [
   {
     id: "care-and-assistance",
     code: "01",
-    title: "LifeSakthi — Care & Assistance",
+    title: "LifeSakhi — Care & Assistance",
     readiness: "Operational Now",
     summary:
       "Retains and strengthens all active care operations across Bengaluru, Chennai, Hyderabad, and Coimbatore with police-verified Saha companions and registered nurses.",
@@ -206,7 +206,7 @@ export const LIFESAKTHI_PILLARS: LifeSakthiPillar[] = [
   {
     id: "women-empowerment",
     code: "02",
-    title: "LifeSakthi — Women Empowerment",
+    title: "LifeSakhi — Women Empowerment",
     readiness: "Active Outreach & Expanding",
     summary:
       "Anchored by grassroots Women Self-Help Group (SHG) outreach, turning caregiving and community leadership into pathways for financial independence.",
@@ -223,7 +223,7 @@ export const LIFESAKTHI_PILLARS: LifeSakthiPillar[] = [
   {
     id: "health-and-wellbeing",
     code: "03",
-    title: "LifeSakthi — Health & Wellbeing",
+    title: "LifeSakhi — Health & Wellbeing",
     readiness: "Active Outreach & Expanding",
     summary:
       "Bridging active maternal and postnatal support with broader preventive health literacy and equitable access to trustworthy care.",
@@ -240,7 +240,7 @@ export const LIFESAKTHI_PILLARS: LifeSakthiPillar[] = [
   {
     id: "child-development",
     code: "04",
-    title: "LifeSakthi — Child Development",
+    title: "LifeSakhi — Child Development",
     readiness: "Proposed Programme",
     summary:
       "A strategic pillar dedicated to nurturing every girl child's potential through early childhood development, nutrition awareness, safety, and adolescent life skills.",
@@ -257,7 +257,7 @@ export const LIFESAKTHI_PILLARS: LifeSakthiPillar[] = [
   {
     id: "community-development",
     code: "05",
-    title: "LifeSakthi — Community Development",
+    title: "LifeSakhi — Community Development",
     readiness: "Active Outreach & Expanding",
     summary:
       "Strengthening local ecosystems through Women Self-Help Groups, NGO alliances, hospital partnerships, and awareness drives.",
@@ -274,7 +274,7 @@ export const LIFESAKTHI_PILLARS: LifeSakthiPillar[] = [
   {
     id: "learning-and-development",
     code: "06",
-    title: "LifeSakthi — Learning & Development",
+    title: "LifeSakhi — Learning & Development",
     readiness: "Active Outreach & Expanding",
     summary:
       "Equipping women with practical vocational skills, structured caregiver onboarding, and progressive career pathways.",

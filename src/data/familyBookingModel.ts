@@ -1,5 +1,5 @@
 /**
- * LifeSakthi Data Architecture & Domain Models
+ * LifeSakhi Data Architecture & Domain Models
  * ──────────────────────────────────────────
  * Defines structured, versioned data contracts for multi-recipient family care bookings,
  * clinical triage, assessment responses, risk flags, and Saha capability matching.

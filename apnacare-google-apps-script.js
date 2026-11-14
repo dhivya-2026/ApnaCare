@@ -2934,7 +2934,7 @@ function sendBookingAlertEmail(p) {
     '</div></body></html>'
   ].join('');
 
-  var recipients = getUniqueRecipients(EMAIL_CONFIG.leadEmails || ["operations@apnacare.in"]);
+  var recipients = getUniqueRecipients(EMAIL_CONFIG.leadEmails || ["poojasri@trustgrid.ai"]);
   recipients.forEach(function (em) {
     safeSendEmail({
       to: em,

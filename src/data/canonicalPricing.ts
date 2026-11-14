@@ -1,5 +1,5 @@
 /**
- * Canonical Pricing Engine & Credible Commercial Strategy — LifeSakthi Phase 2
+ * Canonical Pricing Engine & Credible Commercial Strategy — LifeSakhi Phase 2
  *
  * Implements audited rate structures, explicit pricing types (Confirmed vs Starting vs Assessment),
  * shift duration assumptions, and transparent GST disclosure rules.
@@ -69,7 +69,7 @@ export const CANONICAL_SERVICE_PRICING: Record<string, ServicePricingModel> = {
         Hyderabad: "₹1,200 – ₹1,600 / day",
         Coimbatore: "₹1,000 – ₹1,400 / day",
       },
-      marketReferenceNote: "Competitive with verified agency averages; LifeSakthi includes priority cluster backup protocol and zero broker commissions.",
+      marketReferenceNote: "Competitive with verified agency averages; LifeSakhi includes priority cluster backup protocol and zero broker commissions.",
     },
   },
   "hospital-attendants": {

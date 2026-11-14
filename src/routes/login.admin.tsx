@@ -11,8 +11,8 @@ import { seo } from "@/lib/seo";
 export const Route = createFileRoute("/login/admin")({
   head: () =>
     seo(
-      "Operations Administration Login — LifeSakthi",
-      "Restricted administrative console for LifeSakthi operations and clinical coordination teams.",
+      "Operations Administration Login — LifeSakhi",
+      "Restricted administrative console for LifeSakhi operations and clinical coordination teams.",
       { canonical: "https://apna-care.vercel.app/login/admin" }
     ),
   component: AdminLoginPage,

@@ -285,7 +285,7 @@ export function LifeEventsJourneySection() {
     LIFE_EVENT_JOURNEYS.find((j) => j.id === activeJourneyId) ?? LIFE_EVENT_JOURNEYS[0];
 
   const waUrl = buildWhatsAppUrl(
-    `Hello LifeSakthi! I would like to discuss support for: "${activeJourney.tabLabel}". Our family needs guidance.`
+    `Hello LifeSakhi! I would like to discuss support for: "${activeJourney.tabLabel}". Our family needs guidance.`
   );
 
   return (
@@ -392,7 +392,7 @@ export function LifeEventsJourneySection() {
 
                 <div className="rounded-xl bg-primary-soft/50 p-3.5 border border-primary/20 text-xs">
                   <span className="font-bold text-primary uppercase tracking-wider block text-[10px] mb-1">
-                    The LifeSakthi Relief:
+                    The LifeSakhi Relief:
                   </span>
                   <p className="text-foreground font-semibold leading-relaxed">
                     {activeJourney.apnaCareSolution}
