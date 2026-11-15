@@ -22,10 +22,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { EnquiryForm } from "@/components/site/EnquiryForm";
 import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
+import { TechEnquiryModal } from "@/components/site/TechEnquiryModal";
 import {
   TECHNOLOGY_CATEGORIES,
   OFFERINGS_SECTIONS,
   type TechDeploymentStatus,
+  type TechSolutionCategory,
 } from "@/data/offerings";
 import { SERVICES, SITE, formatINR } from "@/data/site";
 import { STRATEGIC_INVESTOR_PARTNER } from "@/routes/about";
@@ -67,6 +69,8 @@ function getStatusBadgeStyle(status: TechDeploymentStatus) {
 
 function OfferingsPage() {
   const [bizModalOpen, setBizModalOpen] = useState(false);
+  const [techModalOpen, setTechModalOpen] = useState(false);
+  const [selectedTech, setSelectedTech] = useState<TechSolutionCategory | null>(null);
   const [techFilter, setTechFilter] = useState<"All" | TechDeploymentStatus>("All");
   const [expandedTechId, setExpandedTechId] = useState<string | null>(null);
 
@@ -354,7 +358,8 @@ function OfferingsPage() {
                         if (tech.ctaAction === "booking") {
                           window.location.href = "/booking";
                         } else {
-                          setBizModalOpen(true);
+                          setSelectedTech(tech);
+                          setTechModalOpen(true);
                         }
                       }}
                       className="rounded-full text-xs font-semibold"
@@ -566,6 +571,12 @@ function OfferingsPage() {
       </section>
 
       <BusinessEnquiryModal open={bizModalOpen} onOpenChange={setBizModalOpen} />
+      <TechEnquiryModal
+        open={techModalOpen}
+        onOpenChange={setTechModalOpen}
+        technology={selectedTech}
+      />
     </div>
   );
 }
+

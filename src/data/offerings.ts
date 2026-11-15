@@ -364,3 +364,4 @@ export const OFFERINGS_SECTIONS = [
     ],
   },
 ];
+
