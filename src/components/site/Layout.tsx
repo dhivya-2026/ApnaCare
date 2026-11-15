@@ -35,6 +35,10 @@ import {
   Check,
   Globe,
   ArrowRight,
+  Target,
+  Compass,
+  AlertCircle,
+  Sparkle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE, CITIES, buildWhatsAppUrl } from "@/data/site";
@@ -159,8 +163,6 @@ export function Logo() {
 
 // ─── Dropdown Nav Definitions ────────────────────────────────────────────────
 
-// ─── Dropdown Nav Definitions ────────────────────────────────────────────────
-
 interface DropdownChild {
   label: string;
   to: string;
@@ -173,19 +175,65 @@ interface NavItem {
   label: string;
   to?: string;
   children?: DropdownChild[];
+  isMegaMenu?: boolean;
   twoColumn?: {
     col1Title: string;
+    col1Subtitle?: string;
+    col1Cta?: { label: string; to: string };
     col1Items: DropdownChild[];
     col2Title: string;
+    col2Subtitle?: string;
+    col2Cta?: { label: string; to: string };
     col2Items: DropdownChild[];
   };
 }
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", to: "/" },
-  { label: "About LifeSakhi", to: "/about" },
+  {
+    label: "About Us",
+    to: "/about",
+    children: [
+      {
+        label: "Who We Are",
+        to: "/about#story",
+        description: "Our founding story, purpose & commitment across South India",
+        badge: "Story",
+        icon: Heart,
+      },
+      {
+        label: "Our Mission & Vision",
+        to: "/about#mission-vision",
+        description: "Dual commitment to dignity, holistic health & empowerment",
+        badge: "Vision",
+        icon: Target,
+      },
+      {
+        label: "Our Leadership",
+        to: "/about#leadership",
+        description: "Executive women leaders guiding clinical rigour and outreach",
+        badge: "Women-Led",
+        icon: Users,
+      },
+      {
+        label: "Our Approach",
+        to: "/about#what-we-do",
+        description: "How our multi-generational care and empowerment model works",
+        badge: "Method",
+        icon: Compass,
+      },
+      {
+        label: "Partners & Strategic Relationships",
+        to: "/ecosystem-partners",
+        description: "Alliances with hospitals, NGOs, and TRUSTGRID.AI",
+        badge: "Alliances",
+        icon: Network,
+      },
+    ],
+  },
   {
     label: "Life Stages",
+    to: "/life-stages",
     children: [
       {
         label: "Every Stage of Her Life",
@@ -195,226 +243,228 @@ const NAV_ITEMS: NavItem[] = [
         icon: Sparkles,
       },
       {
-        label: "Birth, Childhood & Adolescence",
-        to: "/life-stages#early-stages",
-        description: "Nurturing early health, education, safety & life skills",
-        badge: "Early Years",
+        label: "Birth & Early Childhood",
+        to: "/life-stages#stage-birth",
+        description: "Nurturing early health, newborn care, nutrition & safety",
+        badge: "Stage 1",
         icon: Baby,
       },
       {
-        label: "Young Adulthood & Motherhood",
-        to: "/life-stages#adulthood",
-        description: "Vocational skills, SHG employment, maternal & family support",
-        badge: "Agency",
+        label: "Childhood & Development",
+        to: "/life-stages#stage-childhood",
+        description: "Foundational learning, emotional resilience & child protection",
+        badge: "Stage 2",
+        icon: Sparkle,
+      },
+      {
+        label: "Adolescence",
+        to: "/life-stages#stage-adolescence",
+        description: "Menstrual health literacy, confidence mentoring & safe transit",
+        badge: "Stage 3",
+        icon: Activity,
+      },
+      {
+        label: "Young Adulthood",
+        to: "/life-stages#stage-young-adulthood",
+        description: "Vocational skills, SHG employment pathways & financial agency",
+        badge: "Stage 4",
+        icon: Briefcase,
+      },
+      {
+        label: "Womanhood & Motherhood",
+        to: "/life-stages#stage-motherhood",
+        description: "Maternal care, postnatal recovery, newborn support & wellbeing",
+        badge: "Stage 5",
         icon: HeartHandshake,
       },
       {
         label: "Ageing & Elderhood",
-        to: "/life-stages#elderhood",
-        description: "Dignified home companionship, mobility & clinical care",
-        badge: "Dignity",
+        to: "/life-stages#stage-elderhood",
+        description: "Dignified home companionship, bedside assistance & clinical care",
+        badge: "Stage 6",
         icon: Heart,
       },
     ],
   },
   {
-    label: "Our Pillars",
-    children: [
-      {
-        label: "All 6 Strategic Pillars",
-        to: "/pillars",
-        description: "Our holistic women & child development ecosystem",
-        badge: "Overview",
-        icon: Layers,
-      },
-      {
-        label: "Care & Assistance",
-        to: "/services",
-        description: "Operational home care, bedside support, nursing & travel",
-        badge: "Operational",
-        icon: Stethoscope,
-      },
-      {
-        label: "Women Empowerment & SHGs",
-        to: "/become-an-attendant",
-        description: "Grassroots SHG outreach, Saha careers & financial agency",
-        badge: "Active",
-        icon: Users,
-      },
-      {
-        label: "Child & Community Initiatives",
-        to: "/solutions/community-initiatives",
-        description: "Safety guides, community outreach & upcoming programmes",
-        badge: "Expanding",
-        icon: Building2,
-      },
-    ],
-  },
-  {
-    label: "Care & Services",
+    label: "Offerings",
+    to: "/offerings",
+    isMegaMenu: true,
     twoColumn: {
-      col1Title: "In-Home & Clinical Care",
+      col1Title: "CARE & SERVICES",
+      col1Subtitle: "Human-centred support for women, children, families and communities.",
+      col1Cta: {
+        label: "Explore All Care Services",
+        to: "/services",
+      },
       col1Items: [
         {
           label: "Elderly Care",
           to: "/services/elderly-care",
-          description: "Compassionate companionship & mobility assistance",
+          description: "Compassionate companionship, mobility & daily living support",
           badge: "Senior Living",
           icon: Heart,
         },
         {
-          label: "Hospital Assistance / Bedside",
+          label: "Hospital Assistance",
           to: "/services/hospital-attendants",
-          description: "Bedside vigil & hospital ward coordination",
-          badge: "24/7 Ward",
+          description: "Dedicated 24/7 ward bedside vigil & discharge accompaniment",
+          badge: "Bedside 24/7",
           icon: Activity,
         },
         {
           label: "Nursing Services",
           to: "/services/nursing-services",
-          description: "Registered GNM/B.Sc nurses for clinical home care",
-          badge: "GNM / B.Sc",
+          description: "Registered GNM/B.Sc nurses for home clinical & IV care",
+          badge: "Licensed GNM",
           icon: Stethoscope,
         },
         {
-          label: "Post-Natal Care",
+          label: "Postnatal & Newborn Care",
           to: "/services/post-natal-care",
-          description: "Newborn care assistance & maternal recovery",
-          badge: "Infant Care",
+          description: "Experienced maternal recovery & newborn infant care",
+          badge: "Mother & Baby",
           icon: Baby,
         },
         {
-          label: "Home & Personal Care",
-          to: "/services/home-personal-care",
-          description: "Empathetic daily living & personal hygiene support",
-          badge: "Daily Living",
-          icon: Home,
-        },
-        {
-          label: "View All Services",
-          to: "/services",
-          description: "Complete catalogue with transparent pricing & SLAs",
-          badge: "Full Catalogue",
-          icon: Layers,
-        },
-      ],
-      col2Title: "Mobility, Safety & Solutions",
-      col2Items: [
-        {
-          label: "Women Drivers & Chauffeuses",
-          to: "/services/women-drivers",
-          description: "Verified women chauffeuses for safe commutes",
-          badge: "Safe Transit",
-          icon: Car,
-        },
-        {
-          label: "Accompanied Travel Assistance",
+          label: "Travel & Escort Assistance",
           to: "/services/travel-assistance",
-          description: "Vetted companion for outstation & solo travel",
-          badge: "Companion",
+          description: "Vetted companions & women drivers for safe transit",
+          badge: "Safe Transit",
           icon: Plane,
         },
         {
-          label: "Airport & Railway Assistance",
-          to: "/services/airport-pickup",
-          description: "Arrival meet, platform & terminal assisted travel",
-          badge: "Transit Help",
-          icon: Train,
+          label: "Family Respite & Home Care",
+          to: "/services/home-personal-care",
+          description: "Temporary relief for family caregivers & post-op healing",
+          badge: "Daily Relief",
+          icon: Home,
+        },
+      ],
+      col2Title: "TECHNOLOGY & SOLUTIONS",
+      col2Subtitle: "Technology-driven capabilities for organisations and real-world challenges.",
+      col2Cta: {
+        label: "Explore Technology Solutions",
+        to: "/offerings#technology",
+      },
+      col2Items: [
+        {
+          label: "Digital Platforms",
+          to: "/offerings#care-management-platforms",
+          description: "Unified caregiver shift scheduling, vitals logs & family portal",
+          badge: "Operational",
+          icon: Layers,
         },
         {
-          label: "Safety & Verification Standards",
-          to: "/safety",
-          description: "5-stage verification & clinical vs attendant limits",
-          badge: "100% Vetted",
+          label: "Remote Patient Monitoring (RPM)",
+          to: "/offerings#remote-patient-monitoring",
+          description: "Continuous vitals tracking: BP, blood sugar, ECG & SpO2",
+          badge: "Live Telemetry",
+          icon: Activity,
+        },
+        {
+          label: "Wearable Health Technology",
+          to: "/offerings#wearable-technology",
+          description: "Senior-friendly smartwatches, biosensors & 1-touch SOS",
+          badge: "Partners",
           icon: ShieldCheck,
         },
         {
-          label: "Knowledge Hub & FAQs",
-          to: "/knowledge-hub",
-          description: "Care guides, safety resources & common answers",
-          badge: "Resources",
-          icon: BookOpen,
+          label: "Smart-Home Ambient Sensors",
+          to: "/offerings#smart-home-sensors",
+          description: "Non-camera motion, door & stove sensors for living alone",
+          badge: "Pilot Ready",
+          icon: Home,
         },
-      ],
-    },
-  },
-  {
-    label: "Offerings",
-    to: "/offerings",
-    twoColumn: {
-      col1Title: "Care & Technology Solutions",
-      col1Items: [
         {
-          label: "Offerings Overview",
-          to: "/offerings",
-          description: "Care that understands people. Technology that makes care smarter.",
-          badge: "4 Solutions",
+          label: "Fall Detection & Prevention",
+          to: "/offerings#fall-detection-prevention",
+          description: "Multi-axis impact sensors & radar wall monitors",
+          badge: "Safety",
+          icon: AlertCircle,
+        },
+        {
+          label: "AI & Predictive Health Analytics",
+          to: "/offerings#ai-predictive-analytics",
+          description: "Early baseline anomaly identification to avert hospitalization",
+          badge: "Under Evaluation",
           icon: Sparkles,
         },
-        {
-          label: "Care & Assistance",
-          to: "/offerings#care",
-          description: "Operational bedside, senior companionship, nursing & travel support",
-          badge: "Operational",
-          icon: Stethoscope,
-        },
-        {
-          label: "Technology Solutions",
-          to: "/offerings#technology",
-          description: "10 tech categories: RPM, Telehealth, Wearables, AI & Robotics",
-          badge: "10 Categories",
-          icon: Activity,
-        },
-      ],
-      col2Title: "Empowerment & Partnerships",
-      col2Items: [
-        {
-          label: "Women & Child Development",
-          to: "/offerings#women-child",
-          description: "Girl-child development, maternal wellbeing & SHG economic agency",
-          badge: "Empowerment",
-          icon: HeartHandshake,
-        },
-        {
-          label: "Partnership Solutions",
-          to: "/offerings#partnerships",
-          description: "Collaborations with NGOs, SHGs, hospitals & TRUSTGRID.AI",
-          badge: "Alliances",
-          icon: Network,
-        },
-        {
-          label: "Request an Offering Consultation",
-          to: "/offerings#enquire",
-          description: "Speak directly with our clinical & technology advisory desk",
-          badge: "Consultation",
-          icon: PhoneCall,
-        },
       ],
     },
   },
   {
-    label: "Get Involved",
+    label: "Initiatives & Impact",
+    to: "/pillars",
     children: [
       {
-        label: "Get Involved Hub",
-        to: "/get-involved",
-        description: "Join as a Saha, volunteer, or institutional collaborator",
-        badge: "Participate",
-        icon: Sparkles,
-      },
-      {
-        label: "Become a Saha (Careers)",
+        label: "Women Empowerment",
         to: "/become-an-attendant",
-        description: "Training & dignified care careers for women",
-        badge: "Join Us",
+        description: "Grassroots SHG training & dignified healthcare careers",
+        badge: "Livelihoods",
         icon: Users,
       },
       {
-        label: "Partner With Us",
+        label: "Child Development",
+        to: "/life-stages#stage-childhood",
+        description: "Early nutrition, education & protective development modules",
+        badge: "Nurture",
+        icon: Baby,
+      },
+      {
+        label: "SHG Initiatives",
+        to: "/become-an-attendant#shg-partnerships",
+        description: "Alliances with Women's Self-Help Groups across South India",
+        badge: "Grassroots",
+        icon: HeartHandshake,
+      },
+      {
+        label: "Community Development",
+        to: "/solutions/community-initiatives",
+        description: "Neighborhood safety guidelines & community health literacy",
+        badge: "Community",
+        icon: Building2,
+      },
+      {
+        label: "Impact Stories & Pillars",
+        to: "/pillars",
+        description: "Documented outcomes across our 6 strategic pillars",
+        badge: "Pillars",
+        icon: Layers,
+      },
+    ],
+  },
+  {
+    label: "Get Involved",
+    to: "/get-involved",
+    children: [
+      {
+        label: "Become an Ecosystem Partner",
         to: "/ecosystem-partners",
-        description: "NGOs, hospitals, SHGs & institutional alliances",
+        description: "Hospitals, NGOs, corporates & health-tech alliances",
         badge: "Partners",
         icon: Network,
+      },
+      {
+        label: "Join LifeSakhi (Careers)",
+        to: "/become-an-attendant",
+        description: "Train & earn as a verified Saha care companion",
+        badge: "Careers",
+        icon: Users,
+      },
+      {
+        label: "Careers & Opportunities",
+        to: "/become-an-attendant#careers",
+        description: "Open roles in care operations, nursing & coordination",
+        badge: "Openings",
+        icon: Briefcase,
+      },
+      {
+        label: "Volunteer / Collaborate",
+        to: "/get-involved#participate-form",
+        description: "Share skills, mentorship, or health expertise",
+        badge: "Collaborate",
+        icon: Sparkles,
       },
       {
         label: "Saha Portal Login",
@@ -423,12 +473,32 @@ const NAV_ITEMS: NavItem[] = [
         badge: "Saha Portal",
         icon: KeyRound,
       },
+    ],
+  },
+  {
+    label: "Get Support",
+    to: "/contact",
+    children: [
       {
-        label: "Contact Us",
-        to: "/contact",
-        description: "24/7 coordination desk across South India",
-        badge: "24/7 Desk",
+        label: "Request Assistance",
+        to: "/booking",
+        description: "Direct booking for elderly care, bedside support, or nursing",
+        badge: "Book Online",
+        icon: HeartHandshake,
+      },
+      {
+        label: "Request a Callback",
+        to: "/contact#callback",
+        description: "Connect with a senior care coordinator within 15 minutes",
+        badge: "15-Min Response",
         icon: PhoneCall,
+      },
+      {
+        label: "24/7 Helpline & Desks",
+        to: "/contact#helpline",
+        description: `Emergency desk: ${SITE.SUPPORT_PHONE} & regional offices`,
+        badge: "24/7 Active",
+        icon: Phone,
       },
     ],
   },
@@ -529,136 +599,180 @@ function DesktopDropdown({ item }: { item: NavItem }) {
               ? "left-1/2 -translate-x-1/2"
               : "left-0"
           } top-full z-[200] mt-1.5 ${
-            item.twoColumn ? "w-[760px] 2xl:w-[820px]" : "w-96"
+            item.isMegaMenu
+              ? "w-[840px] xl:w-[880px] 2xl:w-[940px]"
+              : item.twoColumn
+              ? "w-[760px] 2xl:w-[820px]"
+              : "w-96"
           } overflow-hidden rounded-2xl border border-border/90 bg-card/98 text-card-foreground shadow-2xl ring-1 ring-black/10 animate-fade-in backdrop-blur-2xl`}
         >
           {item.twoColumn ? (
             <div>
               <div className="grid grid-cols-2 divide-x divide-border/80 bg-card/95">
                 {/* Column 1 */}
-                <div className="p-3.5">
-                  <div className="flex items-center justify-between px-3 py-1.5 mb-1">
-                    <p className="text-xs font-bold uppercase tracking-wider text-primary">
-                      {item.twoColumn.col1Title}
-                    </p>
-                  </div>
-                  <div className="grid gap-1">
-                    {item.twoColumn.col1Items.map((child) => {
-                      const isHash = child.to.includes("#");
-                      const Icon = child.icon ?? HeartHandshake;
-                      const content = (
-                        <div className="flex items-start gap-3">
-                          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105 transition-all duration-200">
-                            <Icon className="size-4.5" />
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-1.5">
-                              <span className="text-sm font-semibold group-hover:text-primary transition-colors truncate">
-                                {child.label}
-                              </span>
-                              {child.badge && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-secondary text-secondary-foreground shrink-0 border border-border/60">
-                                  {child.badge}
+                <div className="p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="px-3 py-1.5 mb-1.5 border-b border-border/60">
+                      <p className="text-xs font-bold uppercase tracking-wider text-primary">
+                        {item.twoColumn.col1Title}
+                      </p>
+                      {item.twoColumn.col1Subtitle && (
+                        <p className="mt-0.5 text-xs text-muted-foreground leading-snug">
+                          {item.twoColumn.col1Subtitle}
+                        </p>
+                      )}
+                    </div>
+                    <div className="grid gap-1">
+                      {item.twoColumn.col1Items.map((child) => {
+                        const isHash = child.to.includes("#");
+                        const Icon = child.icon ?? HeartHandshake;
+                        const content = (
+                          <div className="flex items-start gap-3">
+                            <span className="grid size-8.5 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105 transition-all duration-200 mt-0.5">
+                              <Icon className="size-4" />
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1.5">
+                                <span className="text-xs sm:text-sm font-semibold group-hover:text-primary transition-colors truncate">
+                                  {child.label}
+                                </span>
+                                {child.badge && (
+                                  <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-secondary text-secondary-foreground shrink-0 border border-border/60">
+                                    {child.badge}
+                                  </span>
+                                )}
+                              </div>
+                              {child.description && (
+                                <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1 block">
+                                  {child.description}
                                 </span>
                               )}
                             </div>
-                            {child.description && (
-                              <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1 block">
-                                {child.description}
-                              </span>
-                            )}
                           </div>
-                        </div>
-                      );
-                      if (isHash) {
+                        );
+                        if (isHash) {
+                          return (
+                            <a
+                              key={child.to}
+                              href={child.to}
+                              role="menuitem"
+                              onClick={(e) => handleHashLinkClick(e, child.to)}
+                              className="group rounded-xl p-2 transition-colors hover:bg-secondary/60"
+                            >
+                              {content}
+                            </a>
+                          );
+                        }
                         return (
-                          <a
+                          <Link
                             key={child.to}
-                            href={child.to}
+                            to={child.to as any}
                             role="menuitem"
-                            onClick={(e) => handleHashLinkClick(e, child.to)}
-                            className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
+                            onClick={() => setOpen(false)}
+                            className="group rounded-xl p-2 transition-colors hover:bg-secondary/60"
                           >
                             {content}
-                          </a>
+                          </Link>
                         );
-                      }
-                      return (
-                        <Link
-                          key={child.to}
-                          to={child.to as any}
-                          role="menuitem"
-                          onClick={() => setOpen(false)}
-                          className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
-                        >
-                          {content}
-                        </Link>
-                      );
-                    })}
+                      })}
+                    </div>
                   </div>
+
+                  {item.twoColumn.col1Cta && (
+                    <div className="mt-3.5 pt-3 border-t border-border/70 px-2">
+                      <Link
+                        to={item.twoColumn.col1Cta.to as any}
+                        onClick={() => setOpen(false)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline group/cta"
+                      >
+                        <span>{item.twoColumn.col1Cta.label}</span>
+                        <ArrowRight className="size-3.5 transition-transform group-hover/cta:translate-x-1" />
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 {/* Column 2 */}
-                <div className="p-3.5 bg-secondary/15">
-                  <div className="flex items-center justify-between px-3 py-1.5 mb-1">
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      {item.twoColumn.col2Title}
-                    </p>
-                  </div>
-                  <div className="grid gap-1">
-                    {item.twoColumn.col2Items.map((child) => {
-                      const isHash = child.to.includes("#");
-                      const Icon = child.icon ?? MapPin;
-                      const content = (
-                        <div className="flex items-start gap-3">
-                          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105 transition-all duration-200">
-                            <Icon className="size-4.5" />
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-1.5">
-                              <span className="text-sm font-semibold group-hover:text-primary transition-colors truncate">
-                                {child.label}
-                              </span>
-                              {child.badge && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-primary-soft text-primary shrink-0">
-                                  {child.badge}
+                <div className="p-4 bg-secondary/15 flex flex-col justify-between">
+                  <div>
+                    <div className="px-3 py-1.5 mb-1.5 border-b border-border/60">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        {item.twoColumn.col2Title}
+                      </p>
+                      {item.twoColumn.col2Subtitle && (
+                        <p className="mt-0.5 text-xs text-muted-foreground leading-snug">
+                          {item.twoColumn.col2Subtitle}
+                        </p>
+                      )}
+                    </div>
+                    <div className="grid gap-1">
+                      {item.twoColumn.col2Items.map((child) => {
+                        const isHash = child.to.includes("#");
+                        const Icon = child.icon ?? MapPin;
+                        const content = (
+                          <div className="flex items-start gap-3">
+                            <span className="grid size-8.5 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105 transition-all duration-200 mt-0.5">
+                              <Icon className="size-4" />
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1.5">
+                                <span className="text-xs sm:text-sm font-semibold group-hover:text-primary transition-colors truncate">
+                                  {child.label}
+                                </span>
+                                {child.badge && (
+                                  <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-primary-soft text-primary shrink-0">
+                                    {child.badge}
+                                  </span>
+                                )}
+                              </div>
+                              {child.description && (
+                                <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1 block">
+                                  {child.description}
                                 </span>
                               )}
                             </div>
-                            {child.description && (
-                              <span className="mt-0.5 text-xs text-muted-foreground leading-snug line-clamp-1 block">
-                                {child.description}
-                              </span>
-                            )}
                           </div>
-                        </div>
-                      );
-                      if (isHash) {
+                        );
+                        if (isHash) {
+                          return (
+                            <a
+                              key={child.to}
+                              href={child.to}
+                              role="menuitem"
+                              onClick={(e) => handleHashLinkClick(e, child.to)}
+                              className="group rounded-xl p-2 transition-colors hover:bg-secondary/60"
+                            >
+                              {content}
+                            </a>
+                          );
+                        }
                         return (
-                          <a
+                          <Link
                             key={child.to}
-                            href={child.to}
+                            to={child.to as any}
                             role="menuitem"
-                            onClick={(e) => handleHashLinkClick(e, child.to)}
-                            className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
+                            onClick={() => setOpen(false)}
+                            className="group rounded-xl p-2 transition-colors hover:bg-secondary/60"
                           >
                             {content}
-                          </a>
+                          </Link>
                         );
-                      }
-                      return (
-                        <Link
-                          key={child.to}
-                          to={child.to as any}
-                          role="menuitem"
-                          onClick={() => setOpen(false)}
-                          className="group rounded-xl p-2.5 transition-colors hover:bg-secondary/50"
-                        >
-                          {content}
-                        </Link>
-                      );
-                    })}
+                      })}
+                    </div>
                   </div>
+
+                  {item.twoColumn.col2Cta && (
+                    <div className="mt-3.5 pt-3 border-t border-border/70 px-2">
+                      <a
+                        href={item.twoColumn.col2Cta.to}
+                        onClick={(e) => handleHashLinkClick(e, item.twoColumn!.col2Cta!.to)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline group/cta"
+                      >
+                        <span>{item.twoColumn.col2Cta.label}</span>
+                        <ArrowRight className="size-3.5 transition-transform group-hover/cta:translate-x-1" />
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -783,6 +897,11 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
                 <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
                   {item.twoColumn.col1Title}
                 </p>
+                {item.twoColumn.col1Subtitle && (
+                  <p className="px-3 pb-1 text-[11px] text-muted-foreground">
+                    {item.twoColumn.col1Subtitle}
+                  </p>
+                )}
                 <div className="grid gap-0.5">
                   {item.twoColumn.col1Items.map((child) => (
                     <Link
@@ -800,28 +919,101 @@ function MobileNavItem({ item, onClose }: { item: NavItem; onClose: () => void }
                     </Link>
                   ))}
                 </div>
+                {item.twoColumn.col1Cta && (
+                  <div className="px-3 pt-1.5 pb-2">
+                    <Link
+                      to={item.twoColumn.col1Cta.to as any}
+                      onClick={onClose}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                    >
+                      <span>{item.twoColumn.col1Cta.label}</span>
+                      <ArrowRight className="size-3" />
+                    </Link>
+                  </div>
+                )}
               </div>
               <div className="pt-2 border-t border-border">
                 <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   {item.twoColumn.col2Title}
                 </p>
+                {item.twoColumn.col2Subtitle && (
+                  <p className="px-3 pb-1 text-[11px] text-muted-foreground">
+                    {item.twoColumn.col2Subtitle}
+                  </p>
+                )}
                 <div className="grid gap-0.5">
-                  {item.twoColumn.col2Items.map((child) => (
-                    <Link
-                      key={child.to}
-                      to={child.to as any}
-                      onClick={onClose}
-                      className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
-                    >
-                      <span>{child.label}</span>
-                      {child.badge && (
-                        <span className="text-[10px] font-bold text-primary bg-primary-soft px-2 py-0.5 rounded-full">
-                          {child.badge}
-                        </span>
-                      )}
-                    </Link>
-                  ))}
+                  {item.twoColumn.col2Items.map((child) => {
+                    const isHash = child.to.includes("#");
+                    if (isHash) {
+                      return (
+                        <a
+                          key={child.to}
+                          href={child.to}
+                          onClick={(e) => {
+                            onClose();
+                            const [path, hash] = child.to.split("#");
+                            const targetPath = path || "/";
+                            if (window.location.pathname === targetPath && hash) {
+                              const el = document.getElementById(hash);
+                              if (el) {
+                                e.preventDefault();
+                                el.scrollIntoView({ behavior: "smooth", block: "start" });
+                                window.history.pushState(null, "", child.to);
+                              }
+                            }
+                          }}
+                          className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+                        >
+                          <span>{child.label}</span>
+                          {child.badge && (
+                            <span className="text-[10px] font-bold text-primary bg-primary-soft px-2 py-0.5 rounded-full">
+                              {child.badge}
+                            </span>
+                          )}
+                        </a>
+                      );
+                    }
+                    return (
+                      <Link
+                        key={child.to}
+                        to={child.to as any}
+                        onClick={onClose}
+                        className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+                      >
+                        <span>{child.label}</span>
+                        {child.badge && (
+                          <span className="text-[10px] font-bold text-primary bg-primary-soft px-2 py-0.5 rounded-full">
+                            {child.badge}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
+                {item.twoColumn.col2Cta && (
+                  <div className="px-3 pt-1.5 pb-1">
+                    <a
+                      href={item.twoColumn.col2Cta.to}
+                      onClick={(e) => {
+                        onClose();
+                        const [path, hash] = item.twoColumn!.col2Cta!.to.split("#");
+                        const targetPath = path || "/";
+                        if (window.location.pathname === targetPath && hash) {
+                          const el = document.getElementById(hash);
+                          if (el) {
+                            e.preventDefault();
+                            el.scrollIntoView({ behavior: "smooth", block: "start" });
+                            window.history.pushState(null, "", item.twoColumn!.col2Cta!.to);
+                          }
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                    >
+                      <span>{item.twoColumn.col2Cta.label}</span>
+                      <ArrowRight className="size-3" />
+                    </a>
+                  </div>
+                )}
               </div>
             </>
           ) : (
@@ -1045,92 +1237,120 @@ function Footer() {
           </div>
         </div>
 
-        <nav aria-label="Footer Services">
+        <nav aria-label="Footer Offerings">
           <p className="text-xs font-bold tracking-wider uppercase text-primary-foreground">
-            Services & Care
+            Offerings & Solutions
           </p>
           <ul className="mt-4 space-y-2.5 text-sm text-ink-foreground/80">
             <li>
-              <Link to="/solutions/$slug" params={{ slug: "women-commuters" }} className="hover:text-white font-medium text-primary-foreground transition-colors">
-                Women Commuters
-              </Link>
-            </li>
-            <li>
-              <Link to="/solutions/$slug" params={{ slug: "urban-professionals" }} className="hover:text-white font-medium text-primary-foreground transition-colors">
-                Urban Professionals
-              </Link>
-            </li>
-            <li>
-              <Link to="/solutions/$slug" params={{ slug: "safety-partners" }} className="hover:text-white font-medium text-primary-foreground transition-colors">
-                Safety-Focused Partners
+              <Link to="/offerings" className="hover:text-white font-medium text-primary-foreground transition-colors">
+                Offerings Overview
               </Link>
             </li>
             <li>
               <Link to="/services" className="hover:text-white transition-colors">
-                View All Services
+                Care & Services Catalogue
               </Link>
             </li>
             <li>
+              <Link to="/services/elderly-care" className="hover:text-white transition-colors">
+                Elderly Care Assistance
+              </Link>
+            </li>
+            <li>
+              <Link to="/services/hospital-attendants" className="hover:text-white transition-colors">
+                Hospital Bedside Care
+              </Link>
+            </li>
+            <li>
+              <Link to="/services/nursing-services" className="hover:text-white transition-colors">
+                Registered Nursing
+              </Link>
+            </li>
+            <li>
+              <a href="/offerings#technology" className="hover:text-white transition-colors">
+                Technology Solutions (10 Areas)
+              </a>
+            </li>
+            <li>
+              <a href="/offerings#remote-patient-monitoring" className="hover:text-white transition-colors">
+                Remote Patient Monitoring
+              </a>
+            </li>
+            <li>
               <Link to="/booking" className="hover:text-white transition-colors">
-                Booking Engine
+                Online Care Booking
               </Link>
             </li>
             <li>
               <Link to="/safety" className="hover:text-white transition-colors">
-                Safety & Verification
-              </Link>
-            </li>
-            <li>
-              <Link to="/safety-guidelines" className="hover:text-white transition-colors">
-                Safety Guidelines
-              </Link>
-            </li>
-            <li>
-              <Link to="/cities" className="hover:text-white transition-colors">
-                Metro Cities Coverage
+                5-Stage Safety Standards
               </Link>
             </li>
           </ul>
         </nav>
 
-        <nav aria-label="Footer Trust and Ecosystem">
+        <nav aria-label="Footer Initiatives and Impact">
           <p className="text-xs font-bold tracking-wider uppercase text-primary-foreground">
-            Ecosystem & Trust
+            Initiatives & Impact
           </p>
           <ul className="mt-4 space-y-2.5 text-sm text-ink-foreground/80">
             <li>
-              <Link to="/about" className="hover:text-white transition-colors">
-                About LifeSakhi
-              </Link>
-            </li>
-            <li>
               <Link to="/life-stages" className="hover:text-white transition-colors">
-                Life Stages Journey
+                Life Stages Journey (6 Chapters)
               </Link>
             </li>
             <li>
               <Link to="/pillars" className="hover:text-white transition-colors">
-                Our 6 Pillars
+                Our 6 Ecosystem Pillars
               </Link>
             </li>
             <li>
-              <Link to="/get-involved" className="hover:text-white transition-colors">
-                Get Involved
+              <Link to="/become-an-attendant" className="hover:text-white transition-colors">
+                Women Empowerment & SHGs
               </Link>
             </li>
             <li>
-              <Link to="/ecosystem-partners" className="hover:text-white transition-colors">
-                Ecosystem Partners
+              <a href="/life-stages#stage-childhood" className="hover:text-white transition-colors">
+                Girl-Child & Early Development
+              </a>
+            </li>
+            <li>
+              <Link to="/solutions/$slug" params={{ slug: "community-initiatives" }} className="hover:text-white transition-colors">
+                Community Wellbeing & Safety
               </Link>
             </li>
             <li>
               <Link to="/knowledge-hub" className="hover:text-white transition-colors">
-                Knowledge Hub
+                Knowledge Hub & Family Guides
               </Link>
             </li>
             <li>
               <Link to="/faq" className="hover:text-white transition-colors">
                 Frequently Asked Questions
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
+        <div aria-label="Footer Get Involved and Contact">
+          <p className="text-xs font-bold tracking-wider uppercase text-primary-foreground">
+            Get Involved & Support
+          </p>
+          <ul className="mt-4 space-y-2.5 text-sm text-ink-foreground/80">
+            <li>
+              <Link to="/about" className="hover:text-white transition-colors">
+                About LifeSakhi & Leadership
+              </Link>
+            </li>
+            <li>
+              <Link to="/ecosystem-partners" className="hover:text-white transition-colors">
+                Ecosystem & Tech Partners
+              </Link>
+            </li>
+            <li>
+              <Link to="/become-an-attendant" className="hover:text-white transition-colors">
+                Become a Saha (Join Our Team)
               </Link>
             </li>
             <li>
@@ -1139,23 +1359,10 @@ function Footer() {
               </Link>
             </li>
             <li>
-              <Link to="/become-an-attendant" className="hover:text-white transition-colors">
-                Become a Saha (Join Our Team)
-              </Link>
-            </li>
-          </ul>
-        </nav>
-
-        <div aria-label="Footer Contact">
-          <p className="text-xs font-bold tracking-wider uppercase text-primary-foreground">
-            Contact & Support
-          </p>
-          <ul className="mt-4 space-y-2.5 text-sm text-ink-foreground/80">
-            <li>
               <a
                 href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
                 onClick={() => track("support_call_click")}
-                className="hover:text-white flex items-center gap-1.5 transition-colors"
+                className="hover:text-white flex items-center gap-1.5 transition-colors font-medium text-white"
               >
                 <Phone className="size-3.5" />
                 {SITE.SUPPORT_PHONE}
@@ -1179,21 +1386,8 @@ function Footer() {
               </a>
             </li>
             <li>
-              <a
-                href={SITE.LINKEDIN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => track("linkedin_footer_click")}
-                className="hover:text-sky-300 flex items-center gap-1.5 text-sky-400 transition-colors"
-              >
-                <Linkedin className="size-3.5" />
-                Follow on LinkedIn
-              </a>
-            </li>
-            <li>24/7 Command Emergency Desk</li>
-            <li>
               <Link to="/contact" className="hover:text-white transition-colors">
-                Regional Offices & Desk
+                Regional Offices & 24/7 Desk
               </Link>
             </li>
           </ul>

@@ -133,7 +133,8 @@ function OfferingsPage() {
       </section>
 
       {/* ─── 1. CARE & ASSISTANCE (HUMAN-LED SERVICES) ─────────────────────────── */}
-      <section id="care-assistance" className="section-spacing scroll-mt-20">
+      <section id="care-assistance" className="section-spacing scroll-mt-24">
+        <span id="care" className="sr-only" />
         <div className="container-page space-y-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
@@ -255,7 +256,8 @@ function OfferingsPage() {
               return (
                 <article
                   key={tech.id}
-                  className="rounded-3xl border border-border bg-card p-6 sm:p-7 shadow-xs hover:border-primary/40 transition-all flex flex-col justify-between"
+                  id={tech.id}
+                  className="rounded-3xl border border-border bg-card p-6 sm:p-7 shadow-xs hover:border-primary/40 transition-all flex flex-col justify-between scroll-mt-24"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-3">

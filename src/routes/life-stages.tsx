@@ -69,13 +69,32 @@ function LifeStagesPage() {
           </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {LIFE_STAGES.map((stage) => (
-              <article
-                key={stage.id}
-                id={stage.id === "young-adulthood-independence" ? "adulthood" : stage.id === "ageing-elderhood" ? "elderhood" : undefined}
-                className="flex flex-col justify-between rounded-3xl border border-border bg-background p-6"
-              >
-                <div>
+            {LIFE_STAGES.map((stage) => {
+              const stageAliases: Record<string, string> = {
+                "birth-early-childhood": "stage-birth",
+                "childhood-development": "stage-childhood",
+                "adolescence-growing-up": "stage-adolescence",
+                "young-adulthood-independence": "stage-young-adulthood",
+                "womanhood-motherhood": "stage-motherhood",
+                "ageing-elderhood": "stage-elderhood",
+              };
+              const aliasId = stageAliases[stage.id];
+
+              return (
+                <article
+                  key={stage.id}
+                  id={aliasId || stage.id}
+                  className="flex flex-col justify-between rounded-3xl border border-border bg-background p-6 scroll-mt-24"
+                >
+                  <div>
+                    {/* Anchor support for both direct ID and alias */}
+                    <span id={stage.id} className="sr-only" />
+                    {stage.id === "young-adulthood-independence" && (
+                      <span id="adulthood" className="sr-only" />
+                    )}
+                    {stage.id === "ageing-elderhood" && (
+                      <span id="elderhood" className="sr-only" />
+                    )}
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-bold uppercase tracking-widest text-primary">
                       Stage {stage.stepNumber} · {stage.ageContext}
@@ -103,8 +122,9 @@ function LifeStagesPage() {
                   </Link>
                 </div>
               </article>
-            ))}
-          </div>
+            );
+          })}
+        </div>
         </div>
       </section>
     </div>

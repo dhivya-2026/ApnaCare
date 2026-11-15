@@ -127,7 +127,8 @@ function GetInvolvedPage() {
         </div>
       </section>
 
-      <section id="participate-form" className="border-t border-border bg-card section-spacing">
+      <section id="participate-form" className="border-t border-border bg-card section-spacing scroll-mt-24">
+        <span id="collaborate" className="sr-only" />
         <div className="container-page max-w-3xl">
           <div className="text-center mb-8">
             <p className="eyebrow">Connect With Our Coordination Desk</p>

@@ -1,16 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
+  Activity,
+  AlertCircle,
   ArrowRight,
+  Baby,
   BadgeCheck,
   Building2,
   CheckCircle2,
+  Cpu,
   ExternalLink,
+  Heart,
   HeartHandshake,
+  Home as HomeIcon,
+  Layers,
   MessageCircle,
   Phone,
+  Plane,
   ShieldCheck,
   Sparkles,
+  Stethoscope,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +35,7 @@ import { PillarsGrid } from "@/components/site/PillarsGrid";
 import { CareRecoveryStory } from "@/components/site/CareRecoveryStory";
 import { UniversalCareConfigurator } from "@/components/site/UniversalCareConfigurator";
 import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
+import { TechEnquiryModal } from "@/components/site/TechEnquiryModal";
 import {
   SITE,
   SERVICES,
@@ -33,6 +43,10 @@ import {
   formatINR,
 } from "@/data/site";
 import { LIFESAKHI_BRAND } from "@/data/lifesakhi";
+import {
+  TECHNOLOGY_CATEGORIES,
+  type TechSolutionCategory,
+} from "@/data/offerings";
 import { WOMEN_LEADERSHIP, STRATEGIC_INVESTOR_PARTNER } from "@/routes/about";
 import { seo } from "@/lib/seo";
 import { buildOrganizationSchema, buildFaqPageSchema } from "@/data/enterprise-content";
@@ -44,24 +58,71 @@ import hero5 from "@/assets/hero-5.jpg";
 
 const FAQS = [
   {
-    q: "What is LifeSakhi and how does it relate to LifeSakhi?",
-    a: "LifeSakhi is our expanded women and child development, empowerment, and lifelong wellbeing brand—uniting women's community empowerment with all verified Care & Assistance operations (elderly care, hospital bedside support, nursing, and postnatal care) previously operated under LifeSakhi.",
+    q: "What is LifeSakhi and what does it stand for?",
+    a: "LifeSakhi is an integrated women-and-child development and lifelong wellbeing organisation. We unite verified, human-led Care & Assistance services (elderly companionship, hospital bedside assistance, registered nursing, and postnatal support) with modern health-tech solutions, women Self-Help Group (SHG) employment, and community child protection initiatives across South India.",
   },
   {
-    q: "How are LifeSakhi Saha care companions verified and vetted?",
-    a: "Every Saha care companion undergoes a structured 5-stage background verification: government photo ID authentication, police verification documentation filing, residential address checks, reference reviews, and practical caregiving skills assessment before assignment.",
+    q: "How are LifeSakhi Saha care companions vetted and trained?",
+    a: "Every Saha care companion completes our rigorous 5-stage background verification protocol: government photo ID authentication, official police verification filing, residential address checks, professional reference reviews, and practical caregiving skills evaluation before assignment.",
   },
   {
     q: "What is the difference between a Saha care companion and a registered nurse?",
-    a: "A Saha care companion provides supportive personal care—companionship, mobility assistance, bathing, feeding accompaniment, and oral prescription reminder logging. Registered nurses (GNM or B.Sc. Nursing) are medically licensed for clinical procedures such as sterile wound dressings, IV infusions, and catheter management under physician prescription.",
+    a: "A Saha companion provides empathetic personal care—daily living support, mobility assistance, hospital bedside vigilance, feeding accompaniment, and oral medication logging. Registered nurses (GNM / B.Sc Nursing) are medically licensed for clinical procedures including sterile wound dressings, IV infusions, and catheter management under physician prescription.",
   },
   {
-    q: "Which programmes are operational today vs. proposed for future rollout?",
-    a: "All Care & Assistance services (elderly care, hospital bedside assistance, certified nursing, postnatal support, and assisted travel) and Women Self-Help Group (SHG) caregiver outreach are active today across Bengaluru, Chennai, Hyderabad, and Coimbatore. Broader Child Development, Adolescent Life Skills, and Entrepreneurship tracks are transparently marked as proposed or partner-seeking initiatives.",
+    q: "How do your Technology Solutions integrate with home care?",
+    a: "Our Technology Solutions (Remote Patient Monitoring, Telehealth, Smart-Home Sensors, Wearable SOS Bands, and Fall Prevention) seamlessly complement our human caregivers. For instance, sensors monitor unattended stove risks, while wearable bands and RPM feed live vitals into our care portal so visiting nurses and remote family members stay informed in real time.",
   },
   {
-    q: "Are there any hidden agency commissions or surprise fees for care services?",
-    a: "None. Care service rates are published transparently on a per-day, per-shift, or monthly basis with official 18% statutory GST tax invoices (SAC 9993).",
+    q: "Are care service rates transparent with statutory invoicing?",
+    a: "Yes. All care service rates are published transparently on a per-day, per-shift, or monthly basis with zero agency markups or hidden fees. Every booking is accompanied by statutory GST tax invoices (SAC 9993).",
+  },
+];
+
+const JOURNEYS = [
+  {
+    id: "need-care",
+    badge: "For Families & Individuals",
+    title: "I Need Care",
+    description:
+      "Compassionate in-home elderly companionship, 24/7 hospital bedside assistance, registered nursing, and postnatal newborn care.",
+    ctaLabel: "Find Care Support",
+    ctaTo: "/booking",
+    icon: Heart,
+    accent: "bg-terracotta/10 text-terracotta border-terracotta/20",
+  },
+  {
+    id: "need-tech",
+    badge: "Smart Healthcare Solutions",
+    title: "I Need Technology Solutions",
+    description:
+      "Continuous Remote Patient Monitoring, privacy-safe ambient home sensors, wearable SOS bands, and predictive health analytics.",
+    ctaLabel: "Explore Technology",
+    ctaTo: "/offerings#technology",
+    icon: Cpu,
+    accent: "bg-plum/10 text-plum border-plum/20",
+  },
+  {
+    id: "collaborate",
+    badge: "NGOs, Hospitals & Institutions",
+    title: "I Want to Collaborate",
+    description:
+      "Partner with LifeSakhi on women Self-Help Group livelihoods, hospital ward attendant staffing, or community child protection.",
+    ctaLabel: "Partner With Us",
+    ctaTo: "/ecosystem-partners",
+    icon: Building2,
+    accent: "bg-primary/10 text-primary border-primary/20",
+  },
+  {
+    id: "join-careers",
+    badge: "Dignified Care Careers",
+    title: "I Want to Join LifeSakhi",
+    description:
+      "Receive structured caregiving training, police-verified certification, fair transparent income, and respected healthcare careers as a Saha companion.",
+    ctaLabel: "Become a Saha",
+    ctaTo: "/become-an-attendant",
+    icon: Users,
+    accent: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
   },
 ];
 
@@ -69,7 +130,7 @@ export const Route = createFileRoute("/")({
   head: () =>
     seo(
       "LifeSakhi — Empowering Women. Enriching Lives.",
-      "Every Girl. Every Woman. Every Stage. LifeSakhi stands for women and child development, SHG empowerment, dignity, wellbeing, and trusted Saha care across South India.",
+      "Every Girl. Every Woman. Every Stage. LifeSakhi stands for women and child development, SHG empowerment, dignity, smart healthcare technology, and trusted Saha care across South India.",
       {
         canonical: "https://apna-care.vercel.app",
         keywords: [
@@ -77,6 +138,7 @@ export const Route = createFileRoute("/")({
           "women empowerment South India",
           "women and child development India",
           "elderly care at home Bengaluru Chennai Hyderabad Coimbatore",
+          "remote patient monitoring India",
           "hospital bedside attendant",
           "postnatal and newborn care",
           "women self help group employment",
@@ -89,12 +151,17 @@ export const Route = createFileRoute("/")({
 
 export function HomePage() {
   const [homeBizOpen, setHomeBizOpen] = useState(false);
+  const [techModalOpen, setTechModalOpen] = useState(false);
+  const [selectedTech, setSelectedTech] = useState<TechSolutionCategory | null>(null);
+  const [offeringsTab, setOfferingsTab] = useState<"care" | "tech">("care");
+
   const waUrl = buildWhatsAppUrl("Hi LifeSakhi! I would like to learn more or request support.");
   const featuredServices = SERVICES.filter((s) => s.featured).slice(0, 4);
+  const featuredTech = TECHNOLOGY_CATEGORIES.slice(0, 4);
 
   return (
     <div className="bg-background">
-      {/* 1. HERO SECTION */}
+      {/* ─── 1. HERO SECTION ────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary-soft/45 via-background to-background py-14 sm:py-20 lg:py-24">
         <div className="container-page grid gap-10 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-7">
@@ -107,38 +174,38 @@ export function HomePage() {
               {LIFESAKHI_BRAND.tagline}
             </h1>
 
-            <p className="mt-4 max-w-2xl text-fluid-body text-muted-foreground">
-              {LIFESAKHI_BRAND.heroDescription}
+            <p className="mt-4 max-w-2xl text-fluid-body text-muted-foreground leading-relaxed">
+              LifeSakhi is a lifelong women-and-child development and wellbeing organisation. We unite compassionate, verified human care for families with smart health technology, women Self-Help Group employment, and community child protection across South India.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3.5">
               <Button asChild size="lg" className="rounded-full px-7 min-h-[48px]">
-                <a href="#philosophy">
-                  Explore Our Mission
-                  <ArrowRight className="size-4" />
+                <a href="#offerings">
+                  Explore Our Offerings
+                  <ArrowRight className="size-4 ml-1.5" />
                 </a>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full px-6 min-h-[48px]">
-                <Link to="/pillars">Discover Our Initiatives</Link>
-              </Button>
-              <Button asChild size="lg" variant="warm" className="rounded-full px-6 min-h-[48px]">
+              <Button asChild size="lg" variant="warm" className="rounded-full px-7 min-h-[48px]">
                 <Link to="/booking">Get Support</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full px-6 min-h-[48px]">
+                <Link to="/about">About Us</Link>
               </Button>
             </div>
 
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-medium text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="size-4 text-primary" />
-                Active in Bengaluru, Chennai, Hyderabad & Coimbatore
+                <CheckCircle2 className="size-4 text-primary shrink-0" />
+                Active in Bengaluru, Chennai, Hyderabad &amp; Coimbatore
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-primary" />
-                Women-Led & SHG-Anchored
+                <ShieldCheck className="size-4 text-primary shrink-0" />
+                100% Police-Verified Saha Caregivers
               </span>
             </div>
           </div>
 
-          {/* Authentic South Indian Multi-Generational Visual Collage */}
+          {/* Authentic South Indian Visual Showcase */}
           <div className="lg:col-span-5 grid grid-cols-2 gap-3.5">
             <div className="space-y-3.5">
               <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
@@ -177,25 +244,225 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* 2. OUR PHILOSOPHY */}
-      <section id="philosophy" className="border-b border-border bg-card section-spacing scroll-mt-20">
-        <div className="container-page max-w-5xl text-center">
-          <p className="eyebrow">Our Philosophy</p>
-          <h2 className="mt-3 font-display text-fluid-section font-semibold text-foreground">
-            {LIFESAKHI_BRAND.philosophyStatement}
-          </h2>
-          <p className="mx-auto mt-4 max-w-3xl text-fluid-body text-muted-foreground">
-            {LIFESAKHI_BRAND.philosophySummary}
-          </p>
+      {/* ─── 2. CHOOSE YOUR JOURNEY (4 PROMINENT PATHWAYS) ────────────────────── */}
+      <section className="section-spacing border-b border-border bg-card">
+        <div className="container-page">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="eyebrow text-primary">Tailored Navigation</span>
+            <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
+              Choose Your Journey
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Select what best describes your requirement to find the right information, care, or partnership opportunity.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {JOURNEYS.map((j) => {
+              const Icon = j.icon;
+              return (
+                <div
+                  key={j.id}
+                  className="flex flex-col justify-between rounded-3xl border border-border bg-background p-6 shadow-xs hover:border-primary/40 hover:shadow-md transition-all group"
+                >
+                  <div>
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold border ${j.accent}`}
+                    >
+                      <Icon className="size-3.5" />
+                      {j.badge}
+                    </span>
+                    <h3 className="mt-4 font-display text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {j.title}
+                    </h3>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                      {j.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-border">
+                    <Button asChild size="sm" variant="outline" className="w-full rounded-full text-xs font-semibold group-hover:border-primary group-hover:text-primary">
+                      <Link to={j.ctaTo as any}>
+                        <span>{j.ctaLabel}</span>
+                        <ArrowRight className="size-3.5 ml-1 transition-transform group-hover:translate-x-1" />
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* 3. EVERY STAGE OF HER LIFE (INTERACTIVE 6-STAGE JOURNEY) */}
-      <section id="life-stages" className="section-spacing scroll-mt-20">
+      {/* ─── 3. OUR OFFERINGS (CARE & TECHNOLOGY SHOWCASE) ─────────────────────── */}
+      <section id="offerings" className="section-spacing scroll-mt-20">
+        <div className="container-page space-y-10">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <span className="eyebrow">Comprehensive Capabilities</span>
+              <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
+                Our Offerings
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                LifeSakhi combines human-centred care services for families with modern technology solutions for remote monitoring and proactive safety.
+              </p>
+            </div>
+
+            {/* Toggle Pills */}
+            <div className="inline-flex rounded-full border border-border bg-card p-1 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setOfferingsTab("care")}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+                  offeringsTab === "care"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Heart className="size-3.5" />
+                Care &amp; Services
+              </button>
+              <button
+                type="button"
+                onClick={() => setOfferingsTab("tech")}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+                  offeringsTab === "tech"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Cpu className="size-3.5" />
+                Technology Solutions
+              </button>
+            </div>
+          </div>
+
+          {/* Tab Content: Care & Services */}
+          {offeringsTab === "care" && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {featuredServices.map((svc) => (
+                  <Link
+                    key={svc.id}
+                    to="/services/$slug"
+                    params={{ slug: svc.slug }}
+                    className="group flex flex-col justify-between rounded-3xl border border-border bg-card p-6 transition-all hover:border-primary/40 hover:shadow-md"
+                  >
+                    <div>
+                      <span className="inline-block rounded-full bg-primary-soft px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                        Operational Now
+                      </span>
+                      <h3 className="mt-3 font-display text-lg font-semibold text-foreground group-hover:text-primary">
+                        {svc.name}
+                      </h3>
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                        {svc.shortDesc}
+                      </p>
+                    </div>
+                    <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs">
+                      <span className="font-semibold text-foreground">
+                        From {formatINR(svc.startingPrice)}/{svc.pricingUnit}
+                      </span>
+                      <span className="inline-flex items-center gap-1 font-semibold text-primary">
+                        Details <ArrowRight className="size-3.5" />
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                <Button asChild variant="outline" className="rounded-full">
+                  <Link to="/services">
+                    View All Care Services Catalogue
+                    <ArrowRight className="size-4 ml-1.5" />
+                  </Link>
+                </Button>
+                <Button asChild variant="warm" className="rounded-full">
+                  <Link to="/booking">Request Immediate Assistance</Link>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Tab Content: Technology Solutions */}
+          {offeringsTab === "tech" && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {featuredTech.map((tech) => (
+                  <div
+                    key={tech.id}
+                    className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-2xs hover:border-primary/40 transition-all group"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Category {tech.number}
+                        </span>
+                        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[10px] font-semibold text-foreground">
+                          {tech.status}
+                        </span>
+                      </div>
+                      <h3 className="mt-3 font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {tech.title}
+                      </h3>
+                      <p className="mt-1 text-xs text-primary font-medium">
+                        {tech.subtitle}
+                      </p>
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-3">
+                        {tech.whatItDoes}
+                      </p>
+                    </div>
+
+                    <div className="mt-5 pt-4 border-t border-border flex items-center justify-between gap-2">
+                      <Button
+                        size="sm"
+                        variant="warm"
+                        onClick={() => {
+                          setSelectedTech(tech);
+                          setTechModalOpen(true);
+                        }}
+                        className="w-full rounded-full text-xs font-semibold"
+                      >
+                        {tech.ctaLabel}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                <Button asChild variant="outline" className="rounded-full">
+                  <Link to="/offerings">
+                    Explore All 10 Technology Areas
+                    <ArrowRight className="size-4 ml-1.5" />
+                  </Link>
+                </Button>
+                <a
+                  href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"
+                >
+                  <Phone className="size-3.5" />
+                  Health-Tech Advisory Desk: {SITE.SUPPORT_PHONE}
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Interactive Universal Care Configurator */}
+          <div className="rounded-3xl border border-border bg-card p-4 sm:p-8 shadow-soft">
+            <UniversalCareConfigurator />
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4. LIFE STAGES JOURNEY ────────────────────────────────────────────── */}
+      <section id="life-stages" className="section-spacing border-t border-border bg-card scroll-mt-20">
         <div className="container-page">
           <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div className="max-w-2xl">
-              <p className="eyebrow">The Life-Stage Experience</p>
+              <span className="eyebrow">The Life-Stage Experience</span>
               <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
                 Every Stage of Her Life
               </h2>
@@ -206,7 +473,7 @@ export function HomePage() {
             <Button asChild variant="outline" className="rounded-full">
               <Link to="/life-stages">
                 View Full 6-Stage Journey
-                <ArrowRight className="size-4" />
+                <ArrowRight className="size-4 ml-1.5" />
               </Link>
             </Button>
           </div>
@@ -215,89 +482,58 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* 4. OUR PILLARS */}
-      <section id="pillars" className="border-y border-border bg-primary-soft/25 section-spacing scroll-mt-20">
-        <div className="container-page">
-          <div className="flex flex-wrap items-end justify-between gap-4 mb-10">
+      {/* ─── 5. OUR IMPACT & PILLARS ───────────────────────────────────────────── */}
+      <section id="impact" className="section-spacing border-t border-border bg-primary-soft/25 scroll-mt-20">
+        <div className="container-page space-y-12">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
-              <p className="eyebrow">Brand Architecture</p>
+              <span className="eyebrow">Grounding &amp; Achievements</span>
               <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
-                Six Interconnected Pillars
+                Our Documented Impact
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                We distinguish clearly between our operational Care &amp; Assistance services today and our expanding Women, Child, and Community development initiatives.
+                Transparent milestones demonstrating verified care operations, emergency cluster response, and community empowerment.
               </p>
             </div>
             <Button asChild variant="outline" className="rounded-full">
-              <Link to="/pillars">Explore Pillar Details</Link>
+              <Link to="/pillars">
+                Explore Pillar Architecture
+                <ArrowRight className="size-4 ml-1.5" />
+              </Link>
             </Button>
           </div>
 
+          {/* Verified Milestone Metrics */}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-3xl border border-border bg-background p-6 text-center shadow-2xs">
+              <p className="font-display text-4xl font-bold text-primary">142+</p>
+              <p className="mt-2 text-xs font-semibold text-foreground">Families Supported</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Across Bengaluru, Chennai, Hyderabad &amp; Coimbatore</p>
+            </div>
+            <div className="rounded-3xl border border-border bg-background p-6 text-center shadow-2xs">
+              <p className="font-display text-4xl font-bold text-terracotta">48+</p>
+              <p className="mt-2 text-xs font-semibold text-foreground">Verified Saha Companions</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">100% police-vetted with background documentation</p>
+            </div>
+            <div className="rounded-3xl border border-border bg-background p-6 text-center shadow-2xs">
+              <p className="font-display text-4xl font-bold text-plum">4</p>
+              <p className="mt-2 text-xs font-semibold text-foreground">Active Metro Clusters</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Dedicated regional coordinators &amp; supervisor nurses</p>
+            </div>
+            <div className="rounded-3xl border border-border bg-background p-6 text-center shadow-2xs">
+              <p className="font-display text-4xl font-bold text-emerald-600">&lt; 90 min</p>
+              <p className="mt-2 text-xs font-semibold text-foreground">Emergency Cluster Response</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Rapid replacement &amp; hospital bedside dispatch</p>
+            </div>
+          </div>
+
+          {/* Ecosystem Pillars Grid */}
           <PillarsGrid />
         </div>
       </section>
 
-      {/* 5. OUR WORK IN ACTION (OPERATIONAL CARE & CONFIGURATOR) */}
-      <section id="care-in-action" className="section-spacing scroll-mt-20">
-        <div className="container-page space-y-12">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div className="max-w-2xl">
-              <p className="eyebrow">Operational Today · South India</p>
-              <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
-                LifeSakhi Care &amp; Assistance in Action
-              </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Need immediate support for an ageing parent, hospital admission, new mother, or family transit? Our verified Saha companions and registered nurses are active across Bengaluru, Chennai, Hyderabad, and Coimbatore.
-              </p>
-            </div>
-            <Button asChild className="rounded-full">
-              <Link to="/services">
-                Browse All Services
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredServices.map((svc) => (
-              <Link
-                key={svc.id}
-                to="/services/$slug"
-                params={{ slug: svc.slug }}
-                className="group flex flex-col justify-between rounded-3xl border border-border bg-card p-6 transition-all hover:border-primary/40 hover:shadow-md"
-              >
-                <div>
-                  <span className="inline-block rounded-full bg-primary-soft px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                    Operational
-                  </span>
-                  <h3 className="mt-3 font-display text-lg font-semibold text-foreground group-hover:text-primary">
-                    {svc.name}
-                  </h3>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                    {svc.shortDesc}
-                  </p>
-                </div>
-                <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs">
-                  <span className="font-semibold text-foreground">
-                    From {formatINR(svc.startingPrice)}/{svc.pricingUnit}
-                  </span>
-                  <span className="inline-flex items-center gap-1 font-semibold text-primary">
-                    Details <ArrowRight className="size-3.5" />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Preserved Interactive Care Configurator */}
-          <div className="rounded-3xl border border-border bg-card p-4 sm:p-8 shadow-soft">
-            <UniversalCareConfigurator />
-          </div>
-        </div>
-      </section>
-
-      {/* 6. WOMEN EMPOWERING WOMEN */}
-      <section className="border-y border-border bg-card section-spacing">
+      {/* ─── 6. INITIATIVES & COMMUNITY ────────────────────────────────────────── */}
+      <section id="initiatives" className="section-spacing border-t border-border bg-card scroll-mt-20">
         <div className="container-page grid gap-10 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-6">
             <div className="overflow-hidden rounded-3xl border border-border shadow-soft">
@@ -309,18 +545,18 @@ export function HomePage() {
             </div>
           </div>
           <div className="lg:col-span-6">
-            <p className="eyebrow text-terracotta">Women Empowering Women</p>
+            <span className="eyebrow text-terracotta">Community Development &amp; Outreach</span>
             <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
               From Grassroots Self-Help Groups to Dignified Care Careers
             </h2>
-            <p className="mt-4 text-fluid-body text-muted-foreground">
-              Led by Women Self-Help Group Outreach Manager <strong>Prof. Shoba T</strong>, LifeSakhi partners with community networks across South India to train women in practical caregiving, safety protocols, and professional communication—enabling financial independence as verified <strong>Saha</strong> companions.
+            <p className="mt-4 text-fluid-body text-muted-foreground leading-relaxed">
+              Led by Women Self-Help Group Outreach Manager <strong>Prof. Shoba T</strong>, LifeSakhi collaborates with grassroots women&apos;s groups across South India to train women in practical caregiving, medical safety, and patient dignity. We transform raw compassion into certified healthcare careers as verified <strong>Saha</strong> companions.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full">
                 <Link to="/become-an-attendant">
                   Become a Saha
-                  <ArrowRight className="size-4" />
+                  <ArrowRight className="size-4 ml-1.5" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-full">
@@ -331,21 +567,14 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* 7. STORIES THAT MATTER */}
-      <section className="section-spacing">
-        <div className="container-page">
-          <CareRecoveryStory />
-        </div>
-      </section>
-
-      {/* 8. LEADERSHIP & STRATEGIC PARTNERS */}
-      <section className="border-y border-border bg-card section-spacing">
+      {/* ─── 7. TRUST & CREDIBILITY (LEADERSHIP & PARTNERS) ────────────────────── */}
+      <section id="trust" className="section-spacing border-t border-border bg-background scroll-mt-20">
         <div className="container-page space-y-12">
           <div>
             <div className="max-w-2xl">
-              <p className="eyebrow">Women Leadership &amp; Partners</p>
+              <span className="eyebrow">Governance &amp; Alliances</span>
               <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
-                Guided by Operational Rigour &amp; Strategic Partnerships
+                Guided by Women Leadership &amp; Strategic Partners
               </h2>
             </div>
 
@@ -353,7 +582,7 @@ export function HomePage() {
               {WOMEN_LEADERSHIP.map((leader) => (
                 <article
                   key={leader.id}
-                  className="rounded-3xl border border-border bg-background p-6 sm:p-8"
+                  className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs"
                 >
                   <div className="flex items-center gap-4">
                     <div className="grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground font-display text-lg font-bold">
@@ -371,7 +600,7 @@ export function HomePage() {
                   </p>
                   {leader.quote && (
                     <blockquote className="mt-4 border-l-2 border-terracotta pl-4 text-sm italic text-foreground">
-                      “{leader.quote}”
+                      &ldquo;{leader.quote}&rdquo;
                     </blockquote>
                   )}
                 </article>
@@ -379,8 +608,8 @@ export function HomePage() {
             </div>
           </div>
 
-          {/* Strategic Investor & Partner — TRUSTGRID.AI */}
-          <div className="rounded-3xl border border-border bg-primary-soft/30 p-6 sm:p-10">
+          {/* Strategic Technology Partner Spotlight — TRUSTGRID.AI */}
+          <div className="rounded-3xl border border-border bg-primary-soft/30 p-6 sm:p-10 shadow-xs">
             <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
               <div className="lg:col-span-4 flex flex-col items-start">
                 <span className="eyebrow">{STRATEGIC_INVESTOR_PARTNER.sectionEyebrow}</span>
@@ -409,7 +638,7 @@ export function HomePage() {
                       rel="noopener noreferrer"
                     >
                       Explore TRUSTGRID.AI
-                      <ExternalLink className="size-4" />
+                      <ExternalLink className="size-4 ml-1.5" />
                     </a>
                   </Button>
                 </div>
@@ -419,93 +648,43 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* 9. GET INVOLVED */}
-      <section className="section-spacing">
-        <div className="container-page">
-          <div className="text-center max-w-2xl mx-auto">
-            <p className="eyebrow">Participate</p>
-            <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
-              Ways to Get Involved
-            </h2>
-          </div>
+      {/* ─── 8. STORIES & KNOWLEDGE HUB ────────────────────────────────────────── */}
+      <section id="stories" className="section-spacing border-t border-border bg-card scroll-mt-20">
+        <div className="container-page space-y-12">
+          <CareRecoveryStory />
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <Link
-              to="/become-an-attendant"
-              className="rounded-3xl border border-border bg-card p-6 hover:border-primary/40 transition-colors"
-            >
-              <Users className="size-6 text-primary" />
-              <h3 className="mt-3 font-display text-lg font-semibold">Women Seeking Careers</h3>
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Train and join as a verified Saha care companion.
-              </p>
-            </Link>
-            <Link
-              to="/booking"
-              className="rounded-3xl border border-border bg-card p-6 hover:border-primary/40 transition-colors"
-            >
-              <HeartHandshake className="size-6 text-terracotta" />
-              <h3 className="mt-3 font-display text-lg font-semibold">Families Seeking Support</h3>
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Request elderly, hospital, postnatal, or nursing care.
-              </p>
-            </Link>
-            <Link
-              to="/ecosystem-partners"
-              className="rounded-3xl border border-border bg-card p-6 hover:border-primary/40 transition-colors"
-            >
-              <Building2 className="size-6 text-plum" />
-              <h3 className="mt-3 font-display text-lg font-semibold">NGOs &amp; Institutions</h3>
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Collaborate on women skilling, SHGs, or child development.
-              </p>
-            </Link>
-            <Link
-              to="/get-involved"
-              className="rounded-3xl border border-border bg-card p-6 hover:border-primary/40 transition-colors"
-            >
-              <Sparkles className="size-6 text-primary" />
-              <h3 className="mt-3 font-display text-lg font-semibold">Volunteers &amp; Mentors</h3>
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Contribute skills to community wellbeing initiatives.
-              </p>
-            </Link>
+          {/* FAQs */}
+          <div className="max-w-4xl mx-auto pt-6">
+            <div className="text-center">
+              <span className="eyebrow">Clarity &amp; Trust</span>
+              <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
+                Frequently Asked Questions
+              </h2>
+            </div>
+
+            <div className="mt-8 rounded-3xl border border-border bg-background p-6 sm:p-8">
+              <Accordion type="single" collapsible className="w-full">
+                {FAQS.map((faq, idx) => (
+                  <AccordionItem
+                    key={idx}
+                    value={`item-${idx}`}
+                    className={idx === FAQS.length - 1 ? "border-b-0" : ""}
+                  >
+                    <AccordionTrigger className="text-left font-semibold text-foreground text-sm sm:text-base py-4 hover:no-underline hover:text-primary">
+                      {faq.q}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pb-4">
+                      {faq.a}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* FAQs */}
-      <section className="border-t border-border bg-card section-spacing">
-        <div className="container-page max-w-4xl">
-          <div className="text-center">
-            <p className="eyebrow">Clarity &amp; Trust</p>
-            <h2 className="mt-2 font-display text-fluid-section font-semibold text-foreground">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="mt-8 rounded-3xl border border-border bg-background p-6 sm:p-8">
-            <Accordion type="single" collapsible className="w-full">
-              {FAQS.map((faq, idx) => (
-                <AccordionItem
-                  key={idx}
-                  value={`item-${idx}`}
-                  className={idx === FAQS.length - 1 ? "border-b-0" : ""}
-                >
-                  <AccordionTrigger className="text-left font-semibold text-foreground text-sm sm:text-base py-4 hover:no-underline hover:text-primary">
-                    {faq.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pb-4">
-                    {faq.a}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </div>
-      </section>
-
-      {/* 10. FINAL CTA */}
+      {/* ─── 9. FINAL DIFFERENTIATED CTA ───────────────────────────────────────── */}
       <section id="enquiry" className="container-page py-16 md:py-24 scroll-mt-20">
         <div className="rounded-[2.5rem] bg-ink p-8 text-ink-foreground md:p-14 shadow-lift">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
@@ -515,7 +694,7 @@ export function HomePage() {
                 Together, We Can Build Stronger Futures.
               </h2>
               <p className="mt-4 max-w-md text-base sm:text-lg text-ink-foreground/80 leading-relaxed">
-                Whether your family needs dependable Saha care today or you want to collaborate on women and child development, our coordination desk is here to help.
+                Whether your family needs dependable Saha care today, you wish to deploy smart health technology, or you represent an institution seeking impact partnerships, we are here to help.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3.5">
@@ -571,7 +750,13 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* Modals */}
       <BusinessEnquiryModal open={homeBizOpen} onOpenChange={setHomeBizOpen} />
+      <TechEnquiryModal
+        open={techModalOpen}
+        onOpenChange={setTechModalOpen}
+        technology={selectedTech}
+      />
     </div>
   );
 }

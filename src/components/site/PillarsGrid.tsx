@@ -18,7 +18,8 @@ export function PillarsGrid() {
       {LIFESAKHI_PILLARS.map((pillar) => (
         <article
           key={pillar.id}
-          className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-xs transition-shadow hover:shadow-md"
+          id={pillar.id}
+          className="flex flex-col justify-between rounded-3xl border border-border bg-card p-6 shadow-xs transition-shadow hover:shadow-md scroll-mt-24"
         >
           <div>
             <div className="flex items-center justify-between gap-2">

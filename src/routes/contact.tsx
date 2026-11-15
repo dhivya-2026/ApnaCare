@@ -182,7 +182,8 @@ function Contact() {
       </section>
 
       {/* Main Form & Hub Section */}
-      <section className="container-page pb-20">
+      <section id="callback" className="container-page pb-20 scroll-mt-24">
+        <span id="helpline" className="sr-only" />
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr]">
           {/* Send an Enquiry Form */}
           <div className="card-soft p-8 md:p-10 shadow-soft">

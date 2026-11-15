@@ -573,8 +573,9 @@ function AboutPage() {
       ───────────────────────────────────────────────────────────── */}
       <section
         id="mission-vision"
-        className="container-page py-16 md:py-24 border-b border-border/70"
+        className="container-page py-16 md:py-24 border-b border-border/70 scroll-mt-24"
       >
+        <span id="mission" className="sr-only" />
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <span className="eyebrow">GUIDING LIGHT</span>
           <h2 className="text-fluid-section font-display font-semibold text-foreground">

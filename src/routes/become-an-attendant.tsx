@@ -219,7 +219,9 @@ function BecomeAnAttendant() {
       </section>
 
       {/* ── Application Form ── */}
-      <section ref={formRef as React.RefObject<HTMLElement>} id="application-form" className="container-page py-16 md:py-20">
+      <section ref={formRef as React.RefObject<HTMLElement>} id="application-form" className="container-page py-16 md:py-20 scroll-mt-24">
+        <span id="careers" className="sr-only" />
+        <span id="shg-partnerships" className="sr-only" />
         <div className="max-w-3xl mx-auto">
           <SectionHeading
             eyebrow="Join the Workforce"
