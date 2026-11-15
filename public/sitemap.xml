@@ -20,6 +20,12 @@
     <priority>0.95</priority>
   </url>
   <url>
+    <loc>https://apna-care.vercel.app/offerings</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
     <loc>https://apna-care.vercel.app/get-involved</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
