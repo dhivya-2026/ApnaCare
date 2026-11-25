@@ -29,14 +29,14 @@ function AttendantLoginPage() {
   // Check if directed from "Try Demo Account"
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.search.includes("demo=true")) {
-      setEmail("lakshmi.saha@apnacare.in");
+      setEmail("lakshmi.saha@lifesakhi.in");
       setPassword("SahaPass@2026!");
       toast.info("Demo credentials pre-filled. Tap 'Sign In' to enter the Saha portal.");
     }
   }, []);
 
   const handleFillDemo = () => {
-    setEmail("lakshmi.saha@apnacare.in");
+    setEmail("lakshmi.saha@lifesakhi.in");
     setPassword("SahaPass@2026!");
     toast.info("Demo credentials auto-filled. Click 'Sign In' below to continue.");
   };
@@ -48,6 +48,7 @@ function AttendantLoginPage() {
 
     // If demo account or standard login
     if (
+      email === "lakshmi.saha@lifesakhi.in" ||
       email === "lakshmi.saha@apnacare.in" ||
       email.toLowerCase().includes("saha") ||
       email.toLowerCase().includes("demo")
@@ -109,7 +110,7 @@ function AttendantLoginPage() {
             <Input
               id="email"
               type="email"
-              placeholder="lakshmi.saha@apnacare.in"
+              placeholder="lakshmi.saha@lifesakhi.in"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

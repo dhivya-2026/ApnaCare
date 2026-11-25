@@ -955,7 +955,7 @@ function UserDashboardContent() {
 
                   <div className="space-y-1.5">
                     <Label htmlFor="pemail" className="font-semibold">Registered Account Email</Label>
-                    <Input id="pemail" value={user?.email || "user.test@apnacare.in"} disabled className="bg-muted text-muted-foreground" />
+                    <Input id="pemail" value={user?.email || "user.test@lifesakhi.in"} disabled className="bg-muted text-muted-foreground" />
                   </div>
                 </div>
 

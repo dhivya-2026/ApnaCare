@@ -456,7 +456,7 @@ function AdminDashboardContent() {
               Central Care Operations Desk
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Logged in as: <span className="font-mono text-foreground font-semibold">{user?.email || "admin@apnacare.in"}</span> · South India Regional Command
+              Logged in as: <span className="font-mono text-foreground font-semibold">{user?.email || "admin@lifesakhi.in"}</span> · South India Regional Command
             </p>
           </div>
 

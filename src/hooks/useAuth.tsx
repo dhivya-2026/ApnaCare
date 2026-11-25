@@ -112,8 +112,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (demoRole === "admin" || demoRole === "super_admin") {
       demoUser = {
         id: "ADM-DEMO-001",
-        name: "ApnaCare Super Admin (Demo)",
-        email: "admin@apnacare.in",
+        name: "LifeSakhi Super Admin (Demo)",
+        email: "admin@lifesakhi.in",
         role: "admin",
         city: "Central Command",
         status: "active",
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       demoUser = {
         id: "ATT-BLR-001",
         name: "Lakshmi Priya (Demo Saha)",
-        email: "lakshmi.saha@apnacare.in",
+        email: "lakshmi.saha@lifesakhi.in",
         phone: "+91 98450 12345",
         role: "attendant",
         city: "Bengaluru",
@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       demoUser = {
         id: "USR-DEMO-001",
         name: "Priya Sharma (Demo User)",
-        email: "user.test@apnacare.in",
+        email: "user.test@lifesakhi.in",
         phone: "+91 98765 43210",
         role: "user",
         city: "Bengaluru",

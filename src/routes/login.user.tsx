@@ -29,14 +29,14 @@ function UserLoginPage() {
   // Check if directed from "Try Demo Account"
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.search.includes("demo=true")) {
-      setEmail("user.test@apnacare.in");
+      setEmail("user.test@lifesakhi.in");
       setPassword("UserPass@2026!");
       toast.info("Demo credentials pre-filled. Tap 'Sign In' to enter your dashboard.");
     }
   }, []);
 
   const handleFillDemo = () => {
-    setEmail("user.test@apnacare.in");
+    setEmail("user.test@lifesakhi.in");
     setPassword("UserPass@2026!");
     toast.info("Demo credentials auto-filled. Click 'Sign In' below to continue.");
   };
@@ -53,6 +53,7 @@ function UserLoginPage() {
 
     // If demo account or standard login
     if (
+      email === "user.test@lifesakhi.in" ||
       email === "user.test@apnacare.in" ||
       email.toLowerCase().includes("demo")
     ) {
@@ -113,7 +114,7 @@ function UserLoginPage() {
             <Input
               id="email"
               type="email"
-              placeholder="user.test@apnacare.in"
+              placeholder="user.test@lifesakhi.in"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

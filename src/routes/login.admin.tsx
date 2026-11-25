@@ -29,14 +29,14 @@ function AdminLoginPage() {
   // Check if directed from "Try Demo Account"
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.search.includes("demo=true")) {
-      setEmail("admin@apnacare.in");
+      setEmail("admin@lifesakhi.in");
       setPassword("ApnaAdmin@2026!");
       toast.info("Admin demo credentials pre-filled. Tap 'Sign In' to enter the console.");
     }
   }, []);
 
   const handleFillDemo = () => {
-    setEmail("admin@apnacare.in");
+    setEmail("admin@lifesakhi.in");
     setPassword("ApnaAdmin@2026!");
     toast.info("Admin demo credentials auto-filled. Click 'Sign In' below to continue.");
   };
@@ -48,6 +48,7 @@ function AdminLoginPage() {
 
     // If demo account or standard login
     if (
+      email === "admin@lifesakhi.in" ||
       email === "admin@apnacare.in" ||
       email.toLowerCase().includes("admin") ||
       email.toLowerCase().includes("demo")
@@ -109,7 +110,7 @@ function AdminLoginPage() {
             <Input
               id="email"
               type="email"
-              placeholder="admin@apnacare.in"
+              placeholder="admin@lifesakhi.in"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
