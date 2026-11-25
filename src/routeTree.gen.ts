@@ -37,6 +37,7 @@ import { Route as LoginIndexRouteImport } from './routes/login.index'
 import { Route as LoginAdminRouteImport } from './routes/login.admin'
 import { Route as LoginAttendantRouteImport } from './routes/login.attendant'
 import { Route as LoginUserRouteImport } from './routes/login.user'
+import { Route as OfferingsAssistedLivingTechnologyRouteImport } from './routes/offerings_.assisted-living-technology'
 import { Route as RegisterAttendantRouteImport } from './routes/register.attendant'
 import { Route as RegisterUserRouteImport } from './routes/register.user'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
@@ -183,6 +184,12 @@ const LoginUserRoute = LoginUserRouteImport.update({
   path: '/login/user',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OfferingsAssistedLivingTechnologyRoute =
+  OfferingsAssistedLivingTechnologyRouteImport.update({
+    id: '/offerings_/assisted-living-technology',
+    path: '/offerings/assisted-living-technology',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const RegisterAttendantRoute = RegisterAttendantRouteImport.update({
   id: '/register/attendant',
   path: '/register/attendant',
@@ -236,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/login/admin': typeof LoginAdminRoute
   '/login/attendant': typeof LoginAttendantRoute
   '/login/user': typeof LoginUserRoute
+  '/offerings/assisted-living-technology': typeof OfferingsAssistedLivingTechnologyRoute
   '/register/attendant': typeof RegisterAttendantRoute
   '/register/user': typeof RegisterUserRoute
   '/services/$slug': typeof ServicesSlugRoute
@@ -271,6 +279,7 @@ export interface FileRoutesByTo {
   '/login/admin': typeof LoginAdminRoute
   '/login/attendant': typeof LoginAttendantRoute
   '/login/user': typeof LoginUserRoute
+  '/offerings/assisted-living-technology': typeof OfferingsAssistedLivingTechnologyRoute
   '/register/attendant': typeof RegisterAttendantRoute
   '/register/user': typeof RegisterUserRoute
   '/services/$slug': typeof ServicesSlugRoute
@@ -307,6 +316,7 @@ export interface FileRoutesById {
   '/login/admin': typeof LoginAdminRoute
   '/login/attendant': typeof LoginAttendantRoute
   '/login/user': typeof LoginUserRoute
+  '/offerings_/assisted-living-technology': typeof OfferingsAssistedLivingTechnologyRoute
   '/register/attendant': typeof RegisterAttendantRoute
   '/register/user': typeof RegisterUserRoute
   '/services/$slug': typeof ServicesSlugRoute
@@ -344,6 +354,7 @@ export interface FileRouteTypes {
     | '/login/admin'
     | '/login/attendant'
     | '/login/user'
+    | '/offerings/assisted-living-technology'
     | '/register/attendant'
     | '/register/user'
     | '/services/$slug'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '/login/admin'
     | '/login/attendant'
     | '/login/user'
+    | '/offerings/assisted-living-technology'
     | '/register/attendant'
     | '/register/user'
     | '/services/$slug'
@@ -414,6 +426,7 @@ export interface FileRouteTypes {
     | '/login/admin'
     | '/login/attendant'
     | '/login/user'
+    | '/offerings_/assisted-living-technology'
     | '/register/attendant'
     | '/register/user'
     | '/services/$slug'
@@ -449,6 +462,7 @@ export interface RootRouteChildren {
   LoginAdminRoute: typeof LoginAdminRoute
   LoginAttendantRoute: typeof LoginAttendantRoute
   LoginUserRoute: typeof LoginUserRoute
+  OfferingsAssistedLivingTechnologyRoute: typeof OfferingsAssistedLivingTechnologyRoute
   RegisterAttendantRoute: typeof RegisterAttendantRoute
   RegisterUserRoute: typeof RegisterUserRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
@@ -656,6 +670,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginUserRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/offerings_/assisted-living-technology': {
+      id: '/offerings_/assisted-living-technology'
+      path: '/offerings/assisted-living-technology'
+      fullPath: '/offerings/assisted-living-technology'
+      preLoaderRoute: typeof OfferingsAssistedLivingTechnologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register/attendant': {
       id: '/register/attendant'
       path: '/register/attendant'
@@ -731,6 +752,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginAdminRoute: LoginAdminRoute,
   LoginAttendantRoute: LoginAttendantRoute,
   LoginUserRoute: LoginUserRoute,
+  OfferingsAssistedLivingTechnologyRoute:
+    OfferingsAssistedLivingTechnologyRoute,
   RegisterAttendantRoute: RegisterAttendantRoute,
   RegisterUserRoute: RegisterUserRoute,
   ServicesSlugRoute: ServicesSlugRoute,

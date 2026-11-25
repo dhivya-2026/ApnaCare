@@ -7,6 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CITIES, SERVICES, SITE, formatINR } from "@/data/site";
+import { checkCityServiceAvailability } from "@/data/cityAvailability";
+import {
+  SUPPORT_SERVICES,
+  getSupportService,
+  resolveFieldOptions,
+  type BookingFieldDef,
+} from "@/data/supportServices";
 import { PageHero } from "@/components/site/Cards";
 import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
 import { PredictableNextSteps } from "@/components/site/PredictableNextSteps";
@@ -62,6 +69,38 @@ const stepSchemas = [
 
 const STORAGE_KEY = "apnacare_booking_draft_v1";
 
+interface BookableServiceOption {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  shortDesc: string;
+  rating: number;
+  startingPrice: number;
+  pricingUnit: "day" | "trip" | "hour";
+}
+
+const BOOKABLE_SERVICES: BookableServiceOption[] = [
+  ...SERVICES,
+  ...SUPPORT_SERVICES.filter((s) => !s.existedBefore).map((s) => ({
+    id: s.id,
+    slug: s.routeSlug,
+    name: s.name,
+    category: s.division === "travel-mobility" ? "travel" : s.division === "assisted-living-technology" ? "technology" : "home",
+    shortDesc: s.shortDesc,
+    rating: 4.9,
+    startingPrice: s.careType === "technology" ? 0 : 899,
+    pricingUnit: (s.careType === "travel" ? "trip" : "day") as "day" | "trip",
+  })),
+];
+
+function normalizeServiceParam(raw?: string): string {
+  if (!raw) return "";
+  const support = getSupportService(raw);
+  if (support && support.path.startsWith("/services/")) return support.canonicalSlug;
+  return raw;
+}
+
 function BookingPage() {
   const search = Route.useSearch();
   const [step, setStep] = useState(0);
@@ -75,7 +114,8 @@ function BookingPage() {
       name: savedCust?.name || "",
       mobile: savedCust?.phone || "",
       email: savedCust?.email || "",
-      serviceId: search.service ?? "",
+      emergencyContact: savedCust?.emergencyPhone || "",
+      serviceId: normalizeServiceParam(search.service),
       city: search.city || savedCust?.city || "",
       location: savedCust?.fullAddress || "",
       date: "",
@@ -83,6 +123,7 @@ function BookingPage() {
       duration: search.duration || "1",
       preferredLanguage: "Tamil",
       notes: timingNote,
+      serviceDetails: {} as Record<string, string | string[]>,
     };
     if (typeof window !== "undefined") {
       try {
@@ -92,10 +133,11 @@ function BookingPage() {
           return {
             ...initial,
             ...parsed,
-            serviceId: search.service || parsed.serviceId || "",
+            serviceId: normalizeServiceParam(search.service) || normalizeServiceParam(parsed.serviceId) || "",
             city: search.city || parsed.city || "",
             duration: search.duration || parsed.duration || "1",
             time: search.time || parsed.time || "08:00",
+            serviceDetails: parsed.serviceDetails || {},
             notes: timingNote ? `${timingNote}${parsed.notes ? `\n\n${parsed.notes}` : ""}` : (parsed.notes || ""),
           };
         }
@@ -191,7 +233,12 @@ function BookingPage() {
     }
   }, [f.serviceId]);
 
-  const svc = SERVICES.find((s) => s.slug === f.serviceId);
+  const svc = BOOKABLE_SERVICES.find((s) => s.slug === f.serviceId);
+  const supportSvc = useMemo(() => getSupportService(f.serviceId), [f.serviceId]);
+  const cityAvailability = useMemo(
+    () => (f.city && f.serviceId ? checkCityServiceAvailability(f.city.toLowerCase(), f.serviceId) : null),
+    [f.city, f.serviceId]
+  );
   const totals = useMemo(
     () => calcBookingTotal(svc?.startingPrice ?? 0, Number(f.duration) || 1, findPromo(promo)?.discount ?? 0),
     [svc, f.duration, promo]
@@ -200,6 +247,13 @@ function BookingPage() {
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => {
     setF({ ...f, [k]: e.target.value });
     if (submitError) setSubmitError(null);
+  };
+
+  const setDetail = (fieldName: string, value: string | string[]) => {
+    setF((prev: typeof f) => ({
+      ...prev,
+      serviceDetails: { ...(prev.serviceDetails || {}), [fieldName]: value },
+    }));
   };
 
   const next = () => {
@@ -214,6 +268,23 @@ function BookingPage() {
         error_count: Object.keys(errs).length,
       });
       return;
+    }
+    if (step === 2 && cityAvailability && !cityAvailability.canBookDirectly && !cityAvailability.requiresAssessment) {
+      setErrors({ city: cityAvailability.message });
+      return;
+    }
+    if (step === 4 && supportSvc) {
+      const missing: Record<string, string> = {};
+      for (const fld of supportSvc.fields) {
+        if (!fld.required) continue;
+        const val = f.serviceDetails?.[fld.name];
+        const empty = Array.isArray(val) ? val.length === 0 : !String(val || "").trim();
+        if (empty) missing[`detail_${fld.name}`] = `Please provide ${fld.label.toLowerCase()}`;
+      }
+      if (Object.keys(missing).length > 0) {
+        setErrors(missing);
+        return;
+      }
     }
     setErrors({});
     track("booking_step_completed", {
@@ -247,7 +318,48 @@ function BookingPage() {
       email: f.email,
       city: f.city,
       fullAddress: f.location,
+      emergencyPhone: f.emergencyContact,
     });
+
+    const detailsObj = f.serviceDetails || {};
+    const pickupLoc =
+      String(detailsObj.pickup_location || detailsObj.start_location || detailsObj.from_city || detailsObj.airport || detailsObj.station || f.location || "");
+    const dropLoc =
+      String(detailsObj.destination || detailsObj.drop_destination || detailsObj.to_city || detailsObj.pickup_or_destination || "");
+
+    const formattedDetails = Object.entries(detailsObj)
+      .filter(([, v]) => (Array.isArray(v) ? v.length > 0 : Boolean(v)))
+      .map(([k, v]) => `${k.replace(/_/g, " ")}: ${Array.isArray(v) ? v.join(", ") : v}`)
+      .join(" | ");
+
+    // Also persist to operational dashboard backend if user session exists
+    try {
+      await fetch("/api/user/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: f.name,
+          customer_phone: f.mobile,
+          service_category: supportSvc?.bookingCategory || svc?.name || f.serviceId,
+          service_type: svc?.name || f.serviceId,
+          division: supportSvc?.division || "home-care",
+          travel_type: supportSvc?.travelType,
+          pickup_location: pickupLoc,
+          drop_location: dropLoc,
+          emergency_contact: f.emergencyContact,
+          service_details: detailsObj,
+          patient_details: String(detailsObj.recipient_name || detailsObj.passenger_name || detailsObj.mother_name || "Family member"),
+          city: f.city,
+          service_location: f.location,
+          start_date: f.date,
+          start_time: f.time,
+          duration: `${f.duration} ${svc?.pricingUnit === "trip" ? "Trip(s)" : "Day(s)"}`,
+          special_requirements: [formattedDetails, f.notes].filter(Boolean).join("\n"),
+        }),
+      });
+    } catch {
+      // Guest user or offline fallback — lead pipeline still delivers
+    }
 
     const result = await submitLeadWithReliability({
       event_type: "booking",
@@ -261,15 +373,22 @@ function BookingPage() {
       mobile: f.mobile,
       phone: f.mobile,
       email: f.email,
+      emergency_contact: f.emergencyContact || "",
       service_id: f.serviceId,
       service_name: svc?.name || f.serviceId,
+      service_category: supportSvc?.bookingCategory || svc?.category || "",
+      division: supportSvc?.division || "",
+      travel_type: supportSvc?.travelType || "",
+      pickup_location: pickupLoc,
+      drop_location: dropLoc,
+      service_details: formattedDetails,
       city: f.city,
       location_address: f.location,
       start_date: f.date,
       start_time: f.time,
       duration_days: f.duration,
       preferred_language: f.preferredLanguage,
-      special_notes: f.notes,
+      special_notes: [formattedDetails, f.notes].filter(Boolean).join("\n"),
       promo_code: promo || "",
       base_price: totals.base,
       discount: totals.discount,
@@ -526,10 +645,11 @@ function BookingPage() {
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {[
                     { id: "all", label: "All Disciplines" },
-                    { id: "care-at-home", label: "Care at Home", slugs: ["elderly-care", "post-natal-care", "home-personal-care", "nursing-services"] },
+                    { id: "care-at-home", label: "Home Care & Nursing", slugs: ["elderly-care", "post-natal-care", "home-personal-care", "nursing-services"] },
                     { id: "hospital-assistance", label: "Hospital Assistance", slugs: ["hospital-attendants", "nursing-services"] },
-                    { id: "travel-assistance", label: "Travel Assistance", slugs: ["travel-assistance", "airport-pickup", "railway-assistance"] },
-                    { id: "womens-mobility", label: "Women's Mobility", slugs: ["women-drivers", "security-support", "travel-assistance"] },
+                    { id: "travel-assistance", label: "Travel & Mobility", slugs: ["pickup", "drop", "railway-assistance", "airport-pickup", "short-distance-companion", "travel-assistance"] },
+                    { id: "womens-mobility", label: "Women's Mobility", slugs: ["women-drivers", "security-support", "short-distance-companion", "travel-assistance"] },
+                    { id: "technology", label: "Assisted Living Tech", slugs: ["assisted-living-technology"] },
                     { id: "family-support", label: "Family Support", slugs: ["home-personal-care", "lifestyle-support", "elderly-care"] },
                     { id: "business-institutional", label: "Business & Institutional (B2B)", slugs: [] },
                   ].map((c) => {
@@ -578,12 +698,13 @@ function BookingPage() {
                   </div>
                 ) : (
                   <div className="grid gap-3 sm:grid-cols-2 max-h-[480px] overflow-y-auto pr-1">
-                    {SERVICES.filter((s) => {
+                    {BOOKABLE_SERVICES.filter((s) => {
                       if (bookingCat === "all") return true;
                       if (bookingCat === "care-at-home") return ["elderly-care", "post-natal-care", "home-personal-care", "nursing-services"].includes(s.slug);
                       if (bookingCat === "hospital-assistance") return ["hospital-attendants", "nursing-services"].includes(s.slug);
-                      if (bookingCat === "travel-assistance") return ["travel-assistance", "airport-pickup", "railway-assistance"].includes(s.slug);
-                      if (bookingCat === "womens-mobility") return ["women-drivers", "security-support", "travel-assistance"].includes(s.slug);
+                      if (bookingCat === "travel-assistance") return ["pickup", "drop", "railway-assistance", "airport-pickup", "short-distance-companion", "travel-assistance"].includes(s.slug);
+                      if (bookingCat === "womens-mobility") return ["women-drivers", "security-support", "short-distance-companion", "travel-assistance"].includes(s.slug);
+                      if (bookingCat === "technology") return s.slug === "assisted-living-technology";
                       if (bookingCat === "family-support") return ["home-personal-care", "lifestyle-support", "elderly-care"].includes(s.slug);
                       return true;
                     }).map((s) => (
@@ -606,7 +727,14 @@ function BookingPage() {
                         <p className="mt-1 text-base font-semibold">{s.name}</p>
                         <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.shortDesc}</p>
                         <p className="mt-3 font-display text-sm font-bold text-primary">
-                          {formatINR(s.startingPrice)}<span className="font-normal text-xs text-muted-foreground">/{s.pricingUnit}</span>
+                          {s.startingPrice > 0 ? (
+                            <>
+                              {formatINR(s.startingPrice)}
+                              <span className="font-normal text-xs text-muted-foreground">/{s.pricingUnit}</span>
+                            </>
+                          ) : (
+                            <span className="text-xs">Demo / Assessment Request</span>
+                          )}
                         </p>
                       </button>
                     ))}
@@ -695,6 +823,31 @@ function BookingPage() {
                   />
                   <Err k="location" />
                 </div>
+
+                {/* Service-Level City Availability Confirmation */}
+                {cityAvailability && (
+                  <div
+                    className={cn(
+                      "rounded-2xl border p-4 text-xs space-y-1.5",
+                      cityAvailability.canBookDirectly
+                        ? "border-emerald-500/30 bg-emerald-500/10 text-foreground"
+                        : cityAvailability.requiresAssessment
+                        ? "border-amber-500/30 bg-amber-500/10 text-foreground"
+                        : "border-destructive/40 bg-destructive/10 text-destructive"
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold uppercase tracking-wider">
+                        Availability in {cityAvailability.cityName}: {cityAvailability.readiness}
+                      </span>
+                      {cityAvailability.backupSLA && (
+                        <span className="font-semibold text-primary">{cityAvailability.backupSLA}</span>
+                      )}
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">{cityAvailability.message}</p>
+                  </div>
+                )}
+
                 <div className="grid h-40 place-items-center rounded-2xl border border-dashed border-border bg-secondary/50 p-6 text-center text-sm text-muted-foreground">
                   <div>
                     <MapPin className="mx-auto mb-2 size-6 text-primary" />
@@ -786,35 +939,127 @@ function BookingPage() {
               </div>
             )}
 
-            {/* Step 4: Requirements */}
+            {/* Step 4: Requirements & Service-Specific Fields */}
             {step === 4 && (
-              <div className="space-y-4 animate-fade-in">
-                <h3 className="text-xl font-semibold">5. Specific Care Preferences</h3>
-                <div>
-                  <Label htmlFor="lang">Preferred Language of Communication</Label>
-                  <select
-                    id="lang"
-                    value={f.preferredLanguage}
-                    onChange={set("preferredLanguage")}
-                    className="mt-1.5 h-12 w-full rounded-xl border border-input bg-card px-3 text-sm focus:border-primary outline-none"
-                  >
-                    <option value="Tamil">Tamil</option>
-                    <option value="Kannada">Kannada</option>
-                    <option value="Telugu">Telugu</option>
-                    <option value="Hindi">Hindi</option>
-                    <option value="English">English</option>
-                    <option value="Malayalam">Malayalam</option>
-                  </select>
+              <div className="space-y-5 animate-fade-in">
+                <h3 className="text-xl font-semibold">5. {supportSvc ? `${supportSvc.name} Details` : "Specific Care Preferences"}</h3>
+
+                {supportSvc && supportSvc.fields.length > 0 && (
+                  <div className="grid gap-4 sm:grid-cols-2 rounded-2xl border border-border bg-secondary/25 p-4">
+                    {supportSvc.fields.map((fld: BookingFieldDef) => {
+                      const opts = resolveFieldOptions(fld, f.city || "Bengaluru");
+                      const val = f.serviceDetails?.[fld.name];
+                      const errKey = `detail_${fld.name}`;
+                      if (fld.type === "multiselect") {
+                        const selected = Array.isArray(val) ? val : [];
+                        return (
+                          <div key={fld.name} className="sm:col-span-2 space-y-2">
+                            <Label>{fld.label}{fld.required ? " *" : ""}</Label>
+                            <div className="flex flex-wrap gap-2">
+                              {opts.map((opt) => {
+                                const active = selected.includes(opt);
+                                return (
+                                  <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() =>
+                                      setDetail(
+                                        fld.name,
+                                        active ? selected.filter((x) => x !== opt) : [...selected, opt]
+                                      )
+                                    }
+                                    className={cn(
+                                      "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                                      active
+                                        ? "bg-primary text-primary-foreground border-primary"
+                                        : "bg-card text-foreground border-border hover:border-primary/60"
+                                    )}
+                                  >
+                                    {opt}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            <Err k={errKey} />
+                          </div>
+                        );
+                      }
+                      if (fld.type === "select") {
+                        return (
+                          <div key={fld.name}>
+                            <Label htmlFor={errKey}>{fld.label}{fld.required ? " *" : ""}</Label>
+                            <select
+                              id={errKey}
+                              value={String(val || "")}
+                              onChange={(e) => setDetail(fld.name, e.target.value)}
+                              className="mt-1.5 h-11 w-full rounded-xl border border-input bg-card px-3 text-sm focus:border-primary outline-none"
+                            >
+                              <option value="">Select {fld.label.toLowerCase()}</option>
+                              {opts.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {fld.helper && <p className="mt-1 text-[11px] text-muted-foreground">{fld.helper}</p>}
+                            <Err k={errKey} />
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={fld.name}>
+                          <Label htmlFor={errKey}>{fld.label}{fld.required ? " *" : ""}</Label>
+                          <Input
+                            id={errKey}
+                            type={fld.type === "number" ? "number" : fld.type === "date" ? "date" : fld.type === "tel" ? "tel" : "text"}
+                            value={String(val || "")}
+                            onChange={(e) => setDetail(fld.name, e.target.value)}
+                            placeholder={fld.placeholder}
+                            className="mt-1.5 h-11 rounded-xl"
+                          />
+                          <Err k={errKey} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="lang">Preferred Language of Communication</Label>
+                    <select
+                      id="lang"
+                      value={f.preferredLanguage}
+                      onChange={set("preferredLanguage")}
+                      className="mt-1.5 h-12 w-full rounded-xl border border-input bg-card px-3 text-sm focus:border-primary outline-none"
+                    >
+                      <option value="Tamil">Tamil</option>
+                      <option value="Kannada">Kannada</option>
+                      <option value="Telugu">Telugu</option>
+                      <option value="Hindi">Hindi</option>
+                      <option value="English">English</option>
+                      <option value="Malayalam">Malayalam</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="emergencyContact">Emergency Contact Number</Label>
+                    <Input
+                      id="emergencyContact"
+                      type="tel"
+                      value={f.emergencyContact}
+                      onChange={set("emergencyContact")}
+                      className="mt-1.5 h-12 rounded-xl"
+                      placeholder="+91 98XXX XXXXX"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Label htmlFor="notes">Care Instructions & Mobility Details</Label>
+                  <Label htmlFor="notes">Additional Instructions & Mobility Details</Label>
                   <Textarea
                     id="notes"
-                    rows={5}
+                    rows={4}
                     value={f.notes}
                     onChange={set("notes")}
                     className="mt-1.5 rounded-xl text-sm"
-                    placeholder="Details about patient mobility, specific dietary schedules, wheelchair handling, or flight/train number for airport meet-and-greets. (Please avoid sensitive financial notes)."
+                    placeholder="Any additional medical, mobility, luggage or handover notes."
                   />
                   <Err k="notes" />
                 </div>

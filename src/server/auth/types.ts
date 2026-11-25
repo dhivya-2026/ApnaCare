@@ -6,6 +6,8 @@ export type VerificationStatus = "pending" | "verified" | "rejected";
 
 export type BookingStatus =
   | "requested"
+  | "under_review"
+  | "availability_checking"
   | "confirmed"
   | "assigned"
   | "in_progress"
@@ -134,6 +136,15 @@ export interface BookingRecord {
   end_time: string;
   duration: string;
   special_requirements?: string;
+  division?: "home-care" | "travel-mobility" | "assisted-living-technology";
+  travel_type?: string;
+  pickup_location?: string;
+  drop_location?: string;
+  emergency_contact?: string;
+  payment_status?: "pending" | "paid" | "invoiced" | "refunded";
+  service_details?: Record<string, string | string[]>;
+  handover_confirmed_to?: string;
+  completion_report?: string;
   booking_status: BookingStatus;
   assigned_attendant_id?: string;
   assigned_attendant_name?: string;

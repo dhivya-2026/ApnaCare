@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import {
   BadgeCheck,
@@ -29,6 +29,8 @@ import { Button } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
 import { CareRecoveryStory } from "@/components/site/CareRecoveryStory";
+import { SupportServiceDetail } from "@/components/site/SupportServiceDetail";
+import { getAliasRedirect, getNewSupportServicePage } from "@/data/supportServices";
 
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -87,18 +89,43 @@ const SERVICE_STORY_IMAGES: Record<string, { img: string; alt: string }> = {
 
 export const Route = createFileRoute("/services/$slug")({
   loader: ({ params }) => {
+    const canonicalAlias = getAliasRedirect(params.slug);
+    if (canonicalAlias) {
+      throw redirect({ to: "/services/$slug", params: { slug: canonicalAlias } });
+    }
+    const newSupportService = getNewSupportServicePage(params.slug);
+    if (newSupportService) {
+      return { newSupportService, s: null, enterprise: undefined, canonicalPricing: undefined, canonicalService: undefined };
+    }
     const s = getService(params.slug);
     if (!s) throw notFound();
     const enterprise = ENTERPRISE_SERVICES[params.slug];
     const canonicalPricing = getCanonicalPricing(params.slug);
     const canonicalService = getCanonicalServiceBySlug(params.slug);
-    return { s, enterprise, canonicalPricing, canonicalService };
+    return { newSupportService: undefined, s, enterprise, canonicalPricing, canonicalService };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
       return seo("Service Not Found — LifeSakhi", "The requested service could not be found.", { noindex: true });
     }
+    if (loaderData.newSupportService) {
+      const ns = loaderData.newSupportService;
+      return seo(ns.seo.title, ns.seo.description, {
+        canonical: `https://apna-care.vercel.app${ns.path}`,
+        keywords: ns.seo.keywords,
+        schema: [
+          buildBreadcrumbSchema([
+            { name: "Home", item: "https://apna-care.vercel.app" },
+            { name: "Services", item: "https://apna-care.vercel.app/services" },
+            { name: ns.name, item: `https://apna-care.vercel.app${ns.path}` },
+          ]),
+        ],
+      });
+    }
     const { s, enterprise } = loaderData;
+    if (!s) {
+      return seo("Service Not Found — LifeSakhi", "The requested service could not be found.", { noindex: true });
+    }
     const title = enterprise?.seo.title ?? `${s.name} — Verified Women Attendants | LifeSakhi`;
     const description = enterprise?.seo.description ?? s.description;
     const primaryKeyword = enterprise?.seo.primaryKeyword ?? s.name;
@@ -140,7 +167,11 @@ const SERVICE_CTA_LABELS: Record<string, string> = {
 };
 
 function Detail() {
-  const { s, enterprise, canonicalPricing, canonicalService } = Route.useLoaderData();
+  const { newSupportService, s, enterprise, canonicalPricing, canonicalService } = Route.useLoaderData();
+  if (newSupportService) {
+    return <SupportServiceDetail service={newSupportService} />;
+  }
+  if (!s) return null;
   const waUrl = buildWhatsAppUrl(`Hello LifeSakhi! I would like to inquire about ${s.name} for my family.`);
   const ctaLabel = SERVICE_CTA_LABELS[s.slug] ?? `Enquire About ${s.name}`;
 

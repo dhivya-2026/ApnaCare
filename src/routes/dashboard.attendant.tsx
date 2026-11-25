@@ -665,6 +665,19 @@ function AttendantDashboardContent() {
                         <p className="text-muted-foreground">
                           Location: <strong className="text-foreground">{booking.service_location || "12th Main, HAL 2nd Stage, Indiranagar"}</strong>
                         </p>
+                        {(booking.pickup_location || booking.drop_location || booking.travel_type) && (
+                          <p className="text-muted-foreground">
+                            Travel ({booking.travel_type || "Assisted"}):{" "}
+                            <strong className="text-foreground">
+                              {booking.pickup_location || "Start"} → {booking.drop_location || "Destination"}
+                            </strong>
+                          </p>
+                        )}
+                        {booking.special_requirements && (
+                          <p className="text-muted-foreground">
+                            Instructions: <span className="text-foreground">{booking.special_requirements}</span>
+                          </p>
+                        )}
                         <p className="text-muted-foreground">
                           Timing: {booking.start_time || "08:00 AM"} to {booking.end_time || "08:00 PM"} · Daily Payout: <strong className="text-foreground">₹{assignment.daily_payout_inr || 1200}</strong>
                         </p>

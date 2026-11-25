@@ -155,7 +155,7 @@ function UserDashboardContent() {
         const data = await res.json();
         if (data.members) setFamilyMembers(data.members);
       }
-    } catch {}
+    } catch { }
   };
 
   const fetchBookings = async () => {
@@ -264,7 +264,7 @@ function UserDashboardContent() {
           if (data.user.address) setAddress(data.user.address);
         }
       }
-    } catch {}
+    } catch { }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -387,54 +387,48 @@ function UserDashboardContent() {
         <div className="flex items-center gap-2 border-b border-border pb-1 overflow-x-auto scrollbar-none text-xs font-semibold">
           <button
             onClick={() => setActiveTab("care")}
-            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === "care" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
-            }`}
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${activeTab === "care" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
+              }`}
           >
             <Activity className="size-3.5" />
             Active Care Engagement
           </button>
           <button
             onClick={() => setActiveTab("family")}
-            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === "family" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
-            }`}
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${activeTab === "family" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
+              }`}
           >
             <Users className="size-3.5" />
             Family Members ({familyMembers.length})
           </button>
           <button
             onClick={() => setActiveTab("services")}
-            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === "services" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
-            }`}
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${activeTab === "services" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
+              }`}
           >
             <Sparkles className="size-3.5 text-terracotta" />
             Find Care / Services
           </button>
           <button
             onClick={() => setActiveTab("bookings")}
-            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === "bookings" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
-            }`}
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${activeTab === "bookings" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
+              }`}
           >
             <Calendar className="size-3.5" />
             My Bookings ({bookings.length})
           </button>
           <button
             onClick={() => setActiveTab("vitals")}
-            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === "vitals" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
-            }`}
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${activeTab === "vitals" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
+              }`}
           >
             <Stethoscope className="size-3.5" />
             Daily Care &amp; Vitals
           </button>
           <button
             onClick={() => setActiveTab("profile")}
-            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === "profile" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
-            }`}
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${activeTab === "profile" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
+              }`}
           >
             <Edit3 className="size-3.5" />
             Profile &amp; Address
@@ -830,6 +824,41 @@ function UserDashboardContent() {
                 </div>
               ))}
             </div>
+
+            {/* Travel & Mobility + Assisted Living Technology Quick Links */}
+            <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 className="font-semibold text-base text-foreground">Travel, Mobility &amp; Assisted Living Technology</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Book pickup/drop, airport &amp; railway station assistance, travel companions, or explore assisted living technology.
+                  </p>
+                </div>
+                <Button asChild size="sm" variant="outline" className="rounded-full text-xs">
+                  <Link to="/offerings/assisted-living-technology">Explore Assisted Living Tech</Link>
+                </Button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {[
+                  { label: "Pickup Assistance", slug: "pickup", desc: "Doorstep or hospital pickup with companion" },
+                  { label: "Drop Assistance", slug: "drop", desc: "Accompanied drop with handover confirmation" },
+                  { label: "Railway Station Assistance", slug: "railway-assistance", desc: "Platform coordination & luggage help" },
+                  { label: "Airport Assistance", slug: "airport-pickup", desc: "Meet & greet, terminal & transfer help" },
+                  { label: "Short-Distance Companion", slug: "short-distance-companion", desc: "Doctor visits, banking & local errands" },
+                  { label: "Long-Distance Companion", slug: "travel-assistance", desc: "Intercity journey escort & updates" },
+                ].map((item) => (
+                  <Link
+                    key={item.slug}
+                    to="/booking"
+                    search={{ service: item.slug }}
+                    className="rounded-xl border border-border bg-secondary/30 p-3.5 hover:border-primary/60 transition-colors block"
+                  >
+                    <p className="font-semibold text-xs text-foreground">{item.label}</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">{item.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -856,25 +885,22 @@ function UserDashboardContent() {
             <div className="flex items-center gap-2 border-b border-border pb-3 text-xs">
               <button
                 onClick={() => setBookingFilter("all")}
-                className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
-                  bookingFilter === "all" ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${bookingFilter === "all" ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 All Bookings ({bookings.length})
               </button>
               <button
                 onClick={() => setBookingFilter("active")}
-                className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
-                  bookingFilter === "active" ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${bookingFilter === "active" ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Active In-Progress ({activeBookings.length})
               </button>
               <button
                 onClick={() => setBookingFilter("completed")}
-                className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${
-                  bookingFilter === "completed" ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-3 py-1.5 rounded-lg transition-colors font-semibold ${bookingFilter === "completed" ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Previous Completed Services ({completedBookings.length})
               </button>
@@ -910,11 +936,10 @@ function UserDashboardContent() {
                           <div className="flex items-center gap-2">
                             <span className="text-base font-semibold text-foreground">{b.service_category}</span>
                             <span
-                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                                isCompleted
-                                  ? "bg-secondary text-foreground"
-                                  : "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300"
-                              }`}
+                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${isCompleted
+                                ? "bg-secondary text-foreground"
+                                : "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300"
+                                }`}
                             >
                               {isCompleted ? "COMPLETED SERVICE" : "ACTIVE ON-DUTY"}
                             </span>

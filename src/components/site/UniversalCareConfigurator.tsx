@@ -66,6 +66,7 @@ import { submitLeadWithReliability } from "@/lib/analytics";
 import { getSavedCustomer, saveCustomer, saveCarePlan } from "@/lib/unifiedBookingEngine";
 import { formatINR, buildWhatsAppUrl, CITIES } from "@/data/site";
 import { track } from "@/lib/analytics";
+import { SupportNeedsSelector } from "@/components/site/SupportNeedsSelector";
 
 const STORAGE_KEY = "apnacare_custom_care_plan_draft_v2";
 
@@ -646,7 +647,12 @@ export function UniversalCareConfigurator() {
           <p className="mt-3 text-sm md:text-base text-muted-foreground leading-relaxed">
             No rigid packages or guesswork. Tell us who needs care, choose the exact daily assistance required, and let LifeSakhi organise verified Saha companions and healthcare professionals around you.
           </p>
+        </div>
 
+        {/* Phase 4: Multi-Division Quick Support Plan Selector */}
+        <SupportNeedsSelector />
+
+        <div className="text-center max-w-3xl mx-auto mb-6">
           {/* Interactive Stepper Indicator */}
           <div className="mt-8 flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
             {STEPS_NAV.map((s) => {

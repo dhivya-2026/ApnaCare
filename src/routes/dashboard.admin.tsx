@@ -226,6 +226,10 @@ function AdminDashboardContent() {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState("all");
+  const [opsView, setOpsView] = useState<string>("all");
+  const [bookingStatusFilter, setBookingStatusFilter] = useState<string>("all");
+  const [assignmentFilter, setAssignmentFilter] = useState<string>("all");
+  const [bookingDateFilter, setBookingDateFilter] = useState<string>("");
   const [generatingReport, setGeneratingReport] = useState<string | null>(null);
   const [previewReport, setPreviewReport] = useState<any | null>(null);
 
@@ -472,12 +476,29 @@ function AdminDashboardContent() {
 
   const filteredBookings = bookingsList.filter((b) => {
     const matchesCity = selectedCity === "all" || b.city?.toLowerCase() === selectedCity.toLowerCase();
+    const matchesStatus = bookingStatusFilter === "all" || b.booking_status === bookingStatusFilter;
+    const matchesAssigned =
+      assignmentFilter === "all" ||
+      (assignmentFilter === "assigned" ? Boolean(b.assigned_attendant_id) : !b.assigned_attendant_id);
+    const matchesDate = !bookingDateFilter || b.start_date === bookingDateFilter;
+    const cat = (b.service_category || "").toLowerCase();
+    const ttype = (b.travel_type || "").toLowerCase();
+    const matchesOpsView =
+      opsView === "all" ||
+      (opsView === "home-care" && (cat.includes("elderly") || cat.includes("home") || cat.includes("respite"))) ||
+      (opsView === "nursing" && cat.includes("nursing")) ||
+      (opsView === "maternal" && (cat.includes("natal") || cat.includes("mom") || cat.includes("newborn"))) ||
+      (opsView === "airport" && (cat.includes("airport") || ttype === "airport")) ||
+      (opsView === "railway" && (cat.includes("railway") || ttype === "railway")) ||
+      (opsView === "short-distance" && (cat.includes("short") || ttype === "short-distance")) ||
+      (opsView === "long-distance" && (cat.includes("long") || cat.includes("travel") || ttype === "long-distance")) ||
+      (opsView === "technology" && (cat.includes("tech") || b.division === "assisted-living-technology"));
     const matchesQuery =
       !searchQuery ||
       b.booking_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       b.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       b.service_category?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCity && matchesQuery;
+    return matchesCity && matchesStatus && matchesAssigned && matchesDate && matchesOpsView && matchesQuery;
   });
 
   const eligibleAttendants = attendantsList.filter(
@@ -1381,8 +1402,97 @@ function AdminDashboardContent() {
 
         {/* TAB 5: BOOKINGS MANAGEMENT */}
         {activeTab === "bookings" && (
-          <div className="card-soft p-6 border-border space-y-4 bg-card">
-            <h2 className="text-lg font-display font-semibold text-foreground">Care Service Bookings Dispatch</h2>
+          <div className="card-soft p-6 border-border space-y-5 bg-card">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-display font-semibold text-foreground">Care Service Bookings Dispatch</h2>
+                <p className="text-xs text-muted-foreground">
+                  Operational views across Home Care, Nursing, Maternal, Travel &amp; Assisted Living Technology.
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-primary">
+                Showing {filteredBookings.length} of {bookingsList.length} bookings
+              </span>
+            </div>
+
+            {/* Operational View Presets */}
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { id: "all", label: "All Divisions" },
+                { id: "home-care", label: "Home Care Staffing" },
+                { id: "nursing", label: "Nursing Allocation" },
+                { id: "maternal", label: "Mother & Newborn" },
+                { id: "airport", label: "Airport Pickup / Drop" },
+                { id: "railway", label: "Railway Assistance" },
+                { id: "short-distance", label: "Short-Distance Journeys" },
+                { id: "long-distance", label: "Long-Distance Journeys" },
+                { id: "technology", label: "Technology Enquiries" },
+              ].map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setOpsView(v.id)}
+                  className={`rounded-full px-3 py-1 text-[11px] font-semibold border transition-colors ${
+                    opsView === v.id
+                      ? "bg-amber-600 text-white border-amber-600"
+                      : "bg-secondary/40 text-foreground border-border hover:border-amber-500/50"
+                  }`}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Multi-Attribute Filters */}
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+              <select
+                aria-label="Filter bookings by city"
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                className="h-9 rounded-xl border border-input bg-background px-3"
+              >
+                <option value="all">All Cities</option>
+                <option value="bengaluru">Bengaluru</option>
+                <option value="chennai">Chennai</option>
+                <option value="hyderabad">Hyderabad</option>
+                <option value="coimbatore">Coimbatore</option>
+              </select>
+
+              <select
+                aria-label="Filter bookings by status"
+                value={bookingStatusFilter}
+                onChange={(e) => setBookingStatusFilter(e.target.value)}
+                className="h-9 rounded-xl border border-input bg-background px-3"
+              >
+                <option value="all">All Statuses</option>
+                <option value="requested">New Request</option>
+                <option value="under_review">Under Review</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="assigned">Staff Assigned</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+
+              <select
+                aria-label="Filter bookings by staff assignment"
+                value={assignmentFilter}
+                onChange={(e) => setAssignmentFilter(e.target.value)}
+                className="h-9 rounded-xl border border-input bg-background px-3"
+              >
+                <option value="all">All Assignments</option>
+                <option value="unassigned">Unassigned Only</option>
+                <option value="assigned">Assigned Only</option>
+              </select>
+
+              <Input
+                type="date"
+                aria-label="Filter bookings by date"
+                value={bookingDateFilter}
+                onChange={(e) => setBookingDateFilter(e.target.value)}
+                className="h-9 rounded-xl text-xs"
+              />
+            </div>
             {filteredBookings.length === 0 ? (
               <p className="text-xs text-muted-foreground py-8 text-center">No bookings found.</p>
             ) : (
@@ -1449,6 +1559,12 @@ function AdminDashboardContent() {
                     <p className="text-muted-foreground">
                       Booking: {b.booking_id} · Client: {b.customer_name} ({b.customer_phone}) · City: {b.city} ({b.service_location})
                     </p>
+                    {(b.pickup_location || b.drop_location || b.travel_type) && (
+                      <p className="text-muted-foreground">
+                        Travel ({b.travel_type || "Assisted"}): {b.pickup_location || "—"} → {b.drop_location || "—"}
+                        {b.emergency_contact ? ` · Emergency: ${b.emergency_contact}` : ""}
+                      </p>
+                    )}
                     <p className="text-muted-foreground">
                       Schedule: {b.start_date} ({b.start_time} - {b.end_time}) · Duration: {b.duration}
                     </p>

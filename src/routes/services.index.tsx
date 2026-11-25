@@ -30,6 +30,7 @@ import {
 import { CatalogueDetailModal } from "@/components/site/CatalogueDetailModal";
 import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
 import { CustomerHelpSection } from "@/components/site/CustomerHelpSection";
+import { SupportDivisionsSection } from "@/components/site/SupportDivisionsSection";
 import { formatINR, SITE } from "@/data/site";
 import { track } from "@/lib/analytics";
 import { seo } from "@/lib/seo";
@@ -135,6 +136,9 @@ function ServicesPage() {
           </Button>
         </div>
       </PageHero>
+
+      {/* ── 0. Three Support Divisions Discovery ── */}
+      <SupportDivisionsSection />
 
       {/* ── 1. Customer-Focused Entry Points ("How Can We Help You?") ── */}
       <CustomerHelpSection

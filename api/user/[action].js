@@ -20792,12 +20792,26 @@ async function handleUserAction(request, action) {
         return errorResponse("Service category and start date are required", 400);
       }
       const user = await getUserById(userId);
+      const existingBookings = await getUserBookings(userId);
+      const isDuplicate = existingBookings.some(
+        (b) => b.booking_status !== "cancelled" && b.service_category === body.service_category && b.start_date === body.start_date && b.start_time === (body.start_time || "08:00 AM")
+      );
+      if (isDuplicate) {
+        return errorResponse("A booking for this service and schedule already exists.", 409);
+      }
       const booking = await createBooking({
         user_id: userId,
-        customer_name: body.customer_name || user?.full_name || "ApnaCare Customer",
+        customer_name: body.customer_name || user?.full_name || "LifeSakhi Customer",
         customer_phone: body.customer_phone || user?.phone || "",
         service_category: body.service_category,
         service_type: body.service_type || body.service_category,
+        division: body.division,
+        travel_type: body.travel_type,
+        pickup_location: body.pickup_location,
+        drop_location: body.drop_location,
+        emergency_contact: body.emergency_contact,
+        service_details: body.service_details,
+        payment_status: body.payment_status || "pending",
         patient_details: body.patient_details || "Family member",
         city: body.city || user?.city || "Bengaluru",
         service_location: body.service_location || body.address || user?.address || "Residence",

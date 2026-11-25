@@ -34,6 +34,7 @@ import { LifeStagesJourney } from "@/components/site/LifeStagesJourney";
 import { PillarsGrid } from "@/components/site/PillarsGrid";
 import { CareRecoveryStory } from "@/components/site/CareRecoveryStory";
 import { UniversalCareConfigurator } from "@/components/site/UniversalCareConfigurator";
+import { SupportDivisionsSection } from "@/components/site/SupportDivisionsSection";
 import { BusinessEnquiryModal } from "@/components/site/BusinessEnquiryModal";
 import { TechEnquiryModal } from "@/components/site/TechEnquiryModal";
 import {
@@ -449,6 +450,9 @@ export function HomePage() {
               </div>
             </div>
           )}
+
+          {/* Three Prominent Support Divisions */}
+          <SupportDivisionsSection />
 
           {/* Interactive Universal Care Configurator */}
           <div className="rounded-3xl border border-border bg-card p-4 sm:p-8 shadow-soft">
