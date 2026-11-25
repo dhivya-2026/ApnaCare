@@ -1,4 +1,15 @@
-import { getUserById, updateUser, getUserBookings, createBooking } from "../sheets-dal";
+import {
+  getUserById,
+  updateUser,
+  getUserBookings,
+  createBooking,
+  updateBooking,
+  getFamilyMembers,
+  createFamilyMember,
+  deleteFamilyMember,
+  getTimelineEvents,
+  addTimelineEvent,
+} from "../sheets-dal";
 import { jsonResponse, errorResponse, parseJsonBody, authenticateRequest } from "../utils";
 
 export async function handleUserAction(request: Request, action: string): Promise<Response> {
@@ -76,6 +87,91 @@ export async function handleUserAction(request: Request, action: string): Promis
 
       return jsonResponse({ success: true, booking }, 201);
     }
+  }
+
+  // 3. Family Members Management: GET / POST / DELETE
+  if (action === "family-members") {
+    if (method === "GET") {
+      const members = await getFamilyMembers(userId);
+      return jsonResponse({ members });
+    }
+
+    if (method === "POST") {
+      const body = await parseJsonBody(request);
+      if (!body || !body.full_name || !body.relationship) {
+        return errorResponse("full_name and relationship are required", 400);
+      }
+
+      const member = await createFamilyMember({
+        user_id: userId,
+        full_name: body.full_name,
+        relationship: body.relationship,
+        age: Number(body.age) || 60,
+        gender: body.gender || "Female",
+        mobility_level: body.mobility_level || "independent",
+        dietary_medical_notes: body.dietary_medical_notes || "",
+        primary_language: body.primary_language || "English",
+        emergency_contact: body.emergency_contact || "",
+      });
+
+      return jsonResponse({ success: true, member }, 201);
+    }
+
+    if (method === "DELETE") {
+      const url = new URL(request.url);
+      const memberId = url.searchParams.get("memberId");
+      if (!memberId) return errorResponse("memberId query parameter is required", 400);
+
+      const ok = await deleteFamilyMember(userId, memberId);
+      return jsonResponse({ success: ok });
+    }
+  }
+
+  // 4. Care Timeline for a Booking: GET
+  if (action === "timeline") {
+    const url = new URL(request.url);
+    const bookingId = url.searchParams.get("bookingId");
+    if (!bookingId) return errorResponse("bookingId query parameter is required", 400);
+
+    const events = await getTimelineEvents(bookingId);
+    return jsonResponse({ bookingId, events });
+  }
+
+  // 5. Cancel or Request Modification for a Booking: POST
+  if (action === "cancel-booking") {
+    const body = await parseJsonBody(request);
+    if (!body || !body.booking_id) return errorResponse("booking_id is required", 400);
+
+    const updated = await updateBooking(body.booking_id, {
+      booking_status: "cancelled",
+      cancellation_reason: body.reason || "Cancelled by family member",
+    });
+
+    await addTimelineEvent({
+      booking_id: body.booking_id,
+      event_type: "cancelled",
+      title: "Booking Cancelled",
+      description: `Service cancelled by family: ${body.reason || "Change in care requirements"}`,
+      actor: "family",
+      actor_name: session.userId,
+    });
+
+    return jsonResponse({ success: true, booking: updated });
+  }
+
+  // 6. Submit Service Feedback: POST
+  if (action === "feedback") {
+    const body = await parseJsonBody(request);
+    if (!body || !body.booking_id || !body.rating) {
+      return errorResponse("booking_id and rating (1-5) are required", 400);
+    }
+
+    const updated = await updateBooking(body.booking_id, {
+      rating_given: Number(body.rating),
+      feedback_notes: body.notes || "",
+    });
+
+    return jsonResponse({ success: true, booking: updated });
   }
 
   return errorResponse("Unknown user action: " + action, 404);

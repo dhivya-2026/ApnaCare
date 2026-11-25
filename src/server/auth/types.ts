@@ -75,6 +75,48 @@ export interface AdminRecord {
   last_login?: string;
 }
 
+export interface FamilyMemberRecord {
+  member_id: string;
+  user_id: string;
+  full_name: string;
+  relationship: string;
+  age: number;
+  gender: string;
+  mobility_level: "independent" | "walker_assisted" | "wheelchair_bound" | "bedridden";
+  dietary_medical_notes: string;
+  primary_language?: string;
+  emergency_contact?: string;
+  created_at: string;
+}
+
+export interface CareTimelineEvent {
+  event_id: string;
+  booking_id: string;
+  event_type:
+    | "request_submitted"
+    | "under_review"
+    | "saha_allocated"
+    | "saha_accepted"
+    | "service_started"
+    | "vitals_recorded"
+    | "service_completed"
+    | "cancellation_requested"
+    | "cancelled";
+  title: string;
+  description: string;
+  actor: "family" | "saha" | "admin" | "system";
+  actor_name?: string;
+  timestamp: string;
+}
+
+export interface SahaMatchCandidate {
+  attendant: AttendantRecord;
+  score: number;
+  isEligible: boolean;
+  matchReasons: string[];
+  conflictWarning?: string;
+}
+
 export interface BookingRecord {
   booking_id: string;
   user_id: string;
@@ -83,6 +125,7 @@ export interface BookingRecord {
   service_category: string;
   service_type: string;
   patient_details: string;
+  patient_member_id?: string;
   city: string;
   service_location: string;
   start_date: string;
@@ -94,6 +137,11 @@ export interface BookingRecord {
   booking_status: BookingStatus;
   assigned_attendant_id?: string;
   assigned_attendant_name?: string;
+  cancellation_reason?: string;
+  modification_request?: string;
+  service_notes?: string;
+  rating_given?: number;
+  feedback_notes?: string;
   created_at: string;
   updated_at: string;
 }

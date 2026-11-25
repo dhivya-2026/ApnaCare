@@ -9,6 +9,9 @@ import {
   createAssignment,
   getAttendanceRecords,
   getAttendantById,
+  findMatchingAttendants,
+  getAllPendingDocuments,
+  verifyDocument,
 } from "../sheets-dal";
 import { jsonResponse, errorResponse, parseJsonBody, authenticateRequest } from "../utils";
 
@@ -96,8 +99,17 @@ export async function handleAdminAction(request: Request, action: string): Promi
     }
   }
 
-  // 5. Attendant Assignment
-  if (action === "assign") {
+  // 5. Attendant Assignment & Assisted Allocation Engine
+  if (action === "match-attendants") {
+    const url = new URL(request.url);
+    const bookingId = url.searchParams.get("bookingId");
+    if (!bookingId) return errorResponse("bookingId query parameter is required", 400);
+
+    const candidates = await findMatchingAttendants(bookingId);
+    return jsonResponse({ bookingId, candidates });
+  }
+
+  if (action === "assign" || action === "assign-attendant") {
     const body = await parseJsonBody(request);
     if (!body || !body.booking_id || !body.attendant_id) {
       return errorResponse("booking_id and attendant_id are required", 400);
@@ -124,7 +136,23 @@ export async function handleAdminAction(request: Request, action: string): Promi
     });
   }
 
-  // 6. System Attendance
+  // 6. Document Verification Queue
+  if (action === "pending-documents") {
+    const documents = await getAllPendingDocuments();
+    return jsonResponse({ documents });
+  }
+
+  if (action === "verify-document") {
+    const body = await parseJsonBody(request);
+    if (!body || !body.document_id || !body.status) {
+      return errorResponse("document_id and status (verified or rejected) are required", 400);
+    }
+
+    const updated = await verifyDocument(body.document_id, body.status, session.userId);
+    return jsonResponse({ success: true, document: updated });
+  }
+
+  // 7. System Attendance
   if (action === "attendance") {
     const records = await getAttendanceRecords();
     return jsonResponse({ records });

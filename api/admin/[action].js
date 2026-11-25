@@ -14130,6 +14130,9 @@ var InMemoryDb = class {
   assignments = /* @__PURE__ */ new Map();
   availability = /* @__PURE__ */ new Map();
   attendance = /* @__PURE__ */ new Map();
+  familyMembers = /* @__PURE__ */ new Map();
+  timelineEvents = /* @__PURE__ */ new Map();
+  documents = /* @__PURE__ */ new Map();
   activityLogs = [];
   initialized = false;
   async initDefaults() {
@@ -14138,8 +14141,8 @@ var InMemoryDb = class {
     const adminHash = await hashPassword("ApnaAdmin@2026!");
     const superAdmin = {
       admin_id: "ADM-001",
-      full_name: "ApnaCare Super Admin",
-      email: "admin@apnacare.in",
+      full_name: "LifeSakhi Super Admin",
+      email: "admin@lifesakhi.in",
       password_hash: adminHash,
       role: "super_admin",
       account_status: "active",
@@ -14147,11 +14150,54 @@ var InMemoryDb = class {
       updated_at: (/* @__PURE__ */ new Date()).toISOString()
     };
     this.admins.set(superAdmin.admin_id, superAdmin);
+    const userHash = await hashPassword("UserPass@2026!");
+    const demoUser = {
+      user_id: "USR-DEMO-001",
+      full_name: "Priya Sharma",
+      email: "user.test@lifesakhi.in",
+      phone: "+91 98765 43210",
+      password_hash: userHash,
+      city: "Bengaluru",
+      address: "Flat 402, Shanthi Heights, 12th Main, HAL 2nd Stage, Indiranagar, Bengaluru",
+      account_status: "active",
+      email_verified: true,
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    this.users.set(demoUser.user_id, demoUser);
+    const member1 = {
+      member_id: "MEM-001",
+      user_id: demoUser.user_id,
+      full_name: "Saraswathi Sharma",
+      relationship: "Mother",
+      age: 78,
+      gender: "Female",
+      mobility_level: "walker_assisted",
+      dietary_medical_notes: "Hypertension managed by morning amlodipine. Mild post-stroke left-side weakness. Requires walker support for bathroom visits and dignified sponge bathing.",
+      primary_language: "Kannada, Tamil",
+      emergency_contact: "+91 98765 43210",
+      created_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    const member2 = {
+      member_id: "MEM-002",
+      user_id: demoUser.user_id,
+      full_name: "Ananya Sharma",
+      relationship: "Daughter (Newborn)",
+      age: 1,
+      gender: "Female",
+      mobility_level: "independent",
+      dietary_medical_notes: "Fourth trimester baby handling, umbilical cord hygiene, daily gentle massage, and pediatric vaccination routine.",
+      primary_language: "English",
+      emergency_contact: "+91 98765 43210",
+      created_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    this.familyMembers.set(member1.member_id, member1);
+    this.familyMembers.set(member2.member_id, member2);
     const attendantHash = await hashPassword("SahaPass@2026!");
     const sampleAttendant1 = {
       attendant_id: "ATT-BLR-01",
       full_name: "Lakshmi Priya",
-      email: "lakshmi.saha@apnacare.in",
+      email: "lakshmi.saha@lifesakhi.in",
       phone: "+91 98450 12345",
       password_hash: attendantHash,
       gender: "female",
@@ -14171,7 +14217,7 @@ var InMemoryDb = class {
     const sampleAttendant2 = {
       attendant_id: "ATT-CHN-02",
       full_name: "Ananya Sundaram",
-      email: "ananya.saha@apnacare.in",
+      email: "ananya.saha@lifesakhi.in",
       phone: "+91 98401 23456",
       password_hash: attendantHash,
       gender: "female",
@@ -14188,8 +14234,177 @@ var InMemoryDb = class {
       created_at: (/* @__PURE__ */ new Date()).toISOString(),
       updated_at: (/* @__PURE__ */ new Date()).toISOString()
     };
+    const sampleAttendant3 = {
+      attendant_id: "ATT-BLR-03",
+      full_name: "Kavitha Murthy",
+      email: "kavitha.saha@lifesakhi.in",
+      phone: "+91 98840 77123",
+      password_hash: attendantHash,
+      gender: "female",
+      city: "Bengaluru",
+      address: "Koramangala, Bengaluru, Karnataka",
+      qualifications: "Certified Japa Care Specialist & Mother-Baby Nurse",
+      experience: "6 years maternal & neonatal daily care",
+      skills: ["Fourth Trimester Care", "Infant Feeding & Hygiene", "Postnatal Bathing", "Newborn Care"],
+      languages: ["Kannada", "Tamil", "Telugu", "English"],
+      service_categories: ["Post-Natal Care", "Newborn Care", "Home Convalescence"],
+      availability_status: "available",
+      verification_status: "verified",
+      account_status: "active",
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    const sampleAttendant4 = {
+      attendant_id: "ATT-BLR-04",
+      full_name: "Meenakshi Rao",
+      email: "meenakshi.saha@lifesakhi.in",
+      phone: "+91 99012 34567",
+      password_hash: attendantHash,
+      gender: "female",
+      city: "Bengaluru",
+      address: "Jayanagar, Bengaluru, Karnataka",
+      qualifications: "Diploma in Nursing Assistance (DNA)",
+      experience: "2 years hospital ward assistant",
+      skills: ["Bedside Transfer", "Patient Bathing", "Vital Signs"],
+      languages: ["Kannada", "Hindi"],
+      service_categories: ["Elderly Care", "Hospital Bedside Support"],
+      availability_status: "available",
+      verification_status: "pending",
+      account_status: "pending_approval",
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
     this.attendants.set(sampleAttendant1.attendant_id, sampleAttendant1);
     this.attendants.set(sampleAttendant2.attendant_id, sampleAttendant2);
+    this.attendants.set(sampleAttendant3.attendant_id, sampleAttendant3);
+    this.attendants.set(sampleAttendant4.attendant_id, sampleAttendant4);
+    const doc1 = {
+      document_id: "DOC-MR-01",
+      owner_id: sampleAttendant4.attendant_id,
+      owner_type: "attendant",
+      document_type: "id_proof",
+      file_url: "/docs/meenakshi_aadhaar.pdf",
+      verification_status: "pending",
+      uploaded_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    const doc2 = {
+      document_id: "DOC-MR-02",
+      owner_id: sampleAttendant4.attendant_id,
+      owner_type: "attendant",
+      document_type: "police_verification",
+      file_url: "/docs/meenakshi_police_clearance.pdf",
+      verification_status: "pending",
+      uploaded_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    this.documents.set(doc1.document_id, doc1);
+    this.documents.set(doc2.document_id, doc2);
+    const activeBooking = {
+      booking_id: "BK-BLR-101",
+      user_id: demoUser.user_id,
+      customer_name: "Priya Sharma",
+      customer_phone: "+91 98765 43210",
+      service_category: "Elderly Care",
+      service_type: "Dedicated Bedside Companion & Mobility Support",
+      patient_details: "Saraswathi Sharma (78 yrs, Mother, Walker-assisted)",
+      patient_member_id: member1.member_id,
+      city: "Bengaluru",
+      service_location: "Indiranagar 2nd Stage, Bengaluru",
+      start_date: new Date(Date.now() - 2 * 864e5).toISOString().slice(0, 10),
+      start_time: "08:00 AM",
+      end_date: new Date(Date.now() + 12 * 864e5).toISOString().slice(0, 10),
+      end_time: "08:00 PM",
+      duration: "14 Days (12 hrs/day)",
+      special_requirements: "Bathing assistance, morning vital signs logging, low sodium meal supervision.",
+      booking_status: "in_progress",
+      assigned_attendant_id: sampleAttendant1.attendant_id,
+      assigned_attendant_name: sampleAttendant1.full_name,
+      created_at: new Date(Date.now() - 3 * 864e5).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    const requestedBooking = {
+      booking_id: "BK-BLR-102",
+      user_id: demoUser.user_id,
+      customer_name: "Priya Sharma",
+      customer_phone: "+91 98765 43210",
+      service_category: "Post-Natal Care",
+      service_type: "Japa Mother & Newborn Care",
+      patient_details: "Ananya Sharma (1 yr, Infant)",
+      patient_member_id: member2.member_id,
+      city: "Bengaluru",
+      service_location: "Indiranagar 2nd Stage, Bengaluru",
+      start_date: new Date(Date.now() + 2 * 864e5).toISOString().slice(0, 10),
+      start_time: "09:00 AM",
+      end_date: new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10),
+      end_time: "07:00 PM",
+      duration: "30 Days (10 hrs/day)",
+      special_requirements: "Infant hygiene, daily oil bath, mother lactation assistance.",
+      booking_status: "requested",
+      created_at: (/* @__PURE__ */ new Date()).toISOString(),
+      updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    this.bookings.set(activeBooking.booking_id, activeBooking);
+    this.bookings.set(requestedBooking.booking_id, requestedBooking);
+    const assignment1 = {
+      assignment_id: "ASN-BLR-101",
+      booking_id: activeBooking.booking_id,
+      attendant_id: sampleAttendant1.attendant_id,
+      assigned_by: superAdmin.admin_id,
+      assignment_status: "accepted",
+      assigned_at: new Date(Date.now() - 2 * 864e5).toISOString(),
+      accepted_at: new Date(Date.now() - 2 * 864e5 + 18e5).toISOString()
+    };
+    this.assignments.set(assignment1.assignment_id, assignment1);
+    const attendance1 = {
+      attendance_id: "ATT-REC-101",
+      booking_id: activeBooking.booking_id,
+      attendant_id: sampleAttendant1.attendant_id,
+      check_in_time: new Date(Date.now() - 3 * 36e5).toISOString(),
+      check_in_location: "Indiranagar 2nd Stage, Bengaluru (Residence)",
+      attendance_status: "checked_in"
+    };
+    this.attendance.set(attendance1.attendance_id, attendance1);
+    this.timelineEvents.set(activeBooking.booking_id, [
+      {
+        event_id: "EVT-01",
+        booking_id: activeBooking.booking_id,
+        event_type: "request_submitted",
+        title: "Care Request Submitted",
+        description: "Family initiated 14-day elderly companion request for Saraswathi Sharma.",
+        actor: "family",
+        actor_name: "Priya Sharma",
+        timestamp: activeBooking.created_at
+      },
+      {
+        event_id: "EVT-02",
+        booking_id: activeBooking.booking_id,
+        event_type: "saha_allocated",
+        title: "Saha Companion Allocated",
+        description: "Admin Operations matched Lakshmi Priya (Indiranagar Geriatric Specialist).",
+        actor: "admin",
+        actor_name: "Central Ops Desk",
+        timestamp: assignment1.assigned_at
+      },
+      {
+        event_id: "EVT-03",
+        booking_id: activeBooking.booking_id,
+        event_type: "saha_accepted",
+        title: "Assignment Confirmed",
+        description: "Lakshmi Priya accepted duty shift.",
+        actor: "saha",
+        actor_name: "Lakshmi Priya",
+        timestamp: assignment1.accepted_at || (/* @__PURE__ */ new Date()).toISOString()
+      },
+      {
+        event_id: "EVT-04",
+        booking_id: activeBooking.booking_id,
+        event_type: "service_started",
+        title: "Care Service In Progress",
+        description: "Daily shift check-in recorded. Vitals and mobility aid in progress.",
+        actor: "saha",
+        actor_name: "Lakshmi Priya",
+        timestamp: attendance1.check_in_time
+      }
+    ]);
   }
 };
 var memoryDb = new InMemoryDb();
@@ -14292,6 +14507,19 @@ async function createAssignment(data) {
     assigned_attendant_id: data.attendant_id,
     assigned_attendant_name: attendant?.full_name
   });
+  const assignEvent = {
+    event_id: `EVT-${Date.now().toString(36).toUpperCase()}`,
+    booking_id: data.booking_id,
+    event_type: "saha_allocated",
+    title: "Saha Companion Allocated",
+    description: `Operations desk allocated verified companion ${attendant?.full_name || "Saha Specialist"}. Awaiting attendant duty confirmation.`,
+    actor: "admin",
+    actor_name: "Operations Desk",
+    timestamp: now
+  };
+  const list = memoryDb.timelineEvents.get(data.booking_id) || [];
+  list.push(assignEvent);
+  memoryDb.timelineEvents.set(data.booking_id, list);
   await remoteDispatch("createAssignment", { assignment });
   return assignment;
 }
@@ -14325,6 +14553,104 @@ async function getAdminStats() {
     activeBookings,
     completedBookings
   };
+}
+async function getAllPendingDocuments() {
+  await memoryDb.initDefaults();
+  const docs = [];
+  for (const d of memoryDb.documents.values()) {
+    if (d.verification_status === "pending") docs.push(d);
+  }
+  return docs;
+}
+async function verifyDocument(documentId, status, verifiedBy) {
+  await memoryDb.initDefaults();
+  const doc = memoryDb.documents.get(documentId);
+  if (!doc) throw new Error("Document not found: " + documentId);
+  doc.verification_status = status;
+  doc.verified_by = verifiedBy || "Admin Operations";
+  doc.verified_at = (/* @__PURE__ */ new Date()).toISOString();
+  memoryDb.documents.set(documentId, doc);
+  return doc;
+}
+async function findMatchingAttendants(bookingId) {
+  await memoryDb.initDefaults();
+  const booking = memoryDb.bookings.get(bookingId);
+  if (!booking) throw new Error("Booking not found: " + bookingId);
+  const attendants = await getAllAttendants();
+  const candidates = [];
+  for (const att of attendants) {
+    let score = 0;
+    const matchReasons = [];
+    let isEligible = true;
+    let conflictWarning;
+    if (att.verification_status !== "verified" || att.account_status !== "active") {
+      isEligible = false;
+      conflictWarning = "Verification pending: Mandatory police check and credential verification required before duty allocation.";
+    } else {
+      score += 25;
+      matchReasons.push("Police & Identity Verified (Level-3 Checked)");
+    }
+    if (att.city.toLowerCase() === booking.city.toLowerCase()) {
+      score += 30;
+      matchReasons.push(`City Match: Located in ${att.city}`);
+      if (booking.service_location && att.address && booking.service_location.toLowerCase().includes(att.city.toLowerCase())) {
+        score += 10;
+        matchReasons.push("Micro-cluster Proximity (<30 min transit radius)");
+      }
+    } else {
+      isEligible = false;
+      conflictWarning = `Geographic Incompatibility: Attendant in ${att.city}, service in ${booking.city}`;
+    }
+    const categoryMatches = att.service_categories.some(
+      (cat) => cat.toLowerCase().includes(booking.service_category.toLowerCase()) || booking.service_category.toLowerCase().includes(cat.toLowerCase())
+    );
+    if (categoryMatches) {
+      score += 25;
+      matchReasons.push(`Certified Specialist in ${booking.service_category}`);
+    } else {
+      const hasSkill = att.skills.some(
+        (sk) => sk.toLowerCase().includes(booking.service_category.toLowerCase().split(" ")[0])
+      );
+      if (hasSkill) {
+        score += 15;
+        matchReasons.push("Related clinical caregiving skills matched");
+      }
+    }
+    if (att.availability_status === "on_leave") {
+      isEligible = false;
+      conflictWarning = "Attendant is currently marked on temporary leave";
+    }
+    for (const asn of memoryDb.assignments.values()) {
+      if (asn.attendant_id === att.attendant_id && (asn.assignment_status === "accepted" || asn.assignment_status === "offered")) {
+        const existingBooking = memoryDb.bookings.get(asn.booking_id);
+        if (existingBooking && existingBooking.booking_id !== booking.booking_id && existingBooking.booking_status !== "completed" && existingBooking.booking_status !== "cancelled") {
+          if (existingBooking.start_date <= booking.end_date && existingBooking.end_date >= booking.start_date) {
+            score -= 20;
+            conflictWarning = `Active duty conflict: Currently assigned to ${existingBooking.booking_id} until ${existingBooking.end_date}`;
+            if (asn.assignment_status === "accepted") {
+              isEligible = false;
+            }
+          }
+        }
+      }
+    }
+    if (isEligible && !conflictWarning) {
+      score += 10;
+      matchReasons.push("Shift Availability Confirmed (Zero schedule conflicts)");
+    }
+    candidates.push({
+      attendant: att,
+      score: Math.max(0, Math.min(100, score)),
+      isEligible,
+      matchReasons,
+      conflictWarning
+    });
+  }
+  return candidates.sort((a, b) => {
+    if (a.isEligible && !b.isEligible) return -1;
+    if (!a.isEligible && b.isEligible) return 1;
+    return b.score - a.score;
+  });
 }
 
 // src/server/session/cookies.ts
@@ -20596,7 +20922,14 @@ async function handleAdminAction(request, action) {
       return jsonResponse({ success: true, booking: updated });
     }
   }
-  if (action === "assign") {
+  if (action === "match-attendants") {
+    const url = new URL(request.url);
+    const bookingId = url.searchParams.get("bookingId");
+    if (!bookingId) return errorResponse("bookingId query parameter is required", 400);
+    const candidates = await findMatchingAttendants(bookingId);
+    return jsonResponse({ bookingId, candidates });
+  }
+  if (action === "assign" || action === "assign-attendant") {
     const body = await parseJsonBody(request);
     if (!body || !body.booking_id || !body.attendant_id) {
       return errorResponse("booking_id and attendant_id are required", 400);
@@ -20617,6 +20950,18 @@ async function handleAdminAction(request, action) {
       message: `Assigned ${attendant.full_name} to booking ${body.booking_id}`,
       assignment
     });
+  }
+  if (action === "pending-documents") {
+    const documents = await getAllPendingDocuments();
+    return jsonResponse({ documents });
+  }
+  if (action === "verify-document") {
+    const body = await parseJsonBody(request);
+    if (!body || !body.document_id || !body.status) {
+      return errorResponse("document_id and status (verified or rejected) are required", 400);
+    }
+    const updated = await verifyDocument(body.document_id, body.status, session.userId);
+    return jsonResponse({ success: true, document: updated });
   }
   if (action === "attendance") {
     const records = await getAttendanceRecords();

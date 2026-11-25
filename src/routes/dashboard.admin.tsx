@@ -39,7 +39,10 @@ import {
   AttendantRecord,
   BookingRecord,
   AttendanceRecord,
+  DocumentRecord,
 } from "@/server/auth/types";
+import { SahaAllocationModal } from "@/components/site/dashboard/SahaAllocationModal";
+import { CareTimelineModal } from "@/components/site/dashboard/CareTimelineModal";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/dashboard/admin")({
@@ -226,8 +229,12 @@ function AdminDashboardContent() {
   const [generatingReport, setGeneratingReport] = useState<string | null>(null);
   const [previewReport, setPreviewReport] = useState<any | null>(null);
 
-  // Assignment modal state
+  // Assignment & Assisted Allocation modal state
   const [selectedBooking, setSelectedBooking] = useState<BookingRecord | null>(null);
+  const [allocationModalOpen, setAllocationModalOpen] = useState(false);
+  const [timelineBooking, setTimelineBooking] = useState<BookingRecord | null>(null);
+  const [timelineModalOpen, setTimelineModalOpen] = useState(false);
+  const [pendingDocs, setPendingDocs] = useState<DocumentRecord[]>([]);
   const [assigningAttendantId, setAssigningAttendantId] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -238,12 +245,13 @@ function AdminDashboardContent() {
   const fetchAdminData = async () => {
     try {
       setLoading(true);
-      const [statsRes, usersRes, attRes, bookRes, attLogRes] = await Promise.all([
+      const [statsRes, usersRes, attRes, bookRes, attLogRes, docsRes] = await Promise.all([
         fetch("/api/admin/overview"),
         fetch("/api/admin/users"),
         fetch("/api/admin/attendants"),
         fetch("/api/admin/bookings"),
         fetch("/api/admin/attendance"),
+        fetch("/api/admin/pending-documents"),
       ]);
 
       if (statsRes.ok) {
@@ -266,10 +274,54 @@ function AdminDashboardContent() {
         const l = await attLogRes.json();
         if (l.records && l.records.length) setAttendanceList(l.records);
       }
+      if (docsRes.ok) {
+        const d = await docsRes.json();
+        if (d.documents) setPendingDocs(d.documents);
+      }
     } catch {
       // Retain full sample data
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAssignedFromModal = (bookingId: string, attendantId: string, attendantName: string) => {
+    setBookingsList((prev) =>
+      prev.map((b) =>
+        b.booking_id === bookingId
+          ? {
+              ...b,
+              assigned_attendant_id: attendantId,
+              assigned_attendant_name: attendantName,
+              booking_status: "assigned",
+            }
+          : b
+      )
+    );
+    setSelectedBooking(null);
+    setAllocationModalOpen(false);
+    fetchAdminData();
+  };
+
+  const handleVerifyDocument = async (docId: string, status: "verified" | "rejected") => {
+    setActionLoading(true);
+    try {
+      const res = await fetch("/api/admin/verify-document", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ document_id: docId, status }),
+      });
+      if (res.ok) {
+        setPendingDocs((prev) => prev.filter((d) => d.document_id !== docId));
+        toast.success(`Document marked ${status === "verified" ? "verified & approved" : "rejected"}.`);
+        fetchAdminData();
+      } else {
+        toast.error("Failed to update document status");
+      }
+    } catch {
+      toast.error("Network error while verifying document");
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -1144,6 +1196,75 @@ function AdminDashboardContent() {
               )}
             </div>
 
+            {/* Level-3 Credential Verification Vault Queue */}
+            {pendingDocs.length > 0 && (
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="size-4 text-amber-600" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+                      Level-3 Credential Verification Queue ({pendingDocs.length} Pending)
+                    </h3>
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">
+                    Strict identity & background check required before field dispatch
+                  </span>
+                </div>
+
+                <div className="divide-y divide-border/60">
+                  {pendingDocs.map((doc) => (
+                    <div key={doc.document_id} className="py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-foreground capitalize">
+                            {doc.document_type.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-[10px] bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">
+                            {doc.document_id}
+                          </span>
+                        </div>
+                        <p className="text-muted-foreground text-[11px] mt-0.5">
+                          Submitted by Attendant: <strong className="text-foreground">{doc.attendant_id}</strong> · {new Date(doc.uploaded_at).toLocaleDateString()}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {doc.file_url && (
+                          <a
+                            href={doc.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-semibold text-primary hover:underline px-2 py-1"
+                          >
+                            Inspect Document
+                          </a>
+                        )}
+                        <Button
+                          size="sm"
+                          className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs h-7 px-3"
+                          onClick={() => handleVerifyDocument(doc.document_id, "verified")}
+                          disabled={actionLoading}
+                        >
+                          <CheckCircle2 className="size-3 mr-1" />
+                          Verify & Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs h-7 px-3 text-destructive hover:bg-destructive/10"
+                          onClick={() => handleVerifyDocument(doc.document_id, "rejected")}
+                          disabled={actionLoading}
+                        >
+                          <XCircle className="size-3 mr-1" />
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {filteredAttendants.length === 0 ? (
               <p className="text-xs text-muted-foreground py-8 text-center">No attendants matched your query.</p>
             ) : (
@@ -1276,20 +1397,50 @@ function AdminDashboardContent() {
                         </span>
                       </div>
 
-                      <div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="font-semibold text-xs h-7 px-2.5 gap-1"
+                          onClick={() => {
+                            setTimelineBooking(b);
+                            setTimelineModalOpen(true);
+                          }}
+                        >
+                          <Activity className="size-3.5 text-primary" />
+                          Live Timeline
+                        </Button>
+
                         {b.assigned_attendant_name ? (
-                          <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                            <UserCheck className="size-3.5" />
-                            Assigned: {b.assigned_attendant_name}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                              <UserCheck className="size-3.5" />
+                              {b.assigned_attendant_name}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-[11px] h-7 px-2 text-muted-foreground hover:text-foreground"
+                              onClick={() => {
+                                setSelectedBooking(b);
+                                setAllocationModalOpen(true);
+                              }}
+                            >
+                              Re-allocate
+                            </Button>
+                          </div>
                         ) : (
                           <Button
                             size="sm"
                             variant="warm"
-                            className="font-semibold text-xs"
-                            onClick={() => setSelectedBooking(b)}
+                            className="font-semibold text-xs h-7 px-3 gap-1"
+                            onClick={() => {
+                              setSelectedBooking(b);
+                              setAllocationModalOpen(true);
+                            }}
                           >
-                            Assign Saha Attendant
+                            <Sparkles className="size-3" />
+                            Assisted Allocation
                           </Button>
                         )}
                       </div>
@@ -1345,84 +1496,21 @@ function AdminDashboardContent() {
           </div>
         )}
 
-        {/* MODAL: ASSIGN ATTENDANT TO BOOKING */}
-        {selectedBooking && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm grid place-items-center p-4">
-            <div className="card-soft p-6 max-w-lg w-full bg-card border-border shadow-lift space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-display font-semibold text-foreground">
-                  Assign Saha Attendant to Booking
-                </h3>
-                <button
-                  onClick={() => setSelectedBooking(null)}
-                  className="text-muted-foreground hover:text-foreground text-sm font-bold"
-                >
-                  ✕
-                </button>
-              </div>
+        {/* ASSISTED SAHA ALLOCATION ENGINE MODAL */}
+        <SahaAllocationModal
+          open={allocationModalOpen}
+          onOpenChange={setAllocationModalOpen}
+          booking={selectedBooking}
+          onAssigned={handleAssignedFromModal}
+        />
 
-              <div className="p-3.5 rounded-xl bg-secondary/50 border border-border text-xs space-y-1">
-                <p><strong>Booking ID:</strong> {selectedBooking.booking_id}</p>
-                <p><strong>Service:</strong> {selectedBooking.service_category}</p>
-                <p><strong>Customer:</strong> {selectedBooking.customer_name} ({selectedBooking.city})</p>
-                <p><strong>Schedule:</strong> {selectedBooking.start_date} ({selectedBooking.start_time})</p>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <p className="font-semibold text-foreground">
-                  Eligible Verified Attendants in {selectedBooking.city}:
-                </p>
-
-                {eligibleAttendants.length === 0 ? (
-                  <p className="text-muted-foreground py-2">
-                    No verified attendants found in {selectedBooking.city}. Please verify pending attendants first.
-                  </p>
-                ) : (
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                    {eligibleAttendants.map((att) => (
-                      <label
-                        key={att.attendant_id}
-                        className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                          assigningAttendantId === att.attendant_id
-                            ? "bg-primary-soft border-primary"
-                            : "border-border hover:bg-secondary/40"
-                        }`}
-                      >
-                        <div>
-                          <p className="font-semibold text-foreground">{att.full_name}</p>
-                          <p className="text-muted-foreground text-[11px]">
-                            {att.qualifications} · {att.languages?.join(", ")}
-                          </p>
-                        </div>
-                        <input
-                          type="radio"
-                          name="attendant_select"
-                          value={att.attendant_id}
-                          checked={assigningAttendantId === att.attendant_id}
-                          onChange={() => setAssigningAttendantId(att.attendant_id)}
-                        />
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-                <Button size="sm" variant="outline" onClick={() => setSelectedBooking(null)}>
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  variant="warm"
-                  onClick={handleAssignAttendant}
-                  disabled={actionLoading || !assigningAttendantId}
-                >
-                  {actionLoading ? "Assigning..." : "Confirm Duty Assignment"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* CARE TIMELINE AUDIT MODAL */}
+        <CareTimelineModal
+          open={timelineModalOpen}
+          onOpenChange={setTimelineModalOpen}
+          bookingId={timelineBooking?.booking_id || null}
+          bookingTitle={timelineBooking?.service_category}
+        />
       </div>
     </div>
   );

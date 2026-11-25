@@ -38,9 +38,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { BookingRecord } from "@/server/auth/types";
-import { SITE, buildWhatsAppUrl } from "@/data/site";
+import { BookingRecord, FamilyMemberRecord } from "@/server/auth/types";
+import { SITE, buildWhatsAppUrl, SERVICES } from "@/data/site";
 import { seo } from "@/lib/seo";
+import { CareTimelineModal } from "@/components/site/dashboard/CareTimelineModal";
+import { FamilyMemberManager } from "@/components/site/dashboard/FamilyMemberManager";
+import { InDashboardBookingWizard } from "@/components/site/dashboard/InDashboardBookingWizard";
+import { BookingCancellationModal } from "@/components/site/dashboard/BookingCancellationModal";
+import { ServiceFeedbackModal } from "@/components/site/dashboard/ServiceFeedbackModal";
 
 export const Route = createFileRoute("/dashboard/user")({
   head: () =>
@@ -71,10 +76,30 @@ interface ExtendedBooking extends BookingRecord {
 
 function UserDashboardContent() {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<"care" | "bookings" | "team" | "vitals" | "profile">("care");
+  const [activeTab, setActiveTab] = useState<"care" | "family" | "services" | "bookings" | "vitals" | "profile">("care");
   const [bookingFilter, setBookingFilter] = useState<"all" | "active" | "completed">("all");
   const [bookings, setBookings] = useState<ExtendedBooking[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
+
+  // Family Members & Modals
+  const [familyMembers, setFamilyMembers] = useState<FamilyMemberRecord[]>([]);
+  const [bookingWizardOpen, setBookingWizardOpen] = useState(false);
+  const [selectedMemberForBooking, setSelectedMemberForBooking] = useState<FamilyMemberRecord | null>(null);
+  const [selectedServiceCategory, setSelectedServiceCategory] = useState<string>("");
+
+  // Timeline Modal
+  const [timelineModalOpen, setTimelineModalOpen] = useState(false);
+  const [selectedTimelineBookingId, setSelectedTimelineBookingId] = useState<string | null>(null);
+  const [selectedTimelineBookingTitle, setSelectedTimelineBookingTitle] = useState("");
+
+  // Cancellation Modal
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedCancelBookingId, setSelectedCancelBookingId] = useState<string | null>(null);
+
+  // Feedback Modal
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [selectedFeedbackBookingId, setSelectedFeedbackBookingId] = useState<string | null>(null);
+  const [selectedFeedbackAttendantName, setSelectedFeedbackAttendantName] = useState("");
 
   // Profile edit state
   const [name, setName] = useState(user?.name || "Priya Sharma");
@@ -120,7 +145,18 @@ function UserDashboardContent() {
   useEffect(() => {
     fetchBookings();
     fetchProfile();
+    fetchFamilyMembers();
   }, []);
+
+  const fetchFamilyMembers = async () => {
+    try {
+      const res = await fetch("/api/user/family-members");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.members) setFamilyMembers(data.members);
+      }
+    } catch {}
+  };
 
   const fetchBookings = async () => {
     try {
@@ -317,11 +353,19 @@ function UserDashboardContent() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <Button asChild size="sm" variant="warm" className="font-semibold shadow-soft">
-              <Link to="/booking">
-                <PlusCircle className="size-4 mr-1.5" />
-                Request New Caregiver
-              </Link>
+            <Button
+              type="button"
+              size="sm"
+              variant="warm"
+              className="font-semibold shadow-soft"
+              onClick={() => {
+                setSelectedMemberForBooking(null);
+                setSelectedServiceCategory("");
+                setBookingWizardOpen(true);
+              }}
+            >
+              <PlusCircle className="size-4 mr-1.5" />
+              Request New Caregiver
             </Button>
 
             <a
@@ -351,22 +395,31 @@ function UserDashboardContent() {
             Active Care Engagement
           </button>
           <button
+            onClick={() => setActiveTab("family")}
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
+              activeTab === "family" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
+            }`}
+          >
+            <Users className="size-3.5" />
+            Family Members ({familyMembers.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("services")}
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
+              activeTab === "services" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
+            }`}
+          >
+            <Sparkles className="size-3.5 text-terracotta" />
+            Find Care / Services
+          </button>
+          <button
             onClick={() => setActiveTab("bookings")}
             className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
               activeTab === "bookings" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
             }`}
           >
             <Calendar className="size-3.5" />
-            My Bookings & History ({bookings.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("team")}
-            className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === "team" ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:bg-secondary"
-            }`}
-          >
-            <Users className="size-3.5" />
-            Assigned Care Team (1)
+            My Bookings ({bookings.length})
           </button>
           <button
             onClick={() => setActiveTab("vitals")}
@@ -375,7 +428,7 @@ function UserDashboardContent() {
             }`}
           >
             <Stethoscope className="size-3.5" />
-            Daily Care & Vitals Log
+            Daily Care &amp; Vitals
           </button>
           <button
             onClick={() => setActiveTab("profile")}
@@ -384,7 +437,7 @@ function UserDashboardContent() {
             }`}
           >
             <Edit3 className="size-3.5" />
-            Edit Profile & Health Details
+            Profile &amp; Address
           </button>
         </div>
 
@@ -583,7 +636,204 @@ function UserDashboardContent() {
           </div>
         )}
 
-        {/* TAB 2: MY BOOKINGS & PREVIOUS HISTORY */}
+        {/* TAB 2: FAMILY MEMBERS & CARE RECIPIENTS */}
+        {activeTab === "family" && (
+          <FamilyMemberManager
+            onSelectMemberForBooking={(member) => {
+              setSelectedMemberForBooking(member);
+              setSelectedServiceCategory("");
+              setBookingWizardOpen(true);
+            }}
+          />
+        )}
+
+        {/* TAB 3: FIND CARE / SERVICE DISCOVERY CATALOG */}
+        {activeTab === "services" && (
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-display font-semibold text-foreground flex items-center gap-2">
+                  <Sparkles className="size-5 text-terracotta" />
+                  LifeSakhi Care Catalogue &amp; Support Services
+                </h2>
+                <p className="text-xs text-muted-foreground mt-1 max-w-2xl">
+                  Choose from our verified clinical, eldercare, and maternal support capabilities. Each service is fulfilled by trained, police-verified Saha women companions with guaranteed clinical supervision.
+                </p>
+              </div>
+              <Button
+                variant="warm"
+                size="sm"
+                className="font-semibold shadow-2xs"
+                onClick={() => {
+                  setSelectedMemberForBooking(null);
+                  setSelectedServiceCategory("");
+                  setBookingWizardOpen(true);
+                }}
+              >
+                <PlusCircle className="size-4 mr-1.5" /> Custom Care Plan
+              </Button>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              {[
+                {
+                  id: "Elderly Care",
+                  title: "Elderly Care & Assisted Living",
+                  forWho: "Seniors living independently or with family requiring daily mobility, hygiene & medication routine.",
+                  includes: [
+                    "Bathing, sponge assistance & dignified personal hygiene",
+                    "Mobility support & fall prevention in home",
+                    "Vital signs (BP, Pulse, Sugar) logging twice daily",
+                    "Punctual medication reminders & doctor diet adherence",
+                  ],
+                  duration: "Available in 8 hr, 12 hr, or 24 hr Live-In shifts",
+                  pricing: "From ₹1,200 / day",
+                },
+                {
+                  id: "Hospital Bedside Support",
+                  title: "Hospital Bedside & Post-Surgical Assistance",
+                  forWho: "Patients admitted to clinical wards, recovering from surgery, or requiring continuous nighttime bedside vigil.",
+                  includes: [
+                    "Continuous bedside presence and nurse call button monitoring",
+                    "Bed-to-wheelchair transfers & guided corridor walks",
+                    "Assistance with hospital sponge bath & clothing change",
+                    "Real-time family WhatsApp status updates every 4 hours",
+                  ],
+                  duration: "12 hr Night Vigil or 24 hr Continuous Relief",
+                  pricing: "From ₹1,400 / shift",
+                },
+                {
+                  id: "Clinical Nursing",
+                  title: "Registered Nursing & Convalescence Care",
+                  forWho: "Convalescing patients needing clinical procedures, wound dressing, catheter management or post-op monitoring.",
+                  includes: [
+                    "GNM / ANM qualified and state-registered nurses",
+                    "Sterile wound dressing, bed sore prevention & dressing change",
+                    "Injection administration & catheter / ryle's tube care",
+                    "Direct clinical escalation with attending physician",
+                  ],
+                  duration: "Hourly visits, 12 hr, or 24 hr dedicated shifts",
+                  pricing: "From ₹1,800 / day",
+                },
+                {
+                  id: "Post-Natal Care",
+                  title: "Postnatal Mother & Newborn Care (Japa)",
+                  forWho: "New mothers and infants in the crucial fourth-trimester postpartum recovery window.",
+                  includes: [
+                    "Traditional Ayurvedic oil massage for mother & newborn",
+                    "Warm water bath & umbilical cord healing care",
+                    "Lactation position comfort & nighttime baby soothing",
+                    "Nutritious postpartum herbal diet preparation support",
+                  ],
+                  duration: "15, 30, or 45 days continuous care packs",
+                  pricing: "From ₹32,000 / month pack",
+                },
+                {
+                  id: "Newborn Care",
+                  title: "Newborn & Infant Daytime Nanny Support",
+                  forWho: "Working parents needing gentle, certified handling and routine care for infants from 3 months to 3 years.",
+                  includes: [
+                    "Sterilization of feeding bottles and pediatric hygiene",
+                    "Developmental sensory play, tummy time & outdoor walks",
+                    "Sleep routine stabilization & feeding log maintenance",
+                    "100% police & biometric verified child attendants",
+                  ],
+                  duration: "8 to 10 hours daily, 6 days a week",
+                  pricing: "From ₹18,000 / month",
+                },
+                {
+                  id: "Assisted Travel",
+                  title: "Assisted Medical & Outstation Travel",
+                  forWho: "Elderly parents or convalescing family traveling by air, rail, or car for medical consultations or family functions.",
+                  includes: [
+                    "Door-to-door transit companionship from home to destination",
+                    "Airport wheelchair coordination, security & boarding aid",
+                    "Medicine administration & hydration during travel",
+                    "Emergency cluster protocol backup at destination hub",
+                  ],
+                  duration: "Single trip, full day, or outstation duration",
+                  pricing: "From ₹2,500 / day + transit allowance",
+                },
+                {
+                  id: "Family Respite Support",
+                  title: "Family Caregiver Respite Relief",
+                  forWho: "Primary family caregivers who need temporary relief for a weekend, wedding, or personal rest.",
+                  includes: [
+                    "Immediate handover and continuation of existing patient routine",
+                    "Full household peace of mind with 24/7 command desk backup",
+                    "Daily digital logs submitted to family WhatsApp group",
+                  ],
+                  duration: "Weekend packs (48 hrs) or 3-7 day respite blocks",
+                  pricing: "From ₹3,000 / weekend pack",
+                },
+                {
+                  id: "Technology-Enabled Solutions",
+                  title: "Smart Monitoring & SOS Safety Bundles",
+                  forWho: "Seniors living alone desiring independence with safety netting and instant family emergency telemetry.",
+                  includes: [
+                    "Wearable SOS watch with one-touch emergency call",
+                    "Non-intrusive ambient motion sensors (No cameras, full dignity)",
+                    "Automated fall detection alert dispatched to LifeSakhi desk",
+                    "Monthly routine health check visit by local Saha nurse",
+                  ],
+                  duration: "Monthly subscription package",
+                  pricing: "From ₹1,499 / month bundle",
+                },
+              ].map((svc) => (
+                <div
+                  key={svc.id}
+                  className="card-soft p-6 border border-border hover:border-primary/50 transition-all flex flex-col justify-between space-y-4"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="font-display font-semibold text-lg text-foreground">{svc.title}</h3>
+                      <span className="text-xs font-bold text-primary px-2.5 py-1 rounded-full bg-primary/10 shrink-0">
+                        {svc.pricing}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground leading-relaxed">{svc.forWho}</p>
+
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-foreground block">
+                        Included Care Activities:
+                      </span>
+                      <ul className="space-y-1">
+                        {svc.includes.map((inc, i) => (
+                          <li key={i} className="flex items-start gap-1.5 text-xs text-foreground/90">
+                            <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                            <span>{inc}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <p className="text-[11px] text-muted-foreground italic pt-1">
+                      Schedule: {svc.duration}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-border flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">South India Hubs</span>
+                    <Button
+                      size="sm"
+                      variant="warm"
+                      className="font-semibold text-xs"
+                      onClick={() => {
+                        setSelectedServiceCategory(svc.id);
+                        setBookingWizardOpen(true);
+                      }}
+                    >
+                      Book This Service &rarr;
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: MY BOOKINGS & PREVIOUS HISTORY */}
         {activeTab === "bookings" && (
           <div className="card-soft p-6 sm:p-8 border-border space-y-6 bg-card">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -745,6 +995,65 @@ function UserDashboardContent() {
                           <p className="text-muted-foreground italic text-[11px]">"{b.feedback_notes}"</p>
                         </div>
                       )}
+
+                      {/* INTERACTIVE BOOKING ACTIONS BAR */}
+                      <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedTimelineBookingId(b.booking_id);
+                              setSelectedTimelineBookingTitle(`${b.service_category} · ${b.patient_name || "Care Service"}`);
+                              setTimelineModalOpen(true);
+                            }}
+                            className="text-xs h-8"
+                          >
+                            <Activity className="size-3.5 mr-1.5 text-primary" />
+                            Live Care Timeline
+                          </Button>
+
+                          {isCompleted ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedFeedbackBookingId(b.booking_id);
+                                setSelectedFeedbackAttendantName(b.assigned_attendant_name || "Saha Companion");
+                                setFeedbackModalOpen(true);
+                              }}
+                              className="text-xs h-8 text-amber-800 dark:text-amber-300 hover:bg-amber-500/10 border-amber-500/30"
+                            >
+                              <Star className="size-3.5 mr-1.5 fill-amber-500 text-amber-500" />
+                              {b.rating_given ? `Review (${b.rating_given}★)` : "Rate & Review Saha"}
+                            </Button>
+                          ) : (
+                            b.booking_status !== "cancelled" && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  setSelectedCancelBookingId(b.booking_id);
+                                  setCancelModalOpen(true);
+                                }}
+                                className="text-xs h-8 text-destructive hover:bg-destructive/10"
+                              >
+                                Cancel Request
+                              </Button>
+                            )
+                          )}
+                        </div>
+
+                        <a
+                          href={waSupportUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+                        >
+                          <MessageCircle className="size-3 text-[#25D366]" />
+                          Schedule adjustment? Chat Coordinator &rarr;
+                        </a>
+                      </div>
                     </div>
                   );
                 })}
@@ -1081,6 +1390,55 @@ function UserDashboardContent() {
             </div>
           </div>
         )}
+
+        {/* MODALS */}
+        <CareTimelineModal
+          open={timelineModalOpen}
+          onOpenChange={setTimelineModalOpen}
+          bookingId={selectedTimelineBookingId}
+          bookingTitle={selectedTimelineBookingTitle}
+        />
+
+        <InDashboardBookingWizard
+          open={bookingWizardOpen}
+          onOpenChange={setBookingWizardOpen}
+          familyMembers={familyMembers}
+          initialMember={selectedMemberForBooking}
+          initialServiceCategory={selectedServiceCategory}
+          defaultCity={city}
+          defaultAddress={address}
+          onBookingCreated={(newBooking) => {
+            setBookings((prev) => [newBooking, ...prev]);
+            setActiveTab("bookings");
+          }}
+        />
+
+        <BookingCancellationModal
+          open={cancelModalOpen}
+          onOpenChange={setCancelModalOpen}
+          bookingId={selectedCancelBookingId}
+          onCancelled={(cancelledId) => {
+            setBookings((prev) =>
+              prev.map((b) =>
+                b.booking_id === cancelledId ? { ...b, booking_status: "cancelled" } : b
+              )
+            );
+          }}
+        />
+
+        <ServiceFeedbackModal
+          open={feedbackModalOpen}
+          onOpenChange={setFeedbackModalOpen}
+          bookingId={selectedFeedbackBookingId}
+          attendantName={selectedFeedbackAttendantName}
+          onFeedbackSaved={(bId, r, n) => {
+            setBookings((prev) =>
+              prev.map((b) =>
+                b.booking_id === bId ? { ...b, rating_given: r, feedback_notes: n } : b
+              )
+            );
+          }}
+        />
       </div>
     </div>
   );

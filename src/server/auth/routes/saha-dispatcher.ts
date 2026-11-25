@@ -8,6 +8,10 @@ import {
   getAttendanceRecords,
   getAttendantAvailability,
   setAttendantAvailability,
+  updateBooking,
+  addTimelineEvent,
+  getDocumentsByAttendant,
+  getTimelineEvents,
 } from "../sheets-dal";
 import { jsonResponse, errorResponse, parseJsonBody, authenticateRequest } from "../utils";
 
@@ -113,6 +117,44 @@ export async function handleSahaAction(request: Request, action: string): Promis
       const record = await setAttendantAvailability(attendantId, body.date, body.status || "available");
       return jsonResponse({ success: true, record });
     }
+  }
+
+  // 7. Complete Service: POST
+  if (action === "complete") {
+    const body = await parseJsonBody(request);
+    if (!body || !body.booking_id) return errorResponse("booking_id is required", 400);
+
+    const updated = await updateBooking(body.booking_id, {
+      booking_status: "completed",
+      service_notes: body.notes || "Care routine completed smoothly as planned.",
+    });
+
+    await addTimelineEvent({
+      booking_id: body.booking_id,
+      event_type: "service_completed",
+      title: "Care Service Completed",
+      description: body.notes || "Assigned Saha care duration completed. Feedback requested from family.",
+      actor: "saha",
+      actor_name: session.userId,
+    });
+
+    return jsonResponse({ success: true, booking: updated });
+  }
+
+  // 8. Attendant Documents: GET
+  if (action === "documents") {
+    const documents = await getDocumentsByAttendant(attendantId);
+    return jsonResponse({ documents });
+  }
+
+  // 9. Care Timeline: GET
+  if (action === "timeline") {
+    const url = new URL(request.url);
+    const bookingId = url.searchParams.get("bookingId");
+    if (!bookingId) return errorResponse("bookingId query parameter is required", 400);
+
+    const events = await getTimelineEvents(bookingId);
+    return jsonResponse({ bookingId, events });
   }
 
   return errorResponse("Unknown saha action: " + action, 404);
