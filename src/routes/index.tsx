@@ -390,6 +390,23 @@ export function HomePage() {
           {/* Tab Content: Technology Solutions */}
           {offeringsTab === "tech" && (
             <div className="space-y-6 animate-fade-in">
+              <div className="rounded-3xl border border-primary/25 bg-primary-soft/30 p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1 max-w-2xl">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                    Technology for Assisted Living
+                  </span>
+                  <p className="text-xs sm:text-sm text-foreground leading-relaxed">
+                    Connecting remote monitoring, telehealth, wearables, smart-home safety, fall prevention, AI-assisted insights, and family care coordination with verified human Saha support.
+                  </p>
+                </div>
+                <Button asChild variant="warm" size="sm" className="rounded-full font-semibold shrink-0">
+                  <Link to="/offerings/assisted-living-technology">
+                    Explore Assisted Living Tech
+                    <ArrowRight className="size-3.5 ml-1" />
+                  </Link>
+                </Button>
+              </div>
+
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {featuredTech.map((tech) => (
                   <div
@@ -434,12 +451,19 @@ export function HomePage() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                <Button asChild variant="outline" className="rounded-full">
-                  <Link to="/offerings">
-                    Explore All 10 Technology Areas
-                    <ArrowRight className="size-4 ml-1.5" />
-                  </Link>
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button asChild variant="warm" className="rounded-full">
+                    <Link to="/offerings/assisted-living-technology">
+                      Explore Assisted Living Technology
+                      <ArrowRight className="size-4 ml-1.5" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="rounded-full">
+                    <Link to="/offerings">
+                      All Offerings Overview
+                    </Link>
+                  </Button>
+                </div>
                 <a
                   href={`tel:${SITE.SUPPORT_PHONE_TEL}`}
                   className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"
